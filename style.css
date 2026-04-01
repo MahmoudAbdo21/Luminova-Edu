@@ -113,3 +113,94 @@ body {
     object-fit: contain;
     background: #000;
 }
+
+/* ========================================= */
+/* MOBILE RESPONSIVENESS (MEDIA QUERIES)     */
+/* ========================================= */
+@media (max-width: 768px) {
+    /* Prevent general horizontal overflow */
+    html, body {
+        overflow-x: hidden;
+        width: 100%;
+    }
+
+    /* Force long text to break, never overflow */
+    * {
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+    }
+
+    /* Force card grids to 1 Column */
+    .grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Responsive Media: Prevent iframes/videos/imgs from breaking boundaries */
+    .media-container, iframe, video, img {
+        max-width: 100% !important;
+    }
+    
+    /* Shrink the extremely tall 480px iframes and Google drives */
+    iframe {
+        max-height: 250px !important;
+        height: auto !important;
+        aspect-ratio: 16/9;
+    }
+    video {
+        height: auto !important;
+    }
+
+    /* Modals & Popups: Make them Exactly 95% of Mobile Screen Width */
+    .fixed.inset-0 > div.bg-white, .fixed.inset-0 > div.dark\:bg-gray-900 {
+        width: 95% !important;
+        max-width: 95% !important;
+        margin: 0 auto;
+        padding: 1.25rem !important; /* Reduce inner padding from full p-6 */
+        max-height: 95vh !important;
+        overflow-y: auto;
+    }
+
+    /* Stack the Student Avatar & Details naturally in Modals */
+    .fixed.inset-0 .flex.items-center.gap-6 {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 0.5rem !important;
+    }
+
+    /* Refine Margins & Paddings to regain Mobile Screen Estate */
+    .glass-card {
+        padding: 1.25rem 1rem !important; /* Slightly denser inner spacing */
+        border-radius: 1rem !important;
+    }
+    
+    /* Feed item specific indents reduction */
+    .space-y-6.ml-3.mr-3.px-4 {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.25rem !important;
+    }
+
+    .ms-6 {
+        margin-left: 1rem !important; /* Reduce massive indent in timline */
+    }
+
+    /* Nav bar tightening */
+    nav.glass-card {
+        padding: 1rem !important;
+    }
+
+    /* Optimize Academic Tabs Text */
+    .flex.border-b > button {
+        padding: 0.75rem 0.5rem !important;
+        font-size: 0.9rem !important;
+        flex: 1;
+        text-align: center;
+    }
+    
+    /* Admin CMS Tabs Layout Adjustment */
+    .xl\:flex-row {
+        flex-direction: column !important;
+    }
+}
+
