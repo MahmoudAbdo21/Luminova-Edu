@@ -309,20 +309,52 @@
         }, [data.summaries, data.quizzes]);
 
         const topContributors = useMemo(() => {
+            // Count contributions from: summaries + news + quiz questions + quiz creation
             const counts = {};
+
+            const normalizeId = (id) => {
+                if (!id) return null;
+                if (id === 's_founder' || id === 's_founder_hardcoded' || id === 'founder_1') return Luminova.FOUNDER.id;
+                return id;
+            };
+
             data.summaries.forEach(s => {
-                const sId = (s.studentId === 's_founder' || s.studentId === 's_founder_hardcoded') ? Luminova.FOUNDER.id : s.studentId;
+                const sId = normalizeId(s.studentId);
                 if (sId) counts[sId] = (counts[sId] || 0) + 1;
             });
+
+            data.news.forEach(n => {
+                const sId = normalizeId(n.studentId);
+                if (sId) counts[sId] = (counts[sId] || 0) + 1;
+            });
+
             data.quizzes.forEach(q => {
+                // Count quiz creation itself
+                const qCreatorId = normalizeId(q.creatorId || q.studentId || q.publisherId);
+                if (qCreatorId) counts[qCreatorId] = (counts[qCreatorId] || 0) + 1;
+                // Count each question's author
                 (q.questions || []).forEach(qn => {
-                    const sId = (qn.studentId === 's_founder' || qn.studentId === 's_founder_hardcoded') ? Luminova.FOUNDER.id : qn.studentId;
+                    const sId = normalizeId(qn.studentId);
                     if (sId) counts[sId] = (counts[sId] || 0) + 1;
                 });
             });
-            const sorted = Object.entries(counts).map(([id, score]) => ({ id, score })).sort((a, b) => b.score - a.score).slice(0, 5);
-            return sorted.map(st => ({ student: Luminova.getStudent(st.id, data.students), score: st.score })).filter(x => x.student.id !== 'unknown');
-        }, [data.summaries, data.quizzes, data.students]);
+
+            // Always include Founder with at least a base score so leaderboard is never empty
+            if (!counts[Luminova.FOUNDER.id]) {
+                counts[Luminova.FOUNDER.id] = 0;
+            }
+            // Give founder a base contribution for founding the platform
+            counts[Luminova.FOUNDER.id] = (counts[Luminova.FOUNDER.id] || 0) + 1;
+
+            const sorted = Object.entries(counts)
+                .map(([id, score]) => ({ id, score }))
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 5);
+
+            return sorted
+                .map(st => ({ student: Luminova.getStudent(st.id, data.students), score: st.score }))
+                .filter(x => x.student && x.student.id !== 'unknown');
+        }, [data.summaries, data.news, data.quizzes, data.students]);
 
         return html`
         <div className="space-y-12 animate-fade-in">
@@ -1372,33 +1404,47 @@
 
         return html`
         <div className="min-h-screen pb-20">
-            <nav className="glass-card sticky top-0 z-40 px-6 sm:px-10 py-5 mb-10 flex items-center justify-between rounded-none border-t-0 border-r-0 border-l-0 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)]">
-                <div className="flex items-center gap-4 cursor-pointer group" onClick=${handleLogoClick}>
-                    <div className="w-12 h-12 bg-gradient-to-br from-brand-DEFAULT to-brand-gold rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-xl group-hover:scale-110 transition-transform hidden sm:flex">L</div>
-                    <span className="text-3xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-brand-DEFAULT to-brand-gold drop-shadow-sm">
+            <nav className="glass-card sticky top-0 z-40 px-3 sm:px-8 py-3 sm:py-5 mb-10 flex items-center gap-2 rounded-none border-t-0 border-r-0 border-l-0 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)]">
+
+                <!-- Logo: always visible, text hidden on very small screens -->
+                <div className="flex items-center gap-2 cursor-pointer group flex-shrink-0" onClick=${handleLogoClick}>
+                    <div className="w-9 h-9 sm:w-12 sm:h-12 bg-gradient-to-br from-brand-DEFAULT to-brand-gold rounded-xl sm:rounded-2xl flex items-center justify-center text-white font-black text-lg sm:text-2xl shadow-xl group-hover:scale-110 transition-transform flex-shrink-0">L</div>
+                    <span className="text-lg sm:text-3xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-brand-DEFAULT to-brand-gold drop-shadow-sm hidden sm:inline">
                         Luminova
                     </span>
                 </div>
-                
+
+                <!-- Center nav: icons only on mobile, text on md+ -->
                 ${view !== 'cms' && view !== 'quiz' && html`
-                    <div className="flex items-center gap-2 sm:gap-6 absolute left-1/2 -translate-x-1/2">
-                        <button onClick=${() => setView('home')} className=${`px-4 py-3 rounded-2xl transition-all duration-300 flex gap-3 items-center font-bold text-lg ${view === 'home' ? 'text-brand-DEFAULT bg-brand-DEFAULT/15 shadow-inner scale-105' : 'hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105'}`}>
-                            <${Luminova.Icons.Home} /><span className="hidden md:inline">${Luminova.i18n[lang].home}</span>
+                    <div className="flex items-center gap-1 sm:gap-2 mx-auto">
+                        <button onClick=${() => setView('home')} title=${Luminova.i18n[lang].home}
+                            className=${`px-2 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl transition-all duration-200 flex gap-1 sm:gap-3 items-center font-bold text-base sm:text-lg flex-shrink-0 ${view === 'home' ? 'text-brand-DEFAULT bg-brand-DEFAULT/15 shadow-inner' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
+                            <${Luminova.Icons.Home} />
+                            <span className="hidden md:inline">${Luminova.i18n[lang].home}</span>
                         </button>
-                        <button onClick=${() => setView('community')} className=${`px-4 py-3 rounded-2xl transition-all duration-300 flex gap-3 items-center font-bold text-lg ${view === 'community' ? 'text-brand-DEFAULT bg-brand-DEFAULT/15 shadow-inner scale-105' : 'hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105'}`}>
-                            <${Luminova.Icons.User} /><span className="hidden md:inline">${Luminova.i18n[lang].community}</span>
+                        <button onClick=${() => setView('community')} title=${Luminova.i18n[lang].community}
+                            className=${`px-2 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl transition-all duration-200 flex gap-1 sm:gap-3 items-center font-bold text-base sm:text-lg flex-shrink-0 ${view === 'community' ? 'text-brand-DEFAULT bg-brand-DEFAULT/15 shadow-inner' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
+                            <${Luminova.Icons.User} />
+                            <span className="hidden md:inline">${Luminova.i18n[lang].community}</span>
                         </button>
-                        <button onClick=${() => setView('academics')} className=${`px-4 py-3 rounded-2xl transition-all duration-300 flex gap-3 items-center font-bold text-lg ${view === 'academics' ? 'text-brand-DEFAULT bg-brand-DEFAULT/15 shadow-inner scale-105' : 'hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105'}`}>
-                            <${Luminova.Icons.Book} /><span className="hidden md:inline">${Luminova.i18n[lang].academic}</span>
+                        <button onClick=${() => setView('academics')} title=${Luminova.i18n[lang].academic}
+                            className=${`px-2 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl transition-all duration-200 flex gap-1 sm:gap-3 items-center font-bold text-base sm:text-lg flex-shrink-0 ${view === 'academics' ? 'text-brand-DEFAULT bg-brand-DEFAULT/15 shadow-inner' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
+                            <${Luminova.Icons.Book} />
+                            <span className="hidden md:inline">${Luminova.i18n[lang].academic}</span>
                         </button>
                     </div>
                 `}
 
-                <div className="flex items-center gap-4 border-l border-gray-300 dark:border-gray-700 pl-4 sm:pl-8 ml-auto sm:ml-4 z-10">
-                    <button onClick=${toggleLang} className="font-black text-lg border-2 border-brand-DEFAULT text-brand-DEFAULT px-5 py-2 rounded-xl hover:bg-brand-DEFAULT hover:text-white transition-all shadow-sm">
+                <!-- Right controls: always visible, always flex row, no wrap -->
+                <div style=${{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, marginInlineStart: 'auto' }}>
+                    <!-- Language toggle -->
+                    <button onClick=${toggleLang}
+                        className="font-black text-sm sm:text-base border-2 border-brand-DEFAULT text-brand-DEFAULT px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl hover:bg-brand-DEFAULT hover:text-white transition-all shadow-sm flex-shrink-0">
                         ${lang === 'ar' ? 'EN' : 'AR'}
                     </button>
-                    <button onClick=${toggleTheme} className="p-3 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all text-xl shadow-inner hidden sm:block">
+                    <!-- Theme toggle: always visible on all screen sizes -->
+                    <button onClick=${toggleTheme}
+                        className="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all text-lg sm:text-xl shadow-inner flex-shrink-0" title="Toggle Theme">
                         ${data.settings?.theme === 'dark' ? '☀️' : '🌙'}
                     </button>
                 </div>

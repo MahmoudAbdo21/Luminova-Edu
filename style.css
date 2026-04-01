@@ -103,10 +103,12 @@ html.dark .glass-card:hover {
 }
 .smart-text.collapsed {
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     max-height: 4.5em;
 }
 .smart-text.expanded {
     -webkit-line-clamp: unset;
+    line-clamp: unset;
     max-height: 2000px;
 }
 
