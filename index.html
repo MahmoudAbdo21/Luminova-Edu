@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Luminova Edu</title>
+    <!-- وسوم لمنع الكاش (Cache Busting Strategy) -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -43,8 +47,21 @@
     <!-- Native replacement for Babel/JSX to prevent CORS errors -->
     <script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
 
-    <!-- Data (Loaded natively as window.LUMINOVA_DATA) -->
-    <script src="data.js"></script>
+    <!-- Data (Loaded natively as window.LUMINOVA_DATA / window.initialData) -->
+    <!-- كسر الكاش الخارجي (External Cache Busting) -->
+    <script>
+        document.write('<script src="data.js?v=' + Date.now() + '"><\\/script>');
+    </script>
+
+    <!-- عكس أولوية البيانات (Internal Cache Fix & Stability Guard) -->
+    <!-- يتم تنفيذ هذا المقطع مرة واحدة فقط لحظة تحميل الصفحة -->
+    <script>
+        // بمجرد تحميل كود السيرفر (data.js) نجعله الأولوية القصوى ونحدّث به الكاش الداخلي
+        var serverFreshData = window.initialData || window.LUMINOVA_DATA;
+        if (serverFreshData && Object.keys(serverFreshData).length > 0) {
+            localStorage.setItem('luminova_data', JSON.stringify(serverFreshData));
+        }
+    </script>
 
 </head>
 
