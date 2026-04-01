@@ -62,7 +62,8 @@ body {
     content: '';
     position: absolute;
     top: -50%;
-    left: -50%;
+    /* Use logical property so the glow behaves the same in both directions */
+    inset-inline-start: -50%;
     width: 200%;
     height: 200%;
     background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 60%);
@@ -80,6 +81,7 @@ body {
     -webkit-box-orient: vertical;
     overflow: hidden;
     transition: max-height 0.4s ease;
+    text-align: start; /* honours RTL naturally */
 }
 .smart-text.collapsed {
     -webkit-line-clamp: 3;
@@ -96,111 +98,241 @@ body {
 ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(107, 114, 128, 0.8); }
 
-/* Media Embed Container */
+/* Media Embed Container — 16:9 responsive wrapper */
 .media-container {
     position: relative;
     padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
     height: 0;
     overflow: hidden;
     border-radius: 0.5rem;
+    width: 100%;
 }
-.media-container iframe, .media-container video, .media-container img {
+.media-container iframe,
+.media-container video,
+.media-container img {
     position: absolute;
     top: 0;
-    left: 0;
+    inset-inline-start: 0; /* RTL-safe replacement for left:0 */
     width: 100%;
     height: 100%;
     object-fit: contain;
     background: #000;
 }
 
-/* ========================================= */
-/* MOBILE RESPONSIVENESS (MEDIA QUERIES)     */
-/* ========================================= */
+/* =========================================================== */
+/* CONTRIBUTOR BADGE ROW — keeps publisher strip from breaking */
+/* =========================================================== */
+.contributor-strip {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;           /* allows wrapping on small screens */
+    min-width: 0;              /* prevents flex children from overflowing */
+}
+.contributor-strip span,
+.contributor-strip strong {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* =========================================================== */
+/* DESKTOP BASELINE — explicit RTL-safe logical properties     */
+/* =========================================================== */
+
+/* Timeline feed: border placed on inline-start so it follows dir */
+.timeline-feed {
+    border-inline-start: 2px solid rgba(156, 163, 175, 0.4);
+    padding-inline-start: 1.5rem;
+    margin-inline: 0.75rem;
+}
+
+/* =========================================================== */
+/* GLOBAL RESPONSIVE FOUNDATION                                */
+/* =========================================================== */
+html {
+    box-sizing: border-box;
+}
+*, *::before, *::after {
+    box-sizing: inherit;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    min-width: 0; /* crucial: prevents flex/grid children from overflowing */
+}
+
+/* All images, iframes, videos are fluid by default everywhere */
+img, video, iframe, embed, object {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* =========================================================== */
+/* MOBILE RESPONSIVENESS — max-width: 768px                    */
+/* Uses logical properties (inline/block) so RTL works auto.  */
+/* =========================================================== */
 @media (max-width: 768px) {
-    /* Prevent general horizontal overflow */
+
+    /* ---- Document level ---- */
     html, body {
         overflow-x: hidden;
         width: 100%;
     }
 
-    /* Force long text to break, never overflow */
-    * {
-        overflow-wrap: break-word;
-        word-wrap: break-word;
-    }
-
-    /* Force card grids to 1 Column */
+    /* ---- Force any multi-column grid to single column ---- */
     .grid {
         grid-template-columns: 1fr !important;
     }
 
-    /* Responsive Media: Prevent iframes/videos/imgs from breaking boundaries */
-    .media-container, iframe, video, img {
-        max-width: 100% !important;
-    }
-    
-    /* Shrink the extremely tall 480px iframes and Google drives */
-    iframe {
-        max-height: 250px !important;
-        height: auto !important;
-        aspect-ratio: 16/9;
-    }
-    video {
-        height: auto !important;
+    /* ---- iframes on mobile: constrain height, keep 16:9 ---- */
+    /* Only affects iframes NOT inside .media-container (which already handles them) */
+    iframe:not(.media-container iframe) {
+        max-height: 220px !important;
+        width: 100% !important;
+        aspect-ratio: 16 / 9;
     }
 
-    /* Modals & Popups: Make them Exactly 95% of Mobile Screen Width */
-    .fixed.inset-0 > div.bg-white, .fixed.inset-0 > div.dark\:bg-gray-900 {
-        width: 95% !important;
-        max-width: 95% !important;
-        margin: 0 auto;
-        padding: 1.25rem !important; /* Reduce inner padding from full p-6 */
-        max-height: 95vh !important;
+    /* ---- Modals: 95% screen width, centred ---- */
+    .fixed.inset-0 > div {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        margin-inline: auto !important;
+        padding: 1rem !important;
+        max-height: 92vh !important;
         overflow-y: auto;
-    }
-
-    /* Stack the Student Avatar & Details naturally in Modals */
-    .fixed.inset-0 .flex.items-center.gap-6 {
-        flex-direction: column !important;
-        text-align: center !important;
-        gap: 0.5rem !important;
-    }
-
-    /* Refine Margins & Paddings to regain Mobile Screen Estate */
-    .glass-card {
-        padding: 1.25rem 1rem !important; /* Slightly denser inner spacing */
         border-radius: 1rem !important;
     }
-    
-    /* Feed item specific indents reduction */
-    .space-y-6.ml-3.mr-3.px-4 {
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-        padding-left: 0.5rem !important;
-        padding-right: 0.25rem !important;
-    }
 
-    .ms-6 {
-        margin-left: 1rem !important; /* Reduce massive indent in timline */
-    }
-
-    /* Nav bar tightening */
-    nav.glass-card {
-        padding: 1rem !important;
-    }
-
-    /* Optimize Academic Tabs Text */
-    .flex.border-b > button {
-        padding: 0.75rem 0.5rem !important;
-        font-size: 0.9rem !important;
-        flex: 1;
-        text-align: center;
-    }
-    
-    /* Admin CMS Tabs Layout Adjustment */
-    .xl\:flex-row {
+    /* Modal header row: stack avatar + info vertically */
+    .fixed.inset-0 .flex.gap-6.items-start,
+    .fixed.inset-0 .flex.gap-6.items-center {
         flex-direction: column !important;
+        align-items: center !important;
+        gap: 0.75rem !important;
+        text-align: center !important;
+    }
+
+    /* ---- Glass cards: tighter padding ---- */
+    .glass-card {
+        padding: 1rem !important;
+        border-radius: 1rem !important;
+    }
+
+    /* ---- Timeline feed: logical indentation for RTL + LTR ---- */
+    /* Replace left/right with inline-start/end */
+    .space-y-6 {
+        padding-inline-start: 0.5rem !important;
+        padding-inline-end: 0 !important;
+        margin-inline: 0 !important;
+    }
+    /* The card inside timeline (ms-6 = margin-inline-start: 1.5rem in Tailwind) */
+    .ms-6 {
+        margin-inline-start: 1rem !important;
+    }
+    /* Timeline bullet dot: logical position */
+    .-start-3 {
+        inset-inline-start: -0.75rem !important;
+    }
+
+    /* ---- Nav bar ---- */
+    nav.glass-card {
+        padding-inline: 0.75rem !important;
+        padding-block: 0.75rem !important;
+    }
+
+    /* ---- Academic hierarchy tabs ---- */
+    .flex.border-b > button {
+        padding-inline: 0.5rem !important;
+        padding-block: 0.75rem !important;
+        font-size: 0.875rem !important;
+        flex: 1 1 0;
+        text-align: center !important;
+    }
+
+    /* ---- Academic hierarchy two-column layout → stacked ---- */
+    /* The page uses md:flex-row which Tailwind compiles to a flex-direction rule.
+       We override on mobile without touching JS. */
+    .flex.flex-col.md\\:flex-row,
+    .md\\:flex-row {
+        flex-direction: column !important;
+    }
+
+    /* ---- CMS sidebar + content panel → stacked ---- */
+    .xl\\:w-1\\/4, .xl\\:w-3\\/4 {
+        width: 100% !important;
+    }
+
+    /* ---- Buttons row: wrap gracefully, don't overlap text ---- */
+    .flex.gap-4 {
+        flex-wrap: wrap;
+    }
+
+    /* ---- Quiz navigation buttons: full width on mobile ---- */
+    .flex.justify-between.items-center > button,
+    .flex.justify-between.items-center > div > button {
+        font-size: 0.875rem !important;
+        padding-inline: 1rem !important;
+        padding-block: 0.625rem !important;
+    }
+
+    /* ---- Contributor / publisher strip above quiz questions ---- */
+    /* The absolute-positioned chip that floats above the card */
+    .absolute.-top-6 {
+        position: static !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 0.25rem !important;
+        padding: 0.4rem 0.75rem !important;
+        border-radius: 0.75rem !important;
+        margin-block-end: 0.75rem !important;
+        align-self: flex-start !important;
+        inset: unset !important;
+    }
+
+    /* ---- Typography scale-down on very narrow screens ---- */
+    h2.text-4xl, h2.text-5xl { font-size: 1.75rem !important; }
+    h3.text-3xl, h3.text-4xl { font-size: 1.375rem !important; }
+    .text-8xl { font-size: 4rem !important; }
+
+    /* ---- Top-contributors horizontal scroll row ---- */
+    .snap-x.overflow-x-auto {
+        padding-inline-start: 0 !important;
+        gap: 0.75rem !important;
+    }
+    .min-w-\\[200px\\] {
+        min-width: 160px !important;
+    }
+
+    /* ---- Student community grid: override scale-105 on founder ---- */
+    /* Prevents enlarged founder card from causing x-overflow */
+    .scale-105 {
+        transform: scale(1) !important;
     }
 }
 
+/* =========================================================== */
+/* RTL-SPECIFIC OVERRIDES (applied when html[dir=rtl])         */
+/* =========================================================== */
+[dir="rtl"] .ms-6        { margin-right: 0; margin-left: auto; }
+[dir="rtl"] .-start-3    { right: -0.75rem; left: auto; }
+[dir="rtl"] .border-s    { border-left: 0; border-right-width: inherit; }
+[dir="rtl"] .border-l-4  { border-left: 0; border-right-width: 4px; }
+[dir="rtl"] .ps-4        { padding-right: 1rem; padding-left: 0; }
+
+/* Text alignment: start = right in RTL, left in LTR */
+[dir="rtl"] .text-start  { text-align: right; }
+[dir="ltr"] .text-start  { text-align: left; }
+
+/* Quiz option letters (A/B/C/D) spacing */
+[dir="rtl"] .inline-block.mr-4 { margin-right: 0; margin-left: 1rem; }
+[dir="ltr"] .inline-block.ml-4 { margin-left: 0; margin-right: 1rem; }
+
+/* Animate fade-in */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+    animation: fadeIn 0.3s ease forwards;
+}
