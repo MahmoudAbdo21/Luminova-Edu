@@ -93,8 +93,8 @@
     `;
     };
 
-    Luminova.Components.SmartMedia = ({ url }) => {
-        const [isExpanded, setIsExpanded] = useState(false);
+    Luminova.Components.SmartMedia = ({ url, lang = 'ar' }) => {
+        const [isFullscreen, setIsFullscreen] = useState(false);
 
         if (!url) return null;
         let embedContent = null;
@@ -133,31 +133,41 @@
             `;
         }
 
-        const containerStyle = !isExpanded ? { maxHeight: '250px', overflow: 'hidden' } : { position: 'relative' };
+        // ── True Fullscreen Modal ──────────────────────────────────────
+        const fullscreenBtnLabel = lang === 'ar' ? 'عرض بملء الشاشة' : 'Fullscreen View';
+        const collapseBtnLabel   = lang === 'ar' ? 'تصغير العرض'      : 'Collapse';
 
         return html`
         <div className="mt-6 w-full relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-brand-DEFAULT to-brand-gold opacity-30 rounded-2xl blur transition duration-1000 group-hover:opacity-60 -z-10"></div>
-            
-            <div className="relative rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800" style=${containerStyle}>
+
+            <div className="relative rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden" style=${{ maxHeight: '250px' }}>
                 ${embedContent}
-                ${!isExpanded && html`
-                    <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white dark:from-gray-800 to-transparent pointer-events-none"></div>
-                `}
+                <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white dark:from-gray-800 to-transparent pointer-events-none"></div>
             </div>
 
-            <button 
-                onClick=${(e) => { e.stopPropagation(); setIsExpanded(!isExpanded); }}
+            <button
+                onClick=${(e) => { e.stopPropagation(); setIsFullscreen(true); }}
                 className="w-full mt-2 py-3 bg-gray-100 dark:bg-gray-800 hover:bg-brand-DEFAULT hover:text-white dark:hover:bg-brand-DEFAULT transition-colors rounded-xl font-bold flex items-center justify-center gap-2 shadow-sm border border-gray-200 dark:border-gray-700"
             >
-                ${isExpanded ?
-                html`<span className="text-xl">🗕</span> <span>تصغير العرض (Collapse)</span>` :
-                html`<span className="text-xl">⛶</span> <span>عرض الملف الكامل (Expand)</span>`
-            }
+                <span className="text-xl">⛶</span>
+                <span>${fullscreenBtnLabel}</span>
             </button>
+
+            ${isFullscreen && html`
+                <div className="lmv-fullscreen-overlay animate-fade-in">
+                    <button
+                        className="lmv-fullscreen-close-btn"
+                        onClick=${(e) => { e.stopPropagation(); setIsFullscreen(false); }}
+                        title=${lang === 'ar' ? 'إغلاق' : 'Close'}
+                    >✕</button>
+                    <iframe src=${url} style=${{ flex: 1, width: '100%', border: 'none', height: '0' }} allowFullScreen></iframe>
+                </div>
+            `}
         </div>
     `;
     };
+
 
     Luminova.Components.Avatar = ({ name = "", nameEn = "", image = "", isVIP = false, isVerified = false, isFounder = false, size = "w-12 h-12" }) => {
         const getInitials = () => {
@@ -243,10 +253,18 @@
     // ==========================================
 
     Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizClick }) => {
+        const PAGE_SIZE_INIT = 10;
+        const PAGE_SIZE_MORE = 5;
+        const [visibleCount, setVisibleCount] = useState(PAGE_SIZE_INIT);
+
         if (!items.length) return html`<div className="text-center py-10 opacity-50">${Luminova.i18n[lang].emptyState}</div>`;
+
+        const visibleItems = items.slice(0, visibleCount);
+        const hasMore = visibleCount < items.length;
+
         return html`
         <div className="space-y-6 relative border-s border-gray-200 dark:border-gray-700 ml-3 mr-3 px-4">
-            ${items.map(item => {
+            ${visibleItems.map(item => {
             const student = Luminova.getStudent(item.studentId, students);
             const subject = subjects.find(s => s.id === item.subjectId) || {};
             const isQuizItem = item.isSingleQuestion;
@@ -269,7 +287,7 @@
                             </div>
                             <h3 className="text-xl font-bold mb-2">${item[`title${lang === 'ar' ? 'Ar' : 'En'}`] || item.titleAr || item.titleEn}</h3>
                             <${Luminova.Components.SmartText} text=${item[`content${lang === 'ar' ? 'Ar' : 'En'}`] || item.contentAr || item.contentEn} lang=${lang} />
-                            <${Luminova.Components.SmartMedia} url=${item.mediaUrl} />
+                            <${Luminova.Components.SmartMedia} url=${item.mediaUrl} lang=${lang} />
                             ${item.isSingleQuestion && html`
                                 <div className="mt-4">
                                     <${Luminova.Components.Button} onClick=${() => onQuizClick(item.parentQuiz)}>${Luminova.i18n[lang].startQuiz}</${Luminova.Components.Button}>
@@ -278,7 +296,19 @@
                         </</${Luminova.Components.GlassCard}>
                     </div>
                 `;
-        })}
+            })}
+
+            ${hasMore && html`
+                <div className="flex justify-center pt-4 pb-2">
+                    <button
+                        onClick=${() => setVisibleCount(prev => prev + PAGE_SIZE_MORE)}
+                        className="px-8 py-3 rounded-2xl bg-white/70 dark:bg-gray-800/70 backdrop-blur border border-brand-DEFAULT/30 text-brand-DEFAULT font-bold hover:bg-brand-DEFAULT hover:text-white transition-all duration-200 shadow-md hover:shadow-xl hover:scale-105 flex items-center gap-2"
+                    >
+                        <span>${lang === 'ar' ? 'عرض المزيد' : 'Load More'}</span>
+                        <span className="opacity-50 text-sm">(${items.length - visibleCount} ${lang === 'ar' ? 'متبقية' : 'remaining'})</span>
+                    </button>
+                </div>
+            `}
         </div>
     `;
     };
@@ -392,7 +422,7 @@
                                 `}
                                 <h3 className="text-xl font-bold mb-2">${n[`title${lang === 'ar' ? 'Ar' : 'En'}`] || n.titleAr || n.titleEn}</h3>
                                 <${Luminova.Components.SmartText} text=${n[`content${lang === 'ar' ? 'Ar' : 'En'}`] || n.contentAr || n.contentEn} lang=${lang} />
-                                <${Luminova.Components.SmartMedia} url=${n.mediaUrl} />
+                                <${Luminova.Components.SmartMedia} url=${n.mediaUrl} lang=${lang} />
                                 <div className="text-xs opacity-50 mt-4">${Luminova.formatDate(n.timestamp, lang)}</div>
                             </${Luminova.Components.GlassCard}>
                         `})}
@@ -795,7 +825,7 @@
                     ${q.mediaUrl && html`
                         <div className="mb-8 border-b border-gray-200 dark:border-gray-700 pb-6 w-full flex justify-center">
                             <div className="w-full max-h-[400px] rounded-2xl shadow-md bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-gray-800 overflow-hidden relative *:max-h-[400px] *:object-contain">
-                                <${Luminova.Components.SmartMedia} url=${q.mediaUrl} />
+                                <${Luminova.Components.SmartMedia} url=${q.mediaUrl} lang=${lang} />
                             </div>
                         </div>
                     `}
@@ -1429,7 +1459,7 @@
         };
 
         return html`
-        <div className="min-h-screen pb-20">
+        <div className="min-h-screen lmv-page-wrapper">
             <nav className="glass-card sticky top-0 z-40 px-3 sm:px-8 py-3 sm:py-5 mb-10 flex items-center gap-2 rounded-none border-t-0 border-r-0 border-l-0 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)]">
 
                 <!-- Logo: always visible, text hidden on very small screens -->
@@ -1440,9 +1470,9 @@
                     </span>
                 </div>
 
-                <!-- Center nav: icons only on mobile, text on md+ -->
+                <!-- Center nav: hidden on mobile via CSS (.lmv-top-nav-links), visible on desktop -->
                 ${view !== 'cms' && view !== 'quiz' && html`
-                    <div className="flex items-center gap-1 sm:gap-2 mx-auto">
+                    <div className="lmv-top-nav-links flex items-center gap-1 sm:gap-2 mx-auto">
                         <button onClick=${() => setView('home')} title=${Luminova.i18n[lang].home}
                             className=${`px-2 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl transition-all duration-200 flex gap-1 sm:gap-3 items-center font-bold text-base sm:text-lg flex-shrink-0 ${view === 'home' ? 'text-brand-DEFAULT bg-brand-DEFAULT/15 shadow-inner' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
                             <${Luminova.Icons.Home} />
@@ -1461,7 +1491,7 @@
                     </div>
                 `}
 
-                <!-- Right controls: always visible, always flex row, no wrap -->
+                <!-- Right controls: always visible (logo + lang toggle preserved) -->
                 <div style=${{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, marginInlineStart: 'auto' }}>
                     <!-- Language toggle -->
                     <button onClick=${toggleLang}
@@ -1479,6 +1509,36 @@
             <main className="container mx-auto px-4 sm:px-10 max-w-[1600px]">
                 ${renderView()}
             </main>
+
+            <!-- Mobile Bottom Navigation Bar (hidden on desktop via CSS) -->
+            ${view !== 'cms' && view !== 'quiz' && html`
+                <nav className="lmv-bottom-nav" aria-label=${lang === 'ar' ? 'التنقل الرئيسي' : 'Main navigation'}>
+                    <button
+                        className=${`lmv-bottom-nav-btn ${view === 'home' ? 'active' : ''}`}
+                        onClick=${() => setView('home')}
+                        title=${Luminova.i18n[lang].home}
+                    >
+                        <${Luminova.Icons.Home} />
+                        <span className="lmv-nav-label">${Luminova.i18n[lang].home}</span>
+                    </button>
+                    <button
+                        className=${`lmv-bottom-nav-btn ${view === 'academics' ? 'active' : ''}`}
+                        onClick=${() => setView('academics')}
+                        title=${Luminova.i18n[lang].academic}
+                    >
+                        <${Luminova.Icons.Book} />
+                        <span className="lmv-nav-label">${Luminova.i18n[lang].academic}</span>
+                    </button>
+                    <button
+                        className=${`lmv-bottom-nav-btn ${view === 'community' ? 'active' : ''}`}
+                        onClick=${() => setView('community')}
+                        title=${Luminova.i18n[lang].community}
+                    >
+                        <${Luminova.Icons.User} />
+                        <span className="lmv-nav-label">${Luminova.i18n[lang].community}</span>
+                    </button>
+                </nav>
+            `}
         </div>
     `;
     };
