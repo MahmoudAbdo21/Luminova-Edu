@@ -100,28 +100,41 @@
         let embedContent = null;
         let isLargeMedia = false;
 
-        const isBase64 = url.startsWith('data:');
-        const mimeMatch = isBase64 ? url.match(/data:(.*?);/) : null;
+        let urlStr = typeof url === 'string' ? url : String(url);
+        const isBase64 = urlStr.startsWith('data:');
+        const mimeMatch = isBase64 ? urlStr.match(/data:(.*?);/) : null;
         const mimeType = mimeMatch ? mimeMatch[1] : '';
 
-        if (url.includes('youtube.com') || url.includes('youtu.be')) {
-            const videoId = url.split('v=')[1]?.split('&')[0] || url.split('youtu.be/')[1]?.split('?')[0] || url.split('/embed/')[1]?.split('?')[0];
+        // Regex Rules
+        const driveRegex = /drive\.google\.com\/file\/d\/([^\/\?]+)/;
+        const ytRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+        
+        const driveMatch = urlStr.match(driveRegex);
+        const ytMatch = urlStr.match(ytRegex);
+
+        if (ytMatch && ytMatch[1]) {
+            const videoId = ytMatch[1];
             embedContent = html`<iframe src=${`https://www.youtube.com/embed/${videoId}`} title="YouTube" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" className="w-full h-[400px] border-none rounded-xl shadow-lg" allowFullScreen></iframe>`;
-        } else if (url.includes('drive.google.com/file/d/')) {
-            const driveId = url.split('/d/')[1]?.split('/')[0];
-            embedContent = html`<iframe src=${`https://drive.google.com/file/d/${driveId}/preview`} width="100%" height="480" allow="autoplay" className="rounded-xl shadow-lg border-2 border-brand-DEFAULT/20" allowFullScreen></iframe>`;
-        } else if (url.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) || (isBase64 && mimeType.startsWith('image/'))) {
-            embedContent = html`<div style=${{ display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'rgba(0,0,0,0.1)', borderRadius: '8px', overflow: 'hidden' }} className="w-full">
-                <img src=${url} alt="Smart Media" className="shadow-lg mx-auto" style=${{ maxHeight: '350px', maxWidth: '100%', width: 'auto', objectFit: 'contain' }} loading="lazy" />
-            </div>`;
-        } else if (url.match(/\.(mp4|webm|ogg)$/i) || (isBase64 && mimeType.startsWith('video/'))) {
-            embedContent = html`<video controls className="w-full max-h-[500px] rounded-xl bg-black shadow-lg"><source src=${url} type=${isBase64 ? mimeType : `video/${url.split('.').pop()}`} />متصفحك لا يدعم تشغيل الفيديو.</video>`;
-        } else if (url.match(/\.(pdf|html)$/i) || (isBase64 && (mimeType === 'application/pdf' || mimeType === 'text/html'))) {
+        } else if (driveMatch && driveMatch[1]) {
+            const driveId = driveMatch[1];
+            embedContent = html`<iframe src=${`https://drive.google.com/file/d/${driveId}/preview`} width="100%" height="500" allow="autoplay" className="rounded-xl shadow-lg border-2 border-brand-DEFAULT/20 bg-white" allowFullScreen></iframe>`;
+        } else if (urlStr.includes('docs.google.com/forms')) {
             isLargeMedia = true;
-            embedContent = html`<iframe src=${url} className="w-full h-[600px] border-none rounded-xl shadow-lg bg-white" allowFullScreen></iframe>`;
+            embedContent = html`<iframe src=${urlStr} width="100%" height="600" frameBorder="0" marginHeight="0" marginWidth="0" className="rounded-xl shadow-lg bg-white" allowFullScreen></iframe>`;
+        } else if (urlStr.match(/\.(jpeg|jpg|gif|png|webp|svg)(\?.*)?$/i) || (isBase64 && mimeType.startsWith('image/'))) {
+            embedContent = html`<div style=${{ display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'rgba(0,0,0,0.1)', borderRadius: '8px', overflow: 'hidden' }} className="w-full mb-4">
+                <img src=${urlStr} alt="Smart Media" className="shadow-lg mx-auto rounded-xl" style=${{ maxHeight: '400px', maxWidth: '100%', width: 'auto', objectFit: 'contain' }} loading="lazy" />
+            </div>`;
+        } else if (urlStr.match(/\.(mp3|wav|ogg)(\?.*)?$/i) || (isBase64 && mimeType.startsWith('audio/'))) {
+            embedContent = html`<audio controls className="w-full shadow-lg rounded-xl mb-4 bg-gray-100 dark:bg-gray-800 p-2"><source src=${urlStr} type=${isBase64 ? mimeType : `audio/${urlStr.split('.').pop().split('?')[0]}`} />متصفحك لا يدعم تشغيل الصوت.</audio>`;
+        } else if (urlStr.match(/\.(mp4|webm)(\?.*)?$/i) || (isBase64 && mimeType.startsWith('video/'))) {
+            embedContent = html`<video controls className="w-full max-h-[500px] rounded-xl bg-black shadow-lg mb-4"><source src=${urlStr} type=${isBase64 ? mimeType : `video/${urlStr.split('.').pop().split('?')[0]}`} />متصفحك لا يدعم تشغيل الفيديو.</video>`;
+        } else if (urlStr.match(/\.(pdf|html)(\?.*)?$/i) || (isBase64 && (mimeType === 'application/pdf' || mimeType === 'text/html'))) {
+            isLargeMedia = true;
+            embedContent = html`<iframe src=${urlStr} className="w-full h-[600px] border-none rounded-xl shadow-lg bg-white" allowFullScreen></iframe>`;
         } else {
             isLargeMedia = true;
-            embedContent = html`<iframe src=${url} className="w-full h-[600px] border-none rounded-xl shadow-lg bg-white dark:bg-gray-900" allowFullScreen></iframe>`;
+            embedContent = html`<iframe src=${urlStr} className="w-full h-[600px] border-none rounded-xl shadow-lg bg-white dark:bg-gray-900" allowFullScreen></iframe>`;
         }
 
         if (!isLargeMedia) {
@@ -155,13 +168,26 @@
             </button>
 
             ${isFullscreen && html`
-                <div className="lmv-fullscreen-overlay animate-fade-in">
-                    <button
-                        className="lmv-fullscreen-close-btn"
-                        onClick=${(e) => { e.stopPropagation(); setIsFullscreen(false); }}
-                        title=${lang === 'ar' ? 'إغلاق' : 'Close'}
-                    >✕</button>
-                    <iframe src=${url} style=${{ flex: 1, width: '100%', border: 'none', height: '0' }} allowFullScreen></iframe>
+                <div style=${{ position: 'fixed', inset: '0', height: '100dvh', display: 'flex', flexDirection: 'column', zIndex: 99999, background: '#0f172a' }}>
+
+                    <!-- ── Close Bar (top strip, never overlaps content) ── -->
+                    <div style=${{ height: '50px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', padding: '0 12px', background: 'rgba(0,0,0,0.55)', flexShrink: 0 }}>
+                        <button
+                            onClick=${(e) => { e.stopPropagation(); setIsFullscreen(false); }}
+                            title=${lang === 'ar' ? 'إغلاق' : 'Close'}
+                            style=${{ background: 'rgba(6,182,212,0.9)', color: '#fff', border: 'none', borderRadius: '50%', width: '36px', height: '36px', fontSize: '1.1rem', fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 12px rgba(0,0,0,0.5)' }}
+                        >✕</button>
+                    </div>
+
+                    <!-- ── Scrollable iframe wrapper ── -->
+                    <div style=${{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', width: '100%', position: 'relative' }}>
+                        <iframe
+                            src=${url}
+                            style=${{ width: '100%', height: '100%', border: 'none', display: 'block', minHeight: '100%' }}
+                            allowFullScreen
+                        ></iframe>
+                    </div>
+
                 </div>
             `}
         </div>
@@ -252,7 +278,7 @@
     // PART 2: Feeds & Core Pages (Home, Community, Academics)
     // ==========================================
 
-    Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizClick }) => {
+    Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizClick, onSummaryClick }) => {
         const PAGE_SIZE_INIT = 10;
         const PAGE_SIZE_MORE = 5;
         const [visibleCount, setVisibleCount] = useState(PAGE_SIZE_INIT);
@@ -287,7 +313,14 @@
                             </div>
                             <h3 className="text-xl font-bold mb-2">${item[`title${lang === 'ar' ? 'Ar' : 'En'}`] || item.titleAr || item.titleEn}</h3>
                             <${Luminova.Components.SmartText} text=${item[`content${lang === 'ar' ? 'Ar' : 'En'}`] || item.contentAr || item.contentEn} lang=${lang} />
-                            <${Luminova.Components.SmartMedia} url=${item.mediaUrl} lang=${lang} />
+                            ${((item.mediaUrls && item.mediaUrls.length > 0) || item.mediaUrl) ? html`
+                                <div className="mt-4">
+                                    <button onClick=${() => onSummaryClick && onSummaryClick(item)} className="w-full py-3 bg-indigo-500/10 hover:bg-indigo-500 text-indigo-600 dark:text-indigo-400 hover:text-white transition-all rounded-xl font-bold flex items-center justify-center gap-2 border border-indigo-500/20 shadow-sm">
+                                        <span className="text-xl">📎</span>
+                                        <span>${lang === 'ar' ? 'عرض المرفقات والشرح' : 'View Attachments'}</span>
+                                    </button>
+                                </div>
+                            ` : null}
                             ${item.isSingleQuestion && html`
                                 <div className="mt-4">
                                     <${Luminova.Components.Button} onClick=${() => onQuizClick(item.parentQuiz)}>${Luminova.i18n[lang].startQuiz}</${Luminova.Components.Button}>
@@ -315,7 +348,61 @@
 
     Luminova.Pages = {};
 
-    Luminova.Pages.HomePage = ({ data, lang, setView, setActiveQuiz }) => {
+    Luminova.Pages.SummaryDetail = ({ item, data, lang, goBack }) => {
+        if (!item) return goBack();
+        const author = Luminova.getStudent(item.studentId, data.students);
+        const currentUrls = item.mediaUrls || (item.mediaUrl ? [item.mediaUrl] : []);
+
+        return html`
+        <div className="animate-fade-in relative max-w-4xl mx-auto pb-20 mt-4 xl:mt-8 px-2 sm:px-4">
+            <button onClick=${goBack} className="mb-6 flex items-center gap-2 text-brand-DEFAULT hover:text-brand-hover font-bold transition-colors bg-white dark:bg-gray-800 px-4 py-2 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                <span className="text-xl">${lang === 'ar' ? '←' : '→'}</span>
+                <span>${lang === 'ar' ? 'الرجوع للقائمة' : 'Back to Feed'}</span>
+            </button>
+            
+            <!-- Author Banner -->
+            ${author && author.id !== 'unknown' && html`
+                <div className="bg-white dark:bg-gray-800 rounded-3xl p-4 sm:p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-4 mb-8">
+                    <${Luminova.Components.Avatar} name=${author.nameAr || author.name} image=${author.image} isVIP=${author.isVIP} isVerified=${author.isVerified} isFounder=${author.isFounder} size="w-16 h-16 sm:w-20 sm:h-20 shrink-0 border-4 border-gray-50 dark:border-gray-900" />
+                    <div>
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <h3 className="font-black text-xl sm:text-2xl text-brand-DEFAULT drop-shadow-sm">${lang === 'ar' ? (author.nameAr || author.name) : (author.nameEn || author.name)}</h3>
+                            ${author.isVIP && html`<span className="text-xs text-brand-DEFAULT bg-brand-DEFAULT/10 px-3 py-1 rounded-full font-bold shadow-sm">VIP ✨</span>`}
+                            ${author.isFounder && html`<span className="text-xs bg-brand-gold text-black shadow-lg px-3 py-1 rounded-full font-black tracking-widest">${Luminova.i18n[lang].founder}</span>`}
+                        </div>
+                        <p className="text-sm font-bold opacity-60 text-gray-500 dark:text-gray-400 font-mono">${Luminova.formatDate(item.timestamp, lang)}</p>
+                    </div>
+                </div>
+            `}
+
+            <!-- Content -->
+            <div className="mb-12 px-2 sm:px-6">
+                <h1 className="text-3xl sm:text-5xl font-black mb-6 leading-tight text-gray-900 dark:text-white drop-shadow-sm">${item[`title${lang === 'ar' ? 'Ar' : 'En'}`] || item.titleAr || item.titleEn || item.title}</h1>
+                <p className="whitespace-pre-wrap text-lg sm:text-xl opacity-80 leading-relaxed font-semibold text-gray-700 dark:text-gray-300">
+                    ${item[`content${lang === 'ar' ? 'Ar' : 'En'}`] || item.contentAr || item.contentEn || item.text}
+                </p>
+            </div>
+
+            <!-- Media Attachments -->
+            ${currentUrls.length > 0 && html`
+                <div className="space-y-12 bg-gray-50/50 dark:bg-gray-800/10 p-2 sm:p-8 rounded-3xl">
+                    <div className="flex items-center gap-3 mb-8 px-4 sm:px-0">
+                        <span className="text-3xl">📎</span>
+                        <h3 className="text-2xl font-black text-indigo-500 drop-shadow-sm">${lang === 'ar' ? 'المرفقات والشروحات' : 'Attachments & Media'}</h3>
+                    </div>
+                    ${currentUrls.map((mUrl, i) => html`
+                        <div key=${i} className="relative z-10 w-full hover:scale-[1.01] transition-transform duration-300">
+                            ${currentUrls.length > 1 && html`<div className="absolute -top-4 -start-4 w-10 h-10 bg-indigo-500 text-white font-black rounded-full flex items-center justify-center shadow-lg border-4 border-white dark:border-gray-900 z-20">${i + 1}</div>`}
+                            <${Luminova.Components.SmartMedia} url=${mUrl} lang=${lang} />
+                        </div>
+                    `)}
+                </div>
+            `}
+        </div>
+        `;
+    };
+
+    Luminova.Pages.HomePage = ({ data, lang, setView, setActiveQuiz, setActiveSummary }) => {
         const feedItems = useMemo(() => {
             const allQuestions = [];
             data.quizzes.forEach(q => {
@@ -422,8 +509,15 @@
                                 `}
                                 <h3 className="text-xl font-bold mb-2">${n[`title${lang === 'ar' ? 'Ar' : 'En'}`] || n.titleAr || n.titleEn}</h3>
                                 <${Luminova.Components.SmartText} text=${n[`content${lang === 'ar' ? 'Ar' : 'En'}`] || n.contentAr || n.contentEn} lang=${lang} />
-                                <${Luminova.Components.SmartMedia} url=${n.mediaUrl} lang=${lang} />
-                                <div className="text-xs opacity-50 mt-4">${Luminova.formatDate(n.timestamp, lang)}</div>
+                                ${((n.mediaUrls && n.mediaUrls.length > 0) || n.mediaUrl) ? html`
+                                    <div className="mt-4">
+                                        <button onClick=${() => { setActiveSummary(n); setView('summaryDetail'); }} className="w-full py-3 bg-indigo-500/10 hover:bg-indigo-500 text-indigo-600 dark:text-indigo-400 hover:text-white transition-all rounded-xl font-bold flex items-center justify-center gap-2 border border-indigo-500/20 shadow-sm">
+                                            <span className="text-xl">📎</span>
+                                            <span>${lang === 'ar' ? 'عرض المرفقات المنشورة' : 'View Attachments'}</span>
+                                        </button>
+                                    </div>
+                                ` : null}
+                                <div className="text-xs opacity-50 mt-4 font-semibold">${Luminova.formatDate(n.timestamp, lang)}</div>
                             </${Luminova.Components.GlassCard}>
                         `})}
                     </div>
@@ -431,13 +525,13 @@
             `}
             <div>
                 <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">${Luminova.i18n[lang].feed}</h2>
-                <${Luminova.Components.TimelineFeed} items=${feedItems} students=${data.students} subjects=${data.subjects} lang=${lang} onQuizClick=${(q) => { setActiveQuiz(q); setView('quiz'); }} />
+                <${Luminova.Components.TimelineFeed} items=${feedItems} students=${data.students} subjects=${data.subjects} lang=${lang} onQuizClick=${(q) => { setActiveQuiz(q); setView('quiz'); }} onSummaryClick=${(item) => { setActiveSummary(item); setView('summaryDetail'); }} />
             </div>
         </div>
     `;
     };
 
-    Luminova.Pages.StudentCommunityPage = ({ data, lang }) => {
+    Luminova.Pages.StudentCommunityPage = ({ data, lang, setView, setActiveSummary }) => {
         const [selectedStudent, setSelectedStudent] = useState(null);
         const [searchQuery, setSearchQuery] = useState('');
 
@@ -553,7 +647,7 @@
                     });
                     return [...userSummaries, ...userQuestions].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
                 })()} 
-                                students=${data.students} subjects=${data.subjects} lang=${lang} onQuizClick=${() => { alert(lang === 'ar' ? 'قم بالدخول للاختبار الكامل من القسم الأكاديمي' : 'Access full quiz from Academic section'); }} 
+                                students=${data.students} subjects=${data.subjects} lang=${lang} onQuizClick=${() => { alert(lang === 'ar' ? 'قم بالدخول للاختبار الكامل من القسم الأكاديمي' : 'Access full quiz from Academic section'); }} onSummaryClick=${(item) => { setActiveSummary(item); setView('summaryDetail'); }}
                             />
                         </div>
                     </div>
@@ -632,7 +726,7 @@
                         </div>
                         <div className="pt-4">
                             ${activeTab === 'summaries' ? html`
-                                <${Luminova.Components.TimelineFeed} items=${summaries} students=${data.students} subjects=${data.subjects} lang=${lang} onQuizClick=${() => { }} />
+                                <${Luminova.Components.TimelineFeed} items=${summaries} students=${data.students} subjects=${data.subjects} lang=${lang} onQuizClick=${() => { }} onSummaryClick=${(item) => { setActiveSummary(item); setView('summaryDetail'); }} />
                             ` : html`
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     ${quizzes.map(q => html`
@@ -1275,19 +1369,81 @@
                                         <div className="col-span-2 w-full"><${Luminova.Components.Input} label="News Title" val=${editingItem.titleEn} onChange=${v => setEditingItem({ ...editingItem, titleEn: v })} /></div>
                                         <div className="col-span-2 w-full"><${Luminova.Components.Input} type="textarea" label="التفاصيل (عربي)" val=${editingItem.contentAr} onChange=${v => setEditingItem({ ...editingItem, contentAr: v })} /></div>
                                         <div className="col-span-2 w-full"><${Luminova.Components.Input} type="textarea" label="Details (English)" val=${editingItem.contentEn} onChange=${v => setEditingItem({ ...editingItem, contentEn: v })} /></div>
-                                        <div className="col-span-2 bg-purple-500/5 p-4 rounded-xl border border-purple-500/20 w-full">
-                                            <${Luminova.Components.Input} label="Media Embed URL (YouTube, Drive, Image...)" val=${editingItem.mediaUrl} onChange=${v => setEditingItem({ ...editingItem, mediaUrl: v })} />
-                                            <${Luminova.Components.FileInput} label="Or Upload Image / Video (رفع ميديا من الجهاز وحفظها Base64)" accept="*/*" onFileLoaded=${dta => setEditingItem({ ...editingItem, mediaUrl: dta })} />
-                                        </div>
+                                        ${(() => {
+                                            const currentUrls = editingItem.mediaUrls || (editingItem.mediaUrl ? [editingItem.mediaUrl] : []);
+                                            return html`
+                                                <div className="col-span-2 bg-purple-500/5 p-4 rounded-xl border border-purple-500/20 w-full space-y-4">
+                                                    <h4 className="font-bold opacity-80 text-purple-700 dark:text-purple-400">Media Attachments (مرفقات الخبر)</h4>
+                                                    ${currentUrls.map((mUrl, idx) => html`
+                                                        <div className="flex gap-2 items-center" key=${idx}>
+                                                            <div className="flex-1">
+                                                                <${Luminova.Components.Input} label=${"Media Embed URL " + (idx + 1) + " (YouTube, Drive, Image...)"} val=${mUrl} onChange=${v => {
+                                                                    const newUrls = [...currentUrls];
+                                                                    newUrls[idx] = v;
+                                                                    setEditingItem({ ...editingItem, mediaUrls: newUrls, mediaUrl: '' });
+                                                                }} />
+                                                            </div>
+                                                            <button onClick=${() => {
+                                                                const newUrls = currentUrls.filter((_, i) => i !== idx);
+                                                                setEditingItem({ ...editingItem, mediaUrls: newUrls, mediaUrl: '' });
+                                                            }} className="p-3 mt-6 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-colors font-bold shadow-sm">✕</button>
+                                                        </div>
+                                                    `)}
+                                                    <div className="flex flex-col sm:flex-row gap-4 pt-2">
+                                                        <button onClick=${() => {
+                                                            setEditingItem({ ...editingItem, mediaUrls: [...currentUrls, ''], mediaUrl: '' });
+                                                        }} className="px-6 py-3 bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold rounded-xl hover:bg-purple-500 hover:text-white transition-colors text-sm shadow-sm">
+                                                            + إضافة رابط آخر (Add Media Link)
+                                                        </button>
+                                                        <div className="flex-1">
+                                                            <${Luminova.Components.FileInput} label="Or Upload Image/Video (رفع وحفظ Base64)" accept="*/*" onFileLoaded=${dta => {
+                                                                setEditingItem({ ...editingItem, mediaUrls: [...currentUrls, dta], mediaUrl: '' });
+                                                            }} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            `;
+                                        })()}
                                     ` : activeTab === 'summaries' ? html`
                                         <div className="col-span-2 w-full"><${Luminova.Components.Input} label="عنوان التلخيص" val=${editingItem.titleAr} onChange=${v => setEditingItem({ ...editingItem, titleAr: v })} /></div>
                                         <div className="col-span-2 w-full"><${Luminova.Components.Input} label="Summary Title" val=${editingItem.titleEn} onChange=${v => setEditingItem({ ...editingItem, titleEn: v })} /></div>
                                         <div className="col-span-2 w-full"><${Luminova.Components.Input} type="textarea" label="نبذة محتوى (عربي)" val=${editingItem.contentAr} onChange=${v => setEditingItem({ ...editingItem, contentAr: v })} /></div>
                                         <div className="col-span-2 w-full"><${Luminova.Components.Input} type="textarea" label="Summary Content (English)" val=${editingItem.contentEn} onChange=${v => setEditingItem({ ...editingItem, contentEn: v })} /></div>
-                                        <div className="col-span-2 bg-purple-500/5 p-4 rounded-xl border border-purple-500/20 w-full">
-                                            <${Luminova.Components.Input} label="Media Embed URL (Drive PDF, Drive HTML, Image...)" val=${editingItem.mediaUrl} onChange=${v => setEditingItem({ ...editingItem, mediaUrl: v })} />
-                                            <${Luminova.Components.FileInput} label="Or Upload Direct Document (رفع ملف PDF أو HTML كـ Base64)" accept=".pdf,.html" onFileLoaded=${dta => setEditingItem({ ...editingItem, mediaUrl: dta })} />
-                                        </div>
+                                        ${(() => {
+                                            const currentUrls = editingItem.mediaUrls || (editingItem.mediaUrl ? [editingItem.mediaUrl] : []);
+                                            return html`
+                                                <div className="col-span-2 bg-purple-500/5 p-4 rounded-xl border border-purple-500/20 w-full space-y-4">
+                                                    <h4 className="font-bold opacity-80 text-purple-700 dark:text-purple-400">Media Attachments (مرفقات التلخيص)</h4>
+                                                    ${currentUrls.map((mUrl, idx) => html`
+                                                        <div className="flex gap-2 items-center" key=${idx}>
+                                                            <div className="flex-1">
+                                                                <${Luminova.Components.Input} label=${"Media Embed URL " + (idx + 1) + " (Drive PDF, Drive HTML, Image...)"} val=${mUrl} onChange=${v => {
+                                                                    const newUrls = [...currentUrls];
+                                                                    newUrls[idx] = v;
+                                                                    setEditingItem({ ...editingItem, mediaUrls: newUrls, mediaUrl: '' });
+                                                                }} />
+                                                            </div>
+                                                            <button onClick=${() => {
+                                                                const newUrls = currentUrls.filter((_, i) => i !== idx);
+                                                                setEditingItem({ ...editingItem, mediaUrls: newUrls, mediaUrl: '' });
+                                                            }} className="p-3 mt-6 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-colors font-bold shadow-sm">✕</button>
+                                                        </div>
+                                                    `)}
+                                                    <div className="flex flex-col sm:flex-row gap-4 pt-2">
+                                                        <button onClick=${() => {
+                                                            setEditingItem({ ...editingItem, mediaUrls: [...currentUrls, ''], mediaUrl: '' });
+                                                        }} className="px-6 py-3 bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold rounded-xl hover:bg-purple-500 hover:text-white transition-colors text-sm shadow-sm">
+                                                            + إضافة رابط آخر (Add Media Link)
+                                                        </button>
+                                                        <div className="flex-1">
+                                                            <${Luminova.Components.FileInput} label="Or Upload Direct Document (رفع ملف PDF/HTML كـ Base64)" accept=".pdf,.html" onFileLoaded=${dta => {
+                                                                setEditingItem({ ...editingItem, mediaUrls: [...currentUrls, dta], mediaUrl: '' });
+                                                            }} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            `;
+                                        })()}
                                     ` : activeTab === 'quizzes' ? html`
                                         <div className="col-span-2">
                                             <label className="block text-sm font-black mb-2 opacity-80 text-brand-DEFAULT drop-shadow-sm">ناشر الاختبار (Quiz Publisher - للعرض فقط بلا مساهمات)</label>
@@ -1412,6 +1568,7 @@
         const [lang, setLang] = useState(data.settings?.language || 'ar');
         const [view, setView] = useState('home');
         const [activeQuiz, setActiveQuiz] = useState(null);
+        const [activeSummary, setActiveSummary] = useState(null);
         const [clickCount, setClickCount] = useState(0);
 
         useEffect(() => {
@@ -1449,12 +1606,13 @@
 
         const renderView = () => {
             switch (view) {
-                case 'home': return html`<${Luminova.Pages.HomePage} data=${data} lang=${lang} setView=${setView} setActiveQuiz=${setActiveQuiz} />`;
-                case 'community': return html`<${Luminova.Pages.StudentCommunityPage} data=${data} lang=${lang} />`;
-                case 'academics': return html`<${Luminova.Pages.AcademicHierarchyPage} data=${data} lang=${lang} setView=${setView} setActiveQuiz=${setActiveQuiz} />`;
+                case 'home': return html`<${Luminova.Pages.HomePage} data=${data} lang=${lang} setView=${setView} setActiveQuiz=${setActiveQuiz} setActiveSummary=${setActiveSummary} />`;
+                case 'community': return html`<${Luminova.Pages.StudentCommunityPage} data=${data} lang=${lang} setView=${setView} setActiveSummary=${setActiveSummary} />`;
+                case 'academics': return html`<${Luminova.Pages.AcademicHierarchyPage} data=${data} lang=${lang} setView=${setView} setActiveQuiz=${setActiveQuiz} setActiveSummary=${setActiveSummary} />`;
                 case 'quiz': return html`<${Luminova.Pages.QuizEngine} quiz=${activeQuiz} data=${data} lang=${lang} goBack=${() => setView('academics')} />`;
+                case 'summaryDetail': return html`<${Luminova.Pages.SummaryDetail} item=${activeSummary} data=${data} lang=${lang} goBack=${() => setView('home')} />`;
                 case 'cms': return html`<${Luminova.Pages.AdminCMS} data=${data} setData=${setData} lang=${lang} goBack=${() => setView('home')} />`;
-                default: return html`<${Luminova.Pages.HomePage} data=${data} lang=${lang} setView=${setView} setActiveQuiz=${setActiveQuiz} />`;
+                default: return html`<${Luminova.Pages.HomePage} data=${data} lang=${lang} setView=${setView} setActiveQuiz=${setActiveQuiz} setActiveSummary=${setActiveSummary} />`;
             }
         };
 
@@ -1462,11 +1620,11 @@
         <div className="min-h-screen lmv-page-wrapper">
             <nav className="glass-card sticky top-0 z-40 px-3 sm:px-8 py-3 sm:py-5 mb-10 flex items-center gap-2 rounded-none border-t-0 border-r-0 border-l-0 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)]">
 
-                <!-- Logo: always visible, text hidden on very small screens -->
-                <div className="flex items-center gap-2 cursor-pointer group flex-shrink-0" onClick=${handleLogoClick}>
+                <!-- Logo + Platform Name: always visible on all screen sizes, language-aware -->
+                <div className="navbar-brand cursor-pointer group flex-shrink-0" onClick=${handleLogoClick}>
                     <div className="w-9 h-9 sm:w-12 sm:h-12 bg-gradient-to-br from-brand-DEFAULT to-brand-gold rounded-xl sm:rounded-2xl flex items-center justify-center text-white font-black text-lg sm:text-2xl shadow-xl group-hover:scale-110 transition-transform flex-shrink-0">L</div>
-                    <span className="text-lg sm:text-3xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-brand-DEFAULT to-brand-gold drop-shadow-sm hidden sm:inline">
-                        Luminova
+                    <span className="navbar-text sm:text-3xl font-black sm:tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-brand-DEFAULT to-brand-gold drop-shadow-sm leading-tight">
+                        ${lang === 'ar' ? 'لومينوفا التعليمية' : 'Luminova Edu'}
                     </span>
                 </div>
 
