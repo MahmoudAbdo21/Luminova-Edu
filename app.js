@@ -150,10 +150,10 @@
                 onClick=${(e) => { e.stopPropagation(); setIsExpanded(!isExpanded); }}
                 className="w-full mt-2 py-3 bg-gray-100 dark:bg-gray-800 hover:bg-brand-DEFAULT hover:text-white dark:hover:bg-brand-DEFAULT transition-colors rounded-xl font-bold flex items-center justify-center gap-2 shadow-sm border border-gray-200 dark:border-gray-700"
             >
-                ${isExpanded ? 
-                    html`<span className="text-xl">🗕</span> <span>تصغير العرض (Collapse)</span>` : 
-                    html`<span className="text-xl">⛶</span> <span>عرض الملف الكامل (Expand)</span>`
-                }
+                ${isExpanded ?
+                html`<span className="text-xl">🗕</span> <span>تصغير العرض (Collapse)</span>` :
+                html`<span className="text-xl">⛶</span> <span>عرض الملف الكامل (Expand)</span>`
+            }
             </button>
         </div>
     `;
@@ -329,10 +329,7 @@
             });
 
             data.quizzes.forEach(q => {
-                // Count quiz creation itself
-                const qCreatorId = normalizeId(q.creatorId || q.studentId || q.publisherId);
-                if (qCreatorId) counts[qCreatorId] = (counts[qCreatorId] || 0) + 1;
-                // Count each question's author
+                // Count each question's author only (quiz creation itself is excluded)
                 (q.questions || []).forEach(qn => {
                     const sId = normalizeId(qn.studentId);
                     if (sId) counts[sId] = (counts[sId] || 0) + 1;
@@ -379,8 +376,8 @@
                     <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">${Luminova.i18n[lang].news}</h2>
                     <div className="space-y-4">
                         ${data.news.map((n, idx) => {
-                            const author = Luminova.getStudent(n.studentId, data.students);
-                            return html`
+            const author = Luminova.getStudent(n.studentId, data.students);
+            return html`
                             <${Luminova.Components.GlassCard} key=${idx} className=${`border-l-4 ${idx === 0 ? 'border-l-brand-gold bg-brand-gold/5' : 'border-l-brand-DEFAULT'}`}>
                                 ${n.studentId && html`
                                     <div className="flex items-center gap-3 mb-4 opacity-80 border-b border-gray-200 dark:border-gray-700 pb-3">
@@ -425,7 +422,11 @@
             bioEn: 'Founder of Luminova Edu Platform. Lead Developer and Administrator.',
             image: 'img/profile.png', // Fallback avatar for founder if needed
             isFounder: true,
-            socialLinks: { facebook: 'https://www.facebook.com/mahmoud.abdalrahaman.hagag', instagram: 'https://www.instagram.com/mahmoud_abdelrhman_1', linkedin: 'https://www.linkedin.com/in/mahmoud-hagag-145127346/' }
+            socialLinks: {
+                facebook: 'https://www.facebook.com/mahmoud.abdalrahaman.hagag',
+                instagram: 'https://www.instagram.com/mahmoud_abdelrhman_1',
+                linkedin: 'https://www.linkedin.com/in/mahmoud-hagag-145127346/'
+            }
         };
 
         // Regular students (filter out any potential accidental founder in DB)
@@ -495,33 +496,33 @@
                             <h3 className="text-xl font-bold mb-4">${lang === 'ar' ? 'المساهمات' : 'Contributions'}</h3>
                             <${Luminova.Components.TimelineFeed} 
                                 items=${(() => {
-                                    const userQuestions = [];
-                                    data.quizzes.forEach(q => {
-                                        (q.questions || []).forEach(qn => {
-                                            const sId = (qn.studentId === 's_founder' || qn.studentId === 's_founder_hardcoded') ? Luminova.FOUNDER.id : qn.studentId;
-                                            if (sId === selectedStudent.id) {
-                                                userQuestions.push({
-                                                    id: qn.id,
-                                                    titleAr: 'سؤال تفاعلي في: ' + (q.titleAr || q.titleEn || q.title || 'اختبار'),
-                                                    titleEn: 'Interactive Question in: ' + (q.titleEn || q.titleAr || q.title || 'Quiz'),
-                                                    contentAr: qn.textAr || qn.text,
-                                                    contentEn: qn.textEn || qn.text,
-                                                    mediaUrl: qn.mediaUrl,
-                                                    timestamp: qn.timestamp || q.timestamp || new Date().toISOString(),
-                                                    studentId: qn.studentId,
-                                                    subjectId: q.subjectId,
-                                                    isSingleQuestion: true,
-                                                    parentQuiz: q
-                                                });
-                                            }
-                                        });
-                                    });
-                                    const userSummaries = data.summaries.filter(i => {
-                                        const sId = (i.studentId === 's_founder' || i.studentId === 's_founder_hardcoded') ? Luminova.FOUNDER.id : i.studentId;
-                                        return sId === selectedStudent.id;
-                                    });
-                                    return [...userSummaries, ...userQuestions].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                                })()} 
+                    const userQuestions = [];
+                    data.quizzes.forEach(q => {
+                        (q.questions || []).forEach(qn => {
+                            const sId = (qn.studentId === 's_founder' || qn.studentId === 's_founder_hardcoded') ? Luminova.FOUNDER.id : qn.studentId;
+                            if (sId === selectedStudent.id) {
+                                userQuestions.push({
+                                    id: qn.id,
+                                    titleAr: 'سؤال تفاعلي في: ' + (q.titleAr || q.titleEn || q.title || 'اختبار'),
+                                    titleEn: 'Interactive Question in: ' + (q.titleEn || q.titleAr || q.title || 'Quiz'),
+                                    contentAr: qn.textAr || qn.text,
+                                    contentEn: qn.textEn || qn.text,
+                                    mediaUrl: qn.mediaUrl,
+                                    timestamp: qn.timestamp || q.timestamp || new Date().toISOString(),
+                                    studentId: qn.studentId,
+                                    subjectId: q.subjectId,
+                                    isSingleQuestion: true,
+                                    parentQuiz: q
+                                });
+                            }
+                        });
+                    });
+                    const userSummaries = data.summaries.filter(i => {
+                        const sId = (i.studentId === 's_founder' || i.studentId === 's_founder_hardcoded') ? Luminova.FOUNDER.id : i.studentId;
+                        return sId === selectedStudent.id;
+                    });
+                    return [...userSummaries, ...userQuestions].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                })()} 
                                 students=${data.students} subjects=${data.subjects} lang=${lang} onQuizClick=${() => { alert(lang === 'ar' ? 'قم بالدخول للاختبار الكامل من القسم الأكاديمي' : 'Access full quiz from Academic section'); }} 
                             />
                         </div>
@@ -1173,7 +1174,7 @@
                                     ${(activeTab === 'semesters' || activeTab === 'subjects' || activeTab === 'summaries' || activeTab === 'quizzes') && html`
                                         <div className="col-span-2 md:col-span-1">
                                             <label className="block text-sm font-black mb-2 opacity-80 text-brand-DEFAULT drop-shadow-sm">الفرقة (Year Hierarchy)</label>
-                                            <select value=${editingItem.yearId || ''} onChange=${e => setEditingItem({ ...editingItem, yearId: e.target.value })} className="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-brand-DEFAULT/30 font-bold outline-none ring-0">
+                                            <select value=${editingItem.yearId || ''} onChange=${e => setEditingItem({ ...editingItem, yearId: e.target.value, semesterId: '', subjectId: '' })} className="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-brand-DEFAULT/30 font-bold outline-none ring-0">
                                                 <option value="">-- اختار الفرقة --</option>
                                                 ${data.years.map(y => html`<option key=${y.id} value=${y.id}>${y.nameAr || y.name}</option>`)}
                                             </select>
@@ -1182,9 +1183,9 @@
                                     ${(activeTab === 'subjects' || activeTab === 'summaries' || activeTab === 'quizzes') && html`
                                         <div className="col-span-2 md:col-span-1">
                                             <label className="block text-sm font-black mb-2 opacity-80 text-brand-DEFAULT drop-shadow-sm">الترم (Semester Hierarchy)</label>
-                                            <select value=${editingItem.semesterId || ''} onChange=${e => setEditingItem({ ...editingItem, semesterId: e.target.value })} className="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-brand-DEFAULT/30 font-bold outline-none ring-0">
+                                            <select value=${editingItem.semesterId || ''} onChange=${e => setEditingItem({ ...editingItem, semesterId: e.target.value, subjectId: '' })} className="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-brand-DEFAULT/30 font-bold outline-none ring-0">
                                                 <option value="">-- اختار الترم --</option>
-                                                ${data.semesters.map(s => html`<option key=${s.id} value=${s.id}>${s.nameAr || s.name}</option>`)}
+                                                ${data.semesters.filter(s => !editingItem.yearId || s.yearId === editingItem.yearId).map(s => html`<option key=${s.id} value=${s.id}>${s.nameAr || s.name}</option>`)}
                                             </select>
                                         </div>
                                     `}
@@ -1193,7 +1194,14 @@
                                             <label className="block text-sm font-black mb-2 opacity-80 text-brand-hover drop-shadow-sm">المادة (Subject Link)</label>
                                             <select value=${editingItem.subjectId || ''} onChange=${e => setEditingItem({ ...editingItem, subjectId: e.target.value })} className="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-brand-hover/50 font-bold outline-none ring-0">
                                                 <option value="">-- اختار المادة --</option>
-                                                ${data.subjects.map(s => html`<option key=${s.id} value=${s.id}>${s.nameAr || s.name}</option>`)}
+                                                ${data.subjects.filter(s => {
+                                                    if (editingItem.semesterId) return s.semesterId === editingItem.semesterId;
+                                                    if (editingItem.yearId) {
+                                                        const validSems = data.semesters.filter(sem => sem.yearId === editingItem.yearId).map(sem => sem.id);
+                                                        return validSems.includes(s.semesterId);
+                                                    }
+                                                    return true;
+                                                }).map(s => html`<option key=${s.id} value=${s.id}>${s.nameAr || s.name}</option>`)}
                                             </select>
                                         </div>
                                     `}
@@ -1299,11 +1307,38 @@
                                             <tr key=${item.id} className="border-b dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
                                                 <td className="p-4 text-xs font-mono opacity-40 group-hover:opacity-100 transition-opacity">${item.id}</td>
                                                 <td className="p-4 font-bold text-lg">
-                                                    ${item.titleAr || item.nameAr || item.name || item.titleEn || item.nameEn || item.title || 'N/A'} 
-                                                    <span className="text-gray-400 font-normal mx-2">-</span> 
-                                                    <span className="opacity-70 text-sm font-normal">${item.titleEn || item.nameEn || item.title || ''}</span>
-                                                    ${item.isVIP && html`<span className="ml-2 text-brand-DEFAULT" title="VIP">✨</span>`}
-                                                    ${item.isVerified && html`<span className="ml-2" title="Verified">🔵✔️</span>`}
+                                                    ${activeTab === 'semesters' && item.yearId ? (() => {
+                                                        const parentYear = data.years.find(y => y.id === item.yearId);
+                                                        return html`
+                                                            <span className="text-xs font-bold text-brand-DEFAULT/60 block mb-1 tracking-wide">${parentYear ? (parentYear.nameAr || parentYear.nameEn) : item.yearId}</span>
+                                                            <span className="flex items-center gap-1.5">
+                                                                <span className="text-brand-DEFAULT/40 text-base">»</span>
+                                                                <span>${item.nameAr || item.name || item.nameEn || 'N/A'}</span>
+                                                                ${(item.nameEn || item.name) ? html`<span className="text-gray-400 font-normal text-sm mx-1">-</span><span className="opacity-60 text-sm font-normal">${item.nameEn || ''}</span>` : null}
+                                                            </span>
+                                                        `;
+                                                    })() : activeTab === 'subjects' && item.semesterId ? (() => {
+                                                        const parentSem = data.semesters.find(s => s.id === item.semesterId);
+                                                        const parentYear = parentSem ? data.years.find(y => y.id === parentSem.yearId) : null;
+                                                        return html`
+                                                            <span className="text-xs font-bold text-brand-DEFAULT/60 block mb-1 tracking-wide">
+                                                                ${parentYear ? (parentYear.nameAr || parentYear.nameEn) : ''}
+                                                                ${parentYear && parentSem ? html`<span className="opacity-50 mx-1">»</span>` : null}
+                                                                ${parentSem ? (parentSem.nameAr || parentSem.nameEn) : ''}
+                                                            </span>
+                                                            <span className="flex items-center gap-1.5">
+                                                                <span className="text-brand-DEFAULT/40 text-base">»</span>
+                                                                <span>${item.nameAr || item.name || item.nameEn || 'N/A'}</span>
+                                                                ${(item.nameEn || item.name) ? html`<span className="text-gray-400 font-normal text-sm mx-1">-</span><span className="opacity-60 text-sm font-normal">${item.nameEn || ''}</span>` : null}
+                                                            </span>
+                                                        `;
+                                                    })() : html`
+                                                        <span>${item.titleAr || item.nameAr || item.name || item.titleEn || item.nameEn || item.title || 'N/A'}</span>
+                                                        <span className="text-gray-400 font-normal mx-2">-</span>
+                                                        <span className="opacity-70 text-sm font-normal">${item.titleEn || item.nameEn || item.title || ''}</span>
+                                                        ${item.isVIP && html`<span className="ml-2 text-brand-DEFAULT" title="VIP">✨</span>`}
+                                                        ${item.isVerified && html`<span className="ml-2" title="Verified">🔵✔️</span>`}
+                                                    `}
                                                 </td>
                                                 <td className="p-4 text-sm opacity-60 font-semibold tracking-wider">${Luminova.formatDate(item.timestamp, lang)}</td>
                                                 <td className="p-4 flex justify-end gap-3">
@@ -1337,15 +1372,10 @@
     // ==========================================
 
     const App = () => {
-        const fallbackData = window.LUMINOVA_DATA || {};
+        const fallbackData = window.initialData || window.LUMINOVA_DATA || {};
 
-        // Support merging initialData (if provided loosely by old index tags) or LUMINOVA_DATA
+        // الاعتماد الحصري على data.js كمصدر وحيد وتجاهل التخزين المحلي
         const [data, setData] = useState(() => {
-            const ls = localStorage.getItem('luminova_data');
-            if (ls) {
-                const parsedData = JSON.parse(ls);
-                return { ...fallbackData, ...parsedData };
-            }
             return fallbackData;
         });
 
@@ -1353,10 +1383,6 @@
         const [view, setView] = useState('home');
         const [activeQuiz, setActiveQuiz] = useState(null);
         const [clickCount, setClickCount] = useState(0);
-
-        useEffect(() => {
-            localStorage.setItem('luminova_data', JSON.stringify(data));
-        }, [data]);
 
         useEffect(() => {
             const root = document.documentElement;

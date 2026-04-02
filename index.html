@@ -53,14 +53,11 @@
         document.write('<script src="data.js?v=' + Date.now() + '"><\\/script>');
     </script>
 
-    <!-- عكس أولوية البيانات (Internal Cache Fix & Stability Guard) -->
-    <!-- يتم تنفيذ هذا المقطع مرة واحدة فقط لحظة تحميل الصفحة -->
+    <!-- عكس أولوية البيانات (Internal Cache Fix & Single Source of Truth) -->
+    <!-- يتم تنفيذ هذا المقطع مرة واحدة فقط لحظة تحميل الصفحة لتنظيف أي بيانات سابقة -->
     <script>
-        // بمجرد تحميل كود السيرفر (data.js) نجعله الأولوية القصوى ونحدّث به الكاش الداخلي
-        var serverFreshData = window.initialData || window.LUMINOVA_DATA;
-        if (serverFreshData && Object.keys(serverFreshData).length > 0) {
-            localStorage.setItem('luminova_data', JSON.stringify(serverFreshData));
-        }
+        // الاعتماد الحصري على كود السيرفر (data.js) ومسح أي كاش قديم
+        localStorage.removeItem('luminova_data');
     </script>
 
 </head>
