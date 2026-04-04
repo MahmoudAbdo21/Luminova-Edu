@@ -52,16 +52,17 @@ window.LUMINOVA_DATA = {
       "nameEn": "Salma Zahran",
       "majorAr": "تكنولوجيا التعليم ",
       "majorEn": "Educational technology",
-      "bioAr": "أنا مؤمنة إن الشغل بضمير والتفكير الإيجابي بيكملوا بعض. دايماً متحمسة أتعلم، أقدم أحسن ما عندي، وأضيف طاقة حلوة لفريق العمل",
-      "bioEn": "I believe that hard work and a positive mindset go hand in hand. Always eager to learn, give my best, and bring good energy to the team",
+      "bioAr": "طالبة مجتهدة وطموحة، تسعى دائمًا لتطوير نفسها واكتساب مهارات جديدة، خاصة في مجال التكنولوجيا. لديها شغف كبير بالتعلم ومواكبة كل ما هو حديث، وتسعى لبناء مستقبل مميز من خلال الاجتهاد والاستمرار في تطوير قدراتها",
+      "bioEn": "A diligent and ambitious student, she constantly strives to develop herself and acquire new skills, especially in the field of technology. She has a great passion for learning and keeping up with the latest advancements, and seeks to build a distinguished future through hard work and continuous development of her abilities",
       "image": "",
       "isVIP": true,
       "isVerified": true,
       "socialLinks": {
         "facebook": "",
         "instagram": "",
-        "linkedin": ""
-      }
+        "linkedin": "https://www.linkedin.com/in/salma-zahran-351999388?utm_source=share_via&utm_content=profile&utm_medium=member_android"
+      },
+      "mediaUrls": []
     },
     {
       "id": "founder_1",
