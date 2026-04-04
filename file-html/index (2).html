@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المستوى الثالث (تكملة): مراحل الإنتاج الإذاعي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        .game-card {
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid #1e293b;
+            backdrop-filter: blur(15px);
+            transition: all 0.4s ease;
+        }
+
+        .game-card:hover {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .level-badge {
+            background: linear-gradient(90deg, #8b5cf6, #d946ef);
+            clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
+        }
+
+        .neon-purple {
+            text-shadow: 0 0 15px rgba(167, 139, 250, 0.7);
+        }
+
+        .disclaimer-banner {
+            background: #7f1d1d;
+            border-bottom: 2px solid #f87171;
+        }
+
+        .quest-item {
+            border-right: 4px solid transparent;
+            transition: 0.3s;
+        }
+
+        .quest-item:hover {
+            border-right-color: #d946ef;
+            background: rgba(217, 70, 239, 0.1);
+        }
+
+        @media (max-width: 640px) {
+            h1 { font-size: 1.75rem !important; }
+        }
+    </style>
+</head>
+<body class="pb-28">
+
+    <!-- رسالة إخلاء المسؤولية -->
+    <div class="disclaimer-banner p-2 sticky top-0 z-[100] text-center">
+        <p class="text-[10px] sm:text-xs font-bold leading-tight">
+            ⚠️ <span class="uppercase">Warning:</span> هذا مجهود طلابي استرشادي (تكملة المستوى الثالث). 
+            <span class="underline">يرجى الرجوع للكتاب الجامعي</span> لضمان الدقة الأكاديمية.
+        </p>
+    </div>
+
+    <!-- هيدر اللعبة -->
+    <header class="relative py-16 px-4 text-center overflow-hidden bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-900/40 via-slate-950 to-slate-950">
+        <div class="container mx-auto relative z-10">
+            <div class="level-badge inline-block px-10 py-1 mb-6 shadow-lg">
+                <span class="text-white font-black tracking-[0.2em] text-sm">LEVEL 03 - PART 2</span>
+            </div>
+            <h1 class="text-4xl md:text-7xl font-black mb-4 neon-purple italic">🎙️ مراحل الإنتاج الإذاعي</h1>
+            <div class="flex justify-center gap-6 text-sm md:text-lg font-bold opacity-80">
+                <span class="flex items-center gap-2"><i class="fas fa-shield-alt text-blue-400"></i> ARMOR: 100%</span>
+                <span class="flex items-center gap-2"><i class="fas fa-microchip text-purple-400"></i> EXPANSION PACK: ENABLED</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto mt-10 max-w-4xl px-4">
+
+        <!-- الأهداف -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <i class="fas fa-bullseye text-pink-500"></i> 🎯 أهداف الفصل (المهمات المطلوبة)
+            </h2>
+            <div class="game-card p-8 rounded-3xl">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="quest-item p-3 flex items-center gap-3 italic"><span>✅ تحديد الجمهور المستهدف بدقة</span></div>
+                    <div class="quest-item p-3 flex items-center gap-3 italic"><span>✅ ابتكار فكرة برامجية قوية</span></div>
+                    <div class="quest-item p-3 flex items-center gap-3 italic"><span>✅ اختيار اللغة والتوقيت المناسب</span></div>
+                    <div class="quest-item p-3 flex items-center gap-3 italic"><span>✅ التمييز بين القوالب الإذاعية</span></div>
+                    <div class="quest-item p-3 flex items-center gap-3 italic"><span>✅ احتراف جمع المادة العلمية</span></div>
+                    <div class="quest-item p-3 flex items-center gap-3 italic"><span>✅ تخطيط وتنفيذ البرنامج</span></div>
+                    <div class="quest-item p-3 flex items-center gap-3 italic"><span>✅ إتقان مراحل الإنتاج كاملة</span></div>
+                    <div class="quest-item p-3 flex items-center gap-3 italic"><span>✅ تقييم نجاح العمل</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- المراحل الرئيسية -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-6 text-green-400 flex items-center gap-3">
+                <span class="bg-green-600 p-2 rounded-lg text-white"><i class="fas fa-project-diagram"></i></span>
+                🟢 مراحل الإنتاج الـ 4
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="game-card p-4 rounded-xl text-center border-b-4 border-b-blue-500">
+                    <span class="block text-2xl mb-2">1</span>
+                    <span class="text-xs font-bold">تحديد الجمهور</span>
+                </div>
+                <div class="game-card p-4 rounded-xl text-center border-b-4 border-b-yellow-500">
+                    <span class="block text-2xl mb-2">2</span>
+                    <span class="text-xs font-bold">اختيار الفكرة</span>
+                </div>
+                <div class="game-card p-4 rounded-xl text-center border-b-4 border-b-orange-500">
+                    <span class="block text-2xl mb-2">3</span>
+                    <span class="text-xs font-bold">الإعداد</span>
+                </div>
+                <div class="game-card p-4 rounded-xl text-center border-b-4 border-b-red-500">
+                    <span class="block text-2xl mb-2">4</span>
+                    <span class="text-xs font-bold">التنفيذ</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- المرحلة 1 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-6 text-yellow-400 italic">🟡 المرحلة 1: تحديد الجمهور المستهدف</h2>
+            <div class="game-card p-8 rounded-3xl relative overflow-hidden">
+                <p class="text-xl font-black text-yellow-500 mb-4 underline decoration-double italic">📌 دي أهم خطوة في اللعبة!</p>
+                <p class="mb-6 leading-relaxed opacity-80">لأن كل حاجة بعدها بتتبني عليها.</p>
+
+                <div class="bg-slate-900/60 p-6 rounded-2xl mb-8 border-r-4 border-yellow-500">
+                    <h3 class="font-bold mb-3 text-yellow-300 italic underline">✳️ بيتم فيها إيه؟ (غرفة الاجتماعات)</h3>
+                    <p class="text-sm mb-4">اجتماع فريق العمل (مخرج – معد – مذيع…) والبحث عن:</p>
+                    <ul class="space-y-2">
+                        <li class="flex items-center gap-2"><i class="fas fa-id-card text-yellow-500"></i> مين الجمهور بالظبط؟</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-crosshairs text-yellow-500"></i> إيه الهدف النهائي؟</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-shapes text-yellow-500"></i> إيه القالب المناسب ليهم؟</li>
+                    </ul>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <h4 class="font-bold border-b border-white/10 pb-2">👥 نوع الجمهور:</h4>
+                        <div class="text-sm space-y-2">
+                            <p class="bg-blue-900/20 p-2 rounded"><strong>أ) جمهور عام:</strong> كل الناس (بدون قيود).</p>
+                            <p class="bg-purple-900/20 p-2 rounded"><strong>ب) جمهور خاص:</strong> (سني - مهني - جغرافي).</p>
+                            <p class="text-[10px] text-yellow-200/60 font-bold">مثال: طفل مدرسة vs طفل قبل المدرسة / ربة منزل vs عاملة.</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <h4 class="font-bold border-b border-white/10 pb-2">⏰ الوقت واللغة:</h4>
+                        <p class="text-xs">📌 <strong>التوقيت:</strong> لازم وقت ذروة (Prime Time) للجمهور.</p>
+                        <p class="text-xs">📌 <strong>اللغة:</strong> (بسيطة للعامة / أرقى للمثقفين / سهلة جداً للأطفال).</p>
+                        <p class="text-xs">📌 <strong>القالب:</strong> (حوار - تحقيق - مجلة - مسلسل) حسب ذوقهم.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- المرحلة 2 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-6 text-yellow-400 italic">🟡 المرحلة 2: اختيار فكرة البرنامج</h2>
+            <div class="game-card p-8 rounded-3xl border-l-4 border-yellow-500">
+                <p class="text-xl font-bold mb-6">📌 المحرك الأساسي: <span class="text-yellow-400 underline decoration-wavy italic">اهتمامات الجمهور</span></p>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div class="p-3 bg-slate-800/50 rounded-xl border border-white/5">
+                        <span class="text-xs font-bold text-blue-400">الحياة اليومية</span>
+                    </div>
+                    <div class="p-3 bg-slate-800/50 rounded-xl border border-white/5">
+                        <span class="text-xs font-bold text-red-400">الصراع والكوارث</span>
+                    </div>
+                    <div class="p-3 bg-slate-800/50 rounded-xl border border-white/5">
+                        <span class="text-xs font-bold text-pink-400">الاهتمامات الإنسانية</span>
+                    </div>
+                    <div class="p-3 bg-slate-800/50 rounded-xl border border-white/5">
+                        <span class="text-xs font-bold text-green-400">موضوعات إعلامية</span>
+                    </div>
+                    <div class="p-3 bg-slate-800/50 rounded-xl border border-white/5">
+                        <span class="text-xs font-bold text-yellow-400">المناسبات</span>
+                    </div>
+                    <div class="p-3 bg-slate-800/50 rounded-xl border border-white/5">
+                        <span class="text-xs font-bold text-purple-400">تكرار الظواهر</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- المرحلة 3 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-6 text-yellow-400 italic">🟡 المرحلة 3: الإعداد (خلف الكواليس)</h2>
+            <div class="game-card p-8 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-950">
+                <div class="space-y-8">
+                    <div>
+                        <h3 class="font-bold text-lg text-white mb-4 italic">1️⃣ التخطيط (خريطة العمل):</h3>
+                        <p class="text-xs mb-4 opacity-70">تقسيم الموضوع &larr; أسئلة &larr; توزيع الوقت &larr; اختيار المصادر.</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-indigo-950/30 p-5 rounded-2xl border border-indigo-500/30">
+                            <h3 class="font-bold mb-3 text-indigo-300 italic">2️⃣ المصادر:</h3>
+                            <p class="text-[10px]"><strong>شخصية:</strong> لقاءات مباشرة.</p>
+                            <p class="text-[10px]"><strong>مكتبية:</strong> أبحاث، جرائد، أرشيف.</p>
+                        </div>
+                        <div class="bg-green-950/30 p-5 rounded-2xl border border-green-500/30">
+                            <h3 class="font-bold mb-3 text-green-300 italic">3️⃣ جمع المادة:</h3>
+                            <p class="text-[10px]">بحث عميق &larr; تحديد ضيوف &larr; وضع بدائل للطوارئ.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-orange-950/20 p-5 rounded-2xl border border-orange-500/30">
+                            <h3 class="font-bold mb-3 text-orange-300 italic">5️⃣ المؤثرات الصوتية:</h3>
+                            <p class="text-[10px]"><strong>طبيعية</strong> (واقعية) / <strong>صناعية</strong> (مسجلة). تعطي مصداقية وإحساس بالمكان.</p>
+                        </div>
+                        <div class="bg-blue-950/20 p-5 rounded-2xl border border-blue-500/30">
+                            <h3 class="font-bold mb-3 text-blue-300 italic">6️⃣ الموسيقى:</h3>
+                            <p class="text-[10px]"><strong>تتر</strong> (بداية ونهاية) / <strong>ربط</strong> (بين الفقرات). لازم تليق بموود البرنامج.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- المرحلة 4 -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-6 text-red-500 italic">🔴 المرحلة 4: التنفيذ (Action)</h2>
+            <div class="game-card p-8 rounded-3xl border-r-8 border-red-500">
+                <div class="space-y-8">
+                    <div class="bg-slate-900/80 p-6 rounded-2xl border border-red-500/20">
+                        <h3 class="text-xl font-bold text-red-500 mb-4 italic">📜 الاسكريبت (قلب البرنامج)</h3>
+                        <div class="grid md:grid-cols-2 gap-4 text-xs">
+                            <ul class="space-y-2">
+                                <li>✨ افتتاحية ونهاية تشد.</li>
+                                <li>✨ بداية قوية (تصريح أو مؤثر).</li>
+                            </ul>
+                            <ul class="space-y-2">
+                                <li>✨ وحدة البرنامج (ترابط العناصر).</li>
+                                <li>✨ كلمات بسيطة تناسب الجمهور.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-slate-900/60 p-5 rounded-2xl border border-blue-500/30">
+                            <h3 class="font-bold text-sm mb-3 text-blue-400">🎧 المخرج في الاستوديو:</h3>
+                            <p class="text-[10px] italic">يتأكد من الأجهزة &larr; يطمن الضيوف &larr; يراقب الوقت &larr; تسجيل البيانات بعد انتهاء الشريط.</p>
+                        </div>
+                        <div class="bg-slate-900/60 p-5 rounded-2xl border border-purple-500/30">
+                            <h3 class="font-bold text-sm mb-3 text-purple-400">✂️ المونتاج والمزج:</h3>
+                            <p class="text-[10px] italic">حذف الأخطاء &larr; تحسين الجودة &larr; دمج الصوت مع الموسيقى والمؤثرات باحترافية.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- التقييم -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-6 text-purple-400 italic">🟣 التقييم (مرحلة الـ Score)</h2>
+            <div class="game-card p-8 rounded-3xl border-l-4 border-purple-500">
+                <div class="grid md:grid-cols-2 gap-8 text-xs">
+                    <div class="space-y-2">
+                        <h3 class="font-black text-purple-300">1) تقييم مرحلي:</h3>
+                        <p>آراء الجمهور أثناء العرض (مكالمات/رسائل) لقياس الفهم والجذب.</p>
+                    </div>
+                    <div class="space-y-2">
+                        <h3 class="font-black text-purple-300">2) تقييم نهائي:</h3>
+                        <p><strong>شكلي:</strong> (قالب، مذيع، مونتاج).<br><strong>مضمون:</strong> (هل وعي الجمهور زاد؟ هل اتغير سلوكه؟).</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- الخلاصة -->
+        <section class="mb-24">
+            <div class="bg-gradient-to-r from-purple-600 to-pink-600 p-1 rounded-3xl shadow-[0_0_50px_rgba(217,70,239,0.3)]">
+                <div class="bg-gray-950 p-8 rounded-3xl text-right">
+                    <h2 class="text-3xl font-black mb-8 text-center text-pink-400 italic">🏁 ملخص المهمة (الزتونة)</h2>
+                    <ul class="space-y-3 text-xs md:text-base italic">
+                        <li class="flex items-center gap-3">🎯 الإنتاج 4 خطوات: جمهور، فكرة، إعداد، تنفيذ.</li>
+                        <li class="flex items-center gap-3">🎯 الجمهور هو البوصلة اللي بتحرك كل حاجة.</li>
+                        <li class="flex items-center gap-3">🎯 الإعداد هو الشغل التقني والمكتبي قبل المايك.</li>
+                        <li class="flex items-center gap-3">🎯 التنفيذ هو الاسكريبت والتسجيل والمونتاج.</li>
+                        <li class="flex items-center gap-3">🎯 التقييم هو اللي بيخلينا نطور نفسنا في "الليفلات" الجاية.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- فوتر اللعبة -->
+    <footer class="fixed bottom-0 left-0 right-0 bg-slate-900/95 border-t border-purple-900/50 p-4 flex justify-around items-center z-50 backdrop-blur-xl">
+        <div class="flex flex-col items-center opacity-50">
+            <i class="fas fa-home"></i>
+            <span class="text-[8px] uppercase font-bold mt-1">Lobby</span>
+        </div>
+        <div class="flex flex-col items-center">
+            <div class="bg-gradient-to-t from-purple-700 to-pink-500 w-12 h-12 rounded-full flex items-center justify-center -mt-10 border-4 border-slate-900 shadow-2xl">
+                <i class="fas fa-check-double text-white text-sm"></i>
+            </div>
+            <span class="text-[8px] uppercase font-black mt-1 text-pink-400">Lvl 03 Done</span>
+        </div>
+        <div class="flex flex-col items-center opacity-50">
+            <i class="fas fa-cog"></i>
+            <span class="text-[8px] uppercase font-bold mt-1">Settings</span>
+        </div>
+    </footer>
+
+</body>
+</html>
