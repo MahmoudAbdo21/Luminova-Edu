@@ -1,57 +1,46 @@
 (function () {
     "use strict";
-
     if (!window.__LUMINOVA || !window.React || !window.ReactDOM) return;
 
     const { useState, useEffect } = window.React;
     const html = window.htm.bind(window.React.createElement);
 
+    // ═══════════════════════════════════════════════════════════════
+    //  Luminova Smart File Viewer
+    //
+    //  Architecture Decision:
+    //  Articulate Storyline has an internal JS scaler that locks onto
+    //  a 16:9 (or 4:3) aspect ratio. When the iframe viewport is TALLER
+    //  than the course ratio, Articulate letterboxes — leaving dead space.
+    //
+    //  Solution: Drive the iframe wrapper with `aspect-ratio: 16/9`.
+    //  The modal becomes a floating lightbox that HUGS the content.
+    //    • Mobile (375px): modal ≈ 375 × (211 + 52) = 263px tall → neat popup
+    //    • Desktop (1280px): modal ≈ 1280 × (720 + 52) = 772px tall → windowed
+    //  Articulate fills its iframe 100% — zero dead space.
+    // ═══════════════════════════════════════════════════════════════
+
     const FullscreenViewerApp = () => {
-        const [url, setUrl] = useState(null);
+        const [url,  setUrl]  = useState(null);
         const [lang, setLang] = useState('ar');
-        const [winH, setWinH] = useState(window.innerHeight);
-        const [winW, setWinW] = useState(window.innerWidth);
 
         useEffect(() => {
-            // Sync lang
-            const syncLang = () => setLang(document.documentElement.getAttribute('lang') === 'en' ? 'en' : 'ar');
+            const syncLang = () =>
+                setLang(document.documentElement.getAttribute('lang') === 'en' ? 'en' : 'ar');
             syncLang();
             const obs = new MutationObserver(syncLang);
             obs.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
 
-            // Update dimensions on resize / orientation change
-            const onResize = () => { setWinH(window.innerHeight); setWinW(window.innerWidth); };
-            window.addEventListener('resize', onResize);
-            window.addEventListener('orientationchange', () => setTimeout(onResize, 300));
-
-            // Listen for open requests
-            const handleOpen = (e) => {
-                if (!e.detail) return;
-                const isMobile = window.innerWidth < 768;
-                if (isMobile) {
-                    // On mobile: open directly in a new tab — best UX for HTML files
-                    window.open(e.detail, '_blank', 'noopener,noreferrer');
-                } else {
-                    setUrl(e.detail);
-                }
-            };
+            const handleOpen = (e) => { if (e.detail) setUrl(e.detail); };
             window.addEventListener('openFullscreen', handleOpen);
 
             return () => {
                 window.removeEventListener('openFullscreen', handleOpen);
-                window.removeEventListener('resize', onResize);
                 obs.disconnect();
             };
         }, []);
 
-        // Nothing to render on mobile (file opens in new tab)
         if (!url) return null;
-
-        // ── Desktop Modal ────────────────────────────────────────────────────
-        const HEADER_H = 56;
-        const modalH = Math.round(winH * 0.90);
-        const modalW = Math.round(Math.min(winW * 0.95, 1400));
-        const contentH = modalH - HEADER_H;
 
         const isLocal = url.startsWith('file://') ||
             (!url.startsWith('http') && !url.startsWith('data:') &&
@@ -59,74 +48,151 @@
 
         const close = () => setUrl(null);
 
-        return html`
-        <div
-            style=${{
-                position: 'fixed', top: 0, left: 0,
-                width: winW + 'px', height: winH + 'px',
-                zIndex: 999999,
-                background: 'rgba(0,0,0,0.80)',
-                backdropFilter: 'blur(6px)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontFamily: 'Cairo, sans-serif',
-            }}
-            onClick=${(e) => { if (e.target === e.currentTarget) close(); }}
-        >
-            <div style=${{
-                width: modalW + 'px', height: modalH + 'px',
-                background: '#fff',
-                borderRadius: '18px',
-                display: 'flex', flexDirection: 'column',
-                overflow: 'hidden',
-                boxShadow: '0 32px 80px rgba(0,0,0,0.5)',
-            }}>
+        // ── Shared Styles ────────────────────────────────────────────────
+        const overlayStyle = {
+            position:   'fixed',
+            inset:      0,
+            zIndex:     999999,
+            background: 'rgba(2,6,23,0.92)',
+            backdropFilter:         'blur(14px)',
+            WebkitBackdropFilter:   'blur(14px)',
+            display:        'flex',
+            alignItems:     'center',
+            justifyContent: 'center',
+            padding:    '16px',
+            fontFamily: 'Cairo, sans-serif',
+        };
 
-                <!-- Header bar -->
-                <div style=${{
-                    height: HEADER_H + 'px', background: '#0f172a',
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '0 20px', boxSizing: 'border-box', flexShrink: 0, gap: '12px',
-                }}>
-                    <span style=${{ color: '#94a3b8', fontWeight: 700, fontSize: '0.85rem', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        📄 ${lang === 'ar' ? 'عارض الملف' : 'File Viewer'}
+        // Modal: auto-height — grows from header + content, capped at 92dvh
+        const modalStyle = {
+            display:        'flex',
+            flexDirection:  'column',
+            width:          'min(95vw, 1280px)',
+            maxHeight:      'min(92dvh, 92vh)',   // dvh with vh fallback
+            borderRadius:   '16px',
+            overflow:       'hidden',
+            boxShadow:      '0 40px 100px rgba(0,0,0,0.75)',
+            background:     '#0f172a',
+        };
+
+        const headerStyle = {
+            display:        'flex',
+            alignItems:     'center',
+            justifyContent: 'space-between',
+            height:         '52px',
+            padding:        '0 18px',
+            background:     '#0f172a',
+            borderBottom:   '1px solid rgba(148,163,184,0.12)',
+            flexShrink:     0,
+            gap:            '10px',
+        };
+
+        const closeBtnStyle = {
+            background:   '#ef4444',
+            color:        '#fff',
+            border:       'none',
+            padding:      '6px 16px',
+            borderRadius: '8px',
+            fontWeight:   900,
+            cursor:       'pointer',
+            fontSize:     '0.85rem',
+            flexShrink:   0,
+            transition:   'background 0.15s',
+        };
+
+        // ── iframe wrapper uses 16:9 aspect-ratio ─────────────────────
+        // Articulate's scaler FILLS a 16:9 viewport → zero letterboxing
+        // maxHeight guard prevents overflow on very short screens
+        const iframeWrapStyle = {
+            width:      '100%',
+            aspectRatio: '16 / 9',
+            maxHeight:  'calc(min(92dvh,92vh) - 52px)',
+            position:   'relative',
+            background: '#020617',   // near-black: any micro-gap = invisible
+            flexShrink: 0,
+        };
+
+        const iframeStyle = {
+            position: 'absolute',
+            inset:    0,
+            width:    '100%',
+            height:   '100%',
+            border:   'none',
+            display:  'block',
+        };
+
+        // ── Local file notice ─────────────────────────────────────────
+        const localWrapStyle = {
+            ...iframeWrapStyle,
+            display:        'flex',
+            flexDirection:  'column',
+            alignItems:     'center',
+            justifyContent: 'center',
+            gap:            '20px',
+            padding:        '32px',
+            textAlign:      'center',
+            background:     'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)',
+        };
+
+        return html`
+        <div style=${overlayStyle}
+             onClick=${(e) => { if (e.target === e.currentTarget) close(); }}>
+
+            <div style=${modalStyle}>
+
+                <!-- ── Header ── -->
+                <div style=${headerStyle}>
+                    <span style=${{ color: '#94a3b8', fontWeight: 700, fontSize: '0.82rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+                        📄 ${lang === 'ar' ? 'عارض الملفات' : 'File Viewer'}
                     </span>
-                    <button onClick=${close}
-                        style=${{ background: '#ef4444', color: '#fff', border: 'none', padding: '8px 18px', borderRadius: '9px', fontWeight: 900, cursor: 'pointer', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-                        ✖ ${lang === 'ar' ? 'رجوع' : 'Close'}
+                    <button style=${closeBtnStyle}
+                            onClick=${close}
+                            onMouseEnter=${(e) => e.currentTarget.style.background = '#dc2626'}
+                            onMouseLeave=${(e) => e.currentTarget.style.background = '#ef4444'}>
+                        ${lang === 'ar' ? 'رجوع ✖' : 'Close ✖'}
                     </button>
                 </div>
 
-                <!-- Content: local file notice OR live iframe -->
+                <!-- ── Content ── -->
                 ${isLocal ? html`
-                    <div style=${{
-                        width: '100%', height: contentH + 'px', boxSizing: 'border-box',
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                        gap: '20px', padding: '32px', background: 'linear-gradient(135deg, #f8fafc, #eef2ff)', textAlign: 'center',
-                    }}>
-                        <div style=${{ fontSize: '64px', lineHeight: 1 }}>📄</div>
+
+                    <div style=${localWrapStyle}>
+                        <div style=${{ fontSize: '56px', lineHeight: 1 }}>📄</div>
                         <div>
-                            <h2 style=${{ fontSize: '1.35rem', fontWeight: 900, color: '#1e293b', margin: '0 0 8px' }}>
+                            <h2 style=${{ color: '#f1f5f9', fontWeight: 900, fontSize: '1.2rem', margin: '0 0 8px' }}>
                                 ${lang === 'ar' ? 'ملف محلي' : 'Local File'}
                             </h2>
-                            <p style=${{ color: '#64748b', fontWeight: 600, lineHeight: 1.7, fontSize: '0.9rem', margin: 0 }}>
+                            <p style=${{ color: '#94a3b8', fontWeight: 600, fontSize: '0.88rem', lineHeight: 1.6, margin: 0 }}>
                                 ${lang === 'ar'
-                                    ? 'لا يمكن للمتصفح تضمين الملفات المحلية. اضغط أدناه لفتحه في تبويب جديد.'
-                                    : 'The browser cannot embed local files. Click below to open in a new tab.'}
+                                    ? 'لا يمكن تضمين الملفات المحلية داخل الصفحة.'
+                                    : 'Local files cannot be embedded directly.'}
                             </p>
                         </div>
                         <a href=${url} target="_blank" rel="noopener noreferrer"
-                            style=${{ background: 'linear-gradient(135deg, #06b6d4, #0891b2)', color: '#fff', padding: '13px 32px', borderRadius: '13px', fontWeight: 900, fontSize: '1rem', textDecoration: 'none', boxShadow: '0 6px 20px rgba(6,182,212,0.35)', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                            <span>↗</span><span>${lang === 'ar' ? 'فتح في المتصفح' : 'Open in Browser'}</span>
+                           style=${{
+                               display: 'inline-flex', alignItems: 'center', gap: '8px',
+                               background: 'linear-gradient(135deg, #06b6d4, #0891b2)',
+                               color: '#fff', padding: '12px 28px', borderRadius: '12px',
+                               fontWeight: 900, fontSize: '0.95rem', textDecoration: 'none',
+                               boxShadow: '0 6px 20px rgba(6,182,212,0.35)',
+                           }}>
+                            <span>↗</span>
+                            <span>${lang === 'ar' ? 'فتح في المتصفح' : 'Open in Browser'}</span>
                         </a>
                     </div>
+
                 ` : html`
-                    <iframe
-                        src=${url}
-                        style=${{ display: 'block', width: modalW + 'px', height: contentH + 'px', border: 'none', flexShrink: 0 }}
-                        width=${modalW}
-                        height=${contentH}
-                        sandbox="allow-scripts allow-popups allow-same-origin allow-forms allow-downloads"
-                    ></iframe>
+
+                    <!-- ── Adaptive iframe ── -->
+                    <!-- aspectRatio:16/9 = Articulate fills 100%, NO dead space -->
+                    <div style=${iframeWrapStyle}>
+                        <iframe
+                            src=${url}
+                            style=${iframeStyle}
+                            sandbox="allow-scripts allow-popups allow-same-origin allow-forms allow-downloads"
+                        ></iframe>
+                    </div>
+
                 `}
             </div>
         </div>
