@@ -112,10 +112,8 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
                             <label className="block text-sm font-bold mb-2">السؤال (Question Text)</label>
                             <textarea value=${tempQ.text || tempQ.textAr || ''} onChange=${e => setQItem({ ...tempQ, text: e.target.value })} className="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border-2 dark:border-gray-700 outline-none text-lg resize-y min-h-[120px]" placeholder="اكتب نص السؤال هنا..." />
                         </div>
-                        <div className="col-span-2 bg-brand-DEFAULT/5 p-4 rounded-xl border-2 border-brand-DEFAULT/20 w-full mt-2">
-                            <label className="block text-sm font-black text-brand-DEFAULT mb-2">إرفاق وسائط توضيحية للسؤال (اختياري)</label>
-                            <${Luminova.Components.Input} label="رابط الوسائط المباشر (Drive, Image, YouTube URL)" val=${tempQ.mediaUrl} onChange=${v => setQItem({ ...tempQ, mediaUrl: v })} />
-                            <${Luminova.Components.FileInput} label="أو رفع صورة توضيحية من الجهاز (سيتم تخزينها Base64)" accept="image/*" onFileLoaded=${dta => setQItem({ ...tempQ, mediaUrl: dta })} />
+                        <div className="col-span-2 w-full mt-2">
+                            <${Luminova.Components.UniversalMediaInput} label="مرفقات السؤال التوضيحية (اختياري)" attachments=${tempQ.mediaUrls || (tempQ.mediaUrl ? [tempQ.mediaUrl] : [])} onChange=${v => setQItem({ ...tempQ, mediaUrls: v, mediaUrl: '' })} />
                         </div>
 
                         ${tempQ.type !== 'essay' ? html`
@@ -325,9 +323,8 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
                                         <div className="col-span-2 flex flex-col md:flex-row gap-4"><div className="w-full"><${Luminova.Components.Input} label="التخصص العربي" val=${editingItem.majorAr} onChange=${v => setEditingItem({ ...editingItem, majorAr: v })} /></div> <div className="w-full"><${Luminova.Components.Input} label="English Major" val=${editingItem.majorEn} onChange=${v => setEditingItem({ ...editingItem, majorEn: v })} /></div></div>
                                         <div className="col-span-2 w-full"><${Luminova.Components.Input} type="textarea" label="نبذة عربية" val=${editingItem.bioAr} onChange=${v => setEditingItem({ ...editingItem, bioAr: v })} /></div>
                                         <div className="col-span-2 w-full"><${Luminova.Components.Input} type="textarea" label="English Bio" val=${editingItem.bioEn} onChange=${v => setEditingItem({ ...editingItem, bioEn: v })} /></div>
-                                        <div className="col-span-2 bg-gray-100 dark:bg-gray-800 p-4 rounded-xl border border-blue-500/20">
-                                            <${Luminova.Components.Input} label="Link Image (رابط الصورة المباشر)" val=${editingItem.image} onChange=${v => setEditingItem({ ...editingItem, image: v })} />
-                                            <${Luminova.Components.FileInput} label="Or Upload Image (رفع صورة من الجهاز وحفظها Base64)" accept="image/*" onFileLoaded=${dta => setEditingItem({ ...editingItem, image: dta })} />
+                                        <div className="col-span-2 w-full">
+                                            <${Luminova.Components.UniversalMediaInput} label="مرفقات الطالب / الصورة الشخصية" attachments=${editingItem.mediaUrls || (editingItem.image ? [editingItem.image] : [])} onChange=${v => setEditingItem({ ...editingItem, mediaUrls: v, image: v[0] || '' })} />
                                         </div>
                                         <div className="col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                                             <${Luminova.Components.SocialInput} label="Facebook Link" val=${editingItem.socialLinks?.facebook} onChange=${v => setEditingItem({ ...editingItem, socialLinks: { ...(editingItem.socialLinks || {}), facebook: v } })} /> 
@@ -350,81 +347,17 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
                                         <div className="col-span-2 w-full"><${Luminova.Components.Input} label="News Title" val=${editingItem.titleEn} onChange=${v => setEditingItem({ ...editingItem, titleEn: v })} /></div>
                                         <div className="col-span-2 w-full"><${Luminova.Components.Input} type="textarea" label="التفاصيل (عربي)" val=${editingItem.contentAr} onChange=${v => setEditingItem({ ...editingItem, contentAr: v })} /></div>
                                         <div className="col-span-2 w-full"><${Luminova.Components.Input} type="textarea" label="Details (English)" val=${editingItem.contentEn} onChange=${v => setEditingItem({ ...editingItem, contentEn: v })} /></div>
-                                        ${(() => {
-                                            const currentUrls = editingItem.mediaUrls || (editingItem.mediaUrl ? [editingItem.mediaUrl] : []);
-                                            return html`
-                                                <div className="col-span-2 bg-purple-500/5 p-4 rounded-xl border border-purple-500/20 w-full space-y-4">
-                                                    <h4 className="font-bold opacity-80 text-purple-700 dark:text-purple-400">Media Attachments (مرفقات الخبر)</h4>
-                                                    ${currentUrls.map((mUrl, idx) => html`
-                                                        <div className="flex gap-2 items-center" key=${idx}>
-                                                            <div className="flex-1">
-                                                                <${Luminova.Components.Input} label=${"Media Embed URL " + (idx + 1) + " (YouTube, Drive, Image...)"} val=${mUrl} onChange=${v => {
-                                                                    const newUrls = [...currentUrls];
-                                                                    newUrls[idx] = v;
-                                                                    setEditingItem({ ...editingItem, mediaUrls: newUrls, mediaUrl: '' });
-                                                                }} />
-                                                            </div>
-                                                            <button onClick=${() => {
-                                                                const newUrls = currentUrls.filter((_, i) => i !== idx);
-                                                                setEditingItem({ ...editingItem, mediaUrls: newUrls, mediaUrl: '' });
-                                                            }} className="p-3 mt-6 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-colors font-bold shadow-sm">✕</button>
-                                                        </div>
-                                                    `)}
-                                                    <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                                                        <button onClick=${() => {
-                                                            setEditingItem({ ...editingItem, mediaUrls: [...currentUrls, ''], mediaUrl: '' });
-                                                        }} className="px-6 py-3 bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold rounded-xl hover:bg-purple-500 hover:text-white transition-colors text-sm shadow-sm">
-                                                            + إضافة رابط آخر (Add Media Link)
-                                                        </button>
-                                                        <div className="flex-1">
-                                                            <${Luminova.Components.FileInput} label="Or Upload Image/Video (رفع وحفظ Base64)" accept="*/*" onFileLoaded=${dta => {
-                                                                setEditingItem({ ...editingItem, mediaUrls: [...currentUrls, dta], mediaUrl: '' });
-                                                            }} />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            `;
-                                        })()}
+                                        <div className="col-span-2 w-full mt-2">
+                                            <${Luminova.Components.UniversalMediaInput} label="Media Attachments (مرفقات الخبر)" attachments=${editingItem.mediaUrls || (editingItem.mediaUrl ? [editingItem.mediaUrl] : [])} onChange=${v => setEditingItem({ ...editingItem, mediaUrls: v, mediaUrl: '' })} />
+                                        </div>
                                     ` : activeTab === 'summaries' ? html`
                                         <div className="col-span-2 w-full"><${Luminova.Components.Input} label="عنوان التلخيص" val=${editingItem.titleAr} onChange=${v => setEditingItem({ ...editingItem, titleAr: v })} /></div>
                                         <div className="col-span-2 w-full"><${Luminova.Components.Input} label="Summary Title" val=${editingItem.titleEn} onChange=${v => setEditingItem({ ...editingItem, titleEn: v })} /></div>
                                         <div className="col-span-2 w-full"><${Luminova.Components.Input} type="textarea" label="نبذة محتوى (عربي)" val=${editingItem.contentAr} onChange=${v => setEditingItem({ ...editingItem, contentAr: v })} /></div>
                                         <div className="col-span-2 w-full"><${Luminova.Components.Input} type="textarea" label="Summary Content (English)" val=${editingItem.contentEn} onChange=${v => setEditingItem({ ...editingItem, contentEn: v })} /></div>
-                                        ${(() => {
-                                            const currentUrls = editingItem.mediaUrls || (editingItem.mediaUrl ? [editingItem.mediaUrl] : []);
-                                            return html`
-                                                <div className="col-span-2 bg-purple-500/5 p-4 rounded-xl border border-purple-500/20 w-full space-y-4">
-                                                    <h4 className="font-bold opacity-80 text-purple-700 dark:text-purple-400">Media Attachments (مرفقات التلخيص)</h4>
-                                                    ${currentUrls.map((mUrl, idx) => html`
-                                                        <div className="flex gap-2 items-center" key=${idx}>
-                                                            <div className="flex-1">
-                                                                <${Luminova.Components.Input} label=${"Media Embed URL " + (idx + 1) + " (Drive PDF, Drive HTML, Image...)"} val=${mUrl} onChange=${v => {
-                                                                    const newUrls = [...currentUrls];
-                                                                    newUrls[idx] = v;
-                                                                    setEditingItem({ ...editingItem, mediaUrls: newUrls, mediaUrl: '' });
-                                                                }} />
-                                                            </div>
-                                                            <button onClick=${() => {
-                                                                const newUrls = currentUrls.filter((_, i) => i !== idx);
-                                                                setEditingItem({ ...editingItem, mediaUrls: newUrls, mediaUrl: '' });
-                                                            }} className="p-3 mt-6 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-colors font-bold shadow-sm">✕</button>
-                                                        </div>
-                                                    `)}
-                                                    <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                                                        <button onClick=${() => {
-                                                            setEditingItem({ ...editingItem, mediaUrls: [...currentUrls, ''], mediaUrl: '' });
-                                                        }} className="px-6 py-3 bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold rounded-xl hover:bg-purple-500 hover:text-white transition-colors text-sm shadow-sm">
-                                                            + إضافة رابط آخر (Add Media Link)
-                                                        </button>
-                                                        <div className="flex-1">
-                                                            <${Luminova.Components.FileInput} label="Or Upload Direct Document (رفع ملف PDF/HTML كـ Base64)" accept=".pdf,.html" onFileLoaded=${dta => {
-                                                                setEditingItem({ ...editingItem, mediaUrls: [...currentUrls, dta], mediaUrl: '' });
-                                                            }} />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            `;
-                                        })()}
+                                        <div className="col-span-2 w-full mt-2">
+                                            <${Luminova.Components.UniversalMediaInput} label="Media Attachments (مرفقات التلخيص)" attachments=${editingItem.mediaUrls || (editingItem.mediaUrl ? [editingItem.mediaUrl] : [])} onChange=${v => setEditingItem({ ...editingItem, mediaUrls: v, mediaUrl: '' })} />
+                                        </div>
                                     ` : activeTab === 'quizzes' ? html`
                                         <div className="col-span-2">
                                             <label className="block text-sm font-black mb-2 opacity-80 text-brand-DEFAULT drop-shadow-sm">ناشر الاختبار (Quiz Publisher - للعرض فقط بلا مساهمات)</label>

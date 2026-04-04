@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المستوى الثالث: مغامرة الاستوديو الإذاعي الشاملة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #0f172a;
+            color: #f1f5f9;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        .game-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 2px solid #334155;
+            backdrop-filter: blur(12px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .game-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.3);
+            transform: scale(1.01);
+        }
+
+        .level-badge {
+            background: linear-gradient(90deg, #f59e0b, #ef4444);
+            clip-path: polygon(5% 0%, 100% 0%, 95% 100%, 0% 100%);
+        }
+
+        .neon-text {
+            text-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+        }
+
+        .disclaimer-banner {
+            background: linear-gradient(90deg, #1e293b, #0f172a, #1e293b);
+            border-bottom: 3px solid #ef4444;
+        }
+
+        /* تحسينات الموبايل */
+        @media (max-width: 640px) {
+            h1 { font-size: 1.8rem !important; }
+            .container { padding-left: 1rem; padding-right: 1rem; }
+            .game-card { padding: 1.5rem !important; }
+        }
+    </style>
+</head>
+<body class="pb-24">
+
+    <!-- رسالة إخلاء المسؤولية -->
+    <div class="disclaimer-banner p-3 sticky top-0 z-[100] shadow-2xl">
+        <div class="container mx-auto text-center px-2">
+            <p class="text-[10px] sm:text-sm font-bold leading-tight">
+                ⚠️ <span class="text-red-400">تنبيه:</span> هذا مجهود طلابي استرشادي لتبسيط المعلومة. 
+                <span class="text-yellow-400 underline">يرجى الرجوع للمصدر الأصلي والكتاب الجامعي</span> لضمان الدقة.
+            </p>
+        </div>
+    </div>
+
+    <!-- الهيدر -->
+    <header class="relative py-12 md:py-20 px-4 text-center border-b border-blue-900 bg-slate-900">
+        <div class="container mx-auto relative z-10">
+            <div class="level-badge inline-block px-6 py-1 mb-4">
+                <span class="text-white font-black text-xs md:text-sm tracking-widest">LEVEL 3 - LOADING CONTENT...</span>
+            </div>
+            <h1 class="text-3xl md:text-6xl font-black mb-4 neon-text italic uppercase">Mission: Radio Studio</h1>
+            <div class="flex justify-center gap-4 md:gap-8 text-sm md:text-xl font-bold">
+                <span class="flex items-center gap-2"><i class="fas fa-heart text-red-500 animate-pulse"></i> HP: 100%</span>
+                <span class="flex items-center gap-2"><i class="fas fa-bolt text-yellow-400"></i> ENERGY: FULL</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto mt-8 max-w-4xl px-4">
+
+        <!-- الأهداف التعليمية -->
+        <section class="mb-12">
+            <h2 class="text-xl md:text-2xl font-bold mb-6 flex items-center gap-3">
+                <i class="fas fa-bullseye text-blue-500"></i> أولًا: الأهداف التعليمية (ببساطة)
+            </h2>
+            <div class="game-card p-6 rounded-2xl border-r-4 border-blue-500">
+                <p class="mb-4 text-blue-300 font-bold">بعد دراسة الفصل، الطالب لازم يكون قادر:</p>
+                <ul class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm md:text-base">
+                    <li class="flex items-start gap-2"><i class="fas fa-caret-left mt-1 text-blue-500"></i> يعرف يعني إيه استوديو إذاعي</li>
+                    <li class="flex items-start gap-2"><i class="fas fa-caret-left mt-1 text-blue-500"></i> يفهم أهميته</li>
+                    <li class="flex items-start gap-2"><i class="fas fa-caret-left mt-1 text-blue-500"></i> يعرف العزل الصوتي وازاي بيتعمل</li>
+                    <li class="flex items-start gap-2"><i class="fas fa-caret-left mt-1 text-blue-500"></i> يفهم العلاج الصوتي وزمن الرنين</li>
+                    <li class="flex items-start gap-2"><i class="fas fa-caret-left mt-1 text-blue-500"></i> يفرق بين أنواع الاستوديوهات</li>
+                    <li class="flex items-start gap-2"><i class="fas fa-caret-left mt-1 text-blue-500"></i> يعرف الأجهزة المستخدمة ووظيفة كل جهاز</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- تعريف الاستوديو -->
+        <section class="mb-12">
+            <h2 class="text-xl md:text-2xl font-bold mb-4 text-green-400">🟢 تعريف الاستوديو الإذاعي</h2>
+            <div class="game-card p-6 rounded-2xl">
+                <p class="text-lg mb-4">هو: <strong>مكان مخصص لإنتاج البرامج الإذاعية</strong> سواء:</p>
+                <ul class="list-disc pr-6 mb-4 space-y-1 text-gray-300">
+                    <li>بث مباشر (Live)</li>
+                    <li>أو تسجيل مسبق</li>
+                </ul>
+                <div class="bg-gray-800/50 p-4 rounded-xl border-r-4 border-yellow-500">
+                    <p class="font-bold mb-1">📌 الهدف منه:</p>
+                    <p class="text-sm">تسجيل صوت نقي + واضح + متحكم فيه. وبيتحقق ده عن طريق حاجتين أساسيين: <strong>العزل الصوتي والعلاج الصوتي.</strong></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- العزل الصوتي -->
+        <section class="mb-12">
+            <h2 class="text-xl md:text-2xl font-bold mb-4 text-yellow-400">🟡 أولًا: العزل الصوتي (Sound Isolation)</h2>
+            <div class="game-card p-6 rounded-2xl space-y-4">
+                <div>
+                    <h3 class="font-bold text-yellow-200 mb-2 underline">✳️ معناه:</h3>
+                    <p>منع أي صوت خارجي يدخل الاستوديو.</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-yellow-200 mb-2 underline">✳️ بيتعمل إزاي؟</h3>
+                    <ul class="space-y-3 text-sm md:text-base">
+                        <li class="bg-slate-800/40 p-2 rounded">🏢 <strong>نظام صندوق داخل صندوق:</strong> أرضية فوق أرضية، سقف تحت سقف، جدران مزدوجة بمواد عازلة (فلين – صوف زجاجي).</li>
+                        <li class="bg-slate-800/40 p-2 rounded">🚪 <strong>بابين للاستوديو:</strong> كل باب متغطي بمواد عازلة يمنع تسرب الصوت.</li>
+                        <li class="bg-slate-800/40 p-2 rounded">🔏 <strong>سد فتحات الباب:</strong> باستخدام كاوتش متحرك.</li>
+                        <li class="bg-slate-800/40 p-2 rounded">❄️ <strong>من غير نوافذ:</strong> استخدام تكييف بدلها.</li>
+                    </ul>
+                </div>
+                <p class="text-center font-bold text-red-400 bg-red-900/20 p-2 rounded">📌 الهدف: تسجيل صوت نقي بدون أي تشويش خارجي</p>
+            </div>
+        </section>
+
+        <!-- العلاج الصوتي -->
+        <section class="mb-12">
+            <h2 class="text-xl md:text-2xl font-bold mb-4 text-blue-400">🟡 ثانيًا: العلاج الصوتي (Acoustic Treatment)</h2>
+            <div class="game-card p-6 rounded-2xl space-y-4">
+                <p><strong>✳️ معناه:</strong> التحكم في الصوت جوه الاستوديو (مش من بره).</p>
+                <p><strong>✳️ الهدف:</strong> منع الصدى الزائد وتنظيم انعكاس الصوت.</p>
+                <p><strong>✳️ بيتم عن طريق:</strong> استخدام مواد (ماصة للصوت - عاكسة للصوت).</p>
+                
+                <div class="bg-indigo-900/30 p-6 rounded-xl border border-indigo-500">
+                    <h3 class="text-xl font-black mb-4 text-indigo-300">🔵 زمن الرنين (Reverberation Time)</h3>
+                    <p class="mb-2"><strong>✳️ تعريفه:</strong> الوقت اللي الصوت يفضل فيه مسموع بعد ما المصدر يوقف.</p>
+                    <p class="mb-4"><strong>✳️ بيتقاس بإيه؟</strong> 👉 بالثانية.</p>
+                    <p class="mb-4 font-bold underline">✳️ أنواع المواد:</p>
+                    <ul class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs mb-6">
+                        <li class="p-2 bg-gray-800 rounded">مواد شديدة الامتصاص</li>
+                        <li class="p-2 bg-gray-800 rounded">مواد متوسطة</li>
+                        <li class="p-2 bg-gray-800 rounded">مواد عاكسة</li>
+                    </ul>
+                    <div class="space-y-2 text-sm border-t border-indigo-500/30 pt-4">
+                        <p class="font-bold text-indigo-200 underline">✳️ الاستخدام حسب نوع البرنامج:</p>
+                        <p>🎶 موسيقى &larr; مواد عاكسة (رنين عالي)</p>
+                        <p>🎙️ أخبار/حديث &larr; مواد متوسطة</p>
+                        <p>🎭 دراما &larr; مواد ماصة (كتم الصوت)</p>
+                    </div>
+                </div>
+                <p class="italic text-yellow-400 text-sm font-bold">📌 قاعدة مهمة: كل ما زادت المواد الماصة &larr; قل الرنين | كل ما قلت &larr; زاد الرنين</p>
+            </div>
+        </section>
+
+        <!-- أنواع الاستوديوهات -->
+        <section class="mb-12">
+            <h2 class="text-xl md:text-2xl font-bold mb-6 text-purple-400">🟣 أنواع الاستوديوهات الإذاعية</h2>
+            <div class="space-y-6">
+                <!-- 1 -->
+                <div class="game-card p-5 rounded-2xl border-r-4 border-purple-500">
+                    <h3 class="font-bold text-lg mb-2 underline italic">1️⃣ استوديو الربط (التنفيذي)</h3>
+                    <p class="text-sm leading-relaxed">هو مكان المذيع، مخصص للبث المباشر والأخبار. يتميز بأن زمن الرنين فيه قليل جداً، ومساحته صغيرة (حوالي 2×3 متر).</p>
+                </div>
+                <!-- 2 -->
+                <div class="game-card p-5 rounded-2xl border-r-4 border-purple-500">
+                    <h3 class="font-bold text-lg mb-2 underline italic">2️⃣ استوديوهات الإنتاج</h3>
+                    <div class="grid gap-4 mt-3">
+                        <div class="bg-gray-800/40 p-3 rounded">
+                            <p class="font-bold text-blue-300">أ) استوديو الدراما:</p>
+                            <p class="text-sm">مقسم لـ 3 أجزاء: (Live صدى عالي - Dead بدون صدى - متوسط). الهدف: تمثيل أماكن مختلفة بالصوت.</p>
+                        </div>
+                        <div class="bg-gray-800/40 p-3 rounded">
+                            <p class="font-bold text-blue-300">ب) استوديو الموسيقى:</p>
+                            <p class="text-sm">رنين عالي، مساحة كبيرة، ومناسب جداً للفرق الموسيقية.</p>
+                        </div>
+                        <div class="bg-gray-800/40 p-3 rounded">
+                            <p class="font-bold text-blue-300">ج) استوديو الأحاديث:</p>
+                            <p class="text-sm">زي استوديو الربط، بس برنين متوسط، مخصص للحوار والمناقشات.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- 3 -->
+                <div class="game-card p-5 rounded-2xl border-r-4 border-purple-500">
+                    <h3 class="font-bold text-lg mb-2 underline italic">3️⃣ استوديو المونتاج</h3>
+                    <p class="text-sm">مكان صغير مخصص لتعديل الصوت (حذف – إضافة – دمج).</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- غرفة المراقبة -->
+        <section class="mb-12">
+            <h2 class="text-xl md:text-2xl font-bold mb-4 text-orange-400 italic">🟤 غرفة المراقبة (Control Room)</h2>
+            <div class="game-card p-6 rounded-2xl bg-orange-900/10">
+                <p class="mb-4"><strong>📌 هي:</strong> مركز التحكم في الصوت.</p>
+                <p class="font-bold mb-2">وظيفتها:</p>
+                <ul class="list-decimal pr-6 space-y-1 text-sm md:text-base">
+                    <li>تجميع الأصوات (كلام – موسيقى – مؤثرات)</li>
+                    <li>التحكم فيها</li>
+                    <li>مزجها</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- الأجهزة -->
+        <section class="mb-12">
+            <h2 class="text-xl md:text-2xl font-bold mb-6 text-red-500 flex items-center gap-2">⚙️ الأجهزة في الاستوديو</h2>
+            
+            <!-- الميكروفونات -->
+            <div class="game-card p-6 rounded-2xl mb-6">
+                <h3 class="text-xl font-bold text-red-400 mb-4 italic">🎤 أولًا: الميكروفونات</h3>
+                <p class="mb-4 text-sm font-bold">✳️ وظيفتها: تحويل الصوت &larr; إشارة كهربائية</p>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="p-3 bg-red-900/20 rounded-lg border border-red-500/30">
+                        <p class="font-bold underline text-xs mb-1">1) الميكروفون الديناميكي</p>
+                        <p class="text-xs">قوي ويتحمل الشغل، مناسب للتسجيل الخارجي، عيبه إنه غير اتجاهي.</p>
+                    </div>
+                    <div class="p-3 bg-red-900/20 rounded-lg border border-red-500/30">
+                        <p class="font-bold underline text-xs mb-1">2) الميكروفون الشريطي</p>
+                        <p class="text-xs">حساس جداً، اتجاهي (أمام وخلف)، مناسب للدراما والموسيقى (لازم مسافة كبيرة).</p>
+                    </div>
+                    <div class="p-3 bg-blue-900/30 rounded-lg border border-blue-500/50">
+                        <p class="font-bold underline text-xs mb-1">3) الميكروفون القلبي (Cardioid)</p>
+                        <p class="text-xs text-blue-200 font-bold">يلتقط من اتجاه واحد، أفضل نوع للاستوديو، بيعزل الضوضاء.</p>
+                    </div>
+                    <div class="p-3 bg-red-900/20 rounded-lg border border-red-500/30">
+                        <p class="font-bold underline text-xs mb-1">4) الميكروفون اللاسلكي</p>
+                        <p class="text-xs">بدون سلك، مناسب للحركة، ويستخدم في المسرح والاستوديو.</p>
+                    </div>
+                </div>
+                
+                <div class="mt-6 p-4 bg-gray-800 rounded-xl">
+                    <p class="font-black text-center mb-4 text-xs tracking-tighter text-red-300 uppercase">🎯 اتجاهية الميكروفون: (قلبي: واحد | ثنائي: اتنين | شامل: الكل)</p>
+                    <h4 class="font-bold text-sm mb-3 underline">🎭 أوضاع الميكروفون (مهم جدًا):</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px] md:text-xs text-center font-bold">
+                        <span class="bg-red-600 p-1 rounded">On Mike (مباشر)</span>
+                        <span class="bg-gray-700 p-1 rounded">Off Mike (بعيد)</span>
+                        <span class="bg-gray-700 p-1 rounded">Fading In (بيقرب)</span>
+                        <span class="bg-gray-700 p-1 rounded">Fading Out (بيبعد)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- التقنيات -->
+            <div class="grid md:grid-cols-2 gap-6 mb-12">
+                <div class="game-card p-5 rounded-2xl border-b-4 border-blue-500">
+                    <h3 class="font-bold mb-3 text-blue-400">🎚️ تقنيات الصوت</h3>
+                    <ul class="text-xs space-y-2">
+                        <li><strong>Cutting:</strong> قطع مفاجئ</li>
+                        <li><strong>Fade in/out:</strong> تدريجي</li>
+                        <li><strong>Cross Fade:</strong> صوت يختفي والتاني يظهر</li>
+                        <li><strong>Blending:</strong> دمج أصوات</li>
+                        <li><strong>Roard Fade:</strong> اختفاء بطيء</li>
+                    </ul>
+                </div>
+                <div class="game-card p-5 rounded-2xl border-b-4 border-green-500">
+                    <h3 class="font-bold mb-3 text-green-400">⚖️ توازن الميكروفون</h3>
+                    <p class="text-xs leading-relaxed">ضبط المسافة بين الصوت والمايك عشان الصوت يكون طبيعي. مهم جداً في: (الحوارات - الموسيقى - الدراما).</p>
+                </div>
+            </div>
+
+            <!-- باقي الأجهزة -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
+                <div class="game-card p-4 rounded-xl">
+                    <p class="font-bold text-sm mb-2 underline text-yellow-400">🎛️ طاولة التحكم (Audio Console)</p>
+                    <p class="text-[10px]">تتحكم في كل الأصوات، ترفع وتخفض، تدمج، وفيها مؤشر شدة الصوت.</p>
+                </div>
+                <div class="game-card p-4 rounded-xl">
+                    <p class="font-bold text-sm mb-2 underline text-yellow-400">💿 الأسطوانات</p>
+                    <p class="text-[10px]">تشغيل موسيقى ومؤثرات، وليها سرعات مختلفة.</p>
+                </div>
+                <div class="game-card p-4 rounded-xl">
+                    <p class="font-bold text-sm mb-2 underline text-yellow-400">🎞️ شرائط التسجيل</p>
+                    <p class="text-[10px]">تسجيل مغناطيسي، فيها (مسح - تسجيل - تشغيل). طرق المونتاج: قص (Cut) أو نسخ (Dub).</p>
+                </div>
+                <div class="game-card p-4 rounded-xl">
+                    <p class="font-bold text-sm mb-2 underline text-yellow-400">🎧 سماعة التخاطب</p>
+                    <p class="text-[10px]">المخرج يتكلم مع الموجودين في الاستوديو لما المايك مقفول.</p>
+                </div>
+                <div class="game-card p-4 rounded-xl">
+                    <p class="font-bold text-sm mb-2 underline text-yellow-400">🎧 سماعة الرأس</p>
+                    <p class="text-[10px]">للمخرج (فيها مايك)، للمذيع (بدون مايك).</p>
+                </div>
+                <div class="game-card p-4 rounded-xl">
+                    <p class="font-bold text-sm mb-2 underline text-yellow-400">⏰ الساعة</p>
+                    <p class="text-[10px]">مهمة لتنظيم وقت البرنامج ومعرفة مدة التسجيل.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- الخلاصة -->
+        <section class="mb-20">
+            <div class="bg-gradient-to-br from-green-600 to-green-900 p-1 rounded-3xl">
+                <div class="bg-gray-950 p-8 rounded-3xl shadow-inner text-right">
+                    <h2 class="text-3xl font-black mb-8 text-center text-green-400 underline italic">✅ المضمون (الخلاصة المهمة جداً)</h2>
+                    <ul class="space-y-4 text-sm md:text-lg font-bold">
+                        <li class="flex items-center gap-3"><i class="fas fa-check text-green-500"></i> الاستوديو = مكان إنتاج الصوت.</li>
+                        <li class="flex items-center gap-3"><i class="fas fa-check text-green-500"></i> لازم فيه: عزل صوتي وعلاج صوتي.</li>
+                        <li class="flex items-center gap-3"><i class="fas fa-check text-green-500"></i> زمن الرنين = مدة بقاء الصوت مسموعاً.</li>
+                        <li class="flex items-center gap-3"><i class="fas fa-check text-green-500"></i> أنواع الاستوديو: (ربط – إنتاج "دراما/موسيقى/حديث" – مونتاج).</li>
+                        <li class="flex items-center gap-3"><i class="fas fa-check text-green-500"></i> أهم جهاز = الميكروفون (نوعه، اتجاهه، استخدامه).</li>
+                        <li class="flex items-center gap-3"><i class="fas fa-check text-green-500"></i> غرفة المراقبة = عقل الاستوديو | طاولة التحكم = مركز الصوت.</li>
+                        <li class="flex items-center gap-3"><i class="fas fa-check text-green-500"></i> التوازن مهم جداً لجودة الصوت.</li>
+                    </ul>
+                    <p class="text-center mt-12 text-2xl animate-bounce">🎙️🎮 MISSION ACCOMPLISHED</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- فوتر اللعبة للهواتف -->
+    <footer class="fixed bottom-0 left-0 right-0 bg-gray-900/95 border-t border-blue-900 p-3 flex justify-around items-center z-50 backdrop-blur-md">
+        <div class="flex flex-col items-center">
+            <i class="fas fa-home text-blue-500"></i>
+            <span class="text-[8px] uppercase font-bold">Start</span>
+        </div>
+        <div class="flex flex-col items-center">
+            <div class="bg-blue-600 w-10 h-10 rounded-full flex items-center justify-center -mt-8 border-4 border-gray-900 shadow-xl">
+                <i class="fas fa-microphone-alt text-white text-xs"></i>
+            </div>
+            <span class="text-[8px] uppercase mt-1 font-bold">Level 3</span>
+        </div>
+        <div class="flex flex-col items-center opacity-40">
+            <i class="fas fa-book text-gray-400"></i>
+            <span class="text-[8px] uppercase font-bold">Ref</span>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -94,68 +94,110 @@
     };
 
     Luminova.Components.SmartMedia = ({ url, lang = 'ar' }) => {
-        if (!url) return null;
-        let embedContent = null;
+        if (!url || (Array.isArray(url) && url.length === 0)) return null;
 
-        let urlStr = typeof url === 'string' ? url : String(url);
-        const isBase64 = urlStr.startsWith('data:');
-        const mimeMatch = isBase64 ? urlStr.match(/data:(.*?);/) : null;
-        const mimeType = mimeMatch ? mimeMatch[1] : '';
-
-        // Regex Rules
-        const ytRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-        const ytMatch = urlStr.match(ytRegex);
-
-        if (ytMatch && ytMatch[1]) {
-            const videoId = ytMatch[1];
-            embedContent = html`<iframe loading="lazy" src=${`https://www.youtube.com/embed/${videoId}` || 'about:blank'} title="YouTube" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" className="w-full h-[400px] border-none rounded-xl shadow-lg" allowFullScreen></iframe>`;
-        } else if (urlStr.includes('drive.google.com')) {
-            const driveId = urlStr.match(/[-\w]{25,}/);
-            embedContent = html`<iframe loading="lazy" src=${(driveId ? `https://drive.google.com/file/d/${driveId}/preview` : 'about:blank')} width="100%" height="500" allow="autoplay" className="rounded-xl shadow-lg border-2 border-brand-DEFAULT/20 bg-white" allowFullScreen></iframe>`;
-        } else if (urlStr.includes('docs.google.com/forms')) {
-            embedContent = html`<iframe loading="lazy" src=${urlStr || 'about:blank'} width="100%" height="600" frameBorder="0" marginHeight="0" marginWidth="0" className="rounded-xl shadow-lg bg-white" allowFullScreen></iframe>`;
-        } else if (urlStr.match(/\.(jpeg|jpg|gif|png|webp|svg)(\?.*)?$/i) || (isBase64 && mimeType.startsWith('image/'))) {
-            embedContent = html`<div style=${{ display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'rgba(0,0,0,0.1)', borderRadius: '8px', overflow: 'hidden' }} className="w-full mb-4">
-                <img loading="lazy" src=${urlStr} alt="Smart Media" className="shadow-lg mx-auto rounded-xl" style=${{ maxHeight: '400px', maxWidth: '100%', width: 'auto', objectFit: 'contain' }} />
-            </div>`;
-        } else if (urlStr.match(/\.(mp3|wav|ogg)(\?.*)?$/i) || (isBase64 && mimeType.startsWith('audio/'))) {
-            embedContent = html`<audio controls className="w-full shadow-lg rounded-xl mb-4 bg-gray-100 dark:bg-gray-800 p-2"><source src=${urlStr} type=${isBase64 ? mimeType : `audio/${urlStr.split('.').pop().split('?')[0]}`} />متصفحك لا يدعم تشغيل الصوت.</audio>`;
-        } else if (urlStr.match(/\.(mp4|webm)(\?.*)?$/i) || (isBase64 && mimeType.startsWith('video/'))) {
-            embedContent = html`<video controls className="w-full max-h-[500px] rounded-xl bg-black shadow-lg mb-4"><source src=${urlStr} type=${isBase64 ? mimeType : `video/${urlStr.split('.').pop().split('?')[0]}`} />متصفحك لا يدعم تشغيل الفيديو.</video>`;
-        } else {
-            // Live Preview Card for HTML — on file:// protocol, skip iframe to avoid security errors
-            const isLocalFile = urlStr.startsWith('file://') || (!urlStr.startsWith('http') && !urlStr.startsWith('data:') && !urlStr.startsWith('blob:'));
-            embedContent = html`
-            <div className="flex flex-col bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700 mb-4 relative z-10 w-full">
-                ${isLocalFile ? html`
-                    <div className="w-full flex flex-col items-center justify-center gap-2 py-8 px-4 bg-gradient-to-br from-slate-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700">
-                        <span style=${{ fontSize:'48px', lineHeight:1 }}>📄</span>
-                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400 text-center">
-                            ${lang === 'ar' ? 'ملف HTML — اضغط للعرض' : 'HTML File — Click to View'}
-                        </p>
-                    </div>
-                ` : html`
-                    <iframe
-                        src=${urlStr}
-                        className="w-full h-[400px] border-none bg-white"
-                        sandbox="allow-scripts allow-popups allow-same-origin allow-forms"
-                    ></iframe>
-                `}
-                <button
-                    onClick=${() => window.dispatchEvent(new CustomEvent('openFullscreen', { detail: urlStr }))}
-                    className="w-full py-4 bg-gray-900 hover:bg-black dark:bg-gray-950 dark:hover:bg-black text-white font-black hover:shadow-lg transition-all flex items-center justify-center gap-3 border-none"
-                >
-                    <span className="text-xl leading-none">🗖</span>
-                    <span>${lang === 'ar' ? 'عرض بملء الشاشة' : 'View Fullscreen'}</span>
-                </button>
-            </div>
-            `;
-        }
+        const urls = Array.isArray(url) ? url : [url];
 
         return html`
-        <div className="mt-6 w-full relative group">
+        <div className="mt-6 w-full relative group space-y-6">
             <div className="absolute -inset-1 bg-gradient-to-r from-brand-DEFAULT to-brand-gold opacity-10 rounded-2xl blur transition duration-1000 group-hover:opacity-30 -z-10"></div>
-            ${embedContent}
+            ${urls.map((rawUrl, idx) => {
+                if (!rawUrl) return null;
+                let embedContent = null;
+                let urlStr = typeof rawUrl === 'string' ? rawUrl : String(rawUrl);
+                const isBase64 = urlStr.startsWith('data:');
+                const mimeMatch = isBase64 ? urlStr.match(/data:(.*?);/) : null;
+                const mimeType = mimeMatch ? mimeMatch[1] : '';
+
+                // Universal parsing logic: Treat non-http, non-data strings as relative paths
+                const isRelative = !urlStr.startsWith('http') && !urlStr.startsWith('data:') && !urlStr.startsWith('blob:') && !urlStr.startsWith('file://');
+
+                // Regex Rules
+                const ytRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+                const ytMatch = urlStr.match(ytRegex);
+
+                if (ytMatch && ytMatch[1]) {
+                    const videoId = ytMatch[1];
+                    embedContent = html`<iframe loading="lazy" src=${`https://www.youtube.com/embed/${videoId}` || 'about:blank'} title="YouTube" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" className="w-full h-[400px] border-none rounded-xl shadow-lg" allowFullScreen></iframe>`;
+                } else if (urlStr.includes('drive.google.com')) {
+                    const driveId = urlStr.match(/[-\w]{25,}/);
+                    embedContent = html`<iframe loading="lazy" src=${(driveId ? `https://drive.google.com/file/d/${driveId}/preview` : 'about:blank')} width="100%" height="500" allow="autoplay" className="rounded-xl shadow-lg border-2 border-brand-DEFAULT/20 bg-white" allowFullScreen></iframe>`;
+                } else if (urlStr.includes('docs.google.com/forms')) {
+                    embedContent = html`<iframe loading="lazy" src=${urlStr || 'about:blank'} width="100%" height="600" frameBorder="0" marginHeight="0" marginWidth="0" className="rounded-xl shadow-lg bg-white" allowFullScreen></iframe>`;
+                } else if (urlStr.match(/\.(jpeg|jpg|gif|png|webp|svg)(\?.*)?$/i) || (isBase64 && mimeType.startsWith('image/'))) {
+                    embedContent = html`<div style=${{ display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'rgba(0,0,0,0.1)', borderRadius: '8px', overflow: 'hidden' }} className="w-full mb-4">
+                        <img loading="lazy" src=${urlStr} alt="Smart Media" className="shadow-lg mx-auto rounded-xl cursor-pointer" onClick=${() => window.dispatchEvent(new CustomEvent('openFullscreen', { detail: urlStr }))} style=${{ maxHeight: '400px', maxWidth: '100%', width: 'auto', objectFit: 'contain' }} />
+                    </div>`;
+                } else if (urlStr.match(/\.(mp3|wav|ogg)(\?.*)?$/i) || (isBase64 && mimeType.startsWith('audio/'))) {
+                    embedContent = html`<audio controls className="w-full shadow-lg rounded-xl mb-4 bg-gray-100 dark:bg-gray-800 p-2"><source src=${urlStr} type=${isBase64 ? mimeType : `audio/${urlStr.split('.').pop().split('?')[0]}`} />متصفحك لا يدعم تشغيل الصوت.</audio>`;
+                } else if (urlStr.match(/\.(mp4|webm)(\?.*)?$/i) || (isBase64 && mimeType.startsWith('video/'))) {
+                    embedContent = html`<video controls className="w-full max-h-[500px] rounded-xl bg-black shadow-lg mb-4"><source src=${urlStr} type=${isBase64 ? mimeType : `video/${urlStr.split('.').pop().split('?')[0]}`} />متصفحك لا يدعم تشغيل الفيديو.</video>`;
+                } else if (urlStr.match(/\.pdf(\?.*)?$/i) || (isBase64 && mimeType === 'application/pdf')) {
+                    embedContent = html`<iframe src=${urlStr} width="100%" height="800px" style=${{ minHeight: '80vh' }} className="rounded-xl shadow-lg bg-white border-2 border-brand-DEFAULT/20" frameBorder="0" title="PDF Viewer"></iframe>`;
+                } else {
+                    // Handle HTML and generic unknown links
+                    const isLocalHtml = urlStr.toLowerCase().endsWith('.html') || (isBase64 && mimeType === 'text/html');
+                    const isLocalFallback = urlStr.startsWith('file://') || isRelative;
+
+                    if (isLocalHtml) {
+                        embedContent = html`
+                        <div className="flex flex-col bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700 mb-4 relative z-10 w-full hover:shadow-2xl transition-all">
+                            <iframe
+                                src=${urlStr}
+                                className="w-full h-[400px] border-none bg-white"
+                                sandbox="allow-scripts allow-popups allow-same-origin allow-forms"
+                            ></iframe>
+                            <div className="flex w-full divide-x divide-gray-700 rtl:divide-x-reverse border-t border-gray-200 dark:border-gray-700">
+                                <button
+                                    onClick=${() => window.dispatchEvent(new CustomEvent('openFullscreen', { detail: urlStr }))}
+                                    className="flex-1 py-4 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-black transition-all flex items-center justify-center gap-2 border-none"
+                                >
+                                    <span className="text-xl leading-none">⛶</span>
+                                    <span>${lang === 'ar' ? 'تكبير' : 'Enlarge'}</span>
+                                </button>
+                                <a
+                                    href=${urlStr}
+                                    target="_blank"
+                                    className="flex-1 py-4 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-black transition-all flex items-center justify-center gap-2 no-underline"
+                                >
+                                    <span>${lang === 'ar' ? 'فتح بصفحة جديدة' : 'New Tab'}</span>
+                                    <span className="text-xl leading-none">↗</span>
+                                </a>
+                            </div>
+                        </div>
+                        `;
+                    } else if (isLocalFallback) {
+                        embedContent = html`
+                        <div className="flex flex-col bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700 mb-4 relative z-10 w-full">
+                            <div className="w-full flex flex-col items-center justify-center gap-2 py-8 px-4 bg-gray-50 dark:bg-gray-800">
+                                <span style=${{ fontSize:'40px', lineHeight:1 }}>📁</span>
+                                <p className="text-sm font-bold text-gray-500 dark:text-gray-400 text-center">${lang === 'ar' ? 'مرفق محلي' : 'Local Attachment'}</p>
+                                <a href=${urlStr} target="_blank" className="mt-4 px-6 py-2 bg-brand-DEFAULT text-white rounded-full font-bold shadow-md hover:bg-brand-hover transition-colors">
+                                    ${lang === 'ar' ? 'تنزيل / عرض الملف' : 'Download / View File'}
+                                </a>
+                            </div>
+                        </div>
+                        `;
+                    } else {
+                        // General fallback for unknown web URLs
+                        embedContent = html`
+                        <div className="flex flex-col bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700 mb-4 relative z-10 w-full">
+                            <iframe
+                                src=${urlStr}
+                                className="w-full h-[400px] border-none bg-white"
+                                sandbox="allow-scripts allow-popups allow-same-origin allow-forms"
+                            ></iframe>
+                            <div className="w-full p-4 bg-gray-50 dark:bg-gray-900 flex justify-center border-t border-gray-100 dark:border-gray-700">
+                                <a href=${urlStr} target="_blank" className="px-6 py-2 bg-brand-DEFAULT text-white rounded-full font-bold shadow hover:bg-brand-hover transition-colors text-sm">
+                                    ${lang === 'ar' ? 'فتح الرابط في صفحة جديدة' : 'Open Link in New Tab'}
+                                </a>
+                            </div>
+                        </div>
+                        `;
+                    }
+                }
+                return html`<div key=${idx} className="w-full block">${embedContent}</div>`;
+            })}
         </div>
     `;
     };
@@ -272,6 +314,76 @@
     `;
     };
 
+    Luminova.Components.SingleMediaRow = ({ val, onChange, onRemove, idx }) => {
+        const initialType = val ? (String(val).startsWith('data:') ? 'base64' : (!String(val).startsWith('http') ? 'local' : 'url')) : 'url';
+        const [inputType, setInputType] = useState(initialType);
+        
+        let inputContent = null;
+        if (inputType === 'url') {
+            inputContent = html`<${Luminova.Components.Input} label="رابط مباشر (URL YouTube, Drive, Image...)" val=${val} onChange=${onChange} />`;
+        } else if (inputType === 'base64') {
+            inputContent = html`
+                <div className="mb-2 text-xs font-bold text-gray-400">سيتم حفظ الملف وتضمينه كـ Base64 ليعمل بدون إنترنت.</div>
+                <${Luminova.Components.FileInput} label="رفع ملف (Upload File Base64)" accept="*/*" onFileLoaded=${onChange} />
+            `;
+        } else {
+            inputContent = html`
+                <div className="mb-2 text-xs font-bold text-gray-400">مثال: file-html/lesson1/index.html أو files/document.pdf </div>
+                <${Luminova.Components.Input} label="مسار ملف محلي (Local Path)" placeholder="example/path/index.html" val=${val} onChange=${onChange} />
+            `;
+        }
+
+        return html`
+        <div className="flex flex-col gap-2 p-4 bg-white/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700/50 rounded-xl w-full">
+            <div className="flex justify-between items-center mb-2">
+                <div className="flex gap-2">
+                    <button onClick=${() => setInputType('url')} className=${`px-3 py-1 rounded-md text-xs font-bold transition-all ${inputType === 'url' ? 'bg-brand-DEFAULT text-white' : 'bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'}`}>رابط (URL)</button>
+                    <button onClick=${() => setInputType('base64')} className=${`px-3 py-1 rounded-md text-xs font-bold transition-all ${inputType === 'base64' ? 'bg-brand-DEFAULT text-white' : 'bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'}`}>ملف (Base64)</button>
+                    <button onClick=${() => setInputType('local')} className=${`px-3 py-1 rounded-md text-xs font-bold transition-all ${inputType === 'local' ? 'bg-brand-DEFAULT text-white' : 'bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'}`}>مسار محلي</button>
+                </div>
+                <button onClick=${onRemove} className="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1"><span>✖</span> حذف المرفق</button>
+            </div>
+            <div className="w-full">
+                ${inputContent}
+            </div>
+        </div>
+        `;
+    };
+
+    Luminova.Components.UniversalMediaInput = ({ attachments = [], onChange, label = "إرفاق وسائط (Media Attachments)" }) => {
+        // Enforce array safely
+        const items = Array.isArray(attachments) ? attachments : (attachments ? [attachments] : []);
+        
+        // Build items into variables completely outside the htm template rule
+        const renderedItems = items.map((val, idx) => {
+            return html`<${Luminova.Components.SingleMediaRow} key=${idx} idx=${idx} val=${val || ''} 
+                onChange=${(newVal) => {
+                    const newArr = [...items];
+                    newArr[idx] = newVal;
+                    onChange(newArr);
+                }} 
+                onRemove=${() => {
+                    const newArr = items.filter((_, i) => i !== idx);
+                    onChange(newArr);
+                }} 
+            />`;
+        });
+
+        return html`
+        <div className="bg-gray-50 dark:bg-gray-800/40 p-4 rounded-2xl border border-gray-200 dark:border-gray-700/50 shadow-sm w-full space-y-4">
+            <h4 className="font-bold text-brand-DEFAULT border-b border-gray-200 dark:border-gray-700 pb-2">${label}</h4>
+            <div className="flex flex-col gap-4 w-full">
+                ${renderedItems}
+            </div>
+            <div className="flex justify-center pt-2 mt-4">
+                <button onClick=${() => onChange([...items, ''])} className="px-6 py-2 bg-brand-DEFAULT/10 hover:bg-brand-DEFAULT text-brand-DEFAULT hover:text-white font-bold rounded-xl transition-colors text-sm shadow-sm flex items-center gap-2">
+                    <span>➕</span> إضافة مرفق آخر (Add Another Attachment)
+                </button>
+            </div>
+        </div>
+        `;
+    };
+
     Luminova.Components.Button = ({ children, onClick, variant = 'primary', className = "", disabled = false }) => {
         const variants = {
             primary: "bg-brand-DEFAULT text-white hover:bg-brand-hover",
@@ -340,7 +452,7 @@
                         const existing = document.querySelector(`script[data-lmv-page="${newView}"]`);
                         if (existing) return resolve();
                         const script = document.createElement('script');
-                        script.src = routeMap[newView] + '?v=1';
+                        script.src = routeMap[newView] + '?v=2';
                         script.setAttribute('data-lmv-page', newView);
                         script.onload = resolve;
                         script.onerror = () => { console.error('Failed to load:', newView); resolve(); };
