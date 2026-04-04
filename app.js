@@ -103,20 +103,17 @@
         const mimeType = mimeMatch ? mimeMatch[1] : '';
 
         // Regex Rules
-        const driveRegex = /drive\.google\.com\/file\/d\/([^\/\?]+)/;
         const ytRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-        
-        const driveMatch = urlStr.match(driveRegex);
         const ytMatch = urlStr.match(ytRegex);
 
         if (ytMatch && ytMatch[1]) {
             const videoId = ytMatch[1];
-            embedContent = html`<iframe loading="lazy" src=${`https://www.youtube.com/embed/${videoId}`} title="YouTube" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" className="w-full h-[400px] border-none rounded-xl shadow-lg" allowFullScreen></iframe>`;
-        } else if (driveMatch && driveMatch[1]) {
-            const driveId = driveMatch[1];
-            embedContent = html`<iframe loading="lazy" src=${`https://drive.google.com/file/d/${driveId}/preview`} width="100%" height="500" allow="autoplay" className="rounded-xl shadow-lg border-2 border-brand-DEFAULT/20 bg-white" allowFullScreen></iframe>`;
+            embedContent = html`<iframe loading="lazy" src=${`https://www.youtube.com/embed/${videoId}` || 'about:blank'} title="YouTube" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" className="w-full h-[400px] border-none rounded-xl shadow-lg" allowFullScreen></iframe>`;
+        } else if (urlStr.includes('drive.google.com')) {
+            const driveId = urlStr.match(/[-\w]{25,}/);
+            embedContent = html`<iframe loading="lazy" src=${(driveId ? `https://drive.google.com/file/d/${driveId}/preview` : 'about:blank')} width="100%" height="500" allow="autoplay" className="rounded-xl shadow-lg border-2 border-brand-DEFAULT/20 bg-white" allowFullScreen></iframe>`;
         } else if (urlStr.includes('docs.google.com/forms')) {
-            embedContent = html`<iframe loading="lazy" src=${urlStr} width="100%" height="600" frameBorder="0" marginHeight="0" marginWidth="0" className="rounded-xl shadow-lg bg-white" allowFullScreen></iframe>`;
+            embedContent = html`<iframe loading="lazy" src=${urlStr || 'about:blank'} width="100%" height="600" frameBorder="0" marginHeight="0" marginWidth="0" className="rounded-xl shadow-lg bg-white" allowFullScreen></iframe>`;
         } else if (urlStr.match(/\.(jpeg|jpg|gif|png|webp|svg)(\?.*)?$/i) || (isBase64 && mimeType.startsWith('image/'))) {
             embedContent = html`<div style=${{ display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'rgba(0,0,0,0.1)', borderRadius: '8px', overflow: 'hidden' }} className="w-full mb-4">
                 <img loading="lazy" src=${urlStr} alt="Smart Media" className="shadow-lg mx-auto rounded-xl" style=${{ maxHeight: '400px', maxWidth: '100%', width: 'auto', objectFit: 'contain' }} />
@@ -126,15 +123,28 @@
         } else if (urlStr.match(/\.(mp4|webm)(\?.*)?$/i) || (isBase64 && mimeType.startsWith('video/'))) {
             embedContent = html`<video controls className="w-full max-h-[500px] rounded-xl bg-black shadow-lg mb-4"><source src=${urlStr} type=${isBase64 ? mimeType : `video/${urlStr.split('.').pop().split('?')[0]}`} />متصفحك لا يدعم تشغيل الفيديو.</video>`;
         } else {
-            // Live Preview Card for HTML
+            // Live Preview Card for HTML — on file:// protocol, skip iframe to avoid security errors
+            const isLocalFile = urlStr.startsWith('file://') || (!urlStr.startsWith('http') && !urlStr.startsWith('data:') && !urlStr.startsWith('blob:'));
             embedContent = html`
-            <div className="flex flex-col bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700 mb-4 relative z-10 w-full group">
-                <iframe 
-                    src=${urlStr || 'about:blank'}
-                    className="w-full h-[400px] border-none bg-white"
-                    sandbox="allow-scripts allow-popups allow-same-origin"
-                ></iframe>
-                <button onClick=${() => window.dispatchEvent(new CustomEvent('openFullscreen', { detail: urlStr }))} className="w-full py-4 bg-gray-900 hover:bg-black dark:bg-gray-950 dark:hover:bg-black text-white font-black hover:shadow-lg transition-all flex items-center justify-center gap-3 border-none">
+            <div className="flex flex-col bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700 mb-4 relative z-10 w-full">
+                ${isLocalFile ? html`
+                    <div className="w-full flex flex-col items-center justify-center gap-2 py-8 px-4 bg-gradient-to-br from-slate-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700">
+                        <span style=${{ fontSize:'48px', lineHeight:1 }}>📄</span>
+                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400 text-center">
+                            ${lang === 'ar' ? 'ملف HTML — اضغط للعرض' : 'HTML File — Click to View'}
+                        </p>
+                    </div>
+                ` : html`
+                    <iframe
+                        src=${urlStr}
+                        className="w-full h-[400px] border-none bg-white"
+                        sandbox="allow-scripts allow-popups allow-same-origin allow-forms"
+                    ></iframe>
+                `}
+                <button
+                    onClick=${() => window.dispatchEvent(new CustomEvent('openFullscreen', { detail: urlStr }))}
+                    className="w-full py-4 bg-gray-900 hover:bg-black dark:bg-gray-950 dark:hover:bg-black text-white font-black hover:shadow-lg transition-all flex items-center justify-center gap-3 border-none"
+                >
                     <span className="text-xl leading-none">🗖</span>
                     <span>${lang === 'ar' ? 'عرض بملء الشاشة' : 'View Fullscreen'}</span>
                 </button>
@@ -150,22 +160,7 @@
     `;
     };
 
-    Luminova.Components.FullscreenViewer = ({ url, onClose, lang }) => {
-        if (!url) return null;
-
-        return html`
-        <div className="fixed inset-0 z-[99999] bg-[#0f172a] flex flex-col w-screen h-screen">
-            <!-- شريط علوي واضح جداً -->
-            <div className="h-16 bg-gray-900 flex items-center justify-end px-6 shadow-md shrink-0">
-                <button onClick=${onClose} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
-                    ${lang === 'ar' ? 'إغلاق والعودة ✖' : 'Close & Return ✖'}
-                </button>
-            </div>
-            <!-- مساحة العرض -->
-            <iframe src=${url || 'about:blank'} className="flex-1 w-full bg-white border-none" sandbox="allow-scripts allow-popups allow-same-origin"></iframe>
-        </div>
-        `;
-    };
+    
     Luminova.Components.SummaryCard = ({ item, data, lang, onClose }) => {
         if (!item) return null;
         const author = Luminova.getStudent(item.studentId, data.students);
@@ -326,7 +321,6 @@
         const [activeQuiz, setActiveQuiz] = useState(null);
         const [activeSummary, setActiveSummary] = useState(null);
         const [clickCount, setClickCount] = useState(0);
-        const [fullscreenUrl, setFullscreenUrl] = useState(null);
         const [isNavigating, setIsNavigating] = useState(false);
 
         const routeMap = {
@@ -360,14 +354,6 @@
             setView(prev => { setPreviousView(prev); return newView; });
         }, []);
 
-        useEffect(() => {
-            const handler = (e) => {
-                setFullscreenUrl(e.detail);
-                setView(prev => { setPreviousView(prev); return 'fullscreenViewer'; });
-            };
-            window.addEventListener('openFullscreen', handler);
-            return () => window.removeEventListener('openFullscreen', handler);
-        }, []);
 
         useEffect(() => {
             const root = document.documentElement;
@@ -407,8 +393,7 @@
 
         const renderView = () => {
             switch (view) {
-                case 'fullscreenViewer': return html`<${Luminova.Components.FullscreenViewer} url=${fullscreenUrl} lang=${lang} onClose=${() => setView(previousView || 'home')} />`;
-                case 'summaryDetail': return html`<${Luminova.Components.SummaryCard} item=${activeSummary} data=${data} lang=${lang} onClose=${() => changeView(previousView !== 'fullscreenViewer' && previousView !== 'summaryDetail' ? previousView : 'home')} />`;
+                case 'summaryDetail': return html`<${Luminova.Components.SummaryCard} item=${activeSummary} data=${data} lang=${lang} onClose=${() => changeView(previousView !== 'summaryDetail' ? previousView : 'home')} />`;
                 case 'quiz': return Luminova.Pages.QuizEngine ? html`<${Luminova.Pages.QuizEngine} quiz=${activeQuiz} data=${data} lang=${lang} goBack=${() => changeView('academics')} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
                 case 'cms': return Luminova.Pages.AdminCMS ? html`<${Luminova.Pages.AdminCMS} data=${data} setData=${setData} lang=${lang} goBack=${() => changeView('home')} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
                 case 'community': return Luminova.Pages.StudentCommunityPage ? html`<${Luminova.Pages.StudentCommunityPage} data=${data} lang=${lang} setView=${changeView} setActiveSummary=${setActiveSummary} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
@@ -418,6 +403,8 @@
         };
 
         return html`
+        <div id="luminova-app-root">
+        ${window.__LUMINOVA.Pages.FullscreenViewer && html`<${Luminova.Pages.FullscreenViewer} lang=${lang} />`}
         <div className="min-h-screen lmv-page-wrapper">
             ${view !== 'fullscreenViewer' && html`
                 <!-- Slim loading bar at top (shown during page transitions) -->
@@ -438,26 +425,30 @@
                 <!-- On desktop this is replaced by the nav links -->
                 ${view !== 'cms' && view !== 'quiz' ? html`
                     <!-- Desktop nav links (hidden on mobile) -->
-                    <div className="lmv-top-nav-links hidden md:flex items-center gap-1 mx-auto">
-                        ${[
-                            { id: 'home', icon: Luminova.Icons.Home, labelAr: Luminova.i18n.ar.home, labelEn: Luminova.i18n.en.home },
-                            { id: 'community', icon: Luminova.Icons.User, labelAr: Luminova.i18n.ar.community, labelEn: Luminova.i18n.en.community },
-                            { id: 'academics', icon: Luminova.Icons.Book, labelAr: Luminova.i18n.ar.academic, labelEn: Luminova.i18n.en.academic }
-                        ].map((item, index) => html`
-                            <button key=${index} onClick=${() => changeView(item.id)} title=${lang === 'ar' ? item.labelAr : item.labelEn}
-                                className=${`px-4 py-2.5 rounded-2xl transition-all duration-200 flex gap-2 items-center font-bold text-base flex-shrink-0 ${view === item.id ? 'text-brand-DEFAULT bg-brand-DEFAULT/15 shadow-inner' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
-                                <${item.icon} />
-                                <span>${lang === 'ar' ? item.labelAr : item.labelEn}</span>
-                            </button>
-                        `)}
+                    <div key="dt-nav" className="lmv-top-nav-links hidden md:flex items-center gap-1 mx-auto">
+                        <button onClick=${() => changeView('home')} title=${lang === 'ar' ? Luminova.i18n.ar.home : Luminova.i18n.en.home}
+                            className=${`px-4 py-2.5 rounded-2xl transition-all duration-200 flex gap-2 items-center font-bold text-base flex-shrink-0 ${view === 'home' ? 'text-brand-DEFAULT bg-brand-DEFAULT/15 shadow-inner' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
+                            <${Luminova.Icons.Home} />
+                            <span>${lang === 'ar' ? Luminova.i18n.ar.home : Luminova.i18n.en.home}</span>
+                        </button>
+                        <button onClick=${() => changeView('community')} title=${lang === 'ar' ? Luminova.i18n.ar.community : Luminova.i18n.en.community}
+                            className=${`px-4 py-2.5 rounded-2xl transition-all duration-200 flex gap-2 items-center font-bold text-base flex-shrink-0 ${view === 'community' ? 'text-brand-DEFAULT bg-brand-DEFAULT/15 shadow-inner' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
+                            <${Luminova.Icons.User} />
+                            <span>${lang === 'ar' ? Luminova.i18n.ar.community : Luminova.i18n.en.community}</span>
+                        </button>
+                        <button onClick=${() => changeView('academics')} title=${lang === 'ar' ? Luminova.i18n.ar.academic : Luminova.i18n.en.academic}
+                            className=${`px-4 py-2.5 rounded-2xl transition-all duration-200 flex gap-2 items-center font-bold text-base flex-shrink-0 ${view === 'academics' ? 'text-brand-DEFAULT bg-brand-DEFAULT/15 shadow-inner' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
+                            <${Luminova.Icons.Book} />
+                            <span>${lang === 'ar' ? Luminova.i18n.ar.academic : Luminova.i18n.en.academic}</span>
+                        </button>
                     </div>
                     <!-- Mobile: Platform name in center (visible only on mobile) -->
-                    <div className="flex md:hidden flex-1 justify-center">
+                    <div key="mb-nav" className="flex md:hidden flex-1 justify-center">
                         <span style=${{ fontWeight: '900', fontSize: '1.1rem', whiteSpace: 'nowrap', background: 'linear-gradient(90deg, #06b6d4, #f59e0b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
                             ${lang === 'ar' ? 'لومينوفا التعليمية' : 'Luminova Edu'}
                         </span>
                     </div>
-                ` : html`<div className="flex-1"></div>`}
+                ` : html`<div key="empty-nav" className="flex-1"></div>`}
 
                 <!-- Right controls -->
                 <div style=${{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
@@ -479,24 +470,22 @@
 
             <!-- Mobile Bottom Navigation Bar (hidden on desktop via CSS) -->
             ${view !== 'cms' && view !== 'quiz' && html`
-                <nav className="lmv-bottom-nav" aria-label=${lang === 'ar' ? 'التنقل الرئيسي' : 'Main navigation'}>
-                    ${[
-                        { id: 'home', icon: Luminova.Icons.Home, labelAr: Luminova.i18n.ar.home, labelEn: Luminova.i18n.en.home },
-                        { id: 'academics', icon: Luminova.Icons.Book, labelAr: Luminova.i18n.ar.academic, labelEn: Luminova.i18n.en.academic },
-                        { id: 'community', icon: Luminova.Icons.User, labelAr: Luminova.i18n.ar.community, labelEn: Luminova.i18n.en.community }
-                    ].map((item, index) => html`
-                        <button
-                            key=${index}
-                            className=${`lmv-bottom-nav-btn ${view === item.id ? 'active' : ''}`}
-                            onClick=${() => changeView(item.id)}
-                            title=${lang === 'ar' ? item.labelAr : item.labelEn}
-                        >
-                            <${item.icon} />
-                            <span className="lmv-nav-label">${lang === 'ar' ? item.labelAr : item.labelEn}</span>
-                        </button>
-                    `)}
+                <nav key="bottom-nav-container" className="lmv-bottom-nav" aria-label=${lang === 'ar' ? 'التنقل الرئيسي' : 'Main navigation'}>
+                    <button className=${`lmv-bottom-nav-btn ${view === 'home' ? 'active' : ''}`} onClick=${() => changeView('home')} title=${lang === 'ar' ? Luminova.i18n.ar.home : Luminova.i18n.en.home}>
+                        <${Luminova.Icons.Home} />
+                        <span className="lmv-nav-label">${lang === 'ar' ? Luminova.i18n.ar.home : Luminova.i18n.en.home}</span>
+                    </button>
+                    <button className=${`lmv-bottom-nav-btn ${view === 'academics' ? 'active' : ''}`} onClick=${() => changeView('academics')} title=${lang === 'ar' ? Luminova.i18n.ar.academic : Luminova.i18n.en.academic}>
+                        <${Luminova.Icons.Book} />
+                        <span className="lmv-nav-label">${lang === 'ar' ? Luminova.i18n.ar.academic : Luminova.i18n.en.academic}</span>
+                    </button>
+                    <button className=${`lmv-bottom-nav-btn ${view === 'community' ? 'active' : ''}`} onClick=${() => changeView('community')} title=${lang === 'ar' ? Luminova.i18n.ar.community : Luminova.i18n.en.community}>
+                        <${Luminova.Icons.User} />
+                        <span className="lmv-nav-label">${lang === 'ar' ? Luminova.i18n.ar.community : Luminova.i18n.en.community}</span>
+                    </button>
                 </nav>
             `}
+        </div>
         </div>
     `;
     };
