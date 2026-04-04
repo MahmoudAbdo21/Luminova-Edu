@@ -403,8 +403,6 @@
         };
 
         return html`
-        <div id="luminova-app-root">
-        ${window.__LUMINOVA.Pages.FullscreenViewer && html`<${Luminova.Pages.FullscreenViewer} lang=${lang} />`}
         <div className="min-h-screen lmv-page-wrapper">
             ${view !== 'fullscreenViewer' && html`
                 <!-- Slim loading bar at top (shown during page transitions) -->
@@ -485,7 +483,6 @@
                     </button>
                 </nav>
             `}
-        </div>
         </div>
     `;
     };
