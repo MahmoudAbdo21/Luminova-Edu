@@ -5,6 +5,19 @@ window.LUMINOVA_DATA = {
   },
   "news": [
     {
+      "id": "news_1775421489443",
+      "timestamp": "2026-04-05T20:38:09.443Z",
+      "titleAr": "ملخص شامل لجميع التسكيات والمقررات من بداية الترم",
+      "titleEn": "Comprehensive Summary of All Tasks and Courses Since the Beginning of the Semester",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "studentId": "students_1775125739063",
+      "mediaUrls": [
+        "file-html/Tasks.wav"
+      ]
+    },
+    {
       "id": "news_1775311312001",
       "timestamp": "2026-04-04T14:01:52.001Z",
       "titleAr": "امتحان على الفصل الثالث والرابع مادة الاذاعة والتسجيل ",
