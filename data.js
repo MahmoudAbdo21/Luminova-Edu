@@ -46,6 +46,42 @@ window.LUMINOVA_DATA = {
   ],
   "students": [
     {
+      "id": "students_1775379571542",
+      "timestamp": "2026-04-05T08:59:31.542Z",
+      "nameAr": "حبيبة ياسر",
+      "nameEn": "Habiba Yasser",
+      "majorAr": "تكنلوجيا التعليم",
+      "majorEn": "Education technology",
+      "bioAr": "طالب تكنولوجيا تعليم، مهتم بالـ e-learning وتصميم المحتوى التعليمي الرقمي. بحب أتعلم كل جديد في المجال وأطبق التكنولوجيا في التعليم بشكل عملي",
+      "bioEn": "I'm an educational technology student interested in e-learning and digital educational content design. I love learning new things in the field and applying technology practically in education.",
+      "image": "",
+      "isVIP": true,
+      "isVerified": true,
+      "socialLinks": {
+        "facebook": "",
+        "instagram": "",
+        "linkedin": ""
+      }
+    },
+    {
+      "id": "students_1775379443604",
+      "timestamp": "2026-04-05T08:57:23.604Z",
+      "nameAr": "اندرو وجدي",
+      "nameEn": "Andrew Wagdy",
+      "majorAr": "تكنلوجيا التعليم ",
+      "majorEn": "Education technology",
+      "bioAr": "طالب في قسم تكنولوجيا التعليم بكلية التربية، شغوف بدمج التكنولوجيا في العملية التعليمية من خلال الوسائط المتعددة. أمتلك مهارات في التصميم الجرافيكي، المونتاج، وكتابة السيناريوهات، الاشراف. أسعى دائمًا لتطوير أدوات تعليمية مبتكرة تجمع بين الجانب التقني والتربوي، مع اهتمام خاص بتقنيات التصميم ثلاثي الأبعاد والذكاء الاصطناعي",
+      "bioEn": "A student in the Educational Technology Department at the College of Education, I am passionate about integrating technology into the educational process through multimedia. I possess skills in graphic design, video editing, scriptwriting, and supervision. I constantly strive to develop innovative educational tools that combine technical and pedagogical aspects, with a particular interest in 3D design technologies and artificial intelligence.",
+      "image": "",
+      "isVIP": true,
+      "isVerified": true,
+      "socialLinks": {
+        "facebook": "",
+        "instagram": "",
+        "linkedin": "https://www.linkedin.com/in/andrew-megala-3406133a0"
+      }
+    },
+    {
       "id": "students_1775125739063",
       "timestamp": "2026-04-02T10:28:59.063Z",
       "nameAr": "سلمى زهران",
@@ -109,6 +145,15 @@ window.LUMINOVA_DATA = {
   ],
   "subjects": [
     {
+      "id": "subjects_1775379929340",
+      "timestamp": "2026-04-05T09:05:29.340Z",
+      "nameAr": "ادارة المحتوى الرقمي (كانفاس)",
+      "nameEn": "Digital Content Management (CANVAS)",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "subjectId": ""
+    },
+    {
       "id": "subjects_1775125681706",
       "timestamp": "2026-04-02T10:28:01.706Z",
       "nameAr": "الإذاعة والتسجيلات الصوتية",
@@ -119,6 +164,38 @@ window.LUMINOVA_DATA = {
     }
   ],
   "summaries": [
+    {
+      "id": "summaries_1775380114923",
+      "timestamp": "2026-04-05T09:08:34.923Z",
+      "titleAr": "تاني جزء شرح كانفاس",
+      "titleEn": "Part two explains canvas",
+      "contentAr": "تكمله للشرح المختصر علي موقع كانفاس",
+      "contentEn": "Continuation of the brief explanation on the Canvas website",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775379929340",
+      "studentId": "students_1775379443604",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "https://drive.google.com/file/d/1Uru00Scr5B4NHYK8jYR7cqPGlUkdfJGK/view?usp=sharing"
+      ]
+    },
+    {
+      "id": "summaries_1775379994686",
+      "timestamp": "2026-04-05T09:06:34.686Z",
+      "titleAr": "اول جزء شرح كانفاس",
+      "titleEn": "First part explaining canvas",
+      "contentAr": "شرح مختصر عن موقع كانفاس بنطبق فيه خيارات الاضافه في الوحده بالتفصيل",
+      "contentEn": "A brief explanation of the Canvas website, where we apply the options for adding elements to a module in detail.",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775379929340",
+      "studentId": "students_1775379443604",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "https://drive.google.com/file/d/1w73ITLHKhGzaU9mXlHjFdUQ-v5JtbuUU/view?usp=sharing"
+      ]
+    },
     {
       "id": "summaries_1775310101236",
       "timestamp": "2026-04-04T13:41:41.236Z",
