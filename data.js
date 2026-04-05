@@ -165,6 +165,22 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
+      "id": "summaries_1775415255053",
+      "timestamp": "2026-04-05T18:54:15.053Z",
+      "titleAr": "فيديو التطبيق العملي لتاسك دكتوره حبيبه",
+      "titleEn": "Practical application video for Dr. Habiba's task",
+      "contentAr": "ملخص سريع لشرح تاسك كانفاس ",
+      "contentEn": "A quick summary of Task Canvas",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775379929340",
+      "studentId": "students_1775379443604",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "https://drive.google.com/file/d/1V43dV_9KJJNze2FJESZiD5n1SIcoaOdD/view?usp=sharing"
+      ]
+    },
+    {
       "id": "summaries_1775380114923",
       "timestamp": "2026-04-05T09:08:34.923Z",
       "titleAr": "تاني جزء شرح كانفاس",
