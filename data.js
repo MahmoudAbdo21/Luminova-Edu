@@ -14,7 +14,7 @@ window.LUMINOVA_DATA = {
       "mediaUrl": "",
       "studentId": "students_1775125739063",
       "mediaUrls": [
-        "file-html/Tasks.wav"
+        "file-html/Tasks.mp3"
       ]
     },
     {
