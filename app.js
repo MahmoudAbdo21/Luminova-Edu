@@ -85,7 +85,7 @@
                 ${expanded ? text : text.substring(0, maxLength) + (isLong ? '...' : '')}
             </p>
             ${isLong && html`
-                <button onClick=${(e) => { e.stopPropagation(); setExpanded(!expanded); }} className="text-brand-DEFAULT hover:text-brand-hover mt-1 font-semibold text-xs transition-colors">
+                <button onClick=${(e) => { e.stopPropagation(); setExpanded(!expanded); }} className="inline-flex items-center mt-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/30 px-2 py-0.5 rounded-full font-bold text-xs transition-all border border-blue-200 dark:border-blue-700 cursor-pointer">
                     ${expanded ? Luminova.i18n[lang].readLess : Luminova.i18n[lang].readMore}
                 </button>
             `}

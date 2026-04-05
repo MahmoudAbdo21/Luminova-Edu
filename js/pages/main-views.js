@@ -62,7 +62,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                 <div className="flex justify-center pt-4 pb-2">
                     <button
                         onClick=${() => setVisibleCount(prev => prev + PAGE_SIZE_MORE)}
-                        className="px-8 py-3 rounded-2xl bg-white/70 dark:bg-gray-800/70 backdrop-blur border border-brand-DEFAULT/30 text-brand-DEFAULT font-bold hover:bg-brand-DEFAULT hover:text-white transition-all duration-200 shadow-md hover:shadow-xl hover:scale-105 flex items-center gap-2"
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition-all block mx-auto mt-6 w-full sm:w-auto text-center"
                     >
                         <span>${lang === 'ar' ? 'عرض المزيد' : 'Load More'}</span>
                         <span className="opacity-50 text-sm">(${items.length - visibleCount} ${lang === 'ar' ? 'متبقية' : 'remaining'})</span>
@@ -186,7 +186,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                         </div>
                         ${visibleCount < subData.length && html`
                             <div className="pt-2 pb-8">
-                                <button onClick=${() => setVisibleCount(prev => prev + 10)} className="w-full sm:w-auto mx-auto block mt-6 bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-all">
+                                <button onClick=${() => setVisibleCount(prev => prev + 10)} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition-all block mx-auto mt-6 w-full sm:w-auto text-center">
                                     ${lang === 'ar' ? 'عرض المزيد ➕' : 'Load More ➕'}
                                 </button>
                             </div>
@@ -495,7 +495,7 @@ Luminova.Pages.StudentCommunityPage = ({ data, lang, setView, setActiveSummary }
                         />
                         ${visibleCount < studentPosts.length && html`
                             <div className="pt-2 pb-8">
-                                <button onClick=${() => setVisibleCount(prev => prev + 5)} className="w-full sm:w-auto mx-auto block mt-6 bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-all">
+                                <button onClick=${() => setVisibleCount(prev => prev + 5)} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition-all block mx-auto mt-6 w-full sm:w-auto text-center">
                                     ${lang === 'ar' ? 'عرض المزيد ➕' : 'Load More ➕'}
                                 </button>
                             </div>
