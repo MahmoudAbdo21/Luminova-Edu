@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level Up | التعلم الرقمي - Level 5</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #a855f7;
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --text-light: #f8fafc;
+            --accent-yellow: #fbbf24;
+            --accent-green: #22c55e;
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Game Header */
+        .game-header {
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            padding: 30px 20px;
+            border-bottom: 4px solid var(--primary-color);
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .group-name {
+            font-size: 0.9rem;
+            color: var(--accent-yellow);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: 900;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .level-badge {
+            background: var(--primary-color);
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 900;
+            display: inline-block;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.6);
+            font-size: 1.1rem;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .loading-text {
+            font-size: 0.75rem;
+            margin-top: 12px;
+            color: var(--secondary-color);
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        /* Disclaimer Card */
+        .disclaimer {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 25px;
+            font-size: 0.85rem;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        /* Mission Card (Game Style) */
+        .mission-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 1px solid #334155;
+            position: relative;
+            padding-top: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .mission-tag {
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            background: var(--accent-yellow);
+            color: #000;
+            padding: 5px 20px;
+            border-radius: 8px;
+            font-weight: 900;
+            transform: rotate(2deg);
+            box-shadow: 3px 3px 0px rgba(0,0,0,0.2);
+        }
+
+        .mission-content {
+            padding: 25px;
+        }
+
+        h2 {
+            color: var(--accent-yellow);
+            font-size: 1.4rem;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Grid for stats/info */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #334155;
+        }
+
+        .stat-box:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+            background: #1e293b;
+        }
+
+        .stat-box span {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        /* List Styling */
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.03);
+            margin-bottom: 8px;
+            border-radius: 8px;
+            border-right: 4px solid var(--primary-color);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px;
+            opacity: 0.7;
+            font-size: 0.85rem;
+            border-top: 1px solid #334155;
+            margin-top: 20px;
+        }
+
+        /* Mobile Optimization */
+        @media (max-width: 600px) {
+            .group-name { font-size: 0.75rem; }
+            .level-badge { font-size: 0.9rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .mission-card { padding-top: 30px; }
+            h2 { font-size: 1.2rem; }
+            .mission-tag { right: 10px; padding: 4px 15px; font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="game-header">
+    <span class="group-name">LEVEL UP COMMUNITY</span>
+    <div class="level-badge">LEVEL 5: DIGITAL LEARNING</div>
+    <div class="loading-text">🎮 المذاكرة مستمرة.. جاري تحميل باقي المهام</div>
+</header>
+
+<div class="container">
+    
+    <!-- التنويه القانوني والمجهود الطلابي -->
+    <div class="disclaimer">
+        ⚠️ <strong>تنبيه هام:</strong> هذا المحتوى عبارة عن <strong>مجهود طلابي</strong> لتبسيط وتسهيل المذاكرة فقط. يرجى الرجوع دائماً إلى <strong>المصدر الأصلي والكتاب الجامعي</strong> الخاص بالسادة الدكاترة لضمان الدقة والحفاظ على حقوق النشر.
+    </div>
+
+    <!-- MISSION 1 -->
+    <div class="mission-card">
+        <div class="mission-tag">QUEST 01</div>
+        <div class="mission-content">
+            <h2>🎧 مدخل إلى التعلم الرقمي</h2>
+            <p><strong>المفهوم الأساسي:</strong> استخدام التكنولوجيا لتطوير التعليم (مش بس شاشة بدل الورق!).</p>
+            
+            <div class="stats-grid">
+                <div class="stat-box"><span>⏰</span> الوقت</div>
+                <div class="stat-box"><span>📍</span> المكان</div>
+                <div class="stat-box"><span>🏃‍♂️</span> السرعة</div>
+                <div class="stat-box"><span>🎯</span> الطريقة</div>
+            </div>
+
+            <div style="background: rgba(34, 197, 94, 0.1); padding: 15px; border-radius: 10px; border: 1px solid var(--accent-green);">
+                ✅ <strong>خلاصة المهمة:</strong> تطوير شامل للتعليم باستخدام التكنولوجيا.
+            </div>
+        </div>
+    </div>
+
+    <!-- MISSION 2 -->
+    <div class="mission-card" style="border-right: 4px solid var(--accent-yellow);">
+        <div class="mission-tag" style="background: var(--accent-green);">VERSUS</div>
+        <div class="mission-content">
+            <h2>🟡 الفرق بين الإلكتروني والرقمي</h2>
+            
+            <div style="margin-bottom: 20px;">
+                <strong style="color: var(--primary-color);">🔵 التعليم الإلكتروني:</strong>
+                <ul>
+                    <li>إنترنت فقط 🌐</li>
+                    <li>عن بعد غالبًا 🏠</li>
+                </ul>
+            </div>
+
+            <div>
+                <strong style="color: var(--accent-green);">🟢 التعلم الرقمي (الأشمل):</strong>
+                <ul>
+                    <li>داخل وخارج الفصل</li>
+                    <li>أدوات ذكية (تابلت + سبورة) 📱</li>
+                </ul>
+            </div>
+
+            <div style="text-align: center; margin-top: 15px; border: 1px dashed #444; padding: 10px; border-radius: 10px;">
+                "كل تعليم إلكتروني هو تعليم رقمي، وليس العكس"
+            </div>
+        </div>
+    </div>
+
+    <!-- MISSION 3 -->
+    <div class="mission-card">
+        <div class="mission-tag">STATS</div>
+        <div class="mission-content">
+            <h2>🔥 خصائص التعلم الرقمي (9 Skills)</h2>
+            <div class="stats-grid" style="grid-template-columns: 1fr 1fr;">
+                <li>1. التفاعلية (Active)</li>
+                <li>2. الفردية (Speed)</li>
+                <li>3. التنوع (Variety)</li>
+                <li>4. الكونية (Global)</li>
+                <li>5. التكاملية (Mixed)</li>
+                <li>6. الإتاحة (24/7)</li>
+                <li>7. الإلكترونية (Tech)</li>
+                <li>8. الجودة (High Quality)</li>
+                <li>9. الرقمنة (Digital)</li>
+            </div>
+        </div>
+    </div>
+
+    <!-- التربية الرقمية -->
+    <div class="mission-card" style="background: linear-gradient(135deg, #1e293b 0%, #2e1065 100%);">
+        <div class="mission-tag" style="background: #a855f7; color: white;">ULTIMATE</div>
+        <div class="mission-content">
+            <h2>🟣 التربية الرقمية</h2>
+            <p><strong>الهدف:</strong> استخدام التكنولوجيا بوعي وأخلاق.</p>
+            
+            <div class="stats-grid">
+                <div class="stat-box"><strong>معرفي</strong> بحث وتحليل</div>
+                <div class="stat-box"><strong>أخلاقي</strong> احترام وخصوصية</div>
+                <div class="stat-box"><strong>تقني</strong> مهارات وأمان</div>
+            </div>
+
+            <p>🛠️ <strong>أدوات الجيمر:</strong> Canva | Google Docs | Google Slides</p>
+        </div>
+    </div>
+
+    <!-- إدارة وأدوات -->
+    <div class="mission-card">
+        <div class="mission-tag">INVENTORY</div>
+        <div class="mission-content">
+            <h2>⚙️ إدارة وأدوات التعلم</h2>
+            <p>تشمل: المحتوى، التفاعل، الواجبات، والتقويم.</p>
+            
+            <ul style="border-right: 2px solid #334155; padding-right: 15px;">
+                <li>زيادة التفاعل (مثل: Padlet)</li>
+                <li>تنوع طرق الشرح</li>
+                <li>دعم ذوي الاحتياجات</li>
+                <li>تسهيل التقويم</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- المحاضرات الرقمية -->
+    <div class="mission-card">
+        <div class="mission-tag">VIDEO LOG</div>
+        <div class="mission-content">
+            <h2>🎥 محاضرات الفيديو</h2>
+            <div class="stats-grid">
+                <div class="stat-box" style="font-size: 0.8rem;">صورة داخل صورة</div>
+                <div class="stat-box" style="font-size: 0.8rem;">تصوير داخل فصل</div>
+                <div class="stat-box" style="font-size: 0.8rem;">استوديو (كروما)</div>
+                <div class="stat-box" style="font-size: 0.8rem;">فيديو تفاعلي (Edpuzzle)</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    Made with ❤️ by Level Up Students<br>
+    جميع الحقوق محفوظة للمصادر الأصلية والدكاترة
+</footer>
+
+</body>
+</html>س

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Level Up - Level 2 | فن التكوين</title>
+    <style>
+        :root {
+            --primary: #00f2ff;
+            --secondary: #ff007b;
+            --bg: #0a0b10;
+            --card-bg: #161b22;
+            --text: #e6edf3;
+            --accent: #bc13fe;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            background-image: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #0a0b10 100%);
+            overflow-x: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            padding: 60px 20px;
+            text-align: center;
+            border-bottom: 4px solid var(--primary);
+            box-shadow: 0 5px 30px rgba(0, 242, 255, 0.2);
+            position: relative;
+        }
+
+        .level-badge {
+            background: var(--secondary);
+            color: white;
+            padding: 8px 25px;
+            border-radius: 30px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-bottom: 15px;
+            box-shadow: 0 0 15px var(--secondary);
+            font-size: clamp(0.8rem, 2vw, 1rem);
+        }
+
+        h1 { 
+            margin: 10px 0; 
+            font-size: clamp(1.8rem, 5vw, 3rem); 
+            color: var(--primary); 
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+            line-height: 1.2;
+        }
+
+        .container { 
+            max-width: 1000px; 
+            margin: 20px auto; 
+            padding: 0 15px; 
+        }
+
+        /* Game Intro Style */
+        .game-start-card {
+            background: linear-gradient(45deg, #161b22, #1f242d);
+            border: 2px solid var(--primary);
+            border-radius: 20px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 40px;
+            box-shadow: inset 0 0 20px rgba(0, 242, 255, 0.1);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { border-color: var(--primary); }
+            50% { border-color: var(--accent); }
+            100% { border-color: var(--primary); }
+        }
+
+        .start-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 20px var(--secondary);
+            margin-top: 20px;
+            transition: 0.3s;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.1);
+            background: #ff2e97;
+        }
+
+        /* Quest Card Style */
+        .quest-card {
+            background: var(--card-bg);
+            border: 1px solid #30363d;
+            border-right: 5px solid var(--secondary);
+            border-radius: 20px;
+            padding: clamp(20px, 4vw, 35px);
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .quest-number {
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: var(--accent);
+            padding: 2px 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        h2 { 
+            color: var(--primary); 
+            font-size: clamp(1.2rem, 4vw, 1.8rem); 
+            margin-bottom: 20px;
+        }
+        
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); 
+            gap: 15px; 
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px dashed #444;
+        }
+
+        .tag {
+            display: inline-block;
+            background: rgba(188, 19, 254, 0.1);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            margin: 4px;
+            border: 1px solid var(--accent);
+        }
+
+        .shot-size {
+            background: #00f2ff20;
+            border: 1px solid var(--primary);
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .angle-item {
+            background: #ff007b20;
+            border: 1px solid var(--secondary);
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--secondary);
+        }
+
+        .highlight { color: var(--secondary); font-weight: bold; }
+
+        .progress-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: #161b22;
+            z-index: 1000;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to left, var(--secondary), var(--primary));
+            width: 0%;
+        }
+
+        .disclaimer {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            color: #8b949e;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            background: #0d1117;
+            color: #8b949e;
+            border-top: 1px solid #30363d;
+        }
+
+        ul { list-style: none; padding-right: 5px; }
+        li { margin-bottom: 12px; position: relative; padding-right: 25px; }
+        li::before { content: "✦"; position: absolute; right: 0; color: var(--secondary); }
+    </style>
+</head>
+<body>
+
+<div class="progress-container">
+    <div class="progress-bar" id="myBar"></div>
+</div>
+
+<header>
+    <div class="level-badge">LEVEL 2 | EXPERT</div>
+    <h1>أسرار التكوين الفوتوغرافي 📸</h1>
+    <p>جروب LEVEL UP - استعد للمعركة البصرية</p>
+</header>
+
+<div class="container">
+    
+    <!-- Intro حماسي -->
+    <div class="game-start-card">
+        <h2 style="color: var(--text);">جاري تحميل المهمة... ⏳</h2>
+        <p>مرحباً بكم في المستوى الثاني يا أبطال. فريق العمل جاهز لاستعراض القواعد الذهبية التي تجعل الصور "تنطق" بالحياة.</p>
+        <p class="highlight">الهدف: احتراف ترتيب الكادر وتوجيه عين المشاهد.</p>
+        <button class="start-btn" onclick="document.getElementById('task1').scrollIntoView({behavior: 'smooth'})">START MISSION 🚀</button>
+    </div>
+
+    <!-- Quest 1 -->
+    <div class="quest-card" id="task1">
+        <div class="quest-number">TASK 01</div>
+        <h2>ما هو التكوين (Composition)؟</h2>
+        <p>ببساطة: هو <span class="highlight">ترتيب كل العناصر</span> داخل الكادر (الإطار) لتحقيق هدفين:</p>
+        <div class="grid">
+            <div class="info-box">
+                <strong>🔗 التفاعل</strong>
+                <p>جعل الموضوع يتفاعل مع البيئة المحيطة به بشكل احترافي.</p>
+            </div>
+            <div class="info-box">
+                <strong>✉️ الرسالة</strong>
+                <p>توصيل فكرة أو شعور محدد للمشاهد من أول نظرة.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quest 2: القواعد الأساسية -->
+    <div class="quest-card">
+        <div class="quest-number">TASK 02</div>
+        <h2>القواعد الأساسية (سر القوة)</h2>
+        <ul>
+            <li><strong>الأهمية:</strong> وجود موضوع أساسي واضح يخطف العين.</li>
+            <li><strong>التوتر:</strong> تحريك عين المشاهد داخل الصورة وعدم توقفها عند نقطة واحدة.</li>
+            <li><strong>الجمال:</strong> تناسق الألوان، التوازن، والراحة البصرية.</li>
+            <li><strong>البساطة:</strong> وضوح الفكرة دون تعقيد زائد (البساطة لا تعني الضعف).</li>
+        </ul>
+    </div>
+
+    <!-- Quest 3: العناصر -->
+    <div class="quest-card">
+        <div class="quest-number">TASK 03</div>
+        <h2>عناصر التكوين (البناء)</h2>
+        <div class="grid">
+            <div class="info-box">
+                <h3>✏️ سحر الخطوط</h3>
+                <p>تستخدم للجمال وتوجيه العين:</p>
+                <div style="display: flex; flex-wrap: wrap;">
+                    <span class="tag">مستقيمة: قوة</span>
+                    <span class="tag">منحنية: نعومة</span>
+                    <span class="tag">رأسية: عظمة</span>
+                    <span class="tag">أفقية: هدوء</span>
+                    <span class="tag">مائلة: طاقة</span>
+                    <span class="tag">متوازية: عمق</span>
+                </div>
+            </div>
+            <div class="info-box">
+                <h3>🔺 هندسة الأشكال</h3>
+                <p>أهمهم <span class="highlight">المثلث</span> لأنه يعطي إحساساً بالثبات، وأفضل مكان للبطل هو رأس المثلث.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quest 4: الكتلة والتوازن -->
+    <div class="quest-card">
+        <div class="quest-number">TASK 04</div>
+        <h2>الكتلة والتوازن (الوزن البصري)</h2>
+        <p>الكتلة ليست الحجم الحقيقي، بل الوزن البصري للعنصر، وتتأثر بـ:</p>
+        <div class="grid" style="grid-template-columns: repeat(2, 1fr);">
+            <div class="item">📍 الحجم الكبير</div>
+            <div class="item">🌈 اللون الزاهي</div>
+            <div class="item">💡 الإضاءة القوية</div>
+            <div class="item">🔍 القرب من الكاميرا</div>
+        </div>
+        <p style="margin-top:20px">💡 <strong>التوازن:</strong> يفضل استخدام <span class="highlight">التوازن غير المتماثل</span> لأنه أجمل وأكثر حيوية من المتماثل الممل.</p>
+    </div>
+
+    <!-- Quest 5: قاعدة التثليث والعمق -->
+    <div class="quest-card">
+        <div class="quest-number">TASK 05</div>
+        <h2>النسبة الذهبية والعمق</h2>
+        <p><strong>قاعدة التثليث:</strong> ضع موضوعك في الثلث اليمين أو الشمال (مثل: سماء 2/3 وأرض 1/3).</p>
+        <p><strong>خلق العمق (3D):</strong> عن طريق المقدمة والخلفية، تداخل العناصر، وتصغير الحجم تدريجياً.</p>
+        <div class="grid">
+            <div class="info-box">
+                <strong>Headroom:</strong> المسافة فوق الرأس.
+            </div>
+            <div class="info-box">
+                <strong>Nose Room:</strong> مساحة أمام الوجه في اتجاه النظر.
+            </div>
+        </div>
+    </div>
+
+    <!-- Quest 6: أحجام اللقطات -->
+    <div class="quest-card">
+        <div class="quest-number">TASK 06</div>
+        <h2>أحجام اللقطات الـ 6 (Shot Sizes)</h2>
+        <div class="grid">
+            <div class="shot-size">Extreme Long Shot</div>
+            <div class="shot-size">Long Shot</div>
+            <div class="shot-size">Medium Shot</div>
+            <div class="shot-size">American Shot</div>
+            <div class="shot-size">Close Up</div>
+            <div class="shot-size">Big Close Up</div>
+        </div>
+    </div>
+
+    <!-- Quest 7: زوايا التصوير -->ٍ
+    <div class="quest-card">
+        <div class="quest-number">TASK 07</div>
+        <h2>زوايا التصوير السبعة (Camera Angles)</h2>
+        <div class="grid">
+            <div class="angle-item">الزاوية المباشرة (Eye Level)</div>
+            <div class="angle-item">الزاوية العلوية (High Angle)</div>
+            <div class="angle-item">الزاوية السفلية (Low Angle)</div>
+            <div class="angle-item">الزاوية الخلفية</div>
+            <div class="angle-item">الزاوية الجانبية</div>
+            <div class="angle-item">زاوية الثلاثة أرباع (3/4)</div>
+            <div class="angle-item">الزاوية المائلة (Dutch Angle)</div>
+        </div>
+    </div>
+
+    <!-- Final -->
+    <div class="quest-card" style="background: linear-gradient(45deg, #161b22, #0f0c29); border: 2px solid var(--primary); text-align: center;">
+        <h2 style="color: var(--secondary);">🏆 تم اجتياز المستوى بنجاح</h2>
+        <p>الخلاصة: التكوين هو ترتيب العناصر | توازن + بساطة | قاعدة التثليث = جمال | العمق يمنع التسطيح.</p>
+        <div class="level-badge" style="margin-top: 10px;">LEVEL 3 UNLOCKED</div>
+    </div>
+
+    <!-- الملحوظة الاسترشادية -->
+    <div class="disclaimer">
+        ⚠️ هذا التصميم مجهود طلابي استرشادي، يرجى الرجوع للمحاضرة للتأكد من المنهج المعتمد.
+    </div>
+
+</div>
+
+<footer>
+    <p>جروب LEVEL UP 🚀 - المحتوى بإشراف الفريق</p>
+    <p>© 2026 تصميم ذكي متجاوب لجميع الأجهزة</p>
+</footer>
+
+<script>
+    window.onscroll = function() {
+        var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        var scrolled = (winScroll / height) * 100;
+        document.getElementById("myBar").style.width = scrolled + "%";
+    };
+</script>
+
+</body>
+</html>.
