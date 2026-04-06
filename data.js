@@ -5,6 +5,87 @@ window.LUMINOVA_DATA = {
   },
   "news": [
     {
+      "id": "news_1775505361111",
+      "timestamp": "2026-04-06T19:56:01.111Z",
+      "titleAr": "منصة كلاس روم الخاصه بي ",
+      "titleEn": "My Classroom platform",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "studentId": "students_1775379443604",
+      "mediaUrls": [
+        "https://classroom.google.com/c/ODM4Nzg1NDA2OTk4?cjc=5voanvwu"
+      ]
+    },
+    {
+      "id": "news_1775505036463",
+      "timestamp": "2026-04-06T19:50:36.463Z",
+      "titleAr": "رابط موقع كانفاس ",
+      "titleEn": "Canvas website link",
+      "contentAr": "موقع كانفاس لتنفيذ تسكات الدكتور حبيبة ",
+      "contentEn": "Canvas website for implementing Dr. Habiba's assignments",
+      "mediaUrl": "",
+      "studentId": "s_founder_hardcoded",
+      "mediaUrls": [
+        "https://canvas.instructure.com/"
+      ]
+    },
+    {
+      "id": "news_1775504979951",
+      "timestamp": "2026-04-06T19:49:39.951Z",
+      "titleAr": "اللينكات الخاصه بشرح تكليفات مادة التعلم الرقمي واخر معاد تسليم يوم ٤/١٥",
+      "titleEn": "Links explaining the assignments for the Digital Learning course; the deadline is April 15th.",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "studentId": "students_1775125739063",
+      "mediaUrls": [
+        "https://drive.google.com/drive/folders/1bZyFEjlF9XPS42_FMug0qBZvsycARyyw",
+        "https://drive.google.com/drive/folders/1Ak9DD9igaTdYUEA_sgDQ0tHvfLHagkTc?usp=drive_link"
+      ]
+    },
+    {
+      "id": "news_1775504932951",
+      "timestamp": "2026-04-06T19:48:52.951Z",
+      "titleAr": "الامتحان الخاص ب اول ٣ محاضرات مادة التعلم الرقمي",
+      "titleEn": "The exam covers the first 3 lectures of the Digital Learning course.",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "studentId": "students_1775125739063",
+      "mediaUrls": [
+        "https://docs.google.com/forms/d/e/1FAIpQLSf5axdaKAHGCeG6G2KPjsQkQzw6nXjSVsmXD4s8nFiUn1nHoA/viewform?usp=publish-editor"
+      ]
+    },
+    {
+      "id": "news_1775504356199",
+      "timestamp": "2026-04-06T19:39:16.199Z",
+      "titleAr": "امتحان شامل على اول فصلين بالتصوير الفوتوغرافي",
+      "titleEn": "Comprehensive exam covering the first two chapters of photography",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "studentId": "students_1775125739063",
+      "mediaUrls": [
+        "https://docs.google.com/forms/d/e/1FAIpQLScw0a0bEOM_rAmZRnLk3uQYnve6NUwiCgGutFtGNDqFokVxoA/viewform?usp=publish-editor"
+      ]
+    },
+    {
+      "id": "news_1775503935214",
+      "timestamp": "2026-04-06T19:32:15.214Z",
+      "titleAr": "اختبارات على الفصل الاول مقرر التصوير الفوتوغرافي",
+      "titleEn": "Tests on the first semester of the photography course",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "studentId": "students_1775125739063",
+      "mediaUrls": [
+        "https://docs.google.com/forms/d/e/1FAIpQLSdAETT6lIFg_2866jR7hMD5HF6bOX7L_dnTQqOZu0WBFqfw4Q/viewform?usp=header",
+        "https://docs.google.com/forms/d/e/1FAIpQLScVOC21EB8ZYxwnxhTI5vf-cv19c6rmlQCphEm1uvuje_onSQ/viewform?usp=header",
+        "https://docs.google.com/forms/d/e/1FAIpQLSce8dD0Kb2urBVc1FT33LmuBYcVx5A5iFbtmPrqo2sVrDC0Kg/viewform?usp=header"
+      ]
+    },
+    {
       "id": "news_1775421489443",
       "timestamp": "2026-04-05T20:38:09.443Z",
       "titleAr": "ملخص شامل لجميع التسكيات والمقررات من بداية الترم",
@@ -158,6 +239,42 @@ window.LUMINOVA_DATA = {
   ],
   "subjects": [
     {
+      "id": "subjects_1775506029734",
+      "timestamp": "2026-04-06T20:07:09.734Z",
+      "nameAr": "تطبيقات الاذاعه والتسجيلات",
+      "nameEn": "Radio and recording applications",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "subjectId": ""
+    },
+    {
+      "id": "subjects_1775505789263",
+      "timestamp": "2026-04-06T20:03:09.263Z",
+      "nameAr": "تطبيقات الاسس النظريه لتكنولوجيا",
+      "nameEn": "Applications of the theoretical foundations of technology",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "subjectId": ""
+    },
+    {
+      "id": "subjects_1775504450774",
+      "timestamp": "2026-04-06T19:40:50.774Z",
+      "nameAr": "التعلم الرقمي",
+      "nameEn": "Digital learning",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "subjectId": ""
+    },
+    {
+      "id": "subjects_1775503625271",
+      "timestamp": "2026-04-06T19:27:05.271Z",
+      "nameAr": "مقرر التصوير الفوتوغرافي",
+      "nameEn": "Photography course",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "subjectId": ""
+    },
+    {
       "id": "subjects_1775379929340",
       "timestamp": "2026-04-05T09:05:29.340Z",
       "nameAr": "ادارة المحتوى الرقمي (كانفاس)",
@@ -177,6 +294,148 @@ window.LUMINOVA_DATA = {
     }
   ],
   "summaries": [
+    {
+      "id": "summaries_1775506068343",
+      "timestamp": "2026-04-06T20:07:48.343Z",
+      "titleAr": "شرح تاسك الاذاعه والتسجيلات الصوتية لدكتور دينا ايمن",
+      "titleEn": "Explanation of radio broadcasting and audio recordings by Dr. Dina Ayman",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775506029734",
+      "studentId": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "https://drive.google.com/file/d/1dqpf9LMLRe67fCFDexSvZIuvF9j5ljkt/view?usp=drive_link",
+        "https://drive.google.com/file/d/1E-3ekQbDYbvX-OZMFJ3pHH_lRH63IW3f/view?usp=drive_link",
+        "https://drive.google.com/file/d/18jkGGwwF29iq51fwO2tetLUgHUaDh6uZ/view?usp=drive_link",
+        "https://drive.google.com/file/d/1n6hPCRp3puQ94JhzlpYnvuUgtxjO0QXe/view?usp=drive_link"
+      ]
+    },
+    {
+      "id": "summaries_1775505861032",
+      "timestamp": "2026-04-06T20:04:21.032Z",
+      "titleAr": "دكتور انجي لشرح جوجل سايت ",
+      "titleEn": "Dr. Angie's explanation of Google Sites",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775505789263",
+      "studentId": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "https://drive.google.com/file/d/1tm1KJ4V2Mh9ePS-QR80jwBSbJnv3Xrc7/view",
+        "https://drive.google.com/file/d/1uimYpUQTCBVVMOhFGitonuXgEbI_6GiA/view",
+        "https://drive.google.com/file/d/1E4cIYo3pM_GY7d84SYwoYYErF353u4RY/view"
+      ]
+    },
+    {
+      "id": "summaries_1775505620175",
+      "timestamp": "2026-04-06T20:00:20.175Z",
+      "titleAr": "انشاء صفحة وملف ووحدة ومهمه والتعرف علي اعداد الكورس الداخلي للدكتور حبيبه",
+      "titleEn": "Creating a page, file, unit, and task, and learning about the internal course settings for Dr. Habiba",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775379929340",
+      "studentId": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "https://drive.google.com/file/d/10XUbolqxsXo_MQK5jtEa1Rl91bVdV_dp/view"
+      ]
+    },
+    {
+      "id": "summaries_1775505569318",
+      "timestamp": "2026-04-06T19:59:29.318Z",
+      "titleAr": "شرح الدكتور حبيبة وتغيير اللغة ",
+      "titleEn": "Dr. Habiba explained and changed the language",
+      "contentAr": "شرح تغيير اللغه في برنامج كانفاس لدكتور حبيبه",
+      "contentEn": "Explanation of how to change the language in Canvas by Dr. Habiba",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775379929340",
+      "studentId": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "https://drive.google.com/file/d/1ZSu2vd1PbECUmscEi3vpwSqaSFk4Vd1M/view"
+      ]
+    },
+    {
+      "id": "summaries_1775505427583",
+      "timestamp": "2026-04-06T19:57:07.583Z",
+      "titleAr": "فيديوهات شرح تفصيليه لكانفاس",
+      "titleEn": "Detailed tutorial videos for canvas",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775379929340",
+      "studentId": "students_1775379443604",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "https://drive.google.com/file/d/1V43dV_9KJJNze2FJESZiD5n1SIcoaOdD/view"
+      ]
+    },
+    {
+      "id": "summaries_1775504490471",
+      "timestamp": "2026-04-06T19:41:30.471Z",
+      "titleAr": "المفاهيم والخصائص والأدوات Level 5",
+      "titleEn": "Concepts, Characteristics, and Tools - Level 5",
+      "contentAr": " يتناول هذا الفصل مفهوم التعلم الرقمي والفرق بينه وبين التعليم الإلكتروني، مع توضيح مكوناته الأساسية. كما يوضح خصائصه مثل التفاعلية والفردية والتنوع، وأهمية التربية الرقمية في تنمية مهارات الطلاب. ويتطرق أيضًا إلى أدوات وتقنيات التعلم الرقمي ودورها في تحسين العملية التعليمية وزيادة التفاعل، مثل محاضرات الفيديو والأدوات التفاعلية والتقويم الإلكتروني",
+      "contentEn": "This chapter explores the concept of digital learning and the difference between it and e-learning, outlining its essential components. It also explains its characteristics, such as interactivity, individualization, and diversity, and the importance of digital education in developing students' skills. Furthermore, it addresses digital learning tools and technologies and their role in enhancing the educational process and increasing engagement, such as video lectures, interactive tools, and online assessment",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775504450774",
+      "studentId": "students_1775125739063",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "https://drive.google.com/file/d/19q8y50MeE8iqsxQ1etOgxCkrH7U4rkej/view?usp=drivesdk",
+        "file-html/Digital1h.html",
+        "file-html/NotebookLM Mind Map (18).png",
+        "file-html/unnamed (6).png"
+      ]
+    },
+    {
+      "id": "summaries_1775504067400",
+      "timestamp": "2026-04-06T19:34:27.400Z",
+      "titleAr": "تكوين وتصميم الصورة الفوتوغرافية Level 2",
+      "titleEn": "Composition and Design of Photographic Image - Level 2",
+      "contentAr": "يتناول هذا الفصل أسس تكوين وتصميم الصورة بطريقة تساعد على إخراج صورة قوية وجذابة. ويوضح عناصر التكوين مثل الأجسام، والخطوط، والكتلة، والتوازن، والعمق، وكيفية تنظيمها داخل الكادر بشكل صحيح. كما يشرح قواعد مهمة زي البساطة، وجذب الانتباه، والنسبة الذهبية، بالإضافة إلى تحديد الكادر وأحجام اللقطات وزوايا التصوير، مما يساعد المصور على إنتاج صور معبرة واحترافية",
+      "contentEn": "This chapter explores the fundamentals of image composition and design to help create powerful and engaging photographs. It explains compositional elements such as objects, lines, mass, balance, and depth, and how to arrange them correctly within the frame. It also covers important principles like simplicity, attention-grabbing techniques, and the golden ratio, as well as framing, shot sizes, and camera angles, helping photographers produce expressive and professional images",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775503625271",
+      "studentId": "students_1775125739063",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "https://drive.google.com/file/d/12uybxeXs99edunMPBl-IczaQq-79vD8c/view?usp=drivesdk",
+        "file-html/Photography1h.html",
+        "file-html/NotebookLM Mind Map (17).png",
+        "file-html/unnamed (16).png"
+      ]
+    },
+    {
+      "id": "summaries_1775503662511",
+      "timestamp": "2026-04-06T19:27:42.511Z",
+      "titleAr": "الصورة الفوتوغرافية كوسيط تعليمي Level 1",
+      "titleEn": "Photography as an educational medium (Level 1)",
+      "contentAr": "يتناول هذا الفصل أهمية الصورة الفوتوغرافية كوسيط تعليمي فعال يساعد على توصيل المعلومات بشكل بسيط وجذاب. ويوضح كيف تساهم الصور في جذب انتباه المتعلمين، وتسهيل الفهم، وتنمية التفكير والذاكرة. كما يشرح مفهوم الإدراك البصري وكيف يستقبل الإنسان الصور ويفسرها، مع توضيح بعض المبادئ التي تساعد في تصميم صورة تعليمية ناجحة ومؤثرة",
+      "contentEn": "This chapter explores the importance of photography as an effective educational medium that helps convey information simply and engagingly. It explains how images contribute to capturing learners' attention, facilitating comprehension, and developing thinking and memory. It also explains the concept of visual perception and how humans receive and interpret images, while outlining some principles that help in designing a successful and impactful educational image",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775503625271",
+      "studentId": "students_1775125739063",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "https://drive.google.com/file/d/1leQW9cL27-IYn9nBjvGsJ9BK4BEDuSHT/view?usp=drivesdk",
+        "file-html/Photography1.pdf",
+        "file-html/Photography2.pdf",
+        "file-html/NotebookLM Mind Map (16).png"
+      ]
+    },
     {
       "id": "summaries_1775415255053",
       "timestamp": "2026-04-05T18:54:15.053Z",
