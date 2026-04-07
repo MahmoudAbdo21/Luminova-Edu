@@ -23,7 +23,7 @@
     Luminova.i18n = {
         ar: {
             appName: "Luminova Edu", home: "الرئيسية", community: "مجتمع الطلاب", academic: "المكتبة الأكاديمية",
-            adminToggle: "الإدارة", founder: "المؤسس", vip: "مميز", verified: "موثوق",
+            adminToggle: "الإدارة", founder: "المؤسس", vip: "مميز", verified: "موثوق", doctor: "دكتور",
             readMore: "عرض المزيد", readLess: "عرض أقل", searchPlaceholder: "ابحث هنا...", emptyState: "لا يوجد بيانات لعرضها.",
             years: "الفرق الدراسية", semesters: "الفصول الدراسية", subjects: "المواد الدراسية",
             summaries: "التلخيصات", quizzes: "الاختبارات", startQuiz: "بدء الاختبار", questions: "الأسئلة",
@@ -37,7 +37,7 @@
         },
         en: {
             appName: "Luminova Edu", home: "Home", community: "Community", academic: "Academic Library",
-            adminToggle: "Admin", founder: "Founder", vip: "VIP", verified: "Verified",
+            adminToggle: "Admin", founder: "Founder", vip: "VIP", verified: "Verified", doctor: "Doctor",
             readMore: "Read More", readLess: "Read Less", searchPlaceholder: "Search...", emptyState: "No data available.",
             years: "Academic Years", semesters: "Semesters", subjects: "Subjects",
             summaries: "Summaries", quizzes: "Quizzes", startQuiz: "Start Quiz", questions: "Questions",
@@ -235,6 +235,7 @@
                             <h3 className="font-black text-xl sm:text-2xl text-brand-DEFAULT drop-shadow-sm">${lang === 'ar' ? (author.nameAr || author.name) : (author.nameEn || author.name)}</h3>
                             ${author.isVIP && html`<span className="text-xs text-brand-DEFAULT bg-brand-DEFAULT/10 px-3 py-1 rounded-full font-bold shadow-sm">VIP ✨</span>`}
                             ${author.isFounder && html`<span className="text-xs bg-brand-gold text-black shadow-lg px-3 py-1 rounded-full font-black tracking-widest">${Luminova.i18n[lang].founder}</span>`}
+                            ${!author.isFounder && author.role === 'doctor' && html`<span className="text-xs bg-teal-500 text-white shadow-lg px-3 py-1 rounded-full font-black tracking-widest">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
                         </div>
                         <p className="text-sm font-bold opacity-60 text-gray-500 dark:text-gray-400 font-mono">${Luminova.formatDate(item.timestamp, lang)}</p>
                     </div>
@@ -243,7 +244,7 @@
 
             <div className="mb-12 px-2 sm:px-6">
                 <h1 className="text-3xl sm:text-5xl font-black mb-6 leading-tight text-gray-900 dark:text-white drop-shadow-sm">${item[`title${lang === 'ar' ? 'Ar' : 'En'}`] || item.titleAr || item.titleEn || item.title}</h1>
-                <p className="whitespace-pre-wrap text-lg sm:text-xl opacity-80 leading-relaxed font-semibold text-gray-700 dark:text-gray-300">
+                <p className="whitespace-normal break-words text-lg sm:text-xl opacity-80 leading-relaxed font-semibold text-gray-700 dark:text-gray-300" style=${{ overflowWrap: 'anywhere', wordBreak: 'normal' }}>
                     ${item[`content${lang === 'ar' ? 'Ar' : 'En'}`] || item.contentAr || item.contentEn || item.text}
                 </p>
             </div>

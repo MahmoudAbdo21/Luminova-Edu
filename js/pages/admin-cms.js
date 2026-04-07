@@ -63,7 +63,7 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
         const getNewTemplate = () => {
             const base = { id: `${activeTab}_${Date.now()}`, timestamp: new Date().toISOString() };
             if (activeTab === 'news') return { ...base, titleAr: '', titleEn: '', contentAr: '', contentEn: '', mediaUrl: '' };
-            if (activeTab === 'students') return { ...base, nameAr: 'عبد المنعم حجاج', nameEn: 'Abdelmonem Hagag', majorAr: '', majorEn: '', bioAr: '', bioEn: '', image: '', isVIP: false, isVerified: false, socialLinks: { facebook: '', instagram: '', linkedin: '' } };
+            if (activeTab === 'students') return { ...base, nameAr: 'عبد المنعم حجاج', nameEn: 'Abdelmonem Hagag', majorAr: '', majorEn: '', bioAr: '', bioEn: '', image: '', isVIP: false, isVerified: false, role: 'student', socialLinks: { facebook: '', instagram: '', linkedin: '' } };
             if (activeTab === 'years' || activeTab === 'semesters' || activeTab === 'subjects') return { ...base, nameAr: '', nameEn: '', yearId: '', semesterId: '' };
             if (activeTab === 'summaries') return { ...base, titleAr: '', titleEn: '', contentAr: '', contentEn: '', mediaUrl: '', subjectId: '', studentId: '' };
             if (activeTab === 'quizzes') return { ...base, titleAr: '', titleEn: '', isShuffled: false, feedbackMode: 'end', subjectId: '', publisherId: '', questions: [] };
@@ -335,6 +335,19 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
                                             <${Luminova.Components.Input} type="checkbox" label="⭐ VIP Member (مميز الإطار الخارجي)" val=${editingItem.isVIP} onChange=${v => { setEditingItem({ ...editingItem, isVIP: v }) }} />
                                             <${Luminova.Components.Input} type="checkbox" label="🔵✔️ Verified (شارة توثيق زرقاء)" val=${editingItem.isVerified} onChange=${v => { setEditingItem({ ...editingItem, isVerified: v }) }} />
                                         </div>
+                                        <div className="col-span-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                            <label className="block text-sm font-black mb-3 opacity-80 text-teal-600 dark:text-teal-400">🎓 دور المستخدم (User Role)</label>
+                                            <div className="flex gap-4">
+                                                <label className="flex items-center gap-3 cursor-pointer bg-white dark:bg-gray-800 p-3 rounded-xl border-2 ${editingItem.role !== 'doctor' ? 'border-brand-DEFAULT' : 'border-gray-200 dark:border-gray-700'} shadow-sm flex-1">
+                                                    <input type="radio" name="userRole" value="student" checked=${editingItem.role !== 'doctor'} onChange=${() => setEditingItem({ ...editingItem, role: 'student' })} className="w-5 h-5 accent-brand-DEFAULT" />
+                                                    <span className="font-bold">👤 طالب (Student)</span>
+                                                </label>
+                                                <label className="flex items-center gap-3 cursor-pointer bg-white dark:bg-gray-800 p-3 rounded-xl border-2 ${editingItem.role === 'doctor' ? 'border-teal-500' : 'border-gray-200 dark:border-gray-700'} shadow-sm flex-1">
+                                                    <input type="radio" name="userRole" value="doctor" checked=${editingItem.role === 'doctor'} onChange=${() => setEditingItem({ ...editingItem, role: 'doctor' })} className="w-5 h-5 accent-teal-500" />
+                                                    <span className="font-bold text-teal-600 dark:text-teal-400">🎓 دكتور (Doctor)</span>
+                                                </label>
+                                            </div>
+                                        </div>
                                     ` : activeTab === 'news' ? html`
                                         <div className="col-span-2">
                                             <label className="block text-sm font-black mb-2 opacity-80 text-brand-DEFAULT drop-shadow-sm">الناشر (Author)</label>
@@ -438,6 +451,7 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
                                                         <span className="opacity-70 text-sm font-normal">${item.titleEn || item.nameEn || item.title || ''}</span>
                                                         ${item.isVIP && html`<span className="ml-2 text-brand-DEFAULT" title="VIP">✨</span>`}
                                                         ${item.isVerified && html`<span className="ml-2" title="Verified">🔵✔️</span>`}
+                                                        ${item.role === 'doctor' && html`<span className="ml-2 text-xs bg-teal-500 text-white px-2 py-0.5 rounded-full font-black">🎓 دكتور</span>`}
                                                     `}
                                                 </td>
                                                 <td className="p-4 text-sm opacity-60 font-semibold tracking-wider">${Luminova.formatDate(item.timestamp, lang)}</td>

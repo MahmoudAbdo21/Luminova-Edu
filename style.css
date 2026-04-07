@@ -4,6 +4,22 @@
              Desktop & Mobile responsive layout.
    ============================================================ */
 
+/* ============================================================
+   0. GLOBAL ARABIC TYPOGRAPHY SAFETY NET
+      Prevents any element from splitting Arabic words mid-character.
+      word-break:normal = only break at spaces (correct Arabic behavior).
+      overflow-wrap:anywhere = allow URL/long-token wrap as last resort.
+   ============================================================ */
+* {
+    -webkit-hyphens: none;
+    hyphens: none;
+}
+[dir="rtl"] * {
+    word-break: normal !important;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
 /* ---- Google Font ---- */
 /* (Already loaded via <link> in index.html) */
 
@@ -254,10 +270,14 @@ video:not(.media-container video) {
         width: 100%;
     }
 
-    /* Prevent text / long URLs from breaking container */
+    /* Prevent text / long URLs from breaking container.
+       CRITICAL Arabic rule: word-break must stay 'normal' so Arabic
+       words are NEVER split mid-character. Only URL-like tokens that
+       have no natural break point may wrap via overflow-wrap:anywhere. */
     p, h1, h2, h3, h4, span, label, td, th, li {
-        overflow-wrap: break-word;
-        word-break: break-word;
+        overflow-wrap: anywhere;   /* wraps only when no other option */
+        word-break: normal;        /* words (Arabic or otherwise) never split mid-char */
+        white-space: normal;       /* always allow inter-word wrapping */
     }
 
     /* ── Grids collapse to one column ── */

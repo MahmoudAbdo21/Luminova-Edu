@@ -30,9 +30,10 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                             <div className="flex items-start gap-4 mb-4">
                                 <${Luminova.Components.Avatar} name=${student.nameAr || student.name} image=${student.image} isVIP=${student.isVIP} isVerified=${student.isVerified} isFounder=${student.isFounder || (student.id === 's_founder')} size="w-10 h-10" />
                                 <div className="flex-1">
-                                    <h4 className="font-bold whitespace-pre-wrap flex items-center gap-1">
+                                    <h4 className="font-bold whitespace-normal break-words flex items-center gap-1 flex-wrap" style=${{ wordBreak: 'normal', overflowWrap: 'anywhere' }}>
                                         ${lang === 'ar' ? (student.nameAr || student.name) : (student.nameEn || student.name)}
                                         ${student.isVIP && html`<span className="text-xs text-brand-DEFAULT bg-brand-DEFAULT/10 px-2 py-0.5 rounded-full ml-2">VIP ✨</span>`}
+                                        ${!student.isFounder && student.role === 'doctor' && html`<span className="text-xs bg-teal-500 text-white px-2 py-0.5 rounded-full font-black ml-1">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
                                     </h4>
                                     <p className="text-xs opacity-70">${subject[`name${lang === 'ar' ? 'Ar' : 'En'}`] || subject.nameAr || subject.nameEn}</p>
                                 </div>
@@ -161,11 +162,12 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                                         ${n.studentId && html`
                                             <div className="flex items-center gap-3 mb-4 opacity-80 border-b border-gray-200 dark:border-gray-700 pb-3">
                                                 <${Luminova.Components.Avatar} name=${author.nameAr || author.name} nameEn=${author.nameEn} image=${author.image} isVerified=${author.isVerified} isFounder=${author.isFounder} size="w-8 h-8" />
-                                                <div className="text-sm font-bold flex items-center gap-2">
+                                                <div className="text-sm font-bold flex items-center gap-2 flex-wrap">
                                                     <span>${lang === 'ar' ? 'الناشر:' : 'Publisher:'}</span>
-                                                    <span>${lang === 'ar' ? (author.nameAr || author.name) : (author.nameEn || author.name)}</span>
+                                                    <span className="whitespace-normal break-words" style=${{ wordBreak: 'normal', overflowWrap: 'anywhere' }}>${lang === 'ar' ? (author.nameAr || author.name) : (author.nameEn || author.name)}</span>
                                                     ${author.isVIP && html`<span className="text-xs text-brand-DEFAULT">✨</span>`}
                                                     ${author.isFounder && html`<span className="text-xs bg-brand-gold text-black px-2 py-0.5 rounded-full">${Luminova.i18n[lang].founder}</span>`}
+                                                    ${!author.isFounder && author.role === 'doctor' && html`<span className="text-xs bg-teal-500 text-white px-2 py-0.5 rounded-full font-black">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
                                                 </div>
                                             </div>
                                         `}
@@ -230,11 +232,12 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                                 ${n.studentId && html`
                                     <div className="flex items-center gap-3 mb-4 opacity-80 border-b border-gray-200 dark:border-gray-700 pb-3">
                                         <${Luminova.Components.Avatar} name=${author.nameAr || author.name} nameEn=${author.nameEn} image=${author.image} isVerified=${author.isVerified} isFounder=${author.isFounder} size="w-8 h-8" />
-                                        <div className="text-sm font-bold flex items-center gap-2">
+                                        <div className="text-sm font-bold flex items-center gap-2 flex-wrap">
                                             <span>${lang === 'ar' ? 'الناشر:' : 'Publisher:'}</span>
-                                            <span>${lang === 'ar' ? (author.nameAr || author.name) : (author.nameEn || author.name)}</span>
+                                            <span className="whitespace-normal break-words" style=${{ wordBreak: 'normal', overflowWrap: 'anywhere' }}>${lang === 'ar' ? (author.nameAr || author.name) : (author.nameEn || author.name)}</span>
                                             ${author.isVIP && html`<span className="text-xs text-brand-DEFAULT">✨</span>`}
                                             ${author.isFounder && html`<span className="text-xs bg-brand-gold text-black px-2 py-0.5 rounded-full">${Luminova.i18n[lang].founder}</span>`}
+                                            ${!author.isFounder && author.role === 'doctor' && html`<span className="text-xs bg-teal-500 text-white px-2 py-0.5 rounded-full font-black">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
                                         </div>
                                     </div>
                                 `}
@@ -471,10 +474,12 @@ Luminova.Pages.StudentCommunityPage = ({ data, lang, setView, setActiveSummary }
             return html`
                 <div className="animate-fade-in space-y-6">
                     <div className="flex justify-between items-center mb-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-4 flex-wrap">
                             <${Luminova.Components.Avatar} name=${selectedStudent.nameAr || selectedStudent.name} image=${selectedStudent.image} isVIP=${selectedStudent.isVIP} isFounder=${selectedStudent.isFounder || selectedStudent.id === 's_founder_hardcoded'} isVerified=${selectedStudent.isVerified} size="w-12 h-12" />
-                            <h2 className="text-2xl font-bold flex items-center gap-2">
+                            <h2 className="text-2xl font-bold flex items-center gap-2 flex-wrap whitespace-normal break-words" style=${{ wordBreak: 'normal', overflowWrap: 'anywhere' }}>
                                 ${lang === 'ar' ? (selectedStudent.nameAr || selectedStudent.name) : (selectedStudent.nameEn || selectedStudent.name)}
+                                ${selectedStudent.isFounder && html`<span className="text-xs bg-brand-gold text-black px-3 py-1 rounded-full font-black shadow-lg">${lang === 'ar' ? 'المؤسس' : 'Founder'}</span>`}
+                                ${!selectedStudent.isFounder && selectedStudent.role === 'doctor' && html`<span className="text-xs bg-teal-500 text-white px-3 py-1 rounded-full font-black shadow-lg">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
                             </h2>
                         </div>
                         <button onClick=${() => setSelectedStudent(null)} className="font-bold text-red-500 hover:text-red-700 transition-colors flex items-center gap-2 bg-red-500/10 px-4 py-2 rounded-lg hover:bg-red-500/20">✖ ${lang === 'ar' ? 'رجوع للطلاب' : 'Back to Students'}</button>
@@ -522,10 +527,11 @@ Luminova.Pages.StudentCommunityPage = ({ data, lang, setView, setActiveSummary }
                         <div className="mb-4">
                             <${Luminova.Components.Avatar} name=${student.nameAr || student.name} nameEn=${student.nameEn} image=${student.image} isVIP=${student.isVIP} isFounder=${idx === 0} isVerified=${student.isVerified} size="w-24 h-24" />
                         </div>
-                        <h3 className="text-xl font-bold flex flex-wrap items-center justify-center gap-2">
+                        <h3 className="text-xl font-bold flex flex-wrap items-center justify-center gap-2 whitespace-normal break-words" style=${{ wordBreak: 'normal', overflowWrap: 'anywhere' }}>
                             ${lang === 'ar' ? (student.nameAr || student.name) : (student.nameEn || student.name)}
                         </h3>
                         ${idx === 0 && html`<span className="text-xs bg-brand-gold text-black font-black px-3 py-1 rounded-full shadow-lg mt-2 mb-1 border border-yellow-500 block w-max mx-auto">${Luminova.i18n[lang].founder}</span>`}
+                        ${idx !== 0 && student.role === 'doctor' && html`<span className="text-xs bg-teal-500 text-white font-black px-3 py-1 rounded-full shadow-lg mt-2 mb-1 block w-max mx-auto">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
                         <p className="text-sm opacity-90 mt-2 font-semibold ${idx === 0 ? 'text-brand-gold drop-shadow-sm' : ''}">${student[`major${lang === 'ar' ? 'Ar' : 'En'}`] || student.majorAr}</p>
                         <p className="text-xs bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full mt-2 font-bold opacity-80">${getContributionsCount[normalizeId(student.id)] || 0} ${lang === 'ar' ? 'مساهمة' : 'Contributions'}</p>
                         
