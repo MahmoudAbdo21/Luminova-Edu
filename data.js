@@ -140,6 +140,25 @@ window.LUMINOVA_DATA = {
   ],
   "students": [
     {
+      "id": "students_1775590667837",
+      "timestamp": "2026-04-07T19:37:47.837Z",
+      "nameAr": "دكتور حبيبة فراج",
+      "nameEn": "Dr. Habiba Faraj",
+      "majorAr": "تكنولوجيا التعليم",
+      "majorEn": "Educational technology",
+      "bioAr": "",
+      "bioEn": "",
+      "image": "",
+      "isVIP": true,
+      "isVerified": true,
+      "role": "doctor",
+      "socialLinks": {
+        "facebook": "",
+        "instagram": "",
+        "linkedin": ""
+      }
+    },
+    {
       "id": "students_1775379571542",
       "timestamp": "2026-04-05T08:59:31.542Z",
       "nameAr": "حبيبة ياسر",
@@ -239,6 +258,15 @@ window.LUMINOVA_DATA = {
   ],
   "subjects": [
     {
+      "id": "subjects_1775590782356",
+      "timestamp": "2026-04-07T19:39:42.356Z",
+      "nameAr": "علم نفس النمو",
+      "nameEn": "Developmental psychology",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "subjectId": ""
+    },
+    {
       "id": "subjects_1775506029734",
       "timestamp": "2026-04-06T20:07:09.734Z",
       "nameAr": "تطبيقات الاذاعه والتسجيلات",
@@ -295,6 +323,25 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
+      "id": "summaries_1775590829401",
+      "timestamp": "2026-04-07T19:40:29.401Z",
+      "titleAr": "الفصل الثالث علم نفس النمو",
+      "titleEn": "Chapter Three: Developmental Psychology",
+      "contentAr": "نماذج من نظريات النمو Level7\nفي هذا الفصل، ننتقل من وصف \"ماذا يحدث\" في النمو إلى سبر أغوار \"لماذا وكيف\" يتطور الإنسان، وذلك من خلال عيون أربعة من أعظم المفكرين الذين صاغوا وجدان علم النفس الحديث. يمثل هذا الجزء الخريطة الذهنية والنفسية التي تُفسر السلوك البشري من زوايا متعددة ومتكاملة",
+      "contentEn": "Models of Developmental Theories Level 7\nIn this chapter, we move from describing \"what happens\" in development to exploring \"why and how\" human development, through the eyes of four of the greatest thinkers who shaped the consciousness of modern psychology. This section represents the mental and psychological map that explains human behavior from multiple and integrated perspectives.",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775590782356",
+      "studentId": "students_1775125739063",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "https://drive.google.com/file/d/1AqN4QX8v8vkRxicPqTrPrTZooz8JIPsW/view?usp=drivesdk",
+        "file-html/unnamed (7).png",
+        "file-html/NotebookLM Mind Map (19).png",
+        "file-html/index(5).html"
+      ]
+    },
+    {
       "id": "summaries_1775506068343",
       "timestamp": "2026-04-06T20:07:48.343Z",
       "titleAr": "شرح تاسك الاذاعه والتسجيلات الصوتية لدكتور دينا ايمن",
@@ -340,7 +387,7 @@ window.LUMINOVA_DATA = {
       "contentEn": "",
       "mediaUrl": "",
       "subjectId": "subjects_1775379929340",
-      "studentId": "",
+      "studentId": "students_1775590667837",
       "yearId": "year_1",
       "semesterId": "semesters_1775125622791",
       "mediaUrls": [
@@ -356,7 +403,7 @@ window.LUMINOVA_DATA = {
       "contentEn": "Explanation of how to change the language in Canvas by Dr. Habiba",
       "mediaUrl": "",
       "subjectId": "subjects_1775379929340",
-      "studentId": "",
+      "studentId": "students_1775590667837",
       "yearId": "year_1",
       "semesterId": "semesters_1775125622791",
       "mediaUrls": [
