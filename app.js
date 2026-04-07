@@ -215,8 +215,10 @@
     };
 
     
-    Luminova.Components.SummaryCard = ({ item, data, lang, onClose }) => {
-        if (!item) return null;
+    Luminova.Components.SummaryCard = ({ item: rawItem, data, lang, onClose }) => {
+        if (!rawItem) return null;
+        const item = typeof rawItem === 'object' ? rawItem : ((data.summaries || []).find(s => s.id === rawItem) || (data.news || []).find(s => s.id === rawItem));
+        if (!item) return html`<div className="text-center py-20 font-bold opacity-50">Content not found.</div>`;
         const author = Luminova.getStudent(item.studentId, data.students);
         const currentUrls = item.mediaUrls || (item.mediaUrl ? [item.mediaUrl] : []);
 

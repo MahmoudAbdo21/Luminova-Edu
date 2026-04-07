@@ -43,7 +43,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                             <${Luminova.Components.SmartText} text=${item[`content${lang === 'ar' ? 'Ar' : 'En'}`] || item.contentAr || item.contentEn} lang=${lang} />
                             ${((item.mediaUrls && item.mediaUrls.length > 0) || item.mediaUrl) ? html`
                                 <div className="mt-4">
-                                    <button onClick=${() => onSummaryClick && onSummaryClick(item)} className="w-full py-3 bg-indigo-500/10 hover:bg-indigo-500 text-indigo-600 dark:text-indigo-400 hover:text-white transition-all rounded-xl font-bold flex items-center justify-center gap-2 border border-indigo-500/20 shadow-sm">
+                                    <button onClick=${() => onSummaryClick && onSummaryClick(item.id)} className="w-full py-3 bg-indigo-500/10 hover:bg-indigo-500 text-indigo-600 dark:text-indigo-400 hover:text-white transition-all rounded-xl font-bold flex items-center justify-center gap-2 border border-indigo-500/20 shadow-sm">
                                         <span className="text-xl">📎</span>
                                         <span>${lang === 'ar' ? 'عرض المرفقات والشرح' : 'View Attachments'}</span>
                                     </button>
@@ -175,7 +175,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                                         <${Luminova.Components.SmartText} text=${n[`content${lang === 'ar' ? 'Ar' : 'En'}`] || n.contentAr || n.contentEn} lang=${lang} />
                                         ${((n.mediaUrls && n.mediaUrls.length > 0) || n.mediaUrl) ? html`
                                             <div className="mt-4">
-                                                <button onClick=${() => { setActiveSummary(n); setView('summaryDetail'); }} className="w-full py-3 bg-indigo-500/10 hover:bg-indigo-500 text-indigo-600 dark:text-indigo-400 hover:text-white transition-all rounded-xl font-bold flex items-center justify-center gap-2 border border-indigo-500/20 shadow-sm">
+                                                <button onClick=${() => { setActiveSummary(n.id); setView('summaryDetail'); }} className="w-full py-3 bg-indigo-500/10 hover:bg-indigo-500 text-indigo-600 dark:text-indigo-400 hover:text-white transition-all rounded-xl font-bold flex items-center justify-center gap-2 border border-indigo-500/20 shadow-sm">
                                                     <span className="text-xl">📎</span>
                                                     <span>${lang === 'ar' ? 'عرض المرفقات المنشورة' : 'View Attachments'}</span>
                                                 </button>
@@ -194,7 +194,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                             </div>
                         `}
                     ` : html`
-                        <${Luminova.Components.TimelineFeed} items=${subData} students=${data.students} subjects=${data.subjects} lang=${lang} onQuizClick=${(q) => { setActiveQuiz(q); setView('quiz'); }} onSummaryClick=${(item) => { setActiveSummary(item); setView('summaryDetail'); }} />
+                        <${Luminova.Components.TimelineFeed} items=${subData} students=${data.students} subjects=${data.subjects} lang=${lang} onQuizClick=${(q) => { setActiveQuiz(q); setView('quiz'); }} onSummaryClick=${(itemId) => { setActiveSummary(itemId); setView('summaryDetail'); }} />
                     `}
                 </div>
             `;
@@ -245,7 +245,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                                 <${Luminova.Components.SmartText} text=${n[`content${lang === 'ar' ? 'Ar' : 'En'}`] || n.contentAr || n.contentEn} lang=${lang} />
                                 ${((n.mediaUrls && n.mediaUrls.length > 0) || n.mediaUrl) ? html`
                                     <div className="mt-4">
-                                        <button onClick=${() => { setActiveSummary(n); setView('summaryDetail'); }} className="w-full py-3 bg-indigo-500/10 hover:bg-indigo-500 text-indigo-600 dark:text-indigo-400 hover:text-white transition-all rounded-xl font-bold flex items-center justify-center gap-2 border border-indigo-500/20 shadow-sm">
+                                        <button onClick=${() => { setActiveSummary(n.id); setView('summaryDetail'); }} className="w-full py-3 bg-indigo-500/10 hover:bg-indigo-500 text-indigo-600 dark:text-indigo-400 hover:text-white transition-all rounded-xl font-bold flex items-center justify-center gap-2 border border-indigo-500/20 shadow-sm">
                                             <span className="text-xl">📎</span>
                                             <span>${lang === 'ar' ? 'عرض المرفقات المنشورة' : 'View Attachments'}</span>
                                         </button>
@@ -262,7 +262,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                     <h2 className="text-2xl font-bold flex items-center gap-2">${Luminova.i18n[lang].feed}</h2>
                     <button onClick=${() => { setExpandedView('summaries'); setVisibleCount(10); }} className="text-sm font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors">${lang === 'ar' ? 'عرض الكل ➔' : 'View All ➔'}</button>
                 </div>
-                <${Luminova.Components.TimelineFeed} items=${feedItems.slice(0, 5)} students=${data.students} subjects=${data.subjects} lang=${lang} onQuizClick=${(q) => { setActiveQuiz(q); setView('quiz'); }} onSummaryClick=${(item) => { setActiveSummary(item); setView('summaryDetail'); }} />
+                <${Luminova.Components.TimelineFeed} items=${feedItems.slice(0, 5)} students=${data.students} subjects=${data.subjects} lang=${lang} onQuizClick=${(q) => { setActiveQuiz(q); setView('quiz'); }} onSummaryClick=${(itemId) => { setActiveSummary(itemId); setView('summaryDetail'); }} />
             </div>
         </div>
     `;
@@ -271,111 +271,201 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
 
 
 Luminova.Pages.AcademicHierarchyPage = ({ data, lang, setView, setActiveQuiz, setActiveSummary }) => {
-        const [selectedYear, setSelectedYear] = useState(null);
-        const [selectedSem, setSelectedSem] = useState(null);
+        const [selectedYear, setSelectedYear] = useState(data.years?.[0] || null);
+        const [selectedSem, setSelectedSem] = useState(data.semesters?.find(s => s.yearId === data.years?.[0]?.id) || null);
         const [selectedSub, setSelectedSub] = useState(null);
+        const [selectedSummaryId, setSelectedSummaryId] = useState(null);
         const [activeTab, setActiveTab] = useState('summaries');
 
-        const semesters = data.semesters.filter(s => s.yearId === selectedYear?.id);
-        const subjects = data.subjects.filter(s => s.semesterId === selectedSem?.id);
-        const summaries = data.summaries.filter(s => s.subjectId === selectedSub?.id);
-        const quizzes = data.quizzes.filter(q => q.subjectId === selectedSub?.id);
+        useEffect(() => {
+            if (data.semesters && selectedYear) {
+                const sems = data.semesters.filter(s => s.yearId === selectedYear.id);
+                setSelectedSem(sems.length > 0 ? sems[0] : null);
+            }
+        }, [selectedYear?.id, data.semesters]);
 
+        const semesters = selectedYear ? data.semesters.filter(s => s.yearId === selectedYear.id) : [];
+        const subjects = selectedSem ? data.subjects.filter(s => s.semesterId === selectedSem.id) : [];
+        const summaries = selectedSub ? data.summaries.filter(s => s.subjectId === selectedSub.id) : [];
+        const quizzes = selectedSub ? data.quizzes.filter(q => q.subjectId === selectedSub.id) : [];
+
+        // LEVEL 3: ATTACHMENTS SUB-VIEW
+        if (selectedSummaryId) {
+            const targetSummary = (data.summaries || []).find(s => s.id === selectedSummaryId) || (data.news || []).find(s => s.id === selectedSummaryId);
+            if (!targetSummary) return null;
+            const author = Luminova.getStudent(targetSummary.studentId, data.students);
+            return html`
+                <div className="animate-fade-in w-full max-w-4xl mx-auto space-y-6">
+                    <button onClick=${() => setSelectedSummaryId(null)} 
+                        className="flex items-center gap-2 px-6 py-3 bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40 rounded-xl font-bold transition-all shadow-sm w-fit">
+                        ✖ ${lang === 'ar' ? 'رجوع للتلخيص' : 'Back to Summary'}
+                    </button>
+                    <${Luminova.Components.GlassCard} className="!p-8">
+                        <div className="flex items-center gap-4 border-b border-gray-100 dark:border-gray-800 pb-6 mb-6">
+                            <${Luminova.Components.Avatar} name=${author.nameAr || author.name} image=${author.image} isVIP=${author.isVIP} isFounder=${author.isFounder || author.id === 's_founder'} isVerified=${author.isVerified} size="w-14 h-14" />
+                            <div>
+                                <h3 className="font-bold text-lg">${lang === 'ar' ? (author.nameAr || author.name) : (author.nameEn || author.name)}</h3>
+                                <span className="text-sm opacity-60">${Luminova.formatDate(targetSummary.timestamp, lang)}</span>
+                            </div>
+                        </div>
+                        <h2 className="text-3xl font-black mb-4">${targetSummary[`title${lang === 'ar' ? 'Ar' : 'En'}`] || targetSummary.titleAr || targetSummary.titleEn}</h2>
+                        <div className="text-lg opacity-90 mb-8 whitespace-pre-wrap"><${Luminova.Components.SmartText} text=${targetSummary[`content${lang === 'ar' ? 'Ar' : 'En'}`] || targetSummary.contentAr || targetSummary.contentEn} lang=${lang} /></div>
+                        
+                        <div className="space-y-4">
+                            <h4 className="text-xl font-bold border-b border-gray-200 dark:border-gray-700 pb-2 mb-4">${lang === 'ar' ? 'المرفقات' : 'Attachments'}</h4>
+                            <${Luminova.Components.SmartMedia} url=${targetSummary.mediaUrls || targetSummary.mediaUrl} lang=${lang} />
+                        </div>
+                    </${Luminova.Components.GlassCard}>
+                </div>
+            `;
+        }
+
+        // LEVEL 2: SUBJECT SUB-VIEW (PREMIUM DASHBOARD)
+        if (selectedSub) {
+            return html`
+                <div className="animate-fade-in space-y-8">
+                    <div className="flex justify-between items-center mb-6 border-b border-gray-100 dark:border-gray-800 pb-4">
+                        <div className="flex items-center gap-4">
+                            <button onClick=${() => setSelectedSub(null)} 
+                                className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl transition-colors border border-slate-700 font-bold backdrop-blur-sm shadow-sm">
+                                ${lang === 'ar' ? 'رجوع للمواد ➔' : '➔ Back to Semester'}
+                            </button>
+                            <h2 className="hidden sm:block text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-brand-DEFAULT to-brand-gold tracking-tight">
+                                ${selectedSub[`name${lang === 'ar' ? 'Ar' : 'En'}`] || selectedSub.nameAr}
+                            </h2>
+                        </div>
+                        <div className="relative shrink-0">
+                            <select 
+                                value=${activeTab}
+                                onChange=${(e) => setActiveTab(e.target.value)}
+                                className=${`appearance-none bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl outline-none cursor-pointer shadow-sm text-sm transition-colors ` + (lang === 'ar' ? 'pl-8' : 'pr-8')}
+                            >
+                                <option value="summaries" className="bg-slate-800 text-white">${lang === 'ar' ? 'التلخيصات 📚' : 'Summaries 📚'}</option>
+                                <option value="quizzes" className="bg-slate-800 text-white">${lang === 'ar' ? 'الاختبارات 📝' : 'Quizzes 📝'}</option>
+                            </select>
+                            <div className=${`pointer-events-none absolute inset-y-0 flex items-center px-2 text-white ` + (lang === 'ar' ? 'left-0' : 'right-0')}>
+                                <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="animate-fade-in mt-6 max-w-5xl mx-auto">
+                        ${activeTab === 'summaries' ? html`
+                            <${Luminova.Components.TimelineFeed} items=${summaries} students=${data.students} subjects=${data.subjects} lang=${lang} onQuizClick=${() => { }} onSummaryClick=${(itemId) => setSelectedSummaryId(itemId)} />
+                        ` : html`
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                ${quizzes.map(q => html`
+                                    <${Luminova.Components.GlassCard} key=${q.id} className="border-t-4 border-t-brand-gold hover:scale-[1.02] transition-transform shadow-md hover:shadow-xl">
+                                        ${q.publisherId && html`
+                                            <div className="flex items-center gap-3 mb-4 bg-gray-50 dark:bg-gray-800/80 p-3 rounded-xl border border-gray-100 dark:border-gray-700 w-fit shrink-0">
+                                                <${Luminova.Components.Avatar} name=${Luminova.getStudent(q.publisherId, data.students).nameAr || Luminova.getStudent(q.publisherId, data.students).name} image=${Luminova.getStudent(q.publisherId, data.students).image} isVIP=${Luminova.getStudent(q.publisherId, data.students).isVIP} isFounder=${Luminova.getStudent(q.publisherId, data.students).isFounder || q.publisherId === 's_founder_hardcoded'} isVerified=${Luminova.getStudent(q.publisherId, data.students).isVerified} size="w-8 h-8" />
+                                                <div>
+                                                    <span className="text-xs opacity-50 block leading-tight font-bold">نُشر بواسطة:</span>
+                                                    <span className="text-sm font-black flex items-center gap-1">${lang === 'ar' ? (Luminova.getStudent(q.publisherId, data.students).nameAr || Luminova.getStudent(q.publisherId, data.students).name) : (Luminova.getStudent(q.publisherId, data.students).nameEn || Luminova.getStudent(q.publisherId, data.students).name)}</span>
+                                                </div>
+                                            </div>
+                                        `}
+                                        <h3 className="text-2xl font-bold mb-3">${q[`title${lang === 'ar' ? 'Ar' : 'En'}`] || q.titleAr || q.titleEn || q.title || 'بدون عنوان'}</h3>
+                                        <p className="text-sm opacity-70 mb-6 bg-black/5 dark:bg-white/5 inline-block px-3 py-1 rounded-full">${(q.questions || []).length} ${Luminova.i18n[lang].questions}</p>
+                                        <${Luminova.Components.Button} onClick=${() => { setActiveQuiz(q); setView('quiz'); }} className="w-full text-lg py-3 rounded-xl shadow-md">
+                                            ${Luminova.i18n[lang].startQuiz}
+                                        </${Luminova.Components.Button}>
+                                    </${Luminova.Components.GlassCard}>
+                                `)}
+                                ${quizzes.length === 0 ? html`
+                                    <div className="col-span-full text-center py-20 opacity-50 border-2 border-dashed rounded-2xl dark:border-gray-700 font-bold text-xl">${Luminova.i18n[lang].emptyState}</div>
+                                ` : null}
+                            </div>
+                        `}
+                    </div>
+                </div>
+            `;
+        }
+
+        // LEVEL 1: CATALOG VIEW (ROOT)
         return html`
-        <div className="animate-fade-in flex flex-col md:flex-row gap-6">
-            <div className="w-full md:w-1/3 flex flex-col gap-4">
-                <${Luminova.Components.GlassCard}>
-                    <h3 className="font-bold mb-4">${Luminova.i18n[lang].years}</h3>
-                    <div className="space-y-2">
-                        ${data.years.map(y => html`
-                            <button key=${y.id} onClick=${() => { setSelectedYear(y); setSelectedSem(null); setSelectedSub(null); }} 
-                                className=${`w-full text-start px-4 py-3 rounded-xl transition-colors font-semibold ${selectedYear?.id === y.id ? 'bg-brand-DEFAULT text-white shadow-md' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
-                                ${y[`name${lang === 'ar' ? 'Ar' : 'En'}`] || y.nameAr || y.nameEn}
+            <div className="animate-fade-in space-y-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 max-w-4xl mx-auto">
+                    <div className="relative">
+                        <select 
+                            value=${selectedYear?.id || ''} 
+                            onChange=${(e) => {
+                                const year = data.years.find(y => y.id === e.target.value);
+                                setSelectedYear(year);
+                            }}
+                            className="appearance-none w-full bg-slate-800/50 border border-slate-700 text-white rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer shadow-sm font-bold text-center"
+                        >
+                            ${data.years.map(y => html`
+                                <option key=${y.id} value=${y.id} className="bg-slate-800 text-white opacity-100">${y[`name${lang === 'ar' ? 'Ar' : 'En'}`] || y.nameAr || y.nameEn}</option>
+                            `)}
+                        </select>
+                        <div className=${`pointer-events-none absolute inset-y-0 flex items-center text-slate-400 ` + (lang === 'ar' ? 'left-4' : 'right-4')}>
+                            <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    ${selectedYear && semesters.length > 0 && html`
+                        <div className="relative animate-fade-in">
+                            <select 
+                                value=${selectedSem?.id || ''} 
+                                onChange=${(e) => {
+                                    const sem = semesters.find(s => s.id === e.target.value);
+                                    setSelectedSem(sem);
+                                }}
+                                className="appearance-none w-full bg-slate-800/50 border border-slate-700 text-white rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer shadow-sm font-bold text-center"
+                            >
+                                ${semesters.map(s => html`
+                                    <option key=${s.id} value=${s.id} className="bg-slate-800 text-white opacity-100">${s[`name${lang === 'ar' ? 'Ar' : 'En'}`] || s.nameAr || s.nameEn}</option>
+                                `)}
+                            </select>
+                            <div className=${`pointer-events-none absolute inset-y-0 flex items-center text-slate-400 ` + (lang === 'ar' ? 'left-4' : 'right-4')}>
+                                <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                </svg>
+                            </div>
+                        </div>
+                    `}
+                </div>
+
+                ${subjects.length > 0 ? html`
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-2">
+                        ${subjects.map(s => html`
+                            <button key=${s.id} onClick=${() => setSelectedSub(s)} 
+                                className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 text-start flex flex-col justify-between min-h-[160px] shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                                <div className="absolute top-0 left-0 w-1.5 h-full bg-brand-DEFAULT opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                
+                                <div>
+                                    <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 text-brand-DEFAULT flex items-center justify-center rounded-xl mb-4 group-hover:scale-110 transition-transform">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                        </svg>
+                                    </div>
+                                    <h3 className="text-xl font-black text-slate-800 dark:text-white leading-tight mb-2 group-hover:text-brand-DEFAULT transition-colors">
+                                        ${s[`name${lang === 'ar' ? 'Ar' : 'En'}`] || s.nameAr || s.nameEn}
+                                    </h3>
+                                </div>
+                                
+                                <div className="mt-4 flex items-center justify-between text-sm font-bold text-slate-500 dark:text-slate-400">
+                                    <span>${lang === 'ar' ? 'عرض المحتوى' : 'View Content'}</span>
+                                    <span className="transform group-hover:translate-x-2 transition-transform">➔</span>
+                                </div>
                             </button>
                         `)}
                     </div>
-                </${Luminova.Components.GlassCard}>
-
-                ${selectedYear && html`
-                    <${Luminova.Components.GlassCard} className="animate-fade-in">
-                        <h3 className="font-bold mb-4">${Luminova.i18n[lang].semesters}</h3>
-                        <div className="space-y-2">
-                            ${semesters.map(s => html`
-                                <button key=${s.id} onClick=${() => { setSelectedSem(s); setSelectedSub(null); }} 
-                                    className=${`w-full text-start px-4 py-3 rounded-xl transition-colors font-semibold ${selectedSem?.id === s.id ? 'bg-brand-DEFAULT text-white shadow-md' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
-                                    ${s[`name${lang === 'ar' ? 'Ar' : 'En'}`] || s.nameAr || s.nameEn}
-                                </button>
-                            `)}
-                        </div>
-                    </${Luminova.Components.GlassCard}>
-                `}
-
-                ${selectedSem && html`
-                    <${Luminova.Components.GlassCard} className="animate-fade-in border-l-4 border-l-brand-DEFAULT">
-                        <h3 className="font-bold mb-4">${Luminova.i18n[lang].subjects}</h3>
-                        <div className="space-y-2">
-                            ${subjects.map(s => html`
-                                <button key=${s.id} onClick=${() => setSelectedSub(s)} 
-                                    className=${`w-full text-start px-4 py-3 rounded-xl transition-colors font-bold ${selectedSub?.id === s.id ? 'bg-brand-DEFAULT text-white shadow-lg scale-105' : 'bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-700'}`}>
-                                    ${s[`name${lang === 'ar' ? 'Ar' : 'En'}`] || s.nameAr || s.nameEn}
-                                </button>
-                            `)}
-                        </div>
-                    </${Luminova.Components.GlassCard}>
-                `}
-            </div>
-
-            <div className="w-full md:w-2/3">
-                ${selectedSub ? html`
-                    <div className="animate-fade-in min-h-[50vh]">
-                        <h2 className="text-4xl font-black mb-8 bg-clip-text text-transparent bg-gradient-to-r from-brand-DEFAULT to-brand-gold pb-2">${selectedSub[`name${lang === 'ar' ? 'Ar' : 'En'}`] || selectedSub.nameAr}</h2>
-                        <div className="flex border-b border-gray-200 dark:border-gray-700 mb-6 sticky top-20 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md z-10 pt-4">
-                            <button onClick=${() => setActiveTab('summaries')} className=${`px-8 py-4 font-bold border-b-4 transition-colors text-lg ${activeTab === 'summaries' ? 'border-brand-DEFAULT text-brand-DEFAULT' : 'border-transparent opacity-50 hover:opacity-100 hover:bg-gray-50 dark:hover:bg-white/5 rounded-t-lg'}`}>
-                                ${Luminova.i18n[lang].summaries} (${summaries.length})
-                            </button>
-                            <button onClick=${() => setActiveTab('quizzes')} className=${`px-8 py-4 font-bold border-b-4 transition-colors text-lg ${activeTab === 'quizzes' ? 'border-brand-DEFAULT text-brand-DEFAULT' : 'border-transparent opacity-50 hover:opacity-100 hover:bg-gray-50 dark:hover:bg-white/5 rounded-t-lg'}`}>
-                                ${Luminova.i18n[lang].quizzes} (${quizzes.length})
-                            </button>
-                        </div>
-                        <div className="pt-4">
-                            ${activeTab === 'summaries' ? html`
-                                <${Luminova.Components.TimelineFeed} items=${summaries} students=${data.students} subjects=${data.subjects} lang=${lang} onQuizClick=${() => { }} onSummaryClick=${(item) => { setActiveSummary(item); setView('summaryDetail'); }} />
-                            ` : html`
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    ${quizzes.map(q => html`
-                                        <${Luminova.Components.GlassCard} key=${q.id} className="border-t-4 border-t-brand-gold hover:scale-[1.02] transition-transform">
-                                            ${q.publisherId && html`
-                                                <div className="flex items-center gap-3 mb-4 bg-gray-50 dark:bg-gray-800/80 p-3 rounded-xl border border-gray-100 dark:border-gray-700 w-fit shrink-0">
-                                                    <${Luminova.Components.Avatar} name=${Luminova.getStudent(q.publisherId, data.students).nameAr || Luminova.getStudent(q.publisherId, data.students).name} image=${Luminova.getStudent(q.publisherId, data.students).image} isVIP=${Luminova.getStudent(q.publisherId, data.students).isVIP} isFounder=${Luminova.getStudent(q.publisherId, data.students).isFounder || q.publisherId === 's_founder_hardcoded'} isVerified=${Luminova.getStudent(q.publisherId, data.students).isVerified} size="w-8 h-8" />
-                                                    <div>
-                                                        <span className="text-xs opacity-50 block leading-tight font-bold">نُشر بواسطة:</span>
-                                                        <span className="text-sm font-black flex items-center gap-1">${lang === 'ar' ? (Luminova.getStudent(q.publisherId, data.students).nameAr || Luminova.getStudent(q.publisherId, data.students).name) : (Luminova.getStudent(q.publisherId, data.students).nameEn || Luminova.getStudent(q.publisherId, data.students).name)}</span>
-                                                    </div>
-                                                </div>
-                                            `}
-                                            <h3 className="text-2xl font-bold mb-3">${q[`title${lang === 'ar' ? 'Ar' : 'En'}`] || q.titleAr || q.titleEn || q.title || 'بدون عنوان'}</h3>
-                                            <p className="text-sm opacity-70 mb-6 bg-black/5 dark:bg-white/5 inline-block px-3 py-1 rounded-full">${(q.questions || []).length} ${Luminova.i18n[lang].questions}</p>
-                                            <${Luminova.Components.Button} onClick=${() => { setActiveQuiz(q); setView('quiz'); }} className="w-full text-lg py-3">
-                                                ${Luminova.i18n[lang].startQuiz}
-                                            </${Luminova.Components.Button}>
-                                        </${Luminova.Components.GlassCard}>
-                                    `)}
-                                    ${quizzes.length === 0 ? html`
-                                        <div className="col-span-2 text-center py-20 opacity-50 border-2 border-dashed rounded-2xl dark:border-gray-700">${Luminova.i18n[lang].emptyState}</div>
-                                    ` : null}
-                                </div>
-                            `}
-                        </div>
-                    </div>
                 ` : html`
-                    <div className="flex flex-col items-center justify-center h-full min-h-[60vh] opacity-50 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-3xl bg-gray-50/50 dark:bg-gray-900/20">
-                        <${Luminova.Icons.Book} />
-                        <p className="mt-4 text-xl font-bold">${lang === 'ar' ? 'الرجاء اختيار مادة لعرض المحتوى' : 'Please select a subject to view content'}</p>
+                    <div className="flex flex-col items-center justify-center py-20 opacity-50 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl bg-slate-50/50 dark:bg-slate-900/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                        <p className="mt-4 text-xl font-bold">${lang === 'ar' ? 'لا توجد مواد متاحة في هذا الفصل الدراسي' : 'No subjects available in this semester'}</p>
                     </div>
                 `}
             </div>
-        </div>
-    `;
+        `;
     };
 
     // ==========================================
