@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level Up - Level 7 | نظريات علم نفس النمو</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Matte/Dark Mode Palette */
+            --primary-matte: #9d4edd; /* Muted Purple */
+            --secondary-matte: #00b4d8; /* Muted Cyan */
+            --accent-matte: #ffb703; /* Muted Gold/Yellow */
+            --success-matte: #2a9d8f;
+            --bg-darkest: #0f0f13; /* Very dark grayish blue */
+            --card-bg: #1a1a24; /* Slightly lighter than bg */
+            --text-main: #d1d1e0; /* Soft off-white */
+            --text-muted: #8d8d99;
+        }
+
+        body {
+            background-color: var(--bg-darkest);
+            color: var(--text-main);
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 0;
+            /* Subtle texture instead of bright gradients */
+            background-image: radial-gradient(circle at 50% 0%, #1c1c28 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        /* HUD Header */
+        .game-header {
+            text-align: center;
+            padding: 40px 20px 20px;
+            background: linear-gradient(180deg, rgba(15,15,19,0.95) 0%, rgba(15,15,19,0.8) 100%);
+            border-bottom: 2px solid var(--primary-matte);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .level-badge {
+            display: inline-block;
+            background: var(--primary-matte);
+            color: #fff;
+            padding: 6px 30px;
+            font-weight: 900;
+            font-size: 1.3rem;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(157, 78, 221, 0.2);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            color: #fff;
+            margin: 0;
+            font-weight: 900;
+        }
+
+        .subtitle {
+            color: var(--secondary-matte);
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        /* Stats Bar */
+        .stats-hud {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 30px auto;
+            max-width: 800px;
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--accent-matte);
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Quest Cards */
+        .quest-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-right: 4px solid var(--primary-matte);
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .quest-card:hover {
+            transform: translateY(-3px);
+            border-right-color: var(--secondary-matte);
+        }
+
+        .quest-title {
+            color: #fff;
+            font-size: 1.7rem;
+            margin-top: 0;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 15px;
+        }
+
+        .quest-title span {
+            margin-left: 15px;
+            font-size: 1.8rem;
+        }
+
+        /* Typography */
+        p {
+            line-height: 1.8;
+            font-size: 1.15rem;
+            margin-bottom: 15px;
+            color: var(--text-main);
+        }
+
+        ul {
+            list-style-type: none;
+            padding-right: 15px;
+            margin-bottom: 20px;
+        }
+
+        ul li {
+            position: relative;
+            margin-bottom: 12px;
+            line-height: 1.7;
+            font-size: 1.1rem;
+            padding-right: 20px;
+        }
+
+        ul li::before {
+            content: '▪';
+            position: absolute;
+            right: 0;
+            color: var(--secondary-matte);
+            font-size: 1.5rem;
+            top: -4px;
+        }
+
+        .highlight {
+            color: var(--accent-matte);
+            font-weight: 700;
+        }
+
+        /* Sub Sections */
+        .sub-section {
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 20px;
+            border-right: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .sub-title {
+            color: var(--primary-matte);
+            font-weight: 900;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .sub-title::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--primary-matte);
+            border-radius: 50%;
+            margin-left: 10px;
+        }
+
+        /* Important Note Box */
+        .important-box {
+            background: rgba(255, 183, 3, 0.1);
+            border: 1px solid rgba(255, 183, 3, 0.2);
+            border-right: 4px solid var(--accent-matte);
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        /* Example Box (Matte Version) */
+        .example-box {
+            background: rgba(0, 180, 216, 0.08);
+            border-right: 3px solid var(--secondary-matte);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 1.05rem;
+            color: #e0e0e0;
+        }
+
+        .example-box b {
+            color: var(--secondary-matte);
+        }
+
+        /* Grid for Stages (Piaget/Erikson/Freud) */
+        .stage-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stage-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 6px;
+        }
+
+        .stage-card-title {
+            color: var(--success-matte);
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            border-bottom: 1px dashed rgba(255,255,255,0.1);
+            padding-bottom: 8px;
+        }
+
+        @media (min-width: 768px) {
+            .stage-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="game-header">
+        <div class="level-badge">LEVEL 7</div>
+        <h1>نظريات علم نفس النمو</h1>
+        <p class="subtitle">فريق Level Up - Eye-Care Mode Enabled 🌙</p>
+    </header>
+
+    <div class="stats-hud">
+        <div class="stat-item">
+            <span class="stat-value">4</span>
+            <span class="stat-label">نظريات كبرى</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">100%</span>
+            <span class="stat-label">تغطية الشرح</span>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>🌟</span> أولًا: فكرة الفصل بشكل أعمق</h2>
+            <p>النظريات دي بتحاول تفسر: إزاي الطفل بيتغير مع الوقت؟</p>
+            <p>بس كل عالم ركّز على جانب مختلف:</p>
+            <ul>
+                <li><strong>بياجيه</strong> → إزاي الطفل يفكر</li>
+                <li><strong>كولبرج</strong> → إزاي يحدد الصح والغلط</li>
+                <li><strong>إريكسون</strong> → إزاي تتكون شخصيته وعلاقاته</li>
+                <li><strong>فرويد</strong> → إزاي الدوافع والرغبات تأثر عليه</li>
+            </ul>
+            <div class="important-box">
+                📌 مهم: مفيش نظرية صح وغلط، كلهم بيكملوا بعض.
+            </div>
+        </div>
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>🌟</span> نظرية Jean Piaget في النمو المعرفي</h2>
+            
+            <div class="sub-section">
+                <div class="sub-title">✔️ فكرة النظرية</div>
+                <p>بياجيه بيقول إن الطفل تفكيره بيتطور على مراحل، وكل مرحلة ليها طريقة تفكير مختلفة (بنية عقلية).</p>
+                <div class="important-box">📌 يعني: مش كل الأطفال بيفهموا نفس الحاجة بنفس الطريقة.</div>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">✔️ أولًا: البنية العقلية</div>
+                <p><span class="highlight">🔹 يعني إيه؟</span> هي طريقة التفكير اللي الطفل بيستخدمها في كل مرحلة علشان يفهم العالم.</p>
+                <p><span class="highlight">🔹 شرحها ببساطة:</span></p>
+                <ul>
+                    <li>الطفل مش بيشوف الدنيا زي الكبار لكن بيفهمها على حسب عمره وخبرته.</li>
+                    <li>في الأول تفكيره بيكون بسيط ومتمركز حوالين نفسه.</li>
+                    <li>ومع الوقت بيكبر ويفهم أكتر.</li>
+                    <li>ولما يقابل حاجة جديدة مش فاهمها → يغير طريقته في التفكير.</li>
+                </ul>
+                <div class="important-box">📌 يعني: العقل بيتطور مع الخبرة.</div>
+                
+                <div class="example-box">
+                    <b>🔹 مثال من الكتاب بشكل مبسط 👇</b><br><br>
+                    👶 طفل عنده 4 سنين راح مسرح → مش هيفهم كل اللي بيحصل.<br>
+                    👦 طفل عنده 9 سنين → هيفهم القصة والأحداث بشكل أحسن.<br><br>
+                    📌 نفس الموقف لكن الفهم مختلف 👉 بسبب اختلاف البنية العقلية.
+                </div>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">🌟 2- الوظائف العقلية عند Jean Piaget</div>
+                <p><span class="highlight">✔️ يعني إيه الوظائف العقلية؟</span> هي العمليات اللي الطفل بيستخدمها علشان يتعامل مع البيئة ويفهمها.</p>
+                <div class="important-box">📌 ببساطة: الطفل مش بس بيفكر… ده كمان بيستخدم طرق علشان يفهم ويتأقلم.</div>
+                
+                <p><span class="highlight">✔️ فكرة بياجيه هنا:</span></p>
+                <ul>
+                    <li>النمو بيحصل من خلال تفاعل الطفل مع البيئة.</li>
+                    <li>الطفل بيتعلم من التجربة والخبرة.</li>
+                    <li>النمو مش مجرد زيادة معلومات (❌ مش كمي بس).</li>
+                    <li>✔️ لكن كمان تغير في طريقة التفكير (كيفي).</li>
+                </ul>
+                <div class="example-box">📌 مثال: طفل صغير يحفظ بدون فهم - طفل أكبر يفهم ويربط المعلومات.</div>
+
+                <p><span class="highlight">✔️ العلاقة بين البنية والوظيفة:</span></p>
+                <ul>
+                    <li>البنية العقلية = طريقة التفكير</li>
+                    <li>الوظيفة العقلية = العمليات اللي بيستخدمها</li>
+                </ul>
+                <div class="important-box">📌 الاتنين مرتبطين، يعني: طريقة التفكير بتتطور بسبب العمليات اللي الطفل بيعملها.</div>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">✔️ التوازن (فكرة مهمة جدًا)</div>
+                <p>الطفل دايمًا بيحاول يعمل توازن بين: اللي هو فاهمه، واللي بيشوفه في الواقع.</p>
+                <ul>
+                    <li>✔️ <strong>لو فهم الموقف</strong> → يحس بالراحة (توازن).</li>
+                    <li>❌ <strong>لو مفهمش</strong> → يحس بتوتر → يحاول يغير تفكيره.</li>
+                </ul>
+                <div class="example-box">
+                    <b>📌 مثال:</b> طفل فاكر كل الحيوانات "كلاب".<br>
+                    لما يشوف حصان: → يتلخبط (عدم توازن) → يتعلم إنه نوع مختلف (توازن).
+                </div>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">🌟 وظائف التفكير الأساسية</div>
+                
+                <p><span class="highlight">🔹 1- التنظيم:</span></p>
+                <p>✔️ معناه: ترتيب الأفكار داخل العقل بشكل منظم.</p>
+                <div class="example-box">📌 مثال: الطفل يقسم الأشياء: حيوانات - نباتات - ألعاب. 👉 ده اسمه تنظيم التفكير.</div>
+
+                <p><span class="highlight">🔹 2- التكيف:</span></p>
+                <p>✔️ معناه: قدرة الطفل إنه يتأقلم مع البيئة. التكيف له نوعين 👇</p>
+                
+                <ul>
+                    <li><strong>🔸 أولًا: التمثل (Assimilation):</strong><br>
+                    ✔️ معناه: الطفل يفسر الحاجة الجديدة حسب اللي يعرفه قبل كده.<br>
+                    <div class="example-box" style="margin-top:5px; margin-bottom: 15px;">📌 مثال: طفل يعرف "الكلب"، شاف حصان → يقول عليه كلب. 👉 هنا استخدم معلوماته القديمة.</div>
+                    </li>
+                    <li><strong>🔸 ثانيًا: المواءمة (Accommodation):</strong><br>
+                    ✔️ معناه: الطفل يغير تفكيره علشان يفهم الحاجة الجديدة صح.<br>
+                    <div class="example-box" style="margin-top:5px;">📌 مثال: بعد ما يتعلم: → ده حصان مش كلب. 👉 هنا عدّل فكرته.</div>
+                    </li>
+                </ul>
+                <div class="important-box">✔️ العلاقة بينهم: التمثل = يستخدم القديم، المواءمة = يغير القديم. 📌 الاتنين مع بعض يعملوا → التكيف.</div>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">مراحل النمو المعرفي عند جان بياجيه</div>
+                <div class="stage-grid">
+                    <div class="stage-card">
+                        <div class="stage-card-title">1- المرحلة الحسية الحركية (Sensorimotor)</div>
+                        <p><strong>الفترة:</strong> من الميلاد حتى سنتين.</p>
+                        <p><strong>الخصائص:</strong> الطفل يكتسب الخبرة عن طريق الحواس والحركات الجسدية، لا يستطيع التفكير المجرد.</p>
+                        <p><strong>المراحل الفرعية:</strong></p>
+                        <ul style="font-size:0.95rem;">
+                            <li>الميلاد حتى 1 شهر: أفعال منعكسة، تمركز حول الذات.</li>
+                            <li>1 - 4 شهور: ردود فعل أولية، تنسيق بين اليد والفم.</li>
+                            <li>4 - 8 شهور: ردود فعل ثانوية، تقليد.</li>
+                            <li>8-12 شهر: تقليد السلوك في مواقف جديدة.</li>
+                            <li>12-18 شهر: استكشاف، فهم وجود الأشياء المستقل.</li>
+                            <li>18 شهر – سنتين: ابتكار وسائل جديدة، بداية التخيل والكلام.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="stage-card">
+                        <div class="stage-card-title">2- مرحلة ما قبل العمليات (Preoperational)</div>
+                        <p><strong>الفترة:</strong> من سنتين حتى 7 سنوات.</p>
+                        <p><strong>المراحل الفرعية:</strong></p>
+                        <ul style="font-size:0.95rem;">
+                            <li>ما قبل المفاهيم (2–4 سنوات): رموز عقلية، خيال، لا يهتم بالسبب والنتيجة.</li>
+                            <li>التفكير الحدسي (4–7 سنوات): الإحيائية (اعتبار الأشياء غير الحية حية).</li>
+                        </ul>
+                        <p><strong>الخصائص:</strong></p>
+                        <ul style="font-size:0.95rem;">
+                            <li>التمركز حول الذات: يرى العالم من منظوره.</li>
+                            <li>التمركز: التركيز على جانب واحد.</li>
+                            <li>اللامعكوسية: صعوبة التفكير العكسي.</li>
+                        </ul>
+                    </div>
+
+                    <div class="stage-card">
+                        <div class="stage-card-title">3- مرحلة العمليات المادية (Concrete Operational)</div>
+                        <p><strong>الفترة:</strong> من 8 حتى 12 سنة.</p>
+                        <p><strong>الخصائص:</strong></p>
+                        <ul style="font-size:0.95rem;">
+                            <li>التفكير أكثر حسية ومجرد بسيط.</li>
+                            <li>القدرة على الترتيب والتصنيف.</li>
+                            <li>التفكير العكسي ممكن (استرجاع شكل الصلصال).</li>
+                            <li>تنمو المهارات الاجتماعية والمشاركة.</li>
+                        </ul>
+                    </div>
+
+                    <div class="stage-card">
+                        <div class="stage-card-title">4- مرحلة العمليات العقلية المجردة (Formal)</div>
+                        <p><strong>الفترة:</strong> 11–12 سنة حتى نهاية الحياة.</p>
+                        <p><strong>الخصائص:</strong></p>
+                        <ul style="font-size:0.95rem;">
+                            <li>التفكير المجرد والصوري.</li>
+                            <li>وضع الفرضيات والتخطيط.</li>
+                            <li>إصدار الأحكام بالخبرات السابقة.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">التطبيقات التربوية لنظرية بياجيه</div>
+                <ul>
+                    <li>التركيز على اكتساب المهارات وليس الحفظ فقط.</li>
+                    <li>الانتقال من المحسوس إلى المجرد تدريجيًا.</li>
+                    <li>توفير اللعب والمحسوسات لدعم الابتكار.</li>
+                    <li>تشجيع المنافسة الشريفة.</li>
+                    <li>توفير الألعاب التربوية.</li>
+                    <li>ملاءمة المقررات مع مستوى النمو.</li>
+                    <li>عدم تصنيف الإجابات إلى صحيحة وخاطئة دائمًا.</li>
+                    <li>إتاحة التفاعل والمناقشة لتعزيز النمو.</li>
+                    <li>مراعاة الفروق الفردية.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>🌟</span> نظرية كولبرج في النمو الأخلاقي</h2>
+            <p>يرى لورانس كولبرج أن النمو الأخلاقي مرتبط بالنمو المعرفي وبالتخلص تدريجياً من التمركز حول الذات.</p>
+            <ul>
+                <li>الحكم الأخلاقي لا يُكتسب بالتقليد أو التعزيز وحده، بل يتطلب تطوراً معرفياً.</li>
+                <li>بدون التطور المعرفي، لا يستطيع الطفل الانتقال من المعايير الجامدة إلى المرنة.</li>
+            </ul>
+
+            <div class="sub-section">
+                <div class="sub-title">مستويات كولبرج مع الأمثلة</div>
+                
+                <p><span class="highlight">1- مستوى ما قبل الأخلاق (Pre-conventional)</span><br>الأساس: مفاهيم الثواب والعقاب.</p>
+                <ul>
+                    <li><strong>المرحلة الأولى: التوجه نحو العقاب والطاعة</strong><br>السلوك لتجنب العقاب.<br> <div class="example-box" style="margin-top:5px; padding:8px;">مثال: لا يأخذ الحلوى خوفاً من توبيخ أمه.</div></li>
+                    <li><strong>المرحلة الثانية: المنفعة الذاتية</strong><br>السلوك للمصلحة الشخصية.<br> <div class="example-box" style="margin-top:5px; padding:8px;">مثال: يساعد صديقه ليحصل على شوكولاتة.</div></li>
+                </ul>
+
+                <p><span class="highlight">2- مستوى الأخلاق أو التقاليد (Conventional)</span><br>الأساس: قبول الآخرين والحفاظ على علاقات طيبة.</p>
+                <ul>
+                    <li><strong>المرحلة الثالثة: العلاقات الشخصية المتبادلة</strong><br>التصرف ليبدو جيداً.<br> <div class="example-box" style="margin-top:5px; padding:8px;">مثال: يقسم لعبه ليكسب رضا زملائه.</div></li>
+                    <li><strong>المرحلة الرابعة: النظام والقانون</strong><br>الالتزام بالقوانين.<br> <div class="example-box" style="margin-top:5px; padding:8px;">مثال: لا يسرق خوفاً من القانون.</div></li>
+                </ul>
+
+                <p><span class="highlight">3- مستوى الأخلاق فيما بعد التقاليد (Post-conventional)</span><br>الأساس: المبادئ الأخلاقية العامة والالتزام الذاتي.</p>
+                <ul>
+                    <li><strong>المرحلة الخامسة: العرف الاجتماعي القانوني</strong><br>الالتزام بروح القانون لرفاهية المجتمع.<br> <div class="example-box" style="margin-top:5px; padding:8px;">مثال: يلتزم بالمرور سراً لحماية الجميع.</div></li>
+                    <li><strong>المرحلة السادسة: المبادئ والأخلاق المثالية</strong><br>مبني على الضمير الشخصي.<br> <div class="example-box" style="margin-top:5px; padding:8px;">مثال: يساعد الآخرين رغم الخطر لإيمانه بالخير.</div></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>🌟</span> نظرية إريك هـ. إريكسون في النمو النفسي الاجتماعي</h2>
+            <div class="stage-grid">
+                
+                <div class="stage-card">
+                    <div class="stage-card-title">1- الثقة مقابل عدم الثقة (0 – 18 شهر)</div>
+                    <p><strong>الأساس:</strong> اكتساب الثقة بالشعور بالأمان.</p>
+                    <div class="example-box" style="font-size:0.95rem; padding:10px;">مثال: استجابة الوالدين لبكاء الطفل تعلمه أن العالم آمن. الإهمال يسبب عدم الثقة.</div>
+                </div>
+
+                <div class="stage-card">
+                    <div class="stage-card-title">2- الاستقلال مقابل الخجل والشك (1.5 – 3 سنوات)</div>
+                    <p><strong>الأساس:</strong> التحكم في النفس والاستقلالية.</p>
+                    <div class="example-box" style="font-size:0.95rem; padding:10px;">مثال: تعلم استخدام المرحاض. الدعم يمنح الثقة، والسخرية تسبب الخجل.</div>
+                </div>
+
+                <div class="stage-card">
+                    <div class="stage-card-title">3- المبادأة مقابل الإحساس بالذنب (3 – 5 سنوات)</div>
+                    <p><strong>الأساس:</strong> المبادرة واتخاذ قرارات صغيرة.</p>
+                    <div class="example-box" style="font-size:0.95rem; padding:10px;">مثال: بناء مكعبات. التشجيع يسبب الفخر، والمنع يسبب الذنب.</div>
+                </div>
+
+                <div class="stage-card">
+                    <div class="stage-card-title">4- المثابرة مقابل النقص (6 – 11 سنة)</div>
+                    <p><strong>الأساس:</strong> العمل الجاد والتعاون.</p>
+                    <div class="example-box" style="font-size:0.95rem; padding:10px;">مثال: النجاح الدراسي أو الرياضي يعطي إنجازاً. الفشل المستمر يسبب النقص.</div>
+                </div>
+
+                <div class="stage-card">
+                    <div class="stage-card-title">5- الهوية مقابل غموض الهوية (12 – 18 سنة)</div>
+                    <p><strong>الأساس:</strong> تكوين الهوية والمستقبل.</p>
+                    <div class="example-box" style="font-size:0.95rem; padding:10px;">مثال: اختيار تخصص يحبه. عدم تحديد الاتجاه يسبب غموض الهوية.</div>
+                </div>
+
+                <div class="stage-card">
+                    <div class="stage-card-title">6- الألفة مقابل العزلة (الرشد المبكر)</div>
+                    <p><strong>الأساس:</strong> تكوين علاقات صادقة.</p>
+                    <div class="example-box" style="font-size:0.95rem; padding:10px;">مثال: علاقة حب وصداقات قوية. الخوف من الارتباط يسبب العزلة.</div>
+                </div>
+
+                <div class="stage-card">
+                    <div class="stage-card-title">7- الإنتاجية مقابل الركود (الرشد المتأخر)</div>
+                    <p><strong>الأساس:</strong> القدرة على العطاء.</p>
+                    <div class="example-box" style="font-size:0.95rem; padding:10px;">مثال: تربية الأولاد أو العمل التطوعي. الفشل يسبب الكساد.</div>
+                </div>
+
+                <div class="stage-card">
+                    <div class="stage-card-title">8- التكامل مقابل اليأس (الشيخوخة)</div>
+                    <p><strong>الأساس:</strong> تقييم الحياة.</p>
+                    <div class="example-box" style="font-size:0.95rem; padding:10px;">مثال: الرضا عن الإنجازات والذكريات. الإحساس بضياع الوقت يسبب اليأس.</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>🌟</span> مراحل فرويد (نسخة سهلة جداً)</h2>
+            
+            <div class="sub-section">
+                <ul>
+                    <li><strong>المرحلة الفمية Oral stage (0 – 1 سنة):</strong><br>
+                    الفكرة: الطفل يشبع حاجته للأمان بالرضاعة والأكل.<br>
+                    <div class="example-box" style="margin-top:5px; padding:8px;">مثال: هدوء الطفل وسعادته أثناء الرضاعة.</div>
+                    </li>
+                    
+                    <li><strong>المرحلة الشرجية Anal stage (1 – 3 سنوات):</strong><br>
+                    الفكرة: الطفل يتعلم التحكم بنفسه واستخدام الحمام.<br>
+                    <div class="example-box" style="margin-top:5px; padding:8px;">مثال: استخدام الحمام بنجاح يجعله منظماً في أفعاله.</div>
+                    </li>
+
+                    <li><strong>المرحلة القضيبية Phallic stage (3 – 5 سنوات):</strong><br>
+                    الفكرة: اكتشاف الفرق بين الصبي والبنت وعلاقات الأسرة.<br>
+                    <div class="example-box" style="margin-top:5px; padding:8px;">مثال: الصبي يقلد أبوه، والبنت تقلد أمها لتعلم الأدوار.</div>
+                    </li>
+
+                    <li><strong>مرحلة الكمون Latency stage (6 – 12 سنة):</strong><br>
+                    الفكرة: التركيز على المدرسة والصداقات بعيداً عن الأمور الجنسية.<br>
+                    <div class="example-box" style="margin-top:5px; padding:8px;">مثال: اللعب مع الأصدقاء وحب المدرسة.</div>
+                    </li>
+
+                    <li><strong>المرحلة التناسلية Genital stage (12 سنة وفوق):</strong><br>
+                    الفكرة: تكوين صداقات وعلاقات عاطفية ناضجة، والاستعداد للحياة.<br>
+                    <div class="example-box" style="margin-top:5px; padding:8px;">مثال: المشاركة في نشاطات اجتماعية وتحمل المسؤولية.</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
