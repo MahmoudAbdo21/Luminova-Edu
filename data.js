@@ -602,6 +602,8 @@ window.LUMINOVA_DATA = {
       "yearId": "year_1",
       "semesterId": "semesters_1775125622791",
       "mediaUrls": [
+        "https://drive.google.com/file/d/14X4m_gsIWP-exRrQv6x7n25Cbc_hMEs8/view?usp=drivesdk",
+        "https://drive.google.com/file/d/1DIu-h0ajVzrat0cUFakqixxpColD44n0/view?usp=drivesdk",
         "img/Digital learning 2.jpg"
       ]
     },
@@ -618,6 +620,7 @@ window.LUMINOVA_DATA = {
       "yearId": "year_1",
       "semesterId": "semesters_1775125622791",
       "mediaUrls": [
+        "https://drive.google.com/file/d/13ltUd0_lCQnbfUTgheNeJxUlrHX2vBZ4/view?usp=drivesdk",
         "img/Digital learning 1.jpg"
       ]
     },
