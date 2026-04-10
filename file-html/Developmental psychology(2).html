@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level Up - Level 6 | مناهج البحث في علم النفس</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-neon: #ff00ff;
+            --secondary-neon: #00d4ff;
+            --accent-neon: #b026ff;
+            --success-neon: #00ff88;
+            --danger-neon: #ff3366;
+            --bg-dark: #0a0b1e;
+            --card-bg: rgba(16, 18, 43, 0.8);
+            --text-main: #e0e0e0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(255, 0, 255, 0.05), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(0, 212, 255, 0.05), transparent 25%);
+            background-attachment: fixed;
+        }
+
+        /* HUD Header */
+        .game-header {
+            text-align: center;
+            padding: 40px 20px 20px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+            border-bottom: 2px solid var(--primary-neon);
+            box-shadow: 0 4px 30px rgba(255, 0, 255, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .level-badge {
+            display: inline-block;
+            background: var(--primary-neon);
+            color: #fff;
+            padding: 5px 25px;
+            font-weight: 900;
+            font-size: 1.2rem;
+            border-radius: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 15px var(--primary-neon);
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #fff;
+            margin: 0;
+            text-shadow: 0 0 15px var(--secondary-neon), 0 0 30px var(--secondary-neon);
+        }
+
+        .subtitle {
+            color: var(--secondary-neon);
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        /* Stats Bar */
+        .stats-hud {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px auto;
+            max-width: 800px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--accent-neon);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: inset 0 0 10px rgba(176, 38, 255, 0.3);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--secondary-neon);
+            text-shadow: 0 0 10px var(--secondary-neon);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Quest Cards */
+        .quest-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-right: 5px solid var(--primary-neon);
+            border-radius: 10px;
+            padding: 25px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quest-card:hover {
+            transform: translateY(-5px);
+            border-right-color: var(--secondary-neon);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .quest-title {
+            color: var(--primary-neon);
+            font-size: 1.8rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+        }
+
+        .quest-title span {
+            margin-left: 15px;
+            font-size: 2rem;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        /* Content Typography */
+        p {
+            line-height: 1.8;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-right: 20px;
+        }
+
+        ul li {
+            position: relative;
+            margin-bottom: 10px;
+            line-height: 1.7;
+            font-size: 1.1rem;
+        }
+
+        ul li::before {
+            content: '⚡';
+            position: absolute;
+            right: -25px;
+            color: var(--secondary-neon);
+            font-size: 0.9rem;
+            top: 3px;
+        }
+
+        .sub-section {
+            background: rgba(0,0,0,0.4);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-right: 3px solid var(--accent-neon);
+        }
+
+        .sub-title {
+            color: var(--accent-neon);
+            font-weight: bold;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+        
+        .sub-title-2 {
+            color: var(--secondary-neon);
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+
+        /* Special Example Box for "📌 مثال" */
+        .example-box {
+            background: rgba(0, 212, 255, 0.1);
+            border-right: 4px solid var(--secondary-neon);
+            padding: 12px 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            font-size: 1.05rem;
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 212, 255, 0.1);
+        }
+
+        .pros-cons {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .pros, .cons {
+            flex: 1;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .pros { border-right: 3px solid var(--success-neon); }
+        .cons { border-right: 3px solid var(--danger-neon); }
+        .pros span { color: var(--success-neon); font-weight: bold; }
+        .cons span { color: var(--danger-neon); font-weight: bold; }
+
+    </style>
+</head>
+<body>
+
+    <header class="game-header">
+        <div class="level-badge">LEVEL 6</div>
+        <h1>مناهج البحث في علم النفس</h1>
+        <p class="subtitle">فريق مذاكرة Level Up - رحلة التفوق</p>
+    </header>
+
+    <div class="stats-hud">
+        <div class="stat-item">
+            <span class="stat-value">6</span>
+            <span class="stat-label">مناهج وأدوات</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">100%</span>
+            <span class="stat-label">تغطية الشرح</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">Level Up</span>
+            <span class="stat-label">الفريق</span>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>🌟</span> المنهج التجريبي</h2>
+            
+            <div class="sub-section">
+                <div class="sub-title">✔️ فكرته الأساسية</div>
+                <p>يعني نغيّر حاجة واحدة ونشوف تأثيرها على حاجة تانية علشان نعرف السبب الحقيقي.</p>
+                <div class="example-box">📌 مثال: نستخدم طريقة تدريس جديدة ونشوف هل درجات الطلاب هتتحسن ولا لا.</div>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">✔️ المتغيرات</div>
+                <div class="sub-title-2">🔹 المتغير المستقل</div>
+                <p>هو الحاجة اللي الباحث بيغيرها بنفسه.</p>
+                <div class="example-box">📌 مثال: طريقة التدريس (تقليدية أو حديثة).</div>
+                
+                <div class="sub-title-2">🔹 المتغير التابع</div>
+                <p>هو النتيجة اللي بتتأثر بالتغيير.</p>
+                <div class="example-box">📌 مثال: درجات الطلاب.</div>
+
+                <div class="sub-title-2">🔹 المتغيرات الدخيلة</div>
+                <p>حاجات ممكن تأثر على النتيجة وإحنا مش عايزينها.</p>
+                <div class="example-box">📌 مثال: مستوى ذكاء الطلاب أو ظروفهم.</div>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">✔️ خطواته</div>
+                <ul>
+                    <li><strong>1. تحديد المشكلة:</strong> يعني نحدد الحاجة اللي فيها مشكلة.
+                        <div class="example-box">📌 مثال: ضعف مستوى الطلاب في مادة معينة.</div>
+                    </li>
+                    <li><strong>2. تحديد الهدف:</strong> نحدد إحنا عايزين نوصل لإيه.
+                        <div class="example-box">📌 مثال: تحسين مستوى الطلاب.</div>
+                    </li>
+                    <li><strong>3. جمع المعلومات:</strong> نجمع معلومات عن المشكلة من كتب أو دراسات.
+                        <div class="example-box">📌 مثال: نقرأ عن طرق تدريس حديثة.</div>
+                    </li>
+                    <li><strong>4. وضع الفروض:</strong> نحط توقعات للحل.
+                        <div class="example-box">📌 مثال: استخدام طريقة جديدة هيحسن النتائج.</div>
+                    </li>
+                    <li><strong>5. إجراء التجربة:</strong> نقسم الطلاب لمجموعتين:
+                        <br>- تجريبية: نطبق عليها الطريقة الجديدة
+                        <br>- ضابطة: تفضل زي ما هي
+                        <div class="example-box">📌 مثال: فصل يدرس بطريقة حديثة وفصل بطريقة عادية.</div>
+                    </li>
+                    <li><strong>6. تحليل النتائج:</strong> نقارن النتائج ونشوف هل الفرض صح ولا لا.
+                        <div class="example-box">📌 مثال: هل درجات الفصل التجريبي أعلى؟</div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">✔️ تصميماته</div>
+                <div class="sub-title-2">🔹 مجموعة واحدة</div>
+                <p>نقيس قبل وبعد على نفس المجموعة.</p>
+                <div class="example-box">📌 مثال: اختبار قبل وبعد تطبيق الطريقة.</div>
+                
+                <div class="sub-title-2">🔹 مجموعتين</div>
+                <p>مجموعة تجريبية وضابطة.</p>
+                <div class="example-box">📌 مثال: مقارنة فصلين مختلفين.</div>
+            </div>
+
+            <div class="pros-cons">
+                <div class="pros">
+                    <span>✔️ مميزاته:</span> يحدد السبب والنتيجة بدقة
+                </div>
+                <div class="cons">
+                    <span>❌ عيوبه:</span> صعب التطبيق أحيانًا
+                </div>
+            </div>
+        </div>
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>🌟</span> المنهج الوصفي</h2>
+            
+            <div class="sub-section">
+                <div class="sub-title">✔️ فكرته</div>
+                <p>وصف السلوك كما هو بدون تدخل.</p>
+                <div class="example-box">📌 مثال: ملاحظة سلوك الأطفال في الفصل بدون تغيير أي حاجة.</div>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">✔️ الدراسات المسحية</div>
+                <p>جمع بيانات من عدد كبير من الناس.</p>
+                <div class="example-box">📌 مثال: عمل استبيان عن رأي الطلاب في التعليم.</div>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">✔️ دراسات العلاقات</div>
+                <div class="sub-title-2">🔹 دراسة الحالة</div>
+                <p>دراسة شخص واحد بالتفصيل.</p>
+                <div class="example-box">📌 مثال: دراسة طفل عنده مشكلة سلوكية.</div>
+                
+                <div class="sub-title-2">🔹 الدراسات المقارنة</div>
+                <p>مقارنة بين مجموعتين.</p>
+                <div class="example-box">📌 مثال: مقارنة بين طلاب مدارس حكومي وخاص.</div>
+                
+                <div class="sub-title-2">🔹 الدراسات الارتباطية</div>
+                <p>معرفة العلاقة بين حاجتين.</p>
+                <div class="example-box">📌 مثال: العلاقة بين عدد ساعات المذاكرة والدرجات.</div>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">✔️ الدراسات التطورية</div>
+                <div class="sub-title-2">🔹 الدراسات الطولية</div>
+                <p>متابعة نفس الأشخاص مع الزمن.</p>
+                <div class="example-box">📌 مثال: متابعة طفل من سن 5 لـ 10 سنين.</div>
+                
+                <div class="sub-title-2">🔹 الدراسات المستعرضة</div>
+                <p>مقارنة أعمار مختلفة في نفس الوقت.</p>
+                <div class="example-box">📌 مثال: مقارنة أطفال 5 سنين و10 سنين.</div>
+            </div>
+        </div>
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>🌟</span> أولاً: دراسة الحالة</h2>
+            
+            <div class="sub-section">
+                <div class="sub-title">✔️ تعريفها</div>
+                <p>هي دراسة شخص واحد أو حالة واحدة دراسة عميقة من كل الجوانب (جسمية، عقلية، نفسية، اجتماعية...).</p>
+                <div class="example-box">📌 مثال: دراسة طالب عنده مشكلة في التركيز من حيث أسرته، صحته، مدرسته…</div>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">✔️ محكات دولارد (ببساطة)</div>
+                <ul>
+                    <li><strong>الفرد جزء من المجتمع</strong> → يعني نفهمه في ضوء ثقافته.</li>
+                    <li><strong>سلوكه له دوافع</strong> → نفهم ليه بيعمل كده.</li>
+                    <li><strong>الأسرة مهمة</strong> → لأنها بتشكل شخصيته.</li>
+                    <li><strong>البيولوجي + الاجتماعي</strong> → جسمه + المجتمع بيأثروا عليه.</li>
+                    <li><strong>الحاضر مرتبط بالماضي</strong> → الطفولة بتأثر على الكبير.</li>
+                    <li><strong>المواقف الحالية مهمة</strong> → البيئة الحالية بتأثر على سلوكه.</li>
+                    <li><strong>تاريخ حياته مهم</strong> → لازم نربط كل الأحداث ببعض.</li>
+                </ul>
+                <div class="example-box">📌 مثال: طفل عدواني → ممكن يكون بسبب تربية قاسية + بيئة ضغط.</div>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">✔️ أهدافها</div>
+                <ul>
+                    <li>فهم الحالة بشكل كامل</li>
+                    <li>تشخيص المشكلة وأسبابها</li>
+                    <li>تقديم علاج أو مساعدة</li>
+                    <li>التنبؤ بالمستقبل</li>
+                </ul>
+                <div class="example-box">📌 مثال: نحدد هل الطالب محتاج علاج نفسي أو دعم تعليمي.</div>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">✔️ مصادر المعلومات</div>
+                <ul>
+                    <li>الملاحظة</li>
+                    <li>الاختبارات</li>
+                    <li>السجلات</li>
+                    <li>الأسرة والمدرسين</li>
+                    <li>الشخص نفسه</li>
+                </ul>
+                <div class="example-box">📌 مثال: نسأل الأم + نشوف درجاته + نلاحظه في الفصل.</div>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">✔️ ملاحظات مهمة</div>
+                <ul>
+                    <li>لازم نقارن بين المصادر (عشان ممكن حد يبالغ)</li>
+                    <li>نفرق بين حقيقة وتفسير</li>
+                    <li>البيانات لوحدها مش كفاية → لازم نربطها ببعض</li>
+                </ul>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">✔️ كتابة التقرير</div>
+                <ul>
+                    <li>يكون واضح ودقيق</li>
+                    <li>مش طويل زيادة ولا مختصر زيادة</li>
+                    <li>يشرح الحالة بشكل كامل</li>
+                </ul>
+                <div class="example-box">📌 مثال: تقرير فيه (المشكلة + الأسباب + الحل).</div>
+            </div>
+        </div>
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>🌟</span> ثانياً: الملاحظة</h2>
+            
+            <div class="sub-section">
+                <div class="sub-title">✔️ تعريفها</div>
+                <p>هي متابعة السلوك كما يحدث في الواقع.</p>
+                <div class="example-box">📌 مثال: مراقبة سلوك الطلاب في الفصل.</div>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">✔️ أنواعها (ببساطة + مثال)</div>
+                <div class="sub-title-2">🔹 مباشرة</div>
+                <p>تشوف بعينك</p>
+                <div class="example-box">📌 مثال: المدرس يلاحظ الطلاب</div>
+                
+                <div class="sub-title-2">🔹 غير مباشرة</div>
+                <p>بكاميرات أو تسجيل</p>
+                <div class="example-box">📌 مثال: كاميرا في الفصل</div>
+                
+                <div class="sub-title-2">🔹 طبيعية</div>
+                <p>في بيئته العادية</p>
+                <div class="example-box">📌 مثال: طفل في البيت</div>
+                
+                <div class="sub-title-2">🔹 اصطناعية</div>
+                <p>في معمل أو موقف مصنوع</p>
+                <div class="example-box">📌 مثال: تجربة في معمل</div>
+
+                <div class="sub-title-2">🔹 محددة</div>
+                <p>عارف هتلاحظ إيه</p>
+                <div class="example-box">📌 مثال: تركز على سلوك العدوان فقط</div>
+
+                <div class="sub-title-2">🔹 غير محددة</div>
+                <p>تشوف كل حاجة</p>
+                <div class="example-box">📌 مثال: تلاحظ كل سلوك الطفل</div>
+
+                <div class="sub-title-2">🔹 منظمة</div>
+                <p>بخطة ونظام</p>
+                <div class="example-box">📌 مثال: جدول تسجيل سلوك</div>
+
+                <div class="sub-title-2">🔹 غير منظمة</div>
+                <p>عشوائية</p>
+                <div class="example-box">📌 مثال: ملاحظات عامة</div>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">✔️ أدواتها</div>
+                <ul>
+                    <li>الحواس (العين، السمع)</li>
+                    <li>الأجهزة (كاميرات)</li>
+                    <li>استمارات</li>
+                </ul>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">✔️ خطواتها</div>
+                <ul>
+                    <li>تحديد الهدف</li>
+                    <li>تحديد السلوك</li>
+                    <li>عمل استمارة</li>
+                    <li>تنفيذ الملاحظة</li>
+                    <li>تسجيل النتائج</li>
+                </ul>
+            </div>
+
+            <div class="pros-cons">
+                <div class="pros">
+                    <span>✔️ مميزاتها:</span> سلوك حقيقي - مرنة
+                </div>
+                <div class="cons">
+                    <span>❌ عيوبها:</span> ممكن تحيز - صعب تسجيل كل حاجة - الناس تغير سلوكها لما تعرف إنها متراقبة
+                </div>
+            </div>
+        </div>
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>🌟</span> ثالثاً: المقابلة</h2>
+            
+            <div class="sub-section">
+                <div class="sub-title">✔️ تعريفها</div>
+                <p>حوار بين الباحث والشخص لجمع معلومات.</p>
+                <div class="example-box">📌 مثال: مدرس يقعد مع طالب يسأله عن مشكلته.</div>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">✔️ خطواتها</div>
+                <ul>
+                    <li>تحديد الهدف</li>
+                    <li>تجهيز الأسئلة</li>
+                    <li>جو مريح</li>
+                    <li>طرح أسئلة واضحة</li>
+                    <li>الاستماع الجيد</li>
+                    <li>تسجيل الإجابات</li>
+                </ul>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">✔️ أنواعها</div>
+                <div class="sub-title-2">🔹 مبدئية</div>
+                <p>أول مقابلة</p>
+                <div class="example-box">📌 مثال: التعرف على الطالب</div>
+                
+                <div class="sub-title-2">🔹 فردية</div>
+                <p>شخص واحد</p>
+                
+                <div class="sub-title-2">🔹 جماعية</div>
+                <p>مجموعة</p>
+
+                <div class="sub-title-2">🔹 مقيدة</div>
+                <p>أسئلة محددة</p>
+                <div class="example-box">📌 مثال: نموذج جاهز</div>
+
+                <div class="sub-title-2">🔹 حرة</div>
+                <p>الشخص يتكلم بحرية</p>
+                <div class="example-box">📌 مثال: يحكي مشكلته</div>
+            </div>
+
+            <div class="pros-cons">
+                <div class="pros">
+                    <span>✔️ مميزاتها:</span> معلومات عميقة - تفاعل مباشر
+                </div>
+                <div class="cons">
+                    <span>❌ عيوبها:</span> ممكن تحيز - الشخص يخبي الحقيقة - محتاجة وقت
+                </div>
+            </div>
+        </div>
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>🌟</span> رابعاً: الاستبيان</h2>
+            
+            <div class="sub-section">
+                <div class="sub-title">✔️ تعريفه</div>
+                <p>أسئلة مكتوبة يجاوب عليها الشخص بنفسه.</p>
+                <div class="example-box">📌 مثال: استبيان عن رضا الطلاب.</div>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">✔️ أنواعه</div>
+                <div class="sub-title-2">🔹 مفتوح</div>
+                <p>إجابة حرة</p>
+                <div class="example-box">📌 مثال: قول رأيك</div>
+
+                <div class="sub-title-2">🔹 مغلق</div>
+                <p>اختيارات</p>
+                <div class="example-box">📌 مثال: نعم / لا</div>
+
+                <div class="sub-title-2">🔹 مختلط</div>
+                <p>الاتنين مع بعض</p>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">✔️ خطواته</div>
+                <ul>
+                    <li>تحديد الهدف</li>
+                    <li>تحديد الموضوع</li>
+                    <li>كتابة الأسئلة</li>
+                    <li>مراجعتها</li>
+                    <li>تطبيقه</li>
+                </ul>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">✔️ شروط الأسئلة</div>
+                <ul>
+                    <li>واضحة</li>
+                    <li>بسيطة</li>
+                    <li>مش مركبة</li>
+                    <li>مرتبة</li>
+                </ul>
+            </div>
+
+            <div class="pros-cons">
+                <div class="pros">
+                    <span>✔️ مميزاته:</span> سهل - سريع - عدد كبير
+                </div>
+                <div class="cons">
+                    <span>❌ عيوبه:</span> مش مناسب لغير المتعلمين - ممكن الناس تكسل تجاوب - بيانات ناقصة
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

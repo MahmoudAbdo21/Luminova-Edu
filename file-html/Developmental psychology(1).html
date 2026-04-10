@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level Up - Level 6 | مدخل علم نفس النمو</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-neon: #ff00ff;
+            --secondary-neon: #00d4ff;
+            --accent-neon: #b026ff;
+            --bg-dark: #0a0b1e;
+            --card-bg: rgba(16, 18, 43, 0.8);
+            --text-main: #e0e0e0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(255, 0, 255, 0.05), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(0, 212, 255, 0.05), transparent 25%);
+            background-attachment: fixed;
+        }
+
+        /* HUD Header */
+        .game-header {
+            text-align: center;
+            padding: 40px 20px 20px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+            border-bottom: 2px solid var(--primary-neon);
+            box-shadow: 0 4px 30px rgba(255, 0, 255, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .level-badge {
+            display: inline-block;
+            background: var(--primary-neon);
+            color: #fff;
+            padding: 5px 25px;
+            font-weight: 900;
+            font-size: 1.2rem;
+            border-radius: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 15px var(--primary-neon);
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #fff;
+            margin: 0;
+            text-shadow: 0 0 15px var(--secondary-neon), 0 0 30px var(--secondary-neon);
+        }
+
+        .subtitle {
+            color: var(--secondary-neon);
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        /* Stats Bar */
+        .stats-hud {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px auto;
+            max-width: 800px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--accent-neon);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: inset 0 0 10px rgba(176, 38, 255, 0.3);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--secondary-neon);
+            text-shadow: 0 0 10px var(--secondary-neon);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Quest Cards */
+        .quest-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-right: 5px solid var(--primary-neon);
+            border-radius: 10px;
+            padding: 25px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quest-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,0,255,0.03));
+            pointer-events: none;
+        }
+
+        .quest-card:hover {
+            transform: translateY(-5px);
+            border-right-color: var(--secondary-neon);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .quest-title {
+            color: var(--primary-neon);
+            font-size: 1.6rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+        }
+
+        .quest-title span {
+            margin-left: 15px;
+            font-size: 2rem;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        /* Content Typography */
+        p {
+            line-height: 1.8;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-right: 20px;
+        }
+
+        ul li {
+            position: relative;
+            margin-bottom: 10px;
+            line-height: 1.7;
+            font-size: 1.1rem;
+        }
+
+        ul li::before {
+            content: '⚡';
+            position: absolute;
+            right: -25px;
+            color: var(--secondary-neon);
+            font-size: 0.9rem;
+            top: 3px;
+        }
+
+        .highlight {
+            color: var(--secondary-neon);
+            font-weight: bold;
+        }
+
+        .sub-section {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-right: 3px solid var(--accent-neon);
+        }
+
+        .sub-title {
+            color: var(--accent-neon);
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="game-header">
+        <div class="level-badge">LEVEL 6</div>
+        <h1>مدخل علم نفس النمو</h1>
+        <p class="subtitle">فريق مذاكرة Level Up - Mission Started</p>
+    </header>
+
+    <div class="stats-hud">
+        <div class="stat-item">
+            <span class="stat-value">100%</span>
+            <span class="stat-label">اكتمال المنهج</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">13</span>
+            <span class="stat-label">مهام أساسية</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">MAX</span>
+            <span class="stat-label">طاقة الاستيعاب</span>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>🔹</span> أولًا: مقدمة الفصل</h2>
+            <p>الإنسان كائن في تغير مستمر منذ لحظة الإخصاب حتى الشيخوخة.</p>
+            <p>هذه التغيرات تشمل:</p>
+            <ul>
+                <li>الجسم</li>
+                <li>العقل</li>
+                <li>المشاعر</li>
+                <li>العلاقات</li>
+            </ul>
+            <p class="highlight">لذلك ظهر علم يهتم بدراسة هذه التغيرات → علم نفس النمو.</p>
+        </div>
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>🔹</span> ثانيًا: تعريف علم نفس النمو</h2>
+            <p>هو العلم الذي يدرس:</p>
+            <ul>
+                <li>التغيرات الجسمية – العقلية – الانفعالية – الاجتماعية</li>
+                <li>عبر مراحل العمر المختلفة</li>
+                <li>من الإخصاب حتى الشيخوخة</li>
+            </ul>
+        </div>
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>🔹</span> ثالثًا: نبذة تاريخية عن علم نفس النمو</h2>
+            <div class="sub-section">
+                <div class="sub-title">قديمًا:</div>
+                <ul>
+                    <li>كان الاهتمام بالطفل ضعيف</li>
+                    <li>كان يُنظر له كـ "راشد صغير"</li>
+                </ul>
+            </div>
+            <div class="sub-section">
+                <div class="sub-title">بعد ذلك:</div>
+                <ul>
+                    <li>بدأ الاهتمام بالطفولة كمجال مستقل</li>
+                    <li>ظهور دراسات علمية عن نمو الطفل</li>
+                </ul>
+            </div>
+            <div class="sub-section">
+                <div class="sub-title">حديثًا:</div>
+                <p>أصبح علم نفس النمو:</p>
+                <ul>
+                    <li>علم قائم بذاته</li>
+                    <li>يعتمد على البحث والتجريب</li>
+                    <li>يدرس كل مراحل الحياة وليس الطفولة فقط</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>🔹</span> رابعًا: موضوع علم نفس النمو</h2>
+            <p>يدرس:</p>
+            <ul>
+                <li>التغيرات التي تطرأ على الإنسان</li>
+                <li>العوامل التي تؤثر في هذه التغيرات</li>
+                <li>الفروق الفردية بين الأشخاص</li>
+                <li>القوانين التي تحكم عملية النمو</li>
+            </ul>
+            <p class="highlight">وفيه نوعين من النمو التكويني وهو خصائص الطول والحجم والمظهر الخارجي والنمو الوظيفي وهو تغيرات سلوكية ومعرفيه وانفعالية وعقلية وجسمية.</p>
+        </div>
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>🔹</span> خامسًا: أهداف علم نفس النمو</h2>
+            <ul>
+                <li><strong>1. وصف التغيرات:</strong> تحديد ماذا يحدث في كل مرحلة</li>
+                <li><strong>2. تفسير التغيرات:</strong> معرفة أسباب حدوثها</li>
+                <li><strong>3. التدخل في التغيرات السلوكية:</strong> منها التنبؤ توقع ما سيحدث مستقبلاً</li>
+                <li><strong>4. التوجيه والتحكم:</strong> تعديل السلوك وتحسينه</li>
+            </ul>
+        </div>
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>📘</span> سادسًا: أهمية دراسة علم نفس النمو</h2>
+            <div class="sub-section">
+                <div class="sub-title">أولًا: نظريًا</div>
+                <ul>
+                    <li>فهم مراحل النمو وخصائصها</li>
+                    <li>تفسير التغيرات السلوكية</li>
+                    <li>التنبؤ بسلوك الفرد مستقبلًا</li>
+                </ul>
+            </div>
+            <div class="sub-section">
+                <div class="sub-title">ثانيًا: تطبيقيًا</div>
+                <ul>
+                    <li>تحسين التربية والتعليم</li>
+                    <li>حل المشكلات السلوكية</li>
+                    <li>توجيه الأفراد حسب قدراتهم</li>
+                </ul>
+            </div>
+            <div class="sub-section">
+                <div class="sub-title">الأهمية للفئات المختلفة:</div>
+                <ul>
+                    <li><strong>👩‍🔬 علماء النفس:</strong> تفسير السلوك - تشخيص وعلاج الاضطرابات</li>
+                    <li><strong>👩‍🏫 المربين:</strong> فهم الطلاب - اختيار طرق تدريس مناسبة - مراعاة الفروق الفردية</li>
+                    <li><strong>👨‍👩‍👧 الوالدين:</strong> تربية سليمة - فهم سلوك الأبناء - تجنب الأخطاء التربوية</li>
+                    <li><strong>👤 الأفراد:</strong> فهم النفس - التكيف مع الحياة</li>
+                    <li><strong>🌍 المجتمع:</strong> تقليل المشكلات - تحقيق التقدم والاستقرار</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>🔹</span> سابعًا: تعريف عملية النمو ومظاهرها</h2>
+            <p><strong>✳️ تعريف النمو:</strong> هو سلسلة من التغيرات المنظمة المستمرة التي تحدث للفرد.</p>
+            <div class="sub-section">
+                <div class="sub-title">✳️ مظاهر النمو:</div>
+                <ul>
+                    <li><strong>1. النمو الجسمي:</strong> الطول – الوزن – شكل الجسم</li>
+                    <li><strong>2. النمو الفسيولوجي:</strong> وظائف الأعضاء</li>
+                    <li><strong>3. النمو الحركي:</strong> المهارات العضلية</li>
+                    <li><strong>4. النمو الحسي:</strong> الحواس</li>
+                    <li><strong>5. النمو العقلي:</strong> التفكير – الإدراك – الذكاء</li>
+                    <li><strong>6. النمو اللغوي:</strong> اكتساب اللغة</li>
+                    <li><strong>7. النمو الانفعالي:</strong> المشاعر</li>
+                    <li><strong>8. النمو الاجتماعي:</strong> العلاقات</li>
+                    <li><strong>9. النمو الجنسي:</strong> التغيرات المرتبطة بالنوع</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>🔹</span> ثامنًا: أنماط التغير في النمو</h2>
+            <ul>
+                <li>التغير في الحجم</li>
+                <li>التغير في النسب</li>
+                <li>اختفاء خصائص قديمة زي الغدة التيموسية والاسنان اللبنية والالتصاق بالام والاعتماد على الاخرين</li>
+                <li>ظهور خصائص جديدة مشي او التكلم ياكل اكل جاف ويكسب مشاعر زي التطلع والشغف ويكسب المعتقدات الدينية</li>
+            </ul>
+        </div>
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>🔹</span> تاسعًا: الفرق بين النمو والنضج والتعلم</h2>
+            <ul>
+                <li><strong>🔸 النمو:</strong> عملية شاملة لكل التغيرات</li>
+                <li><strong>🔸 النضج:</strong> تغيرات داخلية بيولوجية تجعل الفرد جاهز لأداء سلوك</li>
+                <li><strong>🔸 التعلم:</strong> اكتساب سلوك نتيجة الخبرة</li>
+                <li><strong>🔸 العلاقة:</strong> لا تعلم بدون نضج، والنمو = نضج + تعلم</li>
+            </ul>
+        </div>
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>📘</span> عاشرًا: العوامل المؤثرة في النمو</h2>
+            
+            <div class="sub-section">
+                <div class="sub-title">1. العوامل الوراثية</div>
+                <p>الجينات - الصفات الجسمية - الذكاء - بعض الأمراض.</p>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">2. العوامل البيولوجية (الفسيولوجية)</div>
+                <p>سلامة أجهزة الجسم - الهرمونات والغدد الصماء ليها تأثير كبير. الغدد هي أعضاء في الجسم تفرز هرمونات تتحكم في النمو والتطور الجسدي والنفسي للإنسان، تؤثر بشكل مباشر على النمو البدني، النضج الجنسي، والتطور العقلي والانفعالي.</p>
+                <p><strong>أهم الغدد:</strong></p>
+                <ul>
+                    <li><strong>الغدة النخامية (Pituitary gland):</strong> تُسمّى "غدة النمو" لأنها تتحكم في إفراز هرمون النمو. تؤثر على طول الجسم وكتلة العضلات ونمو العظام.</li>
+                    <li><strong>الغدة الدرقية (Thyroid gland):</strong> تفرز هرمون الثيروكسين. مسؤول عن معدل الأيض ونمو الدماغ والجسم. نقصه → بطء النمو الجسمي والعقلي.</li>
+                    <li><strong>الغدد التناسلية (Gonads: المبيضان/الخصيتان):</strong> إفراز الهرمونات الجنسية (الأستروجين، التستوستيرون). تتحكم في: النمو الجنسي الأولي والثانوي - صفات البلوغ - التغيرات الجسمية في سن المراهقة.</li>
+                    <li><strong>الغدة الكظرية (Adrenal glands):</strong> تفرز الكورتيزول والأدرينالين.</li>
+                    <li><strong>الغدة الزعترية (Thymus):</strong> موقعها: في منطقة الصدر أمام القلب. أهميتها: تتحكم في جهاز المناعة ونمو الخلايا اللمفاوية (T cells)، وهي خلايا مهمة لمقاومة الأمراض. تأثيرها على النمو: تساعد على صحة الطفل وسلامة نموه البدني. تؤثر بشكل غير مباشر على النمو العقلي والانفعالي، لأن الطفل الصحي يكون أكثر نشاطًا وقدرة على التعلم. نشاطها أعلى في الطفولة، ويبدأ بالانكماش بعد سن البلوغ.</li>
+                    <li><strong>الغدة الصنوبرية:</strong> تحت سطح المخ وتزيد من افراز اضطرابات النمو والنشاط الجنسي.</li>
+                </ul>
+                <p>تتحكم في: الاستجابة للضغط النفسي - نشاط الجسم والطاقة - بعض تأثيرات النمو الانفعالي.</p>
+                <p>الجهاز العصبي 👉 أي خلل فيها يؤثر على النمو.</p>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">3. عامل الغذاء</div>
+                <ul>
+                    <li><strong>التغذية السليمة تساعد على:</strong> النمو الجسمي - النشاط العقلي.</li>
+                    <li><strong>سوء التغذية يؤدي إلى:</strong> ضعف النمو - تأخر في القدرات.</li>
+                </ul>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">4. العوامل البيئية</div>
+                <p>الأسرة - المدرسة - المجتمع - الثقافة.</p>
+                <p class="highlight">👉 بتشكل سلوك الفرد وطريقة تفكيره.</p>
+            </div>
+
+            <div class="sub-section">
+                <div class="sub-title">5. عوامل أخرى</div>
+                <p>الحالة الصحية (الأمراض) - المستوى الاقتصادي - المناخ والبيئة الطبيعية.</p>
+            </div>
+        </div>
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>🔹</span> الحادي عشر: مراحل النمو الانساني</h2>
+            <ul>
+                <li><strong>واحد:</strong> مرحلة الجنين من الحمل حتى الولادة</li>
+                <li><strong>اتنين:</strong> الرضيع من الولادة حتى سنتين</li>
+                <li><strong>تلاته:</strong> الطفولة المبكرة من نهاية السنه التانية لحد 6 سنين</li>
+                <li><strong>اربعه:</strong> الطفولة المتأخرة من 6 سنين ل 12 سنه تقريبا</li>
+                <li><strong>الخامسة:</strong> المراهقة من أول البلوغ والنضج الجنسي من 13 سنه ذكر و12 سنه للبنت لحد 20 سنه</li>
+                <li><strong>السادسة:</strong> الرشد والشباب من 21 لحد 40 سنه تقريبا</li>
+                <li><strong>السابعه:</strong> الكهولة او أوسط العمر من 40 سنه لحد 60 سنه</li>
+                <li><strong>الثامنة:</strong> مرحلة الشيخوخة من 60 لحد 70 سنه</li>
+                <li><strong>والتاسعة:</strong> من 70 سنه لحد الوفاة</li>
+            </ul>
+        </div>
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>🔹</span> الثاني عشر: الخبرات والتعلم - مطالب مراحل النمو الإنساني</h2>
+            <p>لكل مرحلة من مراحل النمو مطالب خاصة تختلف باختلاف مرحلة النمو التي يكون فيها الطفل، فإذا تمكنت مؤسسات التنشئة الاجتماعية (الأسرة، رياض الأطفال، المدرسة، المسجد…) من توفير هذه المطالب حسب طبيعة المرحلة النمائية للطفل، فإن نموه يسير في الاتجاه السليم، وإذا لم تتوفر هذه المتطلبات، فإن نمو الطفل يشوبه الخلل والاضطراب وعدم الاتزان بحسب هافيجهيرست.</p>
+            <ul>
+                <li><strong>من الميلاد – 6 سنوات (الرضيع والطفولة المبكرة):</strong> تعلم الأكل، المشي، الكلام، ضبط الإخراج، الثقة في الذات، استكشاف البيئة، التواصل الاجتماعي، التمييز بين الخطأ والصواب، تكوين الضمير.</li>
+                <li><strong>من 6 – 12 سنة (الطفولة الوسطى):</strong> توسيع المعرفة عن البيئة، تعلم دور الجنس، نمو الثقة وتقدير الذات، اكتساب المهارات الأكاديمية والحركية والاجتماعية.</li>
+                <li><strong>من 12 – 18 سنة (المراهقة):</strong> نمو الثقة بالذات، التكيف مع التغيرات الجسمية، اكتساب الميول الجنسية وعلاقات ناضجة، الاستقلال العاطفي، اكتشاف القدرات، اختيار العمل، تكوين القيم، التهيؤ للزواج.</li>
+                <li><strong>من 18 – 35 سنة (الرشد):</strong> إتمام التعليم، اختيار المهنة، الحياة الأسرية، نمو المسؤولية، تشكيل فلسفة الحياة.</li>
+                <li><strong>من 35 – 60 سنة (متوسط العمر):</strong> تحمل المسؤولية الاجتماعية الأكبر، مساعدة الأبناء، التكيف مع دور الأب المسن، تقبل التغيرات الفسيولوجية.</li>
+                <li><strong>ما بعد 60 سنة (الشيخوخة):</strong> التكيف مع القصور الجسمي، نقص الدخل، التقارب مع المسنين، تقبل التقاعد.</li>
+            </ul>
+            <p class="highlight">مطالب النمو تعكس تحقيق الفرد لحاجاته وفقًا لمستوى نضجه وخبراته، ويؤدي تحقيق هذه المطالب إلى السعادة، بينما يؤدي الفشل في تحقيقها إلى خلل في النمو.</p>
+        </div>
+
+        <div class="quest-card">
+            <h2 class="quest-title"><span>🔹</span> الثالث عشر: القوانين والمبادئ العامة للنمو البشري</h2>
+            <ul>
+                <li><strong>النمو كمي وكيفي معًا:</strong> لا ينمو الطفل جسميًا فقط، بل أيضًا وظيفيًا وعقليًا وانفعاليًا. (مثال: الجهاز الهضمي يتحول من هضم السوائل إلى الطعام الجامد، والحواس تتكامل مع الحركة).</li>
+                <li><strong>النمو مستمر ومنظم:</strong> النمو مستمر طوال الحياة، لكنه قد يكون أسرع في الطفولة والمراهقة وأبطأ في المراحل المتأخرة. النمو يحدث بطريقة منظمة؛ كل مرحلة تبني على السابقة وتُهيّئ التالية.</li>
+                <li><strong>النمو متكامل:</strong> الجوانب الجسمية والعقلية والاجتماعية والانفعالية مترابطة. (الطفل ذو النمو العقلي الجيد غالبًا يكون متوازنًا جسميًا واجتماعيًا).</li>
+                <li><strong>الفروق الفردية:</strong> كل طفل ينمو بطريقته الخاصة، حتى لو كان في نفس العمر. (مثال: بعض الأطفال يمشون قبل أن يزحفوا، أو يتعلمون القراءة قبل النطق).</li>
+                <li><strong>سرعة النمو تختلف حسب المجال والمرحلة العمرية:</strong> النمو الجسمي سريع في السنتين الأوليين، ثم أبطأ، ثم يزداد في المراهقة. النمو اللغوي بطيء أولًا ثم يزداد لاحقًا.</li>
+                <li><strong>النمو من الرأس إلى القدمين:</strong> الرأس والأعضاء العليا تتطور أولًا، ثم القدمين.</li>
+                <li><strong>النمو من الوسط إلى الأطراف:</strong> الطفل يجلس قبل أن يمشي، ويستخدم كتفه قبل يده، ثم الأصابع.</li>
+                <li><strong>النمو من العام إلى الخاص:</strong> الحركات العامة تأتي قبل المتخصصة، مثل حركة الذراعين قبل الإمساك بالأشياء.</li>
+                <li><strong>زمن النمو ليس مستويًا:</strong> هناك فترات نمو سريع وفترات بطء. (مثال: الطفولة المبكرة نمو سريع، قبل المدرسة نمو أبطأ، ثم المراهقة نمو سريع مرة أخرى).</li>
+                <li><strong>لكل عملية نمائية فترة حرجة:</strong> هناك أوقات مثالية لتعلم مهارات معينة (الحبو، المشي، القراءة، الكتابة). التعلم خارج الفترة الحرجة قد يكون غير فعال أو ضار.</li>
+                <li><strong>النمو يتأثر بالظروف الداخلية والخارجية:</strong> العوامل الوراثية والبيئية تؤثر على معدل ونمط النمو.</li>
+                <li><strong>اختلاف معدل النمو حسب المظاهر:</strong> بعض الأعضاء تنضج أسرع من غيرها، مثل الرأس والجذع قبل الأطراف، والأعضاء التناسلية بعد الباقي.</li>
+                <li><strong>ميل الجسم للحفاظ على التوازن الحيوي:</strong> الجسم يحافظ على استقرار البيئة الداخلية، أي توازن الوزن، الغذاء، وظائف الغدد.</li>
+                <li><strong>النمو قابل للتنبؤ:</strong> يمكن توقع مسار النمو العقلي والجسمي لكل طفل، لكن لا يمكن فرضه بالقوة.</li>
+                <li><strong>تأثير المرحلة السابقة على التالية:</strong> مثلاً: الثقة بالنفس في الطفولة تؤثر على استقرار المراهق اجتماعيًا وعاطفيًا.</li>
+                <li><strong>بعض السلوكيات المشكَّلة طبيعية لكل مرحلة:</strong> السلوكيات الغريبة أو المزعجة أحيانًا جزء من النمو الطبيعي (الخجل، اللجاجة، العدوانية).</li>
+                <li><strong>النمو محدود بزمن ومكان محددين:</strong> البداية: الحمل، النهاية: سن الرشد والنضج الكامل.</li>
+                <li><strong>خبرات الطفولة أساس بناء الشخصية:</strong> السلوكيات والعادات المكتسبة في الطفولة تحدد صفات الفرد في المستقبل.</li>
+                <li><strong>اكتساب الأدوار عبر النمو:</strong> الطفل يتعلم أدواره البيولوجية والاجتماعية تدريجيًا من الأسرة والمجتمع.</li>
+            </ul>
+        </div>
+
+    </div>
+
+</body>
+</html>

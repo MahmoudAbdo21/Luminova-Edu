@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level Up - مشكلات النمو</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #05080a;
+            --panel-bg: #0f172a;
+            --accent-blue: #0ea5e9;
+            --accent-red: #ef4444;
+            --accent-green: #22c55e;
+            --accent-yellow: #f59e0b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --glass: rgba(15, 23, 42, 0.8);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            background-image: 
+                linear-gradient(rgba(14, 165, 233, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(14, 165, 233, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        /* Header Unit */
+        .header-unit {
+            border: 1px solid var(--accent-blue);
+            background: var(--glass);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            box-shadow: 0 0 30px rgba(14, 165, 233, 0.1);
+        }
+
+        .status-bar {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-blue);
+            color: #000;
+            padding: 2px 20px;
+            font-size: 12px;
+            font-weight: 900;
+            border-radius: 0 0 10px 10px;
+            letter-spacing: 2px;
+        }
+
+        .header-unit h1 {
+            font-size: 2.5rem;
+            color: var(--accent-blue);
+            text-shadow: 0 0 15px rgba(14, 165, 233, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .copyright-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 15px;
+        }
+
+        /* Main Concept Section */
+        .concept-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-right: 5px solid var(--accent-blue);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        /* Tabs Selection */
+        .category-switcher {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .nav-btn {
+            padding: 15px 30px;
+            border: 1px solid var(--accent-blue);
+            background: transparent;
+            color: var(--accent-blue);
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-btn.active {
+            background: var(--accent-blue);
+            color: #000;
+            box-shadow: 0 0 20px var(--accent-blue);
+        }
+
+        /* Content Sections */
+        .section-view {
+            display: none;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .section-view.active {
+            display: block;
+        }
+
+        .problems-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .problem-card {
+            background: var(--panel-bg);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-head {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-head h3 {
+            color: var(--accent-blue);
+            font-size: 1.3rem;
+        }
+
+        .card-body {
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .sub-title {
+            color: var(--accent-yellow);
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.95rem;
+        }
+
+        .list-item {
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .example-box {
+            background: rgba(14, 165, 233, 0.05);
+            border-right: 3px solid var(--accent-blue);
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.85rem;
+            border-radius: 4px;
+        }
+
+        .treatment-box {
+            background: rgba(34, 197, 94, 0.05);
+            border: 1px dashed var(--accent-green);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .treatment-box h4 {
+            color: var(--accent-green);
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        /* Category specific styles */
+        .teen-card { border-top: 4px solid var(--accent-red); }
+        .teen-card h3 { color: var(--accent-red); }
+
+        .summary-banner {
+            background: linear-gradient(90deg, #0f172a, #1e293b);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 40px;
+            text-align: center;
+            border: 1px solid var(--accent-blue);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .header-unit h1 { font-size: 1.8rem; }
+            .category-switcher { flex-direction: column; }
+            .nav-btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-unit">
+        <div class="status-bar">LEVEL 9 SYSTEM</div>
+        <div class="sub-tag" style="color: var(--accent-blue); font-weight: bold;">LEVEL UP GROUP</div>
+        <h1>تشخيص وعلاج مشكلات النمو</h1>
+        
+        <div class="copyright-box">
+            ⚠️ <b>إخلاء مسؤولية:</b> هذا العمل مجهود طلابي لتبسيط المادة العلمية. المرجع الأساسي هو "الكتاب الجامعي". جميع حقوق التصميم محفوظة لجروب Level Up.
+        </div>
+    </div>
+
+    <!-- Concept Section -->
+    <div class="concept-card">
+        <h2 style="color: var(--accent-blue); margin-bottom: 10px;">🧠 مفهوم مشكلات النمو</h2>
+        <p>أنماط من السلوك غير السوي أو الاضطرابات النفسية والانفعالية التي تظهر لدى الفرد خلال مراحل نموه، وتؤثر في توافقه الشخصي والاجتماعي.</p>
+        <div class="example-box">
+            📌 <b>مثال:</b> الهروب من المدرسة (طفولة) أو الإدمان (مراهقة) يُعد خللاً في السلوك الطبيعي.
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="category-switcher">
+        <button class="nav-btn active" onclick="switchView(event, 'child-view')">👶 مشكلات الطفولة</button>
+        <button class="nav-btn" onclick="switchView(event, 'teen-view')">🧑‍🎓 مشكلات المراهقة</button>
+    </div>
+
+    <!-- CHILD VIEW -->
+    <div id="child-view" class="section-view active">
+        <p style="text-align: center; margin-bottom: 20px; color: var(--accent-green);">[ تتميز بأنها بسيطة وقابلة للتعديل والتدخل المبكر ]</p>
+        <div class="problems-grid">
+            
+            <!-- 1. School Escape -->
+            <div class="problem-card">
+                <div class="card-head"><h3>1. الهروب من المدرسة</h3></div>
+                <div class="card-body">
+                    <div class="sub-title">📉 الأسباب المدرسية:</div>
+                    <div class="list-item">سوء علاقة المعلم بالتلميذ (قسوة/إهمال).</div>
+                    <div class="list-item">سوء استخدام الثواب والعقاب (الإهانة أمام الزملاء).</div>
+                    <div class="list-item">عدم مراعاة الفروق الفردية.</div>
+                    
+                    <div class="sub-title">🏠 الأسباب الأسرية:</div>
+                    <div class="list-item">تهديد الطفل بالمدرسة أو التفكك الأسري.</div>
+                    
+                    <div class="sub-title">👤 أسباب ذاتية:</div>
+                    <div class="list-item">ضعف القدرة العقلية أو الصحية (مثل ضعف السمع).</div>
+
+                    <div class="treatment-box">
+                        <h4>💊 بروتوكول العلاج:</h4>
+                        تحسين علاقة المعلم، التعزيز الإيجابي، والتعاون بين الأسرة والمدرسة.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Stealing -->
+            <div class="problem-card">
+                <div class="card-head"><h3>2. السرقة</h3></div>
+                <div class="card-body">
+                    <div class="sub-title">❓ الأسباب:</div>
+                    <div class="list-item">الحرمان المادي.</div>
+                    <div class="list-item">التدليل الزائد (عدم التفرقة بين الملكية).</div>
+                    <div class="list-item">الغيرة من الزملاء.</div>
+                    
+                    <div class="example-box">📌 <b>مثال:</b> طفل لا يملك مصروفاً يسرق من زملائه لإشباع حاجته.</div>
+
+                    <div class="treatment-box">
+                        <h4>💊 بروتوكول العلاج:</h4>
+                        تنمية قيمة الأمانة، تجنب العقاب القاسي، وإشباع الحاجات المادية والنفسية.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Enuresis -->
+            <div class="problem-card">
+                <div class="card-head"><h3>3. التبول اللاإرادي</h3></div>
+                <div class="card-body">
+                    <p style="font-size: 0.85rem; margin-bottom: 10px;">[ عدم التحكم بعد سن 4 سنوات ]</p>
+                    <div class="sub-title">🧠 أسباب نفسية:</div>
+                    <div class="list-item">الغيرة من مولود جديد (نكوص).</div>
+                    
+                    <div class="sub-title">🧬 أسباب عضوية:</div>
+                    <div class="list-item">التهابات في الجهاز البولي.</div>
+
+                    <div class="treatment-box">
+                        <h4>💊 بروتوكول العلاج:</h4>
+                        الدعم النفسي، تجنب التوبيخ، واستشارة الطبيب.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Aggression -->
+            <div class="problem-card">
+                <div class="card-head"><h3>4. العدوان</h3></div>
+                <div class="card-body">
+                    <div class="sub-title">❓ الأسباب:</div>
+                    <div class="list-item">التقليد (مشاهدة العنف).</div>
+                    <div class="list-item">الإحباط (الفشل في مهمة).</div>
+                    
+                    <div class="example-box">📌 <b>مثال:</b> طفل يضرب زملائه لتفريغ غضبه.</div>
+
+                    <div class="treatment-box">
+                        <h4>💊 بروتوكول العلاج:</h4>
+                        تقليل التعرض للعنف، وتنمية أساليب التعبير السلمي بالكلام.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Lying -->
+            <div class="problem-card">
+                <div class="card-head"><h3>5. الكذب</h3></div>
+                <div class="card-body">
+                    <div class="sub-title">❓ الأسباب:</div>
+                    <div class="list-item">الخوف من العقاب (كذب دفاعي).</div>
+                    <div class="list-item">الخيال الواسع (ليس كذباً متعمداً).</div>
+                    
+                    <div class="treatment-box">
+                        <h4>💊 بروتوكول العلاج:</h4>
+                        تشجيع الصدق بالمكافأة، وتجنب العقاب الشديد جداً.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- TEEN VIEW -->
+    <div id="teen-view" class="section-view">
+        <p style="text-align: center; margin-bottom: 20px; color: var(--accent-red);">[ أكثر تعقيداً وخطورة.. ترتبط بتكوين الشخصية ]</p>
+        <div class="problems-grid">
+            
+            <div class="problem-card teen-card">
+                <div class="card-head"><h3>1. الإدمان</h3></div>
+                <div class="card-body">
+                    <p>اعتماد المراهق على مواد ضارة بشكل مستمر للهروب من الواقع.</p>
+                    <div class="treatment-box" style="border-color: var(--accent-red); background: rgba(239, 68, 68, 0.05);">
+                        <h4 style="color: var(--accent-red);">💊 العلاج:</h4>
+                        تدخل طبي ونفسي عاجل + دعم كامل من الأسرة.
+                    </div>
+                </div>
+            </div>
+
+            <div class="problem-card teen-card">
+                <div class="card-head"><h3>2. الجنوح</h3></div>
+                <div class="card-body">
+                    <p>انحراف عن القوانين والقيم (مثل السرقة أو ممارسة العنف المنظم).</p>
+                    <div class="treatment-box" style="border-color: var(--accent-red); background: rgba(239, 68, 68, 0.05);">
+                        <h4 style="color: var(--accent-red);">💊 العلاج:</h4>
+                        برامج إصلاحية وتوجيه سلوكي مكثف.
+                    </div>
+                </div>
+            </div>
+
+            <div class="problem-card teen-card">
+                <div class="card-head"><h3>3. التأخر الدراسي</h3></div>
+                <div class="card-body">
+                    <div class="sub-title">🧠 أسباب نفسية:</div>
+                    <div class="list-item">القلق والتوتر الذي يمنع التركيز.</div>
+                    <div class="sub-title">👓 أسباب جسمية:</div>
+                    <div class="list-item">ضعف النظر أو السمع الذي يؤثر على الاستيعاب.</div>
+                    
+                    <div class="treatment-box" style="border-color: var(--accent-red); background: rgba(239, 68, 68, 0.05);">
+                        <h4 style="color: var(--accent-red);">💊 العلاج:</h4>
+                        علاج السبب الأساسي (طبي أو نفسي) وتقديم الدعم الدراسي.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Final Summary -->
+    <div class="summary-banner">
+        <h3 style="color: var(--accent-blue); margin-bottom: 10px;">🎯 ملخص المهمة</h3>
+        <p>مشكلات الطفولة غالباً "عرضية" وتحتاج توجيه، بينما مشكلات المراهقة "عميقة" وتحتاج احتواء وتدخل متخصص.</p>
+    </div>
+
+    <script>
+        function switchView(evt, viewId) {
+            const views = document.querySelectorAll('.section-view');
+            views.forEach(v => v.classList.remove('active'));
+
+            const btns = document.querySelectorAll('.nav-btn');
+            btns.forEach(b => b.classList.remove('active'));
+
+            document.getElementById(viewId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>
