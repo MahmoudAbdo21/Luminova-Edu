@@ -205,6 +205,25 @@ window.LUMINOVA_DATA = {
   ],
   "students": [
     {
+      "id": "students_1775855642761",
+      "timestamp": "2026-04-10T21:14:02.761Z",
+      "nameAr": "حبيبة عاشور",
+      "nameEn": "Habiba Ashour",
+      "majorAr": "تكنولوجيا التعليم",
+      "majorEn": "Educational technology",
+      "bioAr": "",
+      "bioEn": "",
+      "image": "",
+      "isVIP": true,
+      "isVerified": true,
+      "role": "student",
+      "socialLinks": {
+        "facebook": "",
+        "instagram": "",
+        "linkedin": ""
+      }
+    },
+    {
       "id": "students_1775848220866",
       "timestamp": "2026-04-10T19:10:20.866Z",
       "nameAr": "مروه حمدي فضل",
@@ -538,6 +557,70 @@ window.LUMINOVA_DATA = {
     }
   ],
   "summaries": [
+    {
+      "id": "summaries_1775856412905",
+      "timestamp": "2026-04-10T21:26:52.905Z",
+      "titleAr": "المحاضرة الرابعة",
+      "titleEn": "Fourth lecture",
+      "contentAr": "`المحاضرة الرابعة`\nأولاً: أدوار المعلم المستقبلية في التعليم الرقمي\n​تغير دور المعلم من كونه المصدر الوحيد للمعلومة إلى عدة أدوار تقنية وتوجيهية تشمل:  \n​المعلم كباحث (Researcher): يقوم بالبحث الدائم عن كل ما هو جديد في عالم البرمجيات والمقارنة بينها، ويستخدم المكتبات الإلكترونية وقواعد البيانات لجلب الوسائط التعليمية (صور، فيديو، صوت) المناسبة لموضوعه.  \n​مصمم الخبرات التعليمية (Designer): يصمم بيئات تعلم إلكترونية نشطة وأنشطة تربوية تتناسب مع اهتمامات الطلاب، وتكمل ما يكتسبونه داخل وخارج القاعات الدراسية.  \n​التكنولوجي المتمكن (Technologist): يجب أن يتقن المعلم مهارات تقنية مثل إحدى لغات البرمجة، التعامل مع الكاميرات الرقمية والماسحات الضوئية، وإدارة خادمات الشبكة (Servers) لنسخ الملفات.  \n​مقدم ومترجم للمحتوى (Content Presenter): يحول السيناريو التعليمي إلى برامج رقمية، ويترجم المعلومات إلى وسائط متعددة، ويحدد استراتيجيات التدريس الفعالة لتحقيق أهداف المقرر.  \n​منسق التفاعل (Coordinator): ينظم التواصل بين الطالب والمحتوى وبين الطلاب وأنفسهم، ويحدد مواعيد تواجده على الشبكة، ويشجع على استخدام البريد الإلكتروني.  \n​المرشد والميسر (Counselor & Facilitator): يوجه الطلاب في أثناء تعاملهم مع المحتوى، ويرد على استفساراتهم، ويتابع أداء كل طالب بشكل فردي لتطوير نقاط قوته وعلاج نقاط ضعفه.  \n​المقوم الرقمي (Assessor): يختار أنماط الاختبارات الإلكترونية، ويعد ملفات الإنجاز الإلكترونية (e-Portfolio) للطلاب، ويقدم التغذية الراجعة، ويقيم أداء البرمجيات المستخدمة.  \n​ثانياً: الكفايات اللازمة للمعلم الرقمي\n​لكي ينجح المعلم في أدواره، يجب أن يمتلك مجموعة من الكفايات (المهارات) الأساسية:  \n​1. كفايات عامة:\n​الثقافة الكمبيوترية: معرفة المكونات المادية للكمبيوتر وبرمجيات التشغيل وكيفية التعامل مع الفيروسات.  \n​مهارات الاستخدام: إتقان استخدام لوحة المفاتيح، الفأرة، وإدارة الملفات (حفظ، نقل، تعديل)، والقدرة على حل المشكلات الفنية البسيطة.  \n​الثقافة المعلوماتية: القدرة على استخدام الإنترنت للبحث، وتقييم مصادر المعلومات، وتصميم ونشر صفحات تعليمية.  \n​2. كفايات التعامل مع الشبكات:\n​استخدام محركات البحث للوصول للمعلومات.  \n​إتقان الخدمات الأساسية مثل البريد الإلكتروني، المحادثة، ونقل الملفات.  \n​المشاركة في مجموعات النقاش والوصول للمكتبات العالمية.  \n​3. كفايات إعداد المقررات إلكترونياً:\n​التخطيط: تحديد الأهداف العامة للمقرر، تحليل المحتوى الرقمي، وتحديد المتطلبات المادية والبشرية للفريق.  \n​التصميم والتطوير: تحديد طرق تقديم المحتوى، وتصميم واجهة المستخدم، واختيار الألوان والروابط، وإعداد السيناريو التعليمي.  \n​التقويم: استخدام أساليب التقويم الإلكتروني ووضع معايير علمية لتقييم الطلاب وتقديم التغذية الراجعة لهم.  \n​4. كفايات إدارة المقرر على الشبكة:\n​تنظيم الوقت لتقديم المقرر وتهيئة الطلاب لتحمل مسؤولية تعلمهم.  \n​تتبع أداء الطلاب وتقديم النصائح المستمرة لهم وإدارة النقاشات الجماعية.",
+      "contentEn": "Lecture Four\n\nFirst: The Future Roles of the Teacher in Digital Education\n\nThe teacher's role has changed from being the sole source of information to several technical and guidance roles, including:\n\nThe Teacher as a Researcher: They continuously research and compare the latest software developments, and use electronic libraries and databases to retrieve educational media (images, videos, audio) appropriate to their subject.\n\nThe Teacher as a Learning Experience Designer: They design active e-learning environments and educational activities that align with students' interests and complement what they learn inside and outside the classroom.\n\nThe Teacher as a Technologist: The teacher must master technical skills such as a programming language, the use of digital cameras and scanners, and network server management for file copying.\n\nThe Teacher as a Content Presenter: They convert educational scenarios into digital programs, translate information into multimedia, and identify effective teaching strategies to achieve course objectives.  Interaction Coordinator: Organizes communication between the student and the content, and among the students themselves. They determine their online availability and encourage the use of email.\n\nCounselor & Facilitator: Guides students as they interact with the content, answers their questions, and monitors each student's performance individually to develop their strengths and address their weaknesses.\n\nDigital Assessor: Selects online test formats, prepares student e-portfolios, provides feedback, and evaluates the performance of the software used.\n\nSecond: Competencies Required for the Digital Teacher\n\nTo succeed in their roles, the teacher must possess a set of essential competencies (skills):\n\n1. General Competencies:\n\nComputer Literacy: Knowledge of computer hardware and operating systems, and how to deal with viruses.\n\nUsage Skills: Proficiency in using the keyboard and mouse, managing files (saving, moving, editing), and the ability to solve simple technical problems.  Information Literacy: The ability to use the internet for research, evaluate information sources, and design and publish educational pages.\n\n2. Network Skills:\n\nUsing search engines to access information.\n\nMastering basic services such as email, chat, and file transfer.\n\nParticipating in discussion groups and accessing global libraries.\n\n3. E-Course Development Skills:\n\nPlanning: Defining the overall course objectives, analyzing digital content, and identifying the team's material and human resource requirements.\n\nDesign and Development: Determining content delivery methods, designing the user interface, selecting colors and links, and preparing the learning scenario.\n\nAssessment: Using e-assessment methods and establishing scientific criteria for evaluating students and providing them with feedback.\n\n4. Online Course Management Skills:\nOrganizing time for course delivery and preparing students to take responsibility for their learning.\n\nMonitoring student performance, providing ongoing guidance, and managing group discussions.",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775504450774",
+      "studentId": "students_1775855642761",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "img/Digital learning 4.jpg"
+      ]
+    },
+    {
+      "id": "summaries_1775856122957",
+      "timestamp": "2026-04-10T21:22:02.957Z",
+      "titleAr": "المحاضرة الثالثة",
+      "titleEn": "The third lecture",
+      "contentAr": "تتحدث عن مفهوم وتقنيات التعلم الرقمي\n\n`المحاضرة الثالثة`\nأولاً: مفهوم أدوات وتقنيات التعلم الرقمي\n​هي مجموعة من البرامج والتطبيقات والوسائط التكنولوجية التي تُستخدم لدعم المعلم والطلاب في البيئة الرقمية. تهدف هذه الأدوات إلى:  \n​دعم المعلم: في تقديم المحتوى، تنظيم الأنشطة، وتعزيز التفاعل وتقويم الطلاب.  \n​تحويل المحتوى: من مادة تقليدية صماء إلى محتوى تفاعلي يعتمد على النصوص، الصور، الصوت، والفيديو.  \n​تمكين الطالب: من المشاركة الفعالة، التعاون مع الزملاء، والحصول على تغذية راجعة فورية.  \n​ثانياً: أهمية استخدام الأدوات الرقمية في التعليم\n​تساهم هذه الأدوات في تطوير العملية التعليمية من خلال:  \n​تنوع المحتوى والتمثيل البصري: تبسيط المفاهيم المجردة باستخدام الفيديو والمحاكاة (مثل موقع PhET).  \n​تعزيز التفاعل والتعلم النشط: تحويل الطالب من متلقٍ سلبي إلى مشارك نشط (مثل استخدام منصة Padlet للتصويت الفوري).  \n​دعم التعلم الذاتي: تمكين الطالب من التعلم بالسرعة التي تناسبه وإعادة مشاهدة المحتوى في أي وقت.  \n​تسهيل التقويم: سرعة إعداد وتصحيح الاختبارات إلكترونياً والحصول على نتائج فورية.  \n​الشمولية: دعم ذوي الاحتياجات الخاصة عبر تقنيات مثل \"تحويل النص إلى صوت\" (Immersive Reader).  \n​ثالثاً: تصنيفات أدوات التعلم الرقمي (4 فئات أساسية)\n​أدوات إنشاء المحتوى: لإعداد مواد جذابة مثل العروض التقديمية التفاعلية، الإنفوجرافيك، والكتب الإلكترونية.  \n​أدوات التفاعل والمشاركة: لكسر حاجز الصمت وزيادة الحماس، مثل أدوات التصويت والمنتديات.  \n​أدوات التعاون والتعلم الجماعي: تتيح للطلاب العمل معاً في مجموعات رقمية لتنفيذ المشاريع، مثل المستندات المشتركة.  \n​أدوات التقويم الإلكتروني: لقياس مستوى الطلاب بدقة وسرعة من خلال الاختبارات الرقمية والاستبيانات.  \n​رابعاً: معايير اختيار الأداة الرقمية المناسبة\n​عند اختيار أداة معينة، يجب مراعاة:  \n​الارتباط بالأهداف: أن تخدم الأداة الهدف التعليمي للدرس.  \n​سهولة الاستخدام: أن تكون بسيطة للمعلم والطالب على حد سواء.  \n​الملاءمة: أن تناسب طبيعة المحتوى (نظري أو عملي تفاعلي).  \n​إمكانية الوصول: أن تعمل على مختلف الأجهزة كالهواتف والحواسيب.  \n​خامساً: محاضرات الفيديو الرقمية\n​هي مقاطع مسجلة يشاهدها الطالب عبر أي جهاز. ومن أبرز أنواعها:  \n​صورة داخل صورة: يظهر فيها المعلم في زاوية الشاشة أثناء العرض.  \n​تصوير التدريس المباشر: تسجيل المعلم أثناء شرحه داخل الفصل.  \n​الاستوديو الافتراضي: استخدام خلفيات رقمية (الكروما) لإثراء العرض.  \n​الفيديو التفاعلي: فيديو مقسم لمقاطع يحتوي على أسئلة تتطلب استجابة الطالب (مثل منصة Edpuzzle). ",
+      "contentEn": "This lecture discusses the concept and techniques of digital learning.\n\nLecture Three\n\nFirst: The Concept of Digital Learning Tools and Techniques\n\nThese are a set of programs, applications, and technological media used to support teachers and students in the digital environment. These tools aim to:\n\nSupport the teacher: in delivering content, organizing activities, enhancing interaction, and assessing students.\n\nTransform content: from traditional, static material to interactive content based on text, images, audio, and video.\n\nEmpower the student: to participate actively, collaborate with peers, and receive immediate feedback.\n\nSecond: The Importance of Using Digital Tools in Education\n\nThese tools contribute to developing the educational process through:\n\nContent diversity and visual representation: simplifying abstract concepts using video and simulations (such as the PhET website).\n\nEnhancing interaction and active learning: transforming the student from a passive recipient to an active participant (such as using the Padlet platform for instant voting).\n\nSupporting self-directed learning: enabling students to learn at their own pace and revisit content at any time.\n\nFacilitating assessment: enabling the rapid preparation and correction of tests electronically and obtaining immediate results.  Inclusivity: Supporting people with disabilities through technologies such as Immersive Readers.\n\nThird: Classifications of Digital Learning Tools (4 main categories)\n\nContent creation tools: For creating engaging materials such as interactive presentations, infographics, and e-books.\n\nInteraction and participation tools: To break the ice and increase enthusiasm, such as voting tools and forums.\n\nCollaboration and group learning tools: Allow students to work together in digital groups to complete projects, such as shared documents.\n\nElectronic assessment tools: To accurately and quickly measure students' progress through digital tests and surveys.\n\nFourth: Criteria for choosing the appropriate digital tool\nWhen choosing a specific tool, the following should be considered:\n\nAlignment with objectives: The tool should serve the educational objective of the lesson.\n\nEase of use: It should be simple for both the teacher and the student.\n\nAppropriateness: It should suit the nature of the content (theoretical or interactive practical).\n\nAccessibility: It should work on various devices such as phones and computers.  Fifth: Digital Video Lectures\n\nThese are recorded videos that students can watch on any device. Some of the most prominent types include:\n\nPicture-in-Picture: The teacher appears in a corner of the screen during the presentation.\n\nLive Teaching Recording: Recording the teacher while they are explaining something in class.\n\nVirtual Studio: Using digital backgrounds (chroma key) to enhance the presentation.\n\nInteractive Video: A video divided into segments containing questions that require student responses (such as the Edpuzzle platform).",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775504450774",
+      "studentId": "students_1775855642761",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "img/Digital learning 3.jpg"
+      ]
+    },
+    {
+      "id": "summaries_1775855966104",
+      "timestamp": "2026-04-10T21:19:26.104Z",
+      "titleAr": "المحاضرة الثانية",
+      "titleEn": "Second lecture",
+      "contentAr": "خصائص ومكونات التعليم الرقمي",
+      "contentEn": "Characteristics and components of digital education",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775504450774",
+      "studentId": "students_1775855642761",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "img/Digital learning 2.jpg"
+      ]
+    },
+    {
+      "id": "summaries_1775855770651",
+      "timestamp": "2026-04-10T21:16:10.651Z",
+      "titleAr": "المحاضرة الاولى",
+      "titleEn": "First lecture",
+      "contentAr": "تتحدث عن خصائص ومكونات التعلم الرقمي والفرق بين التعليم الالكتروني والتعليم الرقمي",
+      "contentEn": "It discusses the characteristics and components of digital learning and the difference between e-learning and digital education.",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775504450774",
+      "studentId": "students_1775855642761",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "img/Digital learning 1.jpg"
+      ]
+    },
     {
       "id": "summaries_1775849322973",
       "timestamp": "2026-04-10T19:28:42.973Z",
