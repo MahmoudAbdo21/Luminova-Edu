@@ -5,6 +5,71 @@ window.LUMINOVA_DATA = {
   },
   "news": [
     {
+      "id": "news_1775854016936",
+      "timestamp": "2026-04-10T20:46:56.936Z",
+      "titleAr": "الفصل الثامن مشكلات النمو في مرحلة الطفولة والمراهقة",
+      "titleEn": "Chapter Eight: Developmental Problems in Childhood and Adolescence",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "studentId": "students_1775125739063",
+      "mediaUrls": [
+        "https://docs.google.com/forms/d/e/1FAIpQLScbp2wFrM8v5rT6eumOoIQmUAEOBrh28wuKA4kbl-UceDXrzg/viewform?usp=header"
+      ]
+    },
+    {
+      "id": "news_1775853982892",
+      "timestamp": "2026-04-10T20:46:22.892Z",
+      "titleAr": "من الفصل الرابع حتى الفصل السابع مراحل النمو",
+      "titleEn": "From chapter four to chapter seven, stages of growth",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "studentId": "students_1775125739063",
+      "mediaUrls": [
+        "https://docs.google.com/forms/d/e/1FAIpQLSfmieYqCJ4NNzPG0lv-3bn9A3Qx6pGLT0fG4EDaIjojIm18yQ/viewform?usp=header"
+      ]
+    },
+    {
+      "id": "news_1775853919810",
+      "timestamp": "2026-04-10T20:45:19.810Z",
+      "titleAr": "الفصل الثالث نماذج من نظريات علم نفس النمو Level 7",
+      "titleEn": "Chapter 3: Examples of Developmental Psychology Theories (Level 7)",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "studentId": "students_1775125739063",
+      "mediaUrls": [
+        "https://docs.google.com/forms/d/e/1FAIpQLSfNffvGwIYf1gXnkNFEw5yFtBnvTwPcrCgbB1JBtkRkKV-pXg/viewform?usp=header"
+      ]
+    },
+    {
+      "id": "news_1775853885379",
+      "timestamp": "2026-04-10T20:44:45.379Z",
+      "titleAr": "الفصل الثاني مناهج علم نفس النمو Level6",
+      "titleEn": "Chapter Two: Developmental Psychology Methods (Level 6)",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "studentId": "students_1775125739063",
+      "mediaUrls": [
+        "https://docs.google.com/forms/d/e/1FAIpQLSdWmxC6rnOe2-GYTt5-p8qSW7y9AufgS_aBmlKVZgxXdJzg0g/viewform?usp=publish-editor"
+      ]
+    },
+    {
+      "id": "news_1775853807999",
+      "timestamp": "2026-04-10T20:43:27.999Z",
+      "titleAr": "الفصل الأول مدخل الى علم نفس النمو Level 6",
+      "titleEn": "Chapter 1: Introduction to Developmental Psychology (Level 6)",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "studentId": "students_1775125739063",
+      "mediaUrls": [
+        "https://docs.google.com/forms/d/e/1FAIpQLScvQBn5p5NZntgBcl4gSvoZ6zxHRyM4_R2iDI8NxufjZju5Iw/viewform?usp=publish-editor"
+      ]
+    },
+    {
       "id": "news_1775505361111",
       "timestamp": "2026-04-06T19:56:01.111Z",
       "titleAr": "منصة كلاس روم الخاصه بي ",
