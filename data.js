@@ -140,9 +140,123 @@ window.LUMINOVA_DATA = {
   ],
   "students": [
     {
+      "id": "students_1775822074078",
+      "timestamp": "2026-04-10T11:54:34.078Z",
+      "nameAr": "الدكتورة دينا ايمن",
+      "nameEn": "Dr. Dina Ayman",
+      "majorAr": "تكنولوجيا التعليم",
+      "majorEn": "Educational technology",
+      "bioAr": "",
+      "bioEn": "",
+      "image": "",
+      "isVIP": true,
+      "isVerified": true,
+      "role": "doctor",
+      "socialLinks": {
+        "facebook": "",
+        "instagram": "",
+        "linkedin": ""
+      }
+    },
+    {
+      "id": "students_1775821907850",
+      "timestamp": "2026-04-10T11:51:47.850Z",
+      "nameAr": "مرقس رفعت",
+      "nameEn": "Markos Refaat",
+      "majorAr": "تكنولوجيا التعليم",
+      "majorEn": "Educational technology",
+      "bioAr": "",
+      "bioEn": "",
+      "image": "",
+      "isVIP": true,
+      "isVerified": true,
+      "role": "student",
+      "socialLinks": {
+        "facebook": "",
+        "instagram": "",
+        "linkedin": ""
+      }
+    },
+    {
+      "id": "students_1775821794374",
+      "timestamp": "2026-04-10T11:49:54.374Z",
+      "nameAr": "آيه سعد",
+      "nameEn": "Aya Saad",
+      "majorAr": "تكنولوجيا التعليم",
+      "majorEn": "Educational technology",
+      "bioAr": "مهتمة بتكنولوجيا التعليم، وأسعى لتعلم كل جديد فيها وتطوير نفسي خطوة بخطوة، لتقديم محتوى تعليمي تفاعلي يجمع بين البساطة والإبداع",
+      "bioEn": "I am interested in educational technology, and I strive to learn everything new in it and develop myself step by step, in order to provide interactive educational content that combines simplicity and creativity",
+      "image": "",
+      "isVIP": true,
+      "isVerified": true,
+      "role": "student",
+      "socialLinks": {
+        "facebook": "",
+        "instagram": "",
+        "linkedin": ""
+      }
+    },
+    {
+      "id": "students_1775821632654",
+      "timestamp": "2026-04-10T11:47:12.654Z",
+      "nameAr": "الدكتورة انجي ابراهيم",
+      "nameEn": "Dr. Angie Ibrahim",
+      "majorAr": "تكنولوجيا التعليم",
+      "majorEn": "Educational technology",
+      "bioAr": "",
+      "bioEn": "",
+      "image": "",
+      "isVIP": true,
+      "isVerified": true,
+      "role": "doctor",
+      "socialLinks": {
+        "facebook": "",
+        "instagram": "",
+        "linkedin": ""
+      }
+    },
+    {
+      "id": "students_1775821504065",
+      "timestamp": "2026-04-10T11:45:04.065Z",
+      "nameAr": "الدكتورة أمنية حسن",
+      "nameEn": "Dr.Omnia Hassan",
+      "majorAr": "تكنولوجيا التعليم",
+      "majorEn": "Educational technology",
+      "bioAr": "",
+      "bioEn": "",
+      "image": "",
+      "isVIP": true,
+      "isVerified": true,
+      "role": "doctor",
+      "socialLinks": {
+        "facebook": "",
+        "instagram": "",
+        "linkedin": ""
+      }
+    },
+    {
+      "id": "students_1775821408942",
+      "timestamp": "2026-04-10T11:43:28.942Z",
+      "nameAr": "الدكتورة أماني محمد",
+      "nameEn": "Dr.Amany Mohamed",
+      "majorAr": "تكنولوجيا التعليم",
+      "majorEn": "Educational technology",
+      "bioAr": "",
+      "bioEn": "",
+      "image": "",
+      "isVIP": true,
+      "isVerified": true,
+      "role": "doctor",
+      "socialLinks": {
+        "facebook": "",
+        "instagram": "",
+        "linkedin": ""
+      }
+    },
+    {
       "id": "students_1775590667837",
       "timestamp": "2026-04-07T19:37:47.837Z",
-      "nameAr": "دكتور حبيبة فراج",
+      "nameAr": "الدكتورة حبيبة فراج",
       "nameEn": "Dr. Habiba Faraj",
       "majorAr": "تكنولوجيا التعليم",
       "majorEn": "Educational technology",
@@ -350,7 +464,7 @@ window.LUMINOVA_DATA = {
       "contentEn": "",
       "mediaUrl": "",
       "subjectId": "subjects_1775506029734",
-      "studentId": "",
+      "studentId": "students_1775822074078",
       "yearId": "year_1",
       "semesterId": "semesters_1775125622791",
       "mediaUrls": [
@@ -369,7 +483,7 @@ window.LUMINOVA_DATA = {
       "contentEn": "",
       "mediaUrl": "",
       "subjectId": "subjects_1775505789263",
-      "studentId": "",
+      "studentId": "students_1775821632654",
       "yearId": "year_1",
       "semesterId": "semesters_1775125622791",
       "mediaUrls": [
