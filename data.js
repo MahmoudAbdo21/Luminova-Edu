@@ -526,7 +526,6 @@ window.LUMINOVA_DATA = {
       "semesterId": "semesters_1775125622791",
       "mediaUrls": [
         "https://drive.google.com/file/d/1a2hu2BaH8JGJERpADmPyGzytiyJLg_zL/view?usp=drivesdk",
-        "https://docs.google.com/forms/d/e/1FAIpQLScvQBn5p5NZntgBcl4gSvoZ6zxHRyM4_R2iDI8NxufjZju5Iw/viewform?usp=publish-editor",
         "img/mind map(1).png",
         "img/info psy (1).png",
         "file-html/Developmental psychology(1).html"
