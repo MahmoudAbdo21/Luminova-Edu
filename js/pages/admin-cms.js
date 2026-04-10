@@ -13,6 +13,19 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
         const [subView, setSubView] = useState(''); // '' or 'questions'
         const [qItem, setQItem] = useState(null); // Extracted dynamically to fix rules of hooks crash
         const [cmsSearchQuery, setCmsSearchQuery] = useState('');
+        
+        const [cmsVisibleCount, setCmsVisibleCount] = useState(15);
+        const [filterYear, setFilterYear] = useState('');
+        const [filterSem, setFilterSem] = useState('');
+        const [filterSub, setFilterSub] = useState('');
+
+        useEffect(() => {
+            setCmsVisibleCount(['subjects', 'summaries', 'quizzes'].includes(activeTab) ? 10 : 15);
+            setFilterYear('');
+            setFilterSem('');
+            setFilterSub('');
+            setCmsSearchQuery('');
+        }, [activeTab]);
 
         const studentsWithFounder = [Luminova.FOUNDER, ...(data.students || []).filter(s => !s.isFounder)];
 
@@ -215,6 +228,31 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
 
         // Filter logic including Real-Time Search
         let activeTableItems = data[activeTab] ? data[activeTab].filter(item => activeTab !== 'students' || !item.isFounder) : [];
+
+        if (['subjects', 'summaries', 'quizzes'].includes(activeTab)) {
+            activeTableItems = activeTableItems.filter(item => {
+                let sId, semId, yId;
+                if (activeTab === 'subjects') {
+                    sId = item.id;
+                    semId = item.semesterId;
+                    const sem = data.semesters.find(s => s.id === semId);
+                    yId = sem ? sem.yearId : null;
+                } else {
+                    sId = item.subjectId;
+                    const sub = data.subjects.find(s => s.id === sId);
+                    semId = sub ? sub.semesterId : null;
+                    const sem = data.semesters.find(s => s.id === semId);
+                    yId = sem ? sem.yearId : null;
+                }
+
+                if (filterYear && yId !== filterYear) return false;
+                if (filterSem && semId !== filterSem) return false;
+                if (activeTab !== 'subjects' && filterSub && sId !== filterSub) return false;
+                
+                return true;
+            });
+        }
+
         if (cmsSearchQuery.trim() !== '') {
             const query = cmsSearchQuery.toLowerCase();
             activeTableItems = activeTableItems.filter(item =>
@@ -223,6 +261,8 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
                 item.id.toLowerCase().includes(query)
             );
         }
+        
+        const displayedTableItems = activeTableItems.slice(0, cmsVisibleCount);
 
         return html`
         <div className="animate-fade-in pb-20 max-w-[1400px] mx-auto">
@@ -262,6 +302,32 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
                                 </${Luminova.Components.Button}>
                             `}
                         </div>
+
+                        ${!editingItem && ['subjects', 'summaries', 'quizzes'].includes(activeTab) && html`
+                            <div className="flex gap-4 px-4 mb-6 relative z-10">
+                                <select value=${filterYear} onChange=${e => { setFilterYear(e.target.value); setFilterSem(''); setFilterSub(''); }} className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800 border dark:border-gray-700 font-bold outline-none flex-1">
+                                    <option value="">${lang === 'ar' ? 'كل الفرق (All Years)' : 'All Years'}</option>
+                                    ${data.years.map(y => html`<option key=${y.id} value=${y.id}>${y.nameAr || y.name}</option>`)}
+                                </select>
+                                <select value=${filterSem} onChange=${e => { setFilterSem(e.target.value); setFilterSub(''); }} className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800 border dark:border-gray-700 font-bold outline-none flex-1 text-brand-DEFAULT">
+                                    <option value="">${lang === 'ar' ? 'كل الأترام (All Semesters)' : 'All Semesters'}</option>
+                                    ${data.semesters.filter(s => !filterYear || s.yearId === filterYear).map(s => html`<option key=${s.id} value=${s.id}>${s.nameAr || s.name}</option>`)}
+                                </select>
+                                ${['summaries', 'quizzes'].includes(activeTab) && html`
+                                    <select value=${filterSub} onChange=${e => setFilterSub(e.target.value)} className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800 border dark:border-gray-700 font-bold outline-none flex-1 text-brand-hover">
+                                        <option value="">${lang === 'ar' ? 'كل المواد (All Subjects)' : 'All Subjects'}</option>
+                                        ${data.subjects.filter(s => {
+                                            if (filterSem) return s.semesterId === filterSem;
+                                            if (filterYear) {
+                                                const validSems = data.semesters.filter(sem => sem.yearId === filterYear).map(sem => sem.id);
+                                                return validSems.includes(s.semesterId);
+                                            }
+                                            return true;
+                                        }).map(s => html`<option key=${s.id} value=${s.id}>${s.nameAr || s.name}</option>`)}
+                                    </select>
+                                `}
+                            </div>
+                        `}
 
                         ${editingItem ? html`
                             <div className="bg-white/70 dark:bg-gray-900/70 p-8 rounded-3xl border-2 border-brand-DEFAULT/20 shadow-inner">
@@ -416,7 +482,7 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        ${activeTableItems.map(item => html`
+                                        ${displayedTableItems.map(item => html`
                                             <tr key=${item.id} className="border-b dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
                                                 <td className="p-4 text-xs font-mono opacity-40 group-hover:opacity-100 transition-opacity">${item.id}</td>
                                                 <td className="p-4 font-bold text-lg">
@@ -473,6 +539,14 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
                                     <div className="p-20 text-center font-bold text-2xl opacity-30 border-2 border-dashed rounded-3xl mt-4">${Luminova.i18n[lang].emptyState}</div>
                                 `}
                             </div>
+                            
+                            ${(!editingItem && cmsVisibleCount < activeTableItems.length) && html`
+                                <div className="flex justify-center pt-6 pb-2">
+                                    <button onClick=${() => setCmsVisibleCount(prev => prev + 5)} className="bg-brand-DEFAULT hover:bg-brand-hover text-white font-bold py-2.5 px-8 rounded-xl shadow-md transition-all">
+                                        ${lang === 'ar' ? 'عرض المزيد ➕' : 'Load More ➕'}
+                                    </button>
+                                </div>
+                            `}
                         `}
                     </${Luminova.Components.GlassCard}>
                 </div>

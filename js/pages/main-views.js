@@ -475,6 +475,7 @@ Luminova.Pages.AcademicHierarchyPage = ({ data, lang, setView, setActiveQuiz, se
 Luminova.Pages.StudentCommunityPage = ({ data, lang, setView, setActiveSummary }) => {
         const [selectedStudent, setSelectedStudent] = useState(null);
         const [visibleCount, setVisibleCount] = useState(5);
+        const [studentsVisibleCount, setStudentsVisibleCount] = useState(15);
         const [searchQuery, setSearchQuery] = useState('');
         const normalizeId = (id) => {
             if (!id) return null;
@@ -516,7 +517,11 @@ Luminova.Pages.StudentCommunityPage = ({ data, lang, setView, setActiveSummary }
         };
 
         // Regular students (filter out any potential accidental founder in DB)
-        const sortedStudents = data.students.filter(s => !s.isFounder && s.id !== 's_founder').sort((a, b) => b.isVIP - a.isVIP);
+        const sortedStudents = data.students.filter(s => !s.isFounder && s.id !== 's_founder').sort((a, b) => {
+            if (a.role === 'doctor' && b.role !== 'doctor') return -1;
+            if (b.role === 'doctor' && a.role !== 'doctor') return 1;
+            return b.isVIP - a.isVIP;
+        });
 
         // Prepend Founder to always be Index 0
         let allStudentsList = [founder, ...sortedStudents];
@@ -608,21 +613,21 @@ Luminova.Pages.StudentCommunityPage = ({ data, lang, setView, setActiveSummary }
              </div>
              
              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                ${allStudentsList.map((student, idx) => html`
+                ${allStudentsList.slice(0, studentsVisibleCount).map((student) => html`
                     <${Luminova.Components.GlassCard} 
                         key=${student.id} 
                         onClick=${() => { setSelectedStudent(student); setVisibleCount(5); }} 
-                        className=${`text-center flex flex-col items-center ${idx === 0 ? 'scale-105 relative z-10 bg-gradient-to-br from-yellow-50 to-white dark:from-gray-900 dark:to-black border-4 border-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.4)] text-gray-900 dark:text-gray-100' : student.isVIP ? 'bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-blue-900/40 border-2 border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.3)]' : ''}`}
+                        className=${`text-center flex flex-col items-center ${student.isFounder || student.id === 's_founder_hardcoded' ? 'scale-105 relative z-10 bg-gradient-to-br from-yellow-50 to-white dark:from-gray-900 dark:to-black border-4 border-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.4)] text-gray-900 dark:text-gray-100' : student.isVIP ? 'bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-blue-900/40 border-2 border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.3)]' : ''}`}
                     >
                         <div className="mb-4">
-                            <${Luminova.Components.Avatar} name=${student.nameAr || student.name} nameEn=${student.nameEn} image=${student.image} isVIP=${student.isVIP} isFounder=${idx === 0} isVerified=${student.isVerified} size="w-24 h-24" />
+                            <${Luminova.Components.Avatar} name=${student.nameAr || student.name} nameEn=${student.nameEn} image=${student.image} isVIP=${student.isVIP} isFounder=${student.isFounder || student.id === 's_founder_hardcoded'} isVerified=${student.isVerified} size="w-24 h-24" />
                         </div>
                         <h3 className="text-xl font-bold flex flex-wrap items-center justify-center gap-2 whitespace-normal break-words" style=${{ wordBreak: 'normal', overflowWrap: 'anywhere' }}>
                             ${lang === 'ar' ? (student.nameAr || student.name) : (student.nameEn || student.name)}
                         </h3>
-                        ${idx === 0 && html`<span className="text-xs bg-brand-gold text-black font-black px-3 py-1 rounded-full shadow-lg mt-2 mb-1 border border-yellow-500 block w-max mx-auto">${Luminova.i18n[lang].founder}</span>`}
-                        ${idx !== 0 && student.role === 'doctor' && html`<span className="text-xs bg-teal-500 text-white font-black px-3 py-1 rounded-full shadow-lg mt-2 mb-1 block w-max mx-auto">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
-                        <p className="text-sm opacity-90 mt-2 font-semibold ${idx === 0 ? 'text-brand-gold drop-shadow-sm' : ''}">${student[`major${lang === 'ar' ? 'Ar' : 'En'}`] || student.majorAr}</p>
+                        ${(student.isFounder || student.id === 's_founder_hardcoded') && html`<span className="text-xs bg-brand-gold text-black font-black px-3 py-1 rounded-full shadow-lg mt-2 mb-1 border border-yellow-500 block w-max mx-auto">${Luminova.i18n[lang].founder}</span>`}
+                        ${(!student.isFounder && student.id !== 's_founder_hardcoded') && student.role === 'doctor' && html`<span className="text-xs bg-teal-500 text-white font-black px-3 py-1 rounded-full shadow-lg mt-2 mb-1 block w-max mx-auto">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
+                        <p className="text-sm opacity-90 mt-2 font-semibold ${(student.isFounder || student.id === 's_founder_hardcoded') ? 'text-brand-gold drop-shadow-sm' : ''}">${student[`major${lang === 'ar' ? 'Ar' : 'En'}`] || student.majorAr}</p>
                         <p className="text-xs bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full mt-2 font-bold opacity-80">${getContributionsCount[normalizeId(student.id)] || 0} ${lang === 'ar' ? 'مساهمة' : 'Contributions'}</p>
                         
                         <div className="mt-4 flex justify-center gap-4 border-t border-gray-200 dark:border-gray-700 w-full pt-4">
@@ -634,7 +639,13 @@ Luminova.Pages.StudentCommunityPage = ({ data, lang, setView, setActiveSummary }
                 `)}
             </div>
 
-            
+            ${studentsVisibleCount < allStudentsList.length && html`
+                <div className="flex justify-center pt-8 pb-4">
+                    <button onClick=${() => setStudentsVisibleCount(prev => prev + 5)} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition-all">
+                        ${lang === 'ar' ? 'عرض المزيد ➕' : 'Load More ➕'}
+                    </button>
+                </div>
+            `}
         </div>
     `;
     };

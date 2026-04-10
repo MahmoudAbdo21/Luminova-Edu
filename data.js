@@ -437,6 +437,22 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
+      "id": "summaries_1775823982226",
+      "timestamp": "2026-04-10T12:26:22.226Z",
+      "titleAr": "شرح السمات جوجل سايت 4.4",
+      "titleEn": "Google Sites Brands Explained 4.4",
+      "contentAr": "ـ كل واحد هيختار ال theme و ينسق شكل الموقع (الالوان - الخطوط)\nـ تعديل الهيدر و الفوتر\nـ هنظبط الشكل العام للموقع\nـ لازم يكون موجود روابط داخليه و خارجيه و ازرار \nـ هنعمل بابلش للموقع بتاعنا و هنسميه باسم الشخص و اسم الموقع اللي اختاره في البدايه \nAya - Atyaf 2026",
+      "contentEn": "- Each person will choose a theme and customize the website's appearance (colors, fonts). - Edit the header and footer.\n- We'll adjust the overall look of the website.\n- It must include internal and external links and buttons.\n- We'll publish our website and name it after the person and the website name they initially chose.\nAya - Atyaf 2026",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775505789263",
+      "studentId": "students_1775821632654",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "https://drive.google.com/file/d/17hBP-NY9a5ei7tvebdtizZtEJTt0g76t/view?usp=sharing"
+      ]
+    },
+    {
       "id": "summaries_1775590829401",
       "timestamp": "2026-04-07T19:40:29.401Z",
       "titleAr": "الفصل الثالث علم نفس النمو",
