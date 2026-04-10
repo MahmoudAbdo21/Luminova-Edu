@@ -140,6 +140,25 @@ window.LUMINOVA_DATA = {
   ],
   "students": [
     {
+      "id": "students_1775848220866",
+      "timestamp": "2026-04-10T19:10:20.866Z",
+      "nameAr": "مروه حمدي فضل",
+      "nameEn": "Marwa Hamdi Fadl",
+      "majorAr": "تكنولوجيا التعليم",
+      "majorEn": "Educational technology",
+      "bioAr": "",
+      "bioEn": "",
+      "image": "",
+      "isVIP": true,
+      "isVerified": true,
+      "role": "student",
+      "socialLinks": {
+        "facebook": "",
+        "instagram": "",
+        "linkedin": ""
+      }
+    },
+    {
       "id": "students_1775822074078",
       "timestamp": "2026-04-10T11:54:34.078Z",
       "nameAr": "الدكتورة دينا ايمن",
@@ -372,6 +391,24 @@ window.LUMINOVA_DATA = {
   ],
   "subjects": [
     {
+      "id": "subjects_1775849639042",
+      "timestamp": "2026-04-10T19:33:59.042Z",
+      "nameAr": "المواطنة الرقمية",
+      "nameEn": "Digital citizenship",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "subjectId": ""
+    },
+    {
+      "id": "subjects_1775848318508",
+      "timestamp": "2026-04-10T19:11:58.508Z",
+      "nameAr": "ذكاء وجداني",
+      "nameEn": "Emotional intelligence",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "subjectId": ""
+    },
+    {
       "id": "subjects_1775590782356",
       "timestamp": "2026-04-07T19:39:42.356Z",
       "nameAr": "علم نفس النمو",
@@ -436,6 +473,22 @@ window.LUMINOVA_DATA = {
     }
   ],
   "summaries": [
+    {
+      "id": "summaries_1775849322973",
+      "timestamp": "2026-04-10T19:28:42.973Z",
+      "titleAr": "المحاضره الاولى ذكاء وجداني",
+      "titleEn": "Lecture 1: Emotional Intelligence",
+      "contentAr": "🧠الذكاء هو القدره على القياس لاختبارات الذكاء وهذا يسمى التعريف الاجرائي للذكاء \n\n✨قسم سبيرمان الذكاء الى نوعين ذكاء منمى وذكاء موروث \n\n💫تشارلز سبيرمان عالم من نفس الاحصائي صرح بانه 80% من الذكاء موروث 20% منمي \n\n🌟كما قام جارنر صاحب الذكاءاتي المتعدده باصدار تصريح بان كلا منا ذكي في مجاله \nوقسم الذكاءات الى اقسام متعدده \n\n⚡منها بأن الذكاء ذكاء بصري مكاني وهو القدره على تحديد مساحه وابعاد الاماكن \n\n⚡ومنها الذكاء البدني من خلال قياس القوى البدنيه مثل الجري \n\n⚡ومنها الذكاء الاجتماعي من خلال بناء علاقات اجتماعيه ومعامله كل شخص بالطريقه المناسبه \n\n⚡ومنها الذكاء الموسيقي من خلال تلحين الجمل وادراك الموسيقى \n\n⚡ومنها ذكاء العلاقات الذاتيه او ما يسمى بالذكاء الشخصي وهو القدره على فهم النفس وادراك الذات \n 📝 معلومه اثرائيه \nالذكاء الوجداني هو ذكاء بين كل من الذكاء الشخصي والذكاء الاجتماعي  يعني بيجمع ما بينهم \n\n🪐اما بالنسبه لتعريف الذكاء الوجداني فهو قدره الفرد على فهم ذاته والاخرين وقدرته على التحكم وضبط ذاته واقامه علاقات ناجحه مع الاخرين\nمجالات الذكاء الوجداني خمس \n1/الوعي الذاتي\n2/التنظيم الذاتي\n3/التحفيز الذاتي \n4/الوعي الاجتماعي \n5/مهارات اجتماعيه \n\n☀️ الوعي الذاتي أي فهم الذات والتعرف عليها والتعرف علي عواطف الفرد وتأثيرها وبه أيضاً يتم التقييم الذاتي من حيث معرفه نقاط القوه والضعف لدي الشخص ومنه الثقه بالنفس من خلال الايمان\n بقيمه الفرد وقدراته \n☀️التنظيم الذاتي يتمثل في ضبط النفس من حيث اداره مشاعره وانفعالاته ويشمل أيضا الجداره بالثقه من حيث الحفاظ علي معايير الصدق والنزاهه وأيضا الضمير من حيث تحمل الفرد مسؤولية ما يقوم به وأيضا القدره علي التكيف في التعامل مع المتغيرات وأيضا الابتكار من حيث الشعور بالارتياح للأفكار الجديده \n☀️ الدافع الذاتي ويشمل محرك الانجاز من خلال السعي لتلبيه معايير التميز .والمبادره .والشعور بالتفائل\n☀️الوعي الاجتماعي من خلال التعاطف وتوجيه الخدمه وتطوير الاخرين والاستفاده من التنوع\n☀️المهارات الاجتماعيه من تواصل وقياده وتعاون وغيرها من المهارات الاجتماعية \n💥العوامل المؤثره علي الذكاء الوجداني \nاما بيئيه أو ذاتيه \nبيئيه تشمل متعلقات البيئه الحيطه مثل الاسره وتأثير المدرسه \nوالذاتيه مثل النوع والعمر\n\n✨ مطالب في المحاضره الاولى بانك تعرف ان ميار وسلوفي كانوا بيفسروا الكفاءات المعرفيه وكان بيتم تفسير المواقف عندهم من منظور عقلي \n🪐 على عكس بار اون وده كان بيفسر المواقف من منظور انفعالي ووجداني وهو اللي حدد خمس كفقات غير معرفيه \n💫 كفاءات بين ذاتية ودي عن طريق فهم الشخص اللي ذاته ونفسه \n💫 وكفاءات بين شخصيه عن طريق فهم الاشخاص من حوالينا\n💫 كفاءات اداره الضغوط ودي من حيث اداره المواقف الصعبه \n💫 كفاءات تكيفيه ودي من عن طريق تكيف الفرد مع المواقف الصعبه وتكيف الفرد في اي مكان واي موقف يتحط فيه \n💫 كفاءات ترتبط بالحاله المزاجيه ودول حالتين زي السعاده والتفاؤل \n        🎨تم المحاضره الأولي",
+      "contentEn": "🧠Intelligence is the ability to measure intelligence through intelligence tests; this is called the operational definition of intelligence.\n\n✨Spearman divided intelligence into two types: developed intelligence and inherited intelligence.\n\n💫Charles Spearman, a statistician, stated that 80% of intelligence is inherited and 20% is developed.\n\n🌟Garner, the proponent of multiple intelligences, also stated that each of us is intelligent in our own area. He divided intelligences into several categories:\n\n⚡Among them is visuospatial intelligence, which is the ability to determine the size and dimensions of spaces.\n\n⚡Among them is bodily-kinesthetic intelligence, which is measured through physical abilities such as running.\n\n⚡Among them is interpersonal intelligence, which is built social relationships and treated each person appropriately.\n\n⚡Among them is musical intelligence, which is composed melodies and understood music.\n\n⚡Among them is intrapersonal intelligence, also known as interpersonal intelligence, which is the ability to understand oneself and be self-aware.\n\n📝  Enrichment Information\nEmotional intelligence is an intelligence that lies between personal and social intelligence, meaning it combines elements of both.\n\n🪐As for the definition of emotional intelligence, it is an individual's ability to understand themselves and others, their capacity for self-control and regulation, and their ability to build successful relationships with others.\nThe five domains of emotional intelligence are:\n1/ Self-awareness\n2/ Self-regulation\n3/ Self-motivation\n4/ Social awareness\n5/ Social skills\n\n☀️ Self-awareness means understanding and recognizing oneself, understanding one's emotions and their impact, and also includes self-assessment in terms of identifying one's strengths and weaknesses, leading to self-confidence through belief in one's own worth and abilities.\n\n☀️ Self-regulation is represented by self-control in terms of managing one's feelings and emotions. It also includes trustworthiness in terms of maintaining standards of honesty and integrity, conscience in terms of taking responsibility for one's actions, the ability to adapt to changes, and innovation in terms of feeling comfortable with new ideas.  ☀️ Self-motivation, which includes the drive for achievement through striving to meet standards of excellence, initiative, and optimism.\n\n☀️ Social awareness through empathy, service-oriented thinking, developing others, and benefiting from diversity.\n☀️ Social skills such as communication, leadership, cooperation, and other social skills.\n💥 Factors affecting emotional intelligence: either environmental or subjective.\nEnvironmental factors include those related to the surrounding environment, such as family and school influence.\nSubjective factors include gender and age.\n\n✨ In the first lecture, you are required to know that Mayar and Slovey interpreted cognitive competencies, and situations were interpreted from a rational perspective.\n\n🪐 In contrast, Baron interpreted situations from an emotional and affective perspective and identified five non-cognitive competencies:\n\n💫 Interpersonal competencies, which involve understanding oneself and one's own self.\n\n💫 Interpersonal competencies, which involve understanding others.  Around us:\n\n💫 Stress management skills, which relate to managing difficult situations.\n\n💫 Adaptive skills, which involve an individual's ability to adapt to challenging situations and any place or situation they find themselves in.\n💫 Mood-related skills, which include states like happiness and optimism.\n\n🎨First lecture completed",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775848318508",
+      "studentId": "students_1775848220866",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "https://drive.google.com/file/d/1lutTaXfruBrJWz7EDO2sxC74didIP1u6/view?usp=drive_link"
+      ]
+    },
     {
       "id": "summaries_1775826790183",
       "timestamp": "2026-04-10T13:13:10.183Z",
@@ -831,6 +884,190 @@ window.LUMINOVA_DATA = {
     }
   ],
   "quizzes": [
+    {
+      "id": "quizzes_1775849685012",
+      "timestamp": "2026-04-10T19:34:45.012Z",
+      "titleAr": "امتحان الميد تيرم",
+      "titleEn": "Mid-term exam",
+      "isShuffled": false,
+      "feedbackMode": "immediate",
+      "subjectId": "subjects_1775849639042",
+      "publisherId": "s_founder_hardcoded",
+      "questions": [
+        {
+          "type": "mcq",
+          "text": "تهدف المواطنة الرقمية إلى استخدام التكنولوجيا بدون قيود أو ضوابط.",
+          "score": 1,
+          "options": [
+            "صواب",
+            "خطأ"
+          ],
+          "correctAnswers": [
+            1
+          ],
+          "modelAnswer": "",
+          "explanation": "المواطنة الرقمية تساعد على استخدام التكنولوجيا بشكل واعٍ ومسؤول ، والتنقل في بيئة الإنترنت بمسؤولية وأمان ، وليس بدون قيود.",
+          "studentId": "s_founder_hardcoded",
+          "showExp": true,
+          "id": "q_1775849896577"
+        },
+        {
+          "type": "mcq",
+          "text": "من أبعاد المواطنة الرقمية: الأمان الرقمي، والسلوك الأخلاقي، والمشاركة الرقمية.",
+          "score": 1,
+          "options": [
+            "صواب",
+            "خطأ"
+          ],
+          "correctAnswers": [
+            0
+          ],
+          "modelAnswer": "",
+          "explanation": "تشمل أبعاد المواطنة الرقمية \"الأمن الرقمي\" ، و\"اللياقة الرقمية\" التي تمثل السلوك اللائق والاحترام للآخرين (السلوك الأخلاقي) ، و\"النفاذ الرقمي\" والاتصال الذي يمثل المشاركة.",
+          "studentId": "s_founder_hardcoded",
+          "showExp": true,
+          "id": "q_1775849976623"
+        },
+        {
+          "type": "mcq",
+          "text": "المواطنة الرقمية لا تتعلق بالهوية الثقافية أو القيم المجتمعية.",
+          "score": 1,
+          "options": [
+            "صواب",
+            "خطأ"
+          ],
+          "correctAnswers": [
+            1
+          ],
+          "modelAnswer": "",
+          "explanation": "المواطنة الرقمية ترتبط ارتباطاً وثيقاً بالقيم المجتمعية، فهي تهدف إلى تحقيق الفائدة للمجتمع ، وتقوم على مبادئ مثل احترام الآخرين واللياقة.",
+          "studentId": "s_founder_hardcoded",
+          "showExp": true,
+          "id": "q_1775850013793"
+        },
+        {
+          "type": "mcq",
+          "text": "استخدام التكنولوجيا لأغراض إيجابية يعكس سلوك المواطن الرقمي.",
+          "score": 1,
+          "options": [
+            "صواب",
+            "خطأ"
+          ],
+          "correctAnswers": [
+            0
+          ],
+          "modelAnswer": "",
+          "explanation": "المواطنة الرقمية تساعد الفرد على استخدام التكنولوجيا بما يحقق الفائدة للفرد والمجتمع.",
+          "studentId": "s_founder_hardcoded",
+          "showExp": true,
+          "id": "q_1775850064055"
+        },
+        {
+          "type": "mcq",
+          "text": "المواطنة الرقمية تقتصر على البالغين فقط.",
+          "score": 1,
+          "options": [
+            "صواب",
+            "خطأ"
+          ],
+          "correctAnswers": [
+            1
+          ],
+          "modelAnswer": "",
+          "explanation": "المواطنة الرقمية تشمل جميع الأعمار، والدليل على ذلك وجود دور للمعلم في تعزيز المواطنة عند الطلاب.",
+          "studentId": "s_founder_hardcoded",
+          "showExp": true,
+          "id": "q_1775850107876"
+        },
+        {
+          "type": "mcq",
+          "text": "من حقوق المواطن الرقمي: حماية بياناته والتفاعل بحرية وأمان.",
+          "score": 1,
+          "options": [
+            "صواب",
+            "خطأ"
+          ],
+          "correctAnswers": [
+            0
+          ],
+          "modelAnswer": "",
+          "explanation": "من الحقوق والمسؤوليات الرقمية حماية الخصوصية الشخصية ، ومن الأمن الرقمي حماية البيانات ، مع ضرورة التنقل في الإنترنت بمسؤولية وأمان.",
+          "studentId": "s_founder_hardcoded",
+          "showExp": true,
+          "id": "q_1775850150942"
+        },
+        {
+          "type": "mcq",
+          "text": "تكنولوجيا المعلومات لم تؤثر على مفهوم المواطنة.",
+          "score": 1,
+          "options": [
+            "صواب",
+            "خطأ"
+          ],
+          "correctAnswers": [
+            1
+          ],
+          "modelAnswer": "",
+          "explanation": "لقد أثرت التكنولوجيا بشكل كبير، مما أدى إلى ظهور مصطلح جديد وهو \"المواطن الرقمي\" بجانب المواطنة التقليدية",
+          "studentId": "s_founder_hardcoded",
+          "showExp": true,
+          "id": "q_1775850195755"
+        },
+        {
+          "type": "mcq",
+          "text": "البعد القانوني من أبعاد المواطنة الرقمية يشمل المساواة أمام القانون والحقوق المدنية.",
+          "score": 1,
+          "options": [
+            "صواب",
+            "خطأ"
+          ],
+          "correctAnswers": [
+            0
+          ],
+          "modelAnswer": "",
+          "explanation": "تُعتبر العبارة صواباً لأن المواطنة الرقمية هي امتداد وتطبيق للمواطنة التقليدية في البيئة الافتراضية؛ فالبعد القانوني الذي يضمن المساواة والتمتع بالحقوق المدنية ينتقل مع الفرد إلى العالم الرقمي لضمان حماية حقوقه وتنظيم مسؤولياته القانونية تحت مظلة الدولة، مما يعزز قيم العدالة الاجتماعية رقمياً.",
+          "studentId": "s_founder_hardcoded",
+          "showExp": true,
+          "id": "q_1775850247950"
+        },
+        {
+          "type": "mcq",
+          "text": "لا تتطلب المواطنة الرقمية أي وعي سياسي أو اجتماعي.",
+          "score": 1,
+          "options": [
+            "صواب",
+            "خطأ"
+          ],
+          "correctAnswers": [
+            1
+          ],
+          "modelAnswer": "",
+          "explanation": "المواطنة الرقمية تتطلب وعياً اجتماعياً، حيث تشمل \"اللياقة الرقمية\" التواصل باحترام وأدب في المحادثات عبر الإنترنت ، وتتطلب التفاعل بطريقة حساسة وأخلاقية.",
+          "studentId": "s_founder_hardcoded",
+          "showExp": true,
+          "id": "q_1775850291729"
+        },
+        {
+          "type": "mcq",
+          "text": "تهدف المواطنة الرقمية إلى إعداد جيل قادر على التفاعل الواعي في البيئة الرقمية.",
+          "score": 1,
+          "options": [
+            "صواب",
+            "خطأ"
+          ],
+          "correctAnswers": [
+            0
+          ],
+          "modelAnswer": "",
+          "explanation": "مفهوم المواطنة الرقمية يتضمن قدرة الفرد على التفاعل مع المستخدمين والمحتوى الرقمي بطريقة نشطة ونقدية وأخلاقية وواعية.",
+          "studentId": "s_founder_hardcoded",
+          "showExp": true,
+          "id": "q_1775850330203"
+        }
+      ],
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791"
+    },
     {
       "id": "quizzes_1775311492411",
       "timestamp": "2026-04-04T14:04:52.411Z",
