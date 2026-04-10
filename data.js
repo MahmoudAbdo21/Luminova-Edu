@@ -437,6 +437,22 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
+      "id": "summaries_1775824664181",
+      "timestamp": "2026-04-10T12:37:44.181Z",
+      "titleAr": "سكشن الأسس النظرية الي الدكتوره طلبت نعمل موقع علي google site",
+      "titleEn": "The theoretical foundations section, which the professor requested, requires us to create a website on Google Sites.",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775505789263",
+      "studentId": "students_1775821907850",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "https://drive.google.com/file/d/1tdByLP7jxYiZzJwuZWHIRMKvM4za36EB/view?pli=1"
+      ]
+    },
+    {
       "id": "summaries_1775823982226",
       "timestamp": "2026-04-10T12:26:22.226Z",
       "titleAr": "شرح السمات جوجل سايت 4.4",
