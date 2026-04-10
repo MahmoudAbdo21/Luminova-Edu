@@ -75,14 +75,18 @@ Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
                             </div>
                             
                             ${studentProv && html`
-                                <div className="flex items-center justify-between mb-4 opacity-70 border-b pb-2 dark:border-gray-700 w-full bg-black/5 dark:bg-white/5 rounded-t-xl p-3 -mt-6">
-                                    <div className="flex gap-2 items-center">
-                                        <span className="text-xs">المساهم بالمعلومة:</span>
-                                        <span className="text-sm font-black mx-2 text-brand-gold">${lang === 'ar' ? studentProv.nameAr || studentProv.name : studentProv.nameEn || studentProv.name}</span>
-                                        ${studentProv.isVIP && html`<span title="VIP">✨</span>`}
-                                        ${studentProv.isVerified && html`<span title="Verified">🔵</span>`}
+                                <div className="flex flex-row justify-between items-center bg-slate-800/40 p-3 rounded-xl border border-slate-700/50 mb-4 w-full">
+                                    <div className="flex flex-col items-start gap-1">
+                                        <span className="text-xs text-slate-400">المساهم بالمعلومة:</span>
+                                        <span className="text-sm font-bold text-yellow-500">${lang === 'ar' ? studentProv.nameAr || studentProv.name : studentProv.nameEn || studentProv.name}</span>
+                                        <div className="flex flex-row items-center gap-2 mt-1">
+                                            ${studentProv.isFounder && html`<span className="text-xs bg-brand-gold text-black font-black px-2 py-0.5 rounded-full shadow-md shrink-0">${Luminova.i18n[lang].founder}</span>`}
+                                            ${studentProv.role === 'doctor' && html`<span className="text-xs bg-teal-500 text-white font-black px-2 py-0.5 rounded-full shadow-md shrink-0">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
+                                            ${studentProv.isVIP && html`<span title="VIP">✨</span>`}
+                                            ${studentProv.isVerified && html`<span title="Verified">🔵</span>`}
+                                        </div>
                                     </div>
-                                    <${Luminova.Components.Avatar} name=${studentProv.nameAr || studentProv.name} nameEn=${studentProv.nameEn} image=${studentProv.image} size="w-8 h-8" />
+                                    <${Luminova.Components.Avatar} name=${studentProv.nameAr || studentProv.name} nameEn=${studentProv.nameEn} image=${studentProv.image} size="w-12 h-12 rounded-full border-2 border-slate-600 shadow-sm shrink-0" />
                                 </div>
                             `}
 
@@ -140,11 +144,11 @@ Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
 
             <${Luminova.Components.GlassCard} className="relative overflow-visible mb-10 flex-1 flex flex-col border-t-8 border-t-brand-DEFAULT shadow-2xl">
                 ${currentQStudent.id && html`
-                    <div className="absolute -top-6 start-8 flex items-center gap-3 bg-white dark:bg-gray-800 shadow-xl p-2 pl-4 rounded-full border border-gray-100 dark:border-gray-700 z-10 animate-fade-in group hover:scale-105 transition-transform">
-                        <${Luminova.Components.Avatar} name=${currentQStudent.nameAr || currentQStudent.name} image=${currentQStudent.image} isVerified=${currentQStudent.isVerified} size="w-8 h-8" />
-                        <span className="text-sm font-black mx-1 text-brand-DEFAULT group-hover:text-brand-gold">${lang === 'ar' ? currentQStudent.nameAr || currentQStudent.name : currentQStudent.nameEn || currentQStudent.name}</span>
-                        ${currentQStudent.isFounder && html`<span className="text-xs bg-brand-gold text-black font-black px-2 py-0.5 rounded-full shadow-md mr-1">${Luminova.i18n[lang].founder}</span>`}
-                        <span className="text-xs font-bold opacity-50 ml-2 hidden sm:inline border-r pr-2 dark:border-gray-700">:المساهم بالسؤال</span>
+                    <div className="absolute -top-12 sm:-top-6 start-1/2 -translate-x-1/2 sm:translate-x-0 sm:start-8 flex flex-col sm:flex-row items-center gap-1 sm:gap-3 bg-white dark:bg-gray-800 shadow-xl p-2 sm:p-2 sm:pl-4 rounded-xl sm:rounded-full border border-gray-100 dark:border-gray-700 z-10 animate-fade-in group hover:scale-105 transition-transform max-w-[90vw] sm:max-w-none text-center sm:text-start mx-auto w-max mb-8 sm:mb-0">
+                        <${Luminova.Components.Avatar} name=${currentQStudent.nameAr || currentQStudent.name} image=${currentQStudent.image} isVerified=${currentQStudent.isVerified} size="w-8 h-8 shrink-0" />
+                        <span className="text-xs sm:text-sm font-black mx-1 text-brand-DEFAULT group-hover:text-brand-gold break-words whitespace-normal">${lang === 'ar' ? currentQStudent.nameAr || currentQStudent.name : currentQStudent.nameEn || currentQStudent.name}</span>
+                        ${currentQStudent.isFounder && html`<span className="text-xs bg-brand-gold text-black font-black px-2 py-0.5 rounded-full shadow-md shrink-0">${Luminova.i18n[lang].founder}</span>`}
+                        <span className="text-xs font-bold opacity-50 hidden sm:inline border-r pr-2 dark:border-gray-700 shrink-0">:المساهم بالسؤال</span>
                     </div>
                 `}
 

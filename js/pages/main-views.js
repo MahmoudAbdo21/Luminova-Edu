@@ -81,26 +81,37 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
         const [visibleCount, setVisibleCount] = window.React.useState(10);
 
         const feedItems = useMemo(() => {
-            const allQuestions = [];
+            const groupedQuizActivities = {};
             data.quizzes.forEach(q => {
                 (q.questions || []).forEach(qn => {
-                    allQuestions.push({
-                        id: qn.id,
-                        titleAr: 'سؤال تفاعلي في: ' + (q.titleAr || q.titleEn || q.title || 'اختبار'),
-                        titleEn: 'Interactive Question in: ' + (q.titleEn || q.titleAr || q.title || 'Quiz'),
-                        contentAr: qn.textAr || qn.text,
-                        contentEn: qn.textEn || qn.text,
-                        mediaUrl: qn.mediaUrl,
-                        timestamp: qn.timestamp || q.timestamp || new Date().toISOString(),
-                        studentId: qn.studentId,
-                        subjectId: q.subjectId,
-                        isSingleQuestion: true,
-                        parentQuiz: q
-                    });
+                    const authorInfo = Luminova.getStudent(qn.studentId, data.students) || {};
+                    const authorNameAr = authorInfo.nameAr || authorInfo.name || '';
+                    const authorNameEn = authorInfo.nameEn || authorInfo.name || '';
+                    const qnTitleAr = `أضاف أسئلة في اختبار: ${q.titleAr || q.titleEn || q.title || 'اختبار'}`;
+                    const qnTitleEn = `Contributed questions to Quiz: ${q.titleEn || q.titleAr || q.title || 'Quiz'}`;
+                    const groupId = `${q.id}_${qn.studentId}`;
+                    if (!groupedQuizActivities[groupId]) {
+                        groupedQuizActivities[groupId] = {
+                            id: `group_${groupId}`,
+                            titleAr: qnTitleAr,
+                            titleEn: qnTitleEn,
+                            contentAr: `قام ${authorNameAr} بالمساهمة بإضافة أسئلة تفاعلية في هذا الاختبار.`,
+                            contentEn: `${authorNameEn} contributed interactive questions to this quiz.`,
+                            timestamp: qn.timestamp || q.timestamp || new Date().toISOString(),
+                            studentId: qn.studentId,
+                            subjectId: q.subjectId,
+                            isSingleQuestion: true,
+                            parentQuiz: q
+                        };
+                    } else {
+                        if (new Date(qn.timestamp) > new Date(groupedQuizActivities[groupId].timestamp)) {
+                            groupedQuizActivities[groupId].timestamp = qn.timestamp;
+                        }
+                    }
                 });
             });
-            return [...data.summaries, ...allQuestions].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        }, [data.summaries, data.quizzes]);
+            return [...data.summaries, ...Object.values(groupedQuizActivities)].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        }, [data.summaries, data.quizzes, data.students]);
 
         const topContributors = useMemo(() => {
             // Count contributions from: summaries + news + quiz questions + quiz creation
@@ -118,11 +129,26 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
             });
 
             data.quizzes.forEach(q => {
-                // Count each question's author only (quiz creation itself is excluded)
+                const questionCounts = {};
                 (q.questions || []).forEach(qn => {
                     const sId = normalizeId(qn.studentId);
-                    if (sId) counts[sId] = (counts[sId] || 0) + 1;
+                    if (sId) questionCounts[sId] = (questionCounts[sId] || 0) + 1;
                 });
+                
+                let maxQuestions = 0;
+                for (const sId in questionCounts) {
+                    if (questionCounts[sId] > maxQuestions) {
+                        maxQuestions = questionCounts[sId];
+                    }
+                }
+                
+                for (const sId in questionCounts) {
+                    if (questionCounts[sId] === maxQuestions && maxQuestions > 0) {
+                        counts[sId] = (counts[sId] || 0) + 2;
+                    } else {
+                        counts[sId] = (counts[sId] || 0) + 1;
+                    }
+                }
             });
 
             // Always include Founder with at least a base score so leaderboard is never empty
@@ -490,10 +516,26 @@ Luminova.Pages.StudentCommunityPage = ({ data, lang, setView, setActiveSummary }
                 if (sId) counts[sId] = (counts[sId] || 0) + 1;
             });
             data.quizzes.forEach(q => {
+                const questionCounts = {};
                 (q.questions || []).forEach(qn => {
                     const sId = normalizeId(qn.studentId);
-                    if (sId) counts[sId] = (counts[sId] || 0) + 1;
+                    if (sId) questionCounts[sId] = (questionCounts[sId] || 0) + 1;
                 });
+                
+                let maxQuestions = 0;
+                for (const sId in questionCounts) {
+                    if (questionCounts[sId] > maxQuestions) {
+                        maxQuestions = questionCounts[sId];
+                    }
+                }
+                
+                for (const sId in questionCounts) {
+                    if (questionCounts[sId] === maxQuestions && maxQuestions > 0) {
+                        counts[sId] = (counts[sId] || 0) + 2;
+                    } else {
+                        counts[sId] = (counts[sId] || 0) + 1;
+                    }
+                }
             });
             return counts;
         }, [data.summaries, data.quizzes]);
@@ -536,24 +578,30 @@ Luminova.Pages.StudentCommunityPage = ({ data, lang, setView, setActiveSummary }
         
         if (selectedStudent !== null) {
             const studentPosts = (() => {
-                    const userQuestions = [];
+                    const userQuestionsMap = {};
                     data.quizzes.forEach(q => {
                         (q.questions || []).forEach(qn => {
                             const sId = (qn.studentId === 's_founder' || qn.studentId === 's_founder_hardcoded') ? Luminova.FOUNDER.id : qn.studentId;
                             if (sId === selectedStudent.id) {
-                                userQuestions.push({
-                                    id: qn.id,
-                                    titleAr: 'سؤال تفاعلي في: ' + (q.titleAr || q.titleEn || q.title || 'اختبار'),
-                                    titleEn: 'Interactive Question in: ' + (q.titleEn || q.titleAr || q.title || 'Quiz'),
-                                    contentAr: qn.textAr || qn.text,
-                                    contentEn: qn.textEn || qn.text,
-                                    mediaUrl: qn.mediaUrl,
-                                    timestamp: qn.timestamp || q.timestamp || new Date().toISOString(),
-                                    studentId: qn.studentId,
-                                    subjectId: q.subjectId,
-                                    isSingleQuestion: true,
-                                    parentQuiz: q
-                                });
+                                const groupId = `${q.id}_${sId}`;
+                                if (!userQuestionsMap[groupId]) {
+                                    userQuestionsMap[groupId] = {
+                                        id: `group_${groupId}`,
+                                        titleAr: `أضاف أسئلة في اختبار: ${q.titleAr || q.titleEn || q.title || 'اختبار'}`,
+                                        titleEn: `Contributed questions to Quiz: ${q.titleEn || q.titleAr || q.title || 'Quiz'}`,
+                                        contentAr: `مساهمة لإضافة أسئلة تفاعلية في هذا الاختبار.`,
+                                        contentEn: `Contribution adding interactive questions to this quiz.`,
+                                        timestamp: qn.timestamp || q.timestamp || new Date().toISOString(),
+                                        studentId: qn.studentId,
+                                        subjectId: q.subjectId,
+                                        isSingleQuestion: true,
+                                        parentQuiz: q
+                                    };
+                                } else {
+                                    if (new Date(qn.timestamp) > new Date(userQuestionsMap[groupId].timestamp)) {
+                                        userQuestionsMap[groupId].timestamp = qn.timestamp;
+                                    }
+                                }
                             }
                         });
                     });
@@ -561,7 +609,7 @@ Luminova.Pages.StudentCommunityPage = ({ data, lang, setView, setActiveSummary }
                         const sId = (i.studentId === 's_founder' || i.studentId === 's_founder_hardcoded') ? Luminova.FOUNDER.id : i.studentId;
                         return sId === selectedStudent.id;
                     });
-                    return [...userSummaries, ...userQuestions].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    return [...userSummaries, ...Object.values(userQuestionsMap)].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
             })();
 
             const displayedPosts = studentPosts.slice(0, visibleCount);
