@@ -475,6 +475,15 @@ window.LUMINOVA_DATA = {
   ],
   "subjects": [
     {
+      "id": "subjects_1775908403709",
+      "timestamp": "2026-04-11T11:53:23.709Z",
+      "nameAr": "نظم ادارة المحتوى",
+      "nameEn": "Content management systems",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "subjectId": ""
+    },
+    {
       "id": "subjects_1775849639042",
       "timestamp": "2026-04-10T19:33:59.042Z",
       "nameAr": "المواطنة الرقمية",
@@ -513,8 +522,8 @@ window.LUMINOVA_DATA = {
     {
       "id": "subjects_1775505789263",
       "timestamp": "2026-04-06T20:03:09.263Z",
-      "nameAr": "تطبيقات الاسس النظريه لتكنولوجيا",
-      "nameEn": "Applications of the theoretical foundations of technology",
+      "nameAr": "تطبيقات الاسس النظريه لتكنولوجيا (جوجل سايت)",
+      "nameEn": "Applications of the theoretical foundations of technology (google sites)",
       "yearId": "year_1",
       "semesterId": "semesters_1775125622791",
       "subjectId": ""
@@ -557,6 +566,41 @@ window.LUMINOVA_DATA = {
     }
   ],
   "summaries": [
+    {
+      "id": "summaries_1775908604262",
+      "timestamp": "2026-04-11T11:56:44.262Z",
+      "titleAr": "تلخيص نظم ادارة المحتوى",
+      "titleEn": "Summary of Content Management Systems",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775908403709",
+      "studentId": "students_1775821504065",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "https://drive.google.com/file/d/1WCYqtr33ktzfCwcwsBa2z6t50EgUKDMK/view?usp=drive_link",
+        "https://drive.google.com/file/d/10xTkEqBYGlsw2X8fK0kgx04ehzPBQDvB/view?usp=drive_link"
+      ]
+    },
+    {
+      "id": "summaries_1775908431578",
+      "timestamp": "2026-04-11T11:53:51.578Z",
+      "titleAr": "خرائط المفاهيم للمحتوى",
+      "titleEn": "Concept maps for content",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775908403709",
+      "studentId": "students_1775821504065",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "img/mind cms 1.png",
+        "img/mind cms 2.png",
+        "img/cms 1.png"
+      ]
+    },
     {
       "id": "summaries_1775907524550",
       "timestamp": "2026-04-11T11:38:44.550Z",
