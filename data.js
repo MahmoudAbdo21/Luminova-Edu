@@ -909,7 +909,8 @@
       "yearId": "year_1",
       "semesterId": "semesters_1775125622791",
       "mediaUrls": [
-        "https://drive.google.com/file/d/1lutTaXfruBrJWz7EDO2sxC74didIP1u6/view?usp=drive_link"
+        "https://drive.google.com/file/d/1lutTaXfruBrJWz7EDO2sxC74didIP1u6/view?usp=drive_link",
+        "https://drive.google.com/file/d/1MeFBR8qUJbdknYlZHrp81i7clJGU5rXe/view?usp=drive_link"
       ]
     },
     {
