@@ -1,0 +1,313 @@
+import React, { useState } from 'react';
+import { 
+  Gamepad2, 
+  BookOpen, 
+  Target, 
+  Star, 
+  Lightbulb, 
+  Layers, 
+  Cpu, 
+  CheckCircle2, 
+  Trophy, 
+  Smartphone,
+  Video,
+  Mic,
+  MousePointer2,
+  ChevronRight,
+  ChevronLeft,
+  Zap
+} from 'lucide-react';
+
+const App = () => {
+  const [activeTab, setActiveTab] = useState(0);
+
+  const sections = [
+    {
+      title: "المهمة الأولى: المفهوم والهدف",
+      icon: <Target className="w-6 h-6 text-cyan-400" />,
+      content: (
+        <div className="space-y-6">
+          <div className="bg-slate-800/50 p-4 rounded-xl border-r-4 border-cyan-500">
+            <h3 className="text-xl font-bold text-cyan-400 mb-2 flex items-center gap-2">
+              <Lightbulb className="w-5 h-5" /> أولًا: يعني إيه محتوى تعليمي رقمي؟
+            </h3>
+            <p className="text-slate-200 leading-relaxed">
+              المحتوى التعليمي الرقمي هو:
+              <br />
+              👉 كل المعلومات (نصوص + صور + فيديوهات + أنشطة) اللي بنستخدمها في التعليم لكن بشكل إلكتروني على الكمبيوتر أو الموبايل أو الإنترنت.
+            </p>
+          </div>
+
+          <div className="bg-slate-800/50 p-4 rounded-xl border-r-4 border-yellow-500">
+            <h3 className="text-xl font-bold text-yellow-400 mb-2 flex items-center gap-2">
+              <Star className="w-5 h-5" /> 🎯 هدفه:
+            </h3>
+            <ul className="list-disc list-inside space-y-2 text-slate-200">
+              <li>يساعد الطالب يتعلم بطريقة سهلة وممتعة</li>
+              <li>يخليه يدور على المعلومات بنفسه</li>
+              <li>يخليه يتفاعل بدل ما يكون مجرد متلقي</li>
+            </ul>
+          </div>
+
+          <div className="bg-blue-900/30 p-4 rounded-xl border border-blue-500/30">
+            <h3 className="font-bold text-blue-300 mb-2 italic">📌 مثال بسيط:</h3>
+            <p className="text-slate-300">
+              بدل كتاب ورقي 📘 يبقى كتاب إلكتروني فيه: (صور - فيديو - أسئلة تفاعلية - روابط)
+            </p>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "المهمة الثانية: التعريف والخصائص",
+      icon: <Layers className="w-6 h-6 text-purple-400" />,
+      content: (
+        <div className="space-y-4">
+          <div className="bg-purple-900/20 p-4 rounded-xl border border-purple-500/30">
+            <h3 className="text-xl font-bold text-purple-300 mb-2">💡 ثانيًا: تعريف المحتوى الرقمي (ببساطة)</h3>
+            <p className="text-slate-200">هو: 👉 مقرر أو درس بيتصمم باستخدام التكنولوجيا (كمبيوتر – إنترنت – برامج)</p>
+            <p className="text-slate-400 mt-2 italic text-sm">💬 يعني مش مجرد كلام مكتوب، ده “تجربة تعلم كاملة”.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+             {[
+               {t: "1️⃣ قابل للتعديل (Revisable)", d: "نقدر نعدّل فيه بسهولة بدون ما نخرب باقي الدرس"},
+               {t: "2️⃣ قابل لإعادة الاستخدام (Reusability)", d: "نفس المحتوى نستخدمه في أكتر من درس"},
+               {t: "3️⃣ قابل للتخصيص (Customizable)", d: "كل طالب ياخد محتوى يناسبه"},
+               {t: "4️⃣ سهل الاستخدام (Applicable)", d: "ينفع في كل أنواع التعلم (شرح – تدريب – واجب)"},
+               {t: "5️⃣ مستقل (Stand-alone)", d: "كل جزء يشتغل لوحده بدون ما يعتمد على غيره"},
+               {t: "6️⃣ قابل للتدرج (Scalable)", d: "يبدأ من السهل للصعب"},
+               {t: "7️⃣ مترابط (Linkable)", d: "كل الأجزاء مربوطة ببعض بروابط"},
+               {t: "8️⃣ ثابت ومستمر (Durable)", d: "يفضل شغال ومستخدم لفترة طويلة"},
+               {t: "9️⃣ سهل التعلم (Learnable)", d: "الطالب يفهمه بسهولة ويحس بالإنجاز"},
+               {t: "🔟 يعمل على كل الأجهزة (Interoperable)", d: "يشتغل على موبايل – كمبيوتر – أي منصة"}
+             ].map((item, idx) => (
+               <div key={idx} className="bg-slate-800 p-3 rounded-lg border border-slate-700 hover:border-purple-500 transition-colors">
+                 <h4 className="font-bold text-purple-400 text-sm mb-1">{item.t}</h4>
+                 <p className="text-slate-300 text-xs">{item.d}</p>
+               </div>
+             ))}
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "المهمة الثالثة: أنماط المحتوى",
+      icon: <Gamepad2 className="w-6 h-6 text-emerald-400" />,
+      content: (
+        <div className="space-y-6">
+          <h3 className="text-xl font-bold text-emerald-400 text-center border-b border-emerald-500/20 pb-2">🟡 أولًا حسب الوسيط (طريقة العرض)</h3>
+          
+          <div className="grid grid-cols-1 gap-4">
+            <div className="bg-slate-800 p-4 rounded-xl border-l-4 border-blue-500">
+              <h4 className="flex items-center gap-2 font-bold text-blue-400 mb-2"><BookOpen className="w-5 h-5"/> 1️⃣ محتوى مقروء 📖</h4>
+              <p className="text-sm text-slate-300">نصوص + كتب إلكترونية + مقالات. الكتاب الإلكتروني هو كتاب لكن على شاشة، سهل التخزين وسريع الوصول.</p>
+            </div>
+
+            <div className="bg-slate-800 p-4 rounded-xl border-l-4 border-red-500">
+              <h4 className="flex items-center gap-2 font-bold text-red-400 mb-2"><Video className="w-5 h-5"/> 2️⃣ محتوى مرئي 🎥</h4>
+              <p className="text-sm text-slate-300">فيديوهات + صور + رسوم متحركة. يوضح المعلومات الصعبة ويساعد على الفهم السريع.</p>
+            </div>
+
+            <div className="bg-slate-800 p-4 rounded-xl border-l-4 border-yellow-500">
+              <h4 className="flex items-center gap-2 font-bold text-yellow-400 mb-2"><Mic className="w-5 h-5"/> 3️⃣ محتوى مسموع 🎧</h4>
+              <p className="text-sm text-slate-300">صوت فقط (بودكاست تعليمي). ينفع أثناء المذاكرة أو المواصلات.</p>
+            </div>
+
+            <div className="bg-slate-800 p-4 rounded-xl border-l-4 border-emerald-500">
+              <h4 className="flex items-center gap-2 font-bold text-emerald-400 mb-2"><MousePointer2 className="w-5 h-5"/> 4️⃣ محتوى تفاعلي 🎮</h4>
+              <p className="text-sm text-slate-300 mb-2">ألعاب تعليمية + اختبارات + أنشطة. يخلي الطالب نشط ومشارك ويرفع التركيز.</p>
+              <div className="bg-emerald-900/20 p-2 rounded text-xs text-emerald-200">
+                🎮 الألعاب التعليمية: هدفها التعلم مش التسلية بس. عناصرها: هدف، قوانين، منافسة، تحدي، تغذية راجعة.
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "المهمة الرابعة: الاختبارات والتطبيقات",
+      icon: <Smartphone className="w-6 h-6 text-pink-400" />,
+      content: (
+        <div className="space-y-6 text-right">
+           <div className="bg-slate-800 p-5 rounded-2xl border-2 border-pink-500/30">
+              <h3 className="text-xl font-bold text-pink-400 mb-3 flex items-center gap-2">
+                <CheckCircle2 className="w-6 h-6" /> 📝 الاختبارات الإلكترونية
+              </h3>
+              <p className="text-slate-300 mb-3">امتحانات على الكمبيوتر أو الموبايل، سهلة وسريعة التصحيح وبتعطي نتيجة فورًا.</p>
+              <div className="flex flex-wrap gap-2 text-xs">
+                <span className="bg-pink-900/40 px-3 py-1 rounded-full border border-pink-500/50">على جهاز فقط</span>
+                <span className="bg-pink-900/40 px-3 py-1 rounded-full border border-pink-500/50">على الإنترنت</span>
+                <span className="bg-pink-900/40 px-3 py-1 rounded-full border border-pink-500/50">رسمية</span>
+                <span className="bg-pink-900/40 px-3 py-1 rounded-full border border-pink-500/50">قصيرة</span>
+              </div>
+           </div>
+
+           <div className="bg-slate-800 p-5 rounded-2xl border-2 border-cyan-500/30">
+              <h3 className="text-xl font-bold text-cyan-400 mb-3 flex items-center gap-2">
+                <Smartphone className="w-6 h-6" /> 📱 التطبيقات التعليمية
+              </h3>
+              <p className="text-slate-300 mb-3 italic">برامج تساعدك تتعلم من الموبايل زي (Google Drive - Forms - اللغات).</p>
+              <ul className="text-sm space-y-1 text-cyan-200">
+                <li>✅ تعاون بين الطلاب</li>
+                <li>✅ سهلة الاستخدام</li>
+                <li>✅ في أي وقت ومكان</li>
+              </ul>
+           </div>
+
+           <div className="bg-indigo-900/40 p-4 rounded-xl text-center">
+              <h3 className="font-bold text-indigo-300 mb-2 underline decoration-indigo-500">🟡 أساليب التقديم وأنواع المحتوى</h3>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-slate-900/60 p-2 rounded">أسلوب تقليدي أو نشط</div>
+                <div className="bg-slate-900/60 p-2 rounded">محتوى أكاديمي، مهني، أو ترفيهي</div>
+              </div>
+           </div>
+        </div>
+      )
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#0b0e14] text-white font-sans selection:bg-cyan-500/30 p-4 md:p-8" dir="rtl">
+      {/* Header / XP Bar */}
+      <div className="max-w-4xl mx-auto mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-yellow-500 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(234,179,8,0.5)] border-2 border-white/20">
+              <Zap className="text-white w-7 h-7 fill-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-black tracking-tight text-white uppercase flex items-center gap-2">
+                Level Up <span className="text-yellow-400 bg-yellow-400/10 px-2 py-0.5 rounded border border-yellow-400/20 text-sm">LVL 10</span>
+              </h1>
+              <div className="text-[10px] text-cyan-400 font-bold tracking-widest uppercase">Elite Educational Mission</div>
+            </div>
+          </div>
+          
+          <div className="w-full md:w-64 bg-slate-800 h-6 rounded-full border border-slate-700 p-1 relative overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full transition-all duration-1000"
+              style={{ width: `${((activeTab + 1) / sections.length) * 100}%` }}
+            ></div>
+            <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white uppercase tracking-tighter shadow-sm">
+               المهمة الفرعية {activeTab + 1} / {sections.length}
+            </span>
+          </div>
+        </div>
+
+        <div className="text-center mb-8">
+          <div className="inline-block px-4 py-1 bg-yellow-500/10 border border-yellow-500/30 rounded-full text-yellow-500 text-[10px] font-bold mb-3 animate-pulse">
+             ⚠️ تم الوصول إلى مستوى النخبة (LEVEL 10)
+          </div>
+          <h2 className="text-4xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-white to-cyan-400">
+             الفصل الأول: المحتوى الرقمي
+          </h2>
+          <p className="text-slate-400 text-sm italic">"المعرفة هي المفتاح لتجاوز هذا المستوى"</p>
+        </div>
+
+        {/* Game Navigation */}
+        <div className="flex overflow-x-auto gap-2 mb-6 no-scrollbar pb-2">
+          {sections.map((section, idx) => (
+            <button
+              key={idx}
+              onClick={() => setActiveTab(idx)}
+              className={`flex-none px-4 py-3 rounded-xl border-2 transition-all flex items-center gap-2 whitespace-nowrap ${
+                activeTab === idx 
+                ? 'bg-yellow-500/10 border-yellow-500 text-yellow-400' 
+                : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500'
+              }`}
+            >
+              {section.icon}
+              <span className="font-bold text-sm underline decoration-slate-600 decoration-2 underline-offset-4">QUEST 0{idx + 1}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Main Quest Content */}
+        <div className="bg-slate-900 border-2 border-slate-800 rounded-3xl p-6 md:p-10 shadow-2xl relative min-h-[400px]">
+          <div className="absolute top-0 right-10 -translate-y-1/2 bg-yellow-500 px-4 py-1 border-2 border-slate-900 rounded-full text-xs font-black text-slate-900 shadow-lg">
+            BOSS LEVEL DATA
+          </div>
+          
+          <div className="animate-in fade-in zoom-in-95 duration-500">
+            <h3 className="text-2xl font-bold mb-6 flex items-center gap-3 text-white">
+              <div className="w-3 h-8 bg-yellow-500 rounded-full shadow-[0_0_10px_rgba(234,179,8,0.5)]"></div>
+              {sections[activeTab].title}
+            </h3>
+            
+            <div className="text-slate-200">
+              {sections[activeTab].content}
+            </div>
+          </div>
+
+          {/* Nav Buttons */}
+          <div className="mt-12 flex justify-between items-center pt-6 border-t border-slate-800">
+            <button 
+              disabled={activeTab === 0}
+              onClick={() => setActiveTab(prev => prev - 1)}
+              className="flex items-center gap-2 px-6 py-2 rounded-xl bg-slate-800 text-slate-400 disabled:opacity-30 hover:bg-slate-700 transition-all border border-transparent hover:border-slate-500 font-bold"
+            >
+              <ChevronRight className="w-5 h-5" /> العودة
+            </button>
+
+            <button 
+              disabled={activeTab === sections.length - 1}
+              onClick={() => setActiveTab(prev => prev + 1)}
+              className="flex items-center gap-2 px-6 py-2 rounded-xl bg-yellow-600 text-slate-900 disabled:opacity-30 hover:bg-yellow-500 transition-all shadow-lg shadow-yellow-600/20 font-black"
+            >
+              التالي <ChevronLeft className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Final Reward / Credits */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+           <div className="bg-slate-800/40 p-4 rounded-2xl flex items-center gap-4 border border-slate-700">
+              <div className="p-3 bg-yellow-500/20 rounded-full"><Trophy className="text-yellow-400 w-5 h-5" /></div>
+              <div>
+                <div className="text-[10px] text-slate-500 uppercase font-bold">Player Status</div>
+                <div className="font-bold text-yellow-300">طالب Level Up</div>
+              </div>
+           </div>
+           <div className="bg-slate-800/40 p-4 rounded-2xl flex items-center gap-4 border border-slate-700">
+              <div className="p-3 bg-cyan-500/20 rounded-full"><Cpu className="text-cyan-400 w-5 h-5" /></div>
+              <div>
+                <div className="text-[10px] text-slate-500 uppercase font-bold">Current Level</div>
+                <div className="font-bold text-cyan-300">Elite Level 10</div>
+              </div>
+           </div>
+           <div className="bg-slate-800/40 p-4 rounded-2xl flex items-center gap-4 border border-slate-700">
+              <div className="p-3 bg-blue-500/20 rounded-full"><CheckCircle2 className="text-blue-400 w-5 h-5" /></div>
+              <div>
+                <div className="text-[10px] text-slate-500 uppercase font-bold">Mission Status</div>
+                <div className="font-bold text-blue-300">Progressing...</div>
+              </div>
+           </div>
+        </div>
+
+        <div className="text-center mt-12 text-slate-600 text-[10px] uppercase tracking-[0.2em] font-bold">
+          System Verification Complete • Level 10 Achieved • Level Up Group
+        </div>
+      </div>
+
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
+        
+        body {
+          font-family: 'Cairo', sans-serif;
+          background-color: #0b0e14;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default App;

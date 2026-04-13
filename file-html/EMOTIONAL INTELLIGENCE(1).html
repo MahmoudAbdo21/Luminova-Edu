@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level 13 - الذكاء الوجداني</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #020617; /* لون كحلي داكن جداً */
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(16px);
+            border-radius: 30px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        .level-badge {
+            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+            color: white;
+            padding: 8px 24px;
+            border-radius: 99px;
+            font-weight: 900;
+            box-shadow: 0 0 20px rgba(236, 72, 153, 0.3);
+        }
+        .progress-container {
+            height: 8px;
+            background: #1e293b;
+            border-radius: 20px;
+        }
+        #progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ec4899, #8b5cf6);
+            transition: width 0.5s ease-in-out;
+        }
+        .quest-step {
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+        .quest-step.active {
+            display: block;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .highlight-card {
+            background: rgba(30, 41, 59, 0.5);
+            border-right: 4px solid #ec4899;
+            padding: 1.5rem;
+            border-radius: 15px;
+        }
+        .btn-next {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            transition: all 0.3s;
+        }
+        .btn-next:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.5);
+        }
+        .example-box {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px dashed #10b981;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- قسم العنوان وشريط التقدم -->
+        <div class="text-center mb-8">
+            <div class="level-badge inline-block mb-4 uppercase tracking-widest text-xs">Level 13 | الذكاء الوجداني</div>
+            <h1 class="text-4xl md:text-5xl font-black text-white mb-2">EMOTIONAL INTELLIGENCE 🧠</h1>
+            <p class="text-slate-400">رحلة في فهم الذات والمشاعر والنجاح النفسي</p>
+            
+            <div class="mt-8 px-2 flex justify-between items-end mb-2">
+                <span class="text-xs font-bold text-pink-500 uppercase">Quest Discovery</span>
+                <span id="progress-text" class="text-xl font-black text-white">0%</span>
+            </div>
+            <div class="progress-container">
+                <div id="progress-bar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- البطاقة الرئيسية للمحتوى -->
+        <div class="glass-card p-6 md:p-12 min-h-[550px] flex flex-col justify-between">
+            
+            <!-- المحطة 1 -->
+            <div class="quest-step active" data-step="1">
+                <h2 class="text-3xl font-black mb-6 text-pink-400">01. ما هو الذكاء الوجداني؟</h2>
+                <p class="text-xl leading-relaxed text-slate-200 mb-6">
+                    هو قدرتك على <span class="text-indigo-400 font-bold underline">فهم مشاعرك</span> ومشاعر اللي حواليك والتعامل معاها بذكاء.
+                </p>
+                <div class="highlight-card mb-4">
+                    <p>💡 تعرف إنت حاسس بإيه؟ تفهم غيرك حاسس بإيه؟ تتصرف صح بناءً على ده.</p>
+                </div>
+                <div class="example-box">
+                    <strong>✅ مثال:</strong> صاحبتك زعلانة؟ الشخص الذكي وجدانياً بيحس بيها ويسألها "مالك؟" بدل ما يتجاهلها.
+                </div>
+            </div>
+
+            <!-- المحطة 2 -->
+            <div class="quest-step" data-step="2">
+                <h2 class="text-3xl font-black mb-6 text-pink-400">02. دانيال جولمان والنجاح</h2>
+                <p class="mb-4 text-lg">جولمان بيقول: الذكاء الوجداني بيزود الثقة والإبداع والتأثير.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 bg-slate-800 rounded-2xl">
+                        <h4 class="font-bold text-indigo-400 mb-2">1. التكيف 🔄</h4>
+                        <p class="text-sm">تتأقلم بسرعة مع الظروف الجديدة (زي جامعة جديدة).</p>
+                    </div>
+                    <div class="p-4 bg-slate-800 rounded-2xl">
+                        <h4 class="font-bold text-indigo-400 mb-2">2. النجاح 🏆</h4>
+                        <p class="text-sm">الشطارة العلمية لوحدها مش كفاية، التعامل مع الناس هو مفتاح النجاح.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- المحطة 3 -->
+            <div class="quest-step" data-step="3">
+                <h2 class="text-3xl font-black mb-6 text-pink-400">03. ذكاءات جاردنر الـ 7</h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+                    <div class="p-3 bg-slate-800 rounded-lg border border-slate-700">🖼️ بصري: صور وأماكن</div>
+                    <div class="p-3 bg-slate-800 rounded-lg border border-slate-700">⚽ بدني: مهارة الجسم</div>
+                    <div class="p-3 bg-slate-800 rounded-lg border border-slate-700">👥 اجتماعي: فهم الناس</div>
+                    <div class="p-3 bg-slate-800 rounded-lg border border-slate-700">🎵 موسيقي: إيقاع</div>
+                    <div class="p-3 bg-slate-800 rounded-lg border border-slate-700">🔢 منطقي: تفكير وتحليل</div>
+                    <div class="p-3 bg-slate-800 rounded-lg border border-slate-700">👤 ذاتي: فهم نفسك</div>
+                    <div class="p-3 bg-slate-800 rounded-lg border border-slate-700">🌿 طبيعي: فهم البيئة</div>
+                </div>
+                <p class="mt-6 text-center text-indigo-400 font-bold text-lg">الذكاء الوجداني = (ذكاء شخصي + اجتماعي) ✨</p>
+            </div>
+
+            <!-- المحطة 4 -->
+            <div class="quest-step" data-step="4">
+                <h2 class="text-3xl font-black mb-6 text-pink-400">04. مجالات الذكاء الوجداني (1)</h2>
+                <div class="space-y-4">
+                    <div class="highlight-card">
+                        <h3 class="font-bold text-xl text-white">1️⃣ الوعي الذاتي</h3>
+                        <p class="text-sm text-slate-400 mt-2">تعرف مشاعرك (وعي وجداني)، تقيم نفسك (تقييم ذاتي)، وتثق في نفسك.</p>
+                    </div>
+                    <div class="highlight-card" style="border-right-color: #8b5cf6;">
+                        <h3 class="font-bold text-xl text-white">2️⃣ التنظيم الذاتي</h3>
+                        <p class="text-sm text-slate-400 mt-2">تتحكم في أعصابك (ضبط النفس)، تكوني صادقة، وتتحملي المسؤولية (الضمير)، وتتكيفي مع التغيير.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- المحطة 5 -->
+            <div class="quest-step" data-step="5">
+                <h2 class="text-3xl font-black mb-6 text-pink-400">05. مجالات الذكاء الوجداني (2)</h2>
+                <div class="grid grid-cols-1 gap-3">
+                    <div class="p-5 bg-indigo-900/20 rounded-xl border border-indigo-500/20"><strong class="text-indigo-400">🚀 الدافع الذاتي:</strong> حب الإنجاز، الالتزام، المبادرة، والتفاؤل.</div>
+                    <div class="p-5 bg-purple-900/20 rounded-xl border border-purple-500/20"><strong class="text-purple-400">🤝 الوعي الاجتماعي:</strong> التعاطف مع الغير، مساعدتهم، وتطويرهم.</div>
+                    <div class="p-5 bg-pink-900/20 rounded-xl border border-pink-500/20"><strong class="text-pink-400">🗣️ مهارات اجتماعية:</strong> التأثير، التواصل، القيادة، وحل الصراعات.</div>
+                </div>
+            </div>
+
+            <!-- المحطة 6 -->
+            <div class="quest-step" data-step="6">
+                <h2 class="text-3xl font-black mb-6 text-pink-400">06. العوامل المؤثرة</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="highlight-card">
+                        <h4 class="font-bold text-white text-lg">🌍 عوامل بيئية</h4>
+                        <ul class="text-sm mt-3 space-y-2 text-slate-300">
+                            <li>• <strong class="text-pink-300">الأسرة:</strong> طريقة التربية (حب = تعبير عن مشاعر، قسوة = كتم مشاعر).</li>
+                            <li>• <strong class="text-pink-300">المدرسة:</strong> بيئة إيجابية تساعد على التعبير، بيئة قمعية تزرع الخوف.</li>
+                        </ul>
+                    </div>
+                    <div class="highlight-card" style="border-right-color: #38bdf8;">
+                        <h4 class="font-bold text-white text-lg">👤 عوامل ذاتية</h4>
+                        <ul class="text-sm mt-3 space-y-2 text-slate-300">
+                            <li>• <strong class="text-sky-300">النوع:</strong> الإناث (أكثر تعاطف ووعي اجتماعي)، الذكور (أقوى في تحمل الضغوط).</li>
+                            <li>• <strong class="text-sky-300">العمر:</strong> كل ما العمر يزيد، الذكاء الوجداني يزيد.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- المحطة 7 -->
+            <div class="quest-step" data-step="7">
+                <h2 class="text-3xl font-black mb-6 text-pink-400">07. الصمود النفسي 💪</h2>
+                <p class="text-lg italic mb-6 text-slate-300">قدرتك على "الوقوف تاني" بعد الصدمات والتغلب على الصعوبات.</p>
+                <h4 class="text-white font-bold mb-3">مراحل الصمود النفسي:</h4>
+                <div class="space-y-3 text-sm">
+                    <div class="p-3 bg-slate-800 rounded-lg border border-slate-700">📉 <strong class="text-red-400">1. التدهور:</strong> غضب وإحباط ولوم الآخرين.</div>
+                    <div class="p-3 bg-slate-800 rounded-lg border border-slate-700">⚙️ <strong class="text-yellow-400">2. التكيف:</strong> البدء في التعامل مع المشكلة.</div>
+                    <div class="p-3 bg-slate-800 rounded-lg border border-slate-700">🩹 <strong class="text-blue-400">3. التعافي:</strong> الرجوع للحالة الطبيعية.</div>
+                    <div class="p-3 bg-slate-800 rounded-lg border border-slate-700">🌱 <strong class="text-green-400">4. النمو:</strong> التعلم من التجربة وتجنب الأخطاء.</div>
+                </div>
+            </div>
+
+            <!-- المحطة 8 -->
+            <div class="quest-step" data-step="8">
+                <h2 class="text-3xl font-black mb-6 text-pink-400">08. استراتيجيات التنظيم الذاتي</h2>
+                <p class="mb-4 text-slate-300">طرق بتنظم بيها تعلمك وسلوكك:</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                    <div class="p-4 bg-blue-900/30 rounded-xl border border-blue-500/30">
+                        <h4 class="font-bold text-blue-400 mb-2">🧠 معرفية</h4>
+                        التنظيم والربط، التكرار، حفظ السجلات، الخرائط الذهنية.
+                    </div>
+                    <div class="p-4 bg-purple-900/30 rounded-xl border border-purple-500/30">
+                        <h4 class="font-bold text-purple-400 mb-2">🔭 ما وراء المعرفة</h4>
+                        التخطيط، التقويم الذاتي (تراجعي نفسك)، التعزيز الذاتي، المراقبة.
+                    </div>
+                    <div class="p-4 bg-emerald-900/30 rounded-xl border border-emerald-500/30">
+                        <h4 class="font-bold text-emerald-400 mb-2">⏳ إدارة المصادر</h4>
+                        البحث عن المعلومات، تنظيم الوقت، طلب المساعدة.
+                    </div>
+                </div>
+            </div>
+
+            <!-- المحطة 9 -->
+            <div class="quest-step" data-step="9">
+                <h2 class="text-3xl font-black mb-6 text-pink-400">09. تنظيم الانفعالات</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-5 bg-emerald-900/20 border border-emerald-500/50 rounded-2xl">
+                        <h4 class="text-emerald-400 font-bold mb-3 text-lg">✅ إيجابية</h4>
+                        <ul class="space-y-1 text-sm text-slate-300">
+                            <li>- التقبل (حصل اللي حصل)</li>
+                            <li>- التفكير الإيجابي (هتعلم من الغلط)</li>
+                            <li>- التخطيط (حل المشكلة)</li>
+                            <li>- وضع الأمور في حجمها</li>
+                        </ul>
+                    </div>
+                    <div class="p-5 bg-red-900/20 border border-red-500/50 rounded-2xl">
+                        <h4 class="text-red-400 font-bold mb-3 text-lg">❌ سلبية</h4>
+                        <ul class="space-y-1 text-sm text-slate-300">
+                            <li>- لوم النفس (أنا فاشلة)</li>
+                            <li>- لوم الآخرين (الدكتور السبب)</li>
+                            <li>- الاجترار (تفكير سلبي مستمر)</li>
+                            <li>- التهويل (دي كارثة!)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- المحطة 10 -->
+            <div class="quest-step" data-step="10">
+                <h2 class="text-3xl font-black mb-6 text-pink-400">10. اليقظة العقلية وما وراء المعرفة</h2>
+                <div class="space-y-5">
+                    <div class="p-5 bg-indigo-950 rounded-2xl border border-indigo-500/30">
+                        <strong class="text-indigo-400 text-xl block mb-2">🧘 اليقظة العقلية (Mindfulness):</strong>
+                        <p class="text-slate-300">التركيز على اللحظة الحالية بدون حكم. (تعيشي اللحظة، تلاحظي مشاعرك، بدون نقد).</p>
+                        <p class="text-sm mt-2 text-indigo-300">سماتها: غرض (تركيز مقصود) - حضور (تعيشي اللحظة) - قبول (بدون حكم).</p>
+                    </div>
+                    <div class="p-5 bg-purple-950 rounded-2xl border border-purple-500/30">
+                        <strong class="text-purple-400 text-xl block mb-2">🤔 ما وراء المعرفة:</strong>
+                        <p class="text-slate-300">"التفكير في التفكير" - (تسألي نفسك: أنا بفكر إزاي؟ حلي صح؟).</p>
+                        <p class="text-sm mt-2 text-purple-300">مهاراتها: تخطيط - مراقبة - تقييم.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- المحطة 11 والأخيرة -->
+            <div class="quest-step" data-step="11">
+                <div class="text-center py-10">
+                    <div class="text-7xl mb-6 animate-bounce">🌟</div>
+                    <h2 class="text-4xl md:text-5xl font-black text-white mb-4">LEVEL 13 COMPLETE!</h2>
+                    <p class="text-slate-400 mb-8 text-xl">لقد أتقنتِ مفاهيم الذكاء الوجداني والصمود النفسي بنجاح.</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="p-3 bg-pink-500/20 border border-pink-500/30 rounded-xl text-xs font-bold text-pink-300">ذكاء وجداني</div>
+                        <div class="p-3 bg-indigo-500/20 border border-indigo-500/30 rounded-xl text-xs font-bold text-indigo-300">صمود نفسي</div>
+                        <div class="p-3 bg-purple-500/20 border border-purple-500/30 rounded-xl text-xs font-bold text-purple-300">يقظة عقلية</div>
+                        <div class="p-3 bg-emerald-500/20 border border-emerald-500/30 rounded-xl text-xs font-bold text-emerald-300">تنظيم ذاتي</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- أزرار التنقل -->
+            <div class="mt-12 flex justify-between items-center border-t border-slate-700/50 pt-8">
+                <button id="prevBtn" class="px-6 py-2 rounded-xl text-slate-500 font-bold hover:text-white transition-all disabled:opacity-0" onclick="changeStep(-1)">السابق</button>
+                <button id="nextBtn" class="btn-next px-10 py-3 rounded-2xl font-black text-sm uppercase tracking-widest text-white shadow-lg" onclick="changeStep(1)">المهمة التالية 🚀</button>
+            </div>
+        </div>
+
+        <div class="mt-8 text-center opacity-30">
+            <p class="text-[10px] font-bold tracking-[0.4em] text-white uppercase">Emotional Intelligence • Level 13 • Completed</p>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 11;
+
+        function updateUI() {
+            // إخفاء كل المحطات
+            document.querySelectorAll('.quest-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            // إظهار المحطة الحالية
+            document.querySelector(`.quest-step[data-step="${currentStep}"]`).classList.add('active');
+
+            // تحديث شريط التقدم
+            const progress = Math.round(((currentStep - 1) / (totalSteps - 1)) * 100);
+            document.getElementById('progress-bar').style.width = progress + '%';
+            document.getElementById('progress-text').innerText = progress + '%';
+
+            // تحديث الأزرار
+            const nextBtn = document.getElementById('nextBtn');
+            if (currentStep === totalSteps) {
+                nextBtn.innerText = "إنهاء المستوى 🏁";
+                nextBtn.style.background = "linear-gradient(135deg, #10b981, #059669)";
+                nextBtn.style.boxShadow = "0 0 20px rgba(16, 185, 129, 0.4)";
+            } else {
+                nextBtn.innerText = "المهمة التالية 🚀";
+                nextBtn.style.background = "linear-gradient(135deg, #6366f1, #a855f7)";
+                nextBtn.style.boxShadow = "none";
+            }
+
+            document.getElementById('prevBtn').disabled = (currentStep === 1);
+        }
+
+        function changeStep(n) {
+            currentStep += n;
+            if (currentStep > totalSteps) {
+                currentStep = totalSteps; // البقاء في الشاشة الأخيرة
+                return;
+            }
+            if (currentStep < 1) currentStep = 1;
+            updateUI();
+            window.scrollTo({ top: 0, behavior: 'smooth' }); // الصعود للأعلى بسلاسة
+        }
+
+        // تهيئة الواجهة
+        updateUI();
+    </script>
+</body>
+</html>

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level Up - الفصل الثالث - Level 12</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #020617; /* Ultra Dark Navy */
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border-radius: 28px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+        .level-badge {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            color: white;
+            padding: 8px 24px;
+            border-radius: 99px;
+            font-weight: 900;
+            font-size: 0.95rem;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+        }
+        .progress-container {
+            height: 10px;
+            background: #1e293b;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        #progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            transition: width 0.7s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        .quest-step {
+            display: none;
+            animation: fadeInScale 0.5s ease-out;
+        }
+        .quest-step.active {
+            display: block;
+        }
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.98) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .btn-next {
+            background: #6366f1;
+            color: white;
+            transition: all 0.4s;
+        }
+        .btn-next:hover {
+            background: #4f46e5;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+        }
+        .mini-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            padding: 1rem;
+            border-radius: 18px;
+            transition: all 0.3s;
+        }
+        .mini-card:hover {
+            background: rgba(30, 41, 59, 0.8);
+            border-color: #6366f1;
+        }
+        .highlight-blue { border-right: 4px solid #38bdf8; background: rgba(56, 189, 248, 0.05); }
+        .highlight-purple { border-right: 4px solid #a855f7; background: rgba(168, 85, 247, 0.05); }
+        .highlight-red { border-right: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); }
+    </style>
+</head>
+<body class="p-4 md:p-10">
+
+    <div class="max-w-3xl mx-auto">
+        <!-- Dashboard Header -->
+        <div class="mb-10 text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900 border border-indigo-500/30 text-indigo-400 text-xs font-black mb-4 uppercase tracking-widest">
+                <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+                Chapter 03 | Level 12
+            </div>
+            <h1 class="text-4xl md:text-5xl font-black text-white mb-3">DIGITAL QUEST 🌐</h1>
+            <p class="text-slate-500 font-bold">نظام إدارة التعلم الرقمي (LMS)</p>
+            
+            <div class="mt-8 flex justify-between items-end mb-2 px-1">
+                <div class="text-right">
+                    <p class="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">Current Rank</p>
+                    <p id="rank-name" class="text-sm font-black text-white">مبتدئ رقمي</p>
+                </div>
+                <span id="progress-text" class="text-2xl font-black text-indigo-500">0%</span>
+            </div>
+            <div class="progress-container">
+                <div id="progress-bar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Main Quest Container -->
+        <div class="glass-card p-6 md:p-12 relative overflow-hidden min-h-[500px] flex flex-col justify-between">
+            
+            <!-- Step 1: Definition -->
+            <div class="quest-step active" data-step="1">
+                <span class="level-badge mb-8 inline-block">01. التعريف الأساسي</span>
+                <div class="text-5xl mb-6">🛰️</div>
+                <h2 class="text-3xl font-black mb-6 text-white leading-tight">ما هو نظام LMS؟</h2>
+                <div class="p-6 bg-indigo-950/30 rounded-3xl border border-indigo-500/20 text-xl leading-relaxed">
+                    هو <span class="text-indigo-400 font-bold">نظام إلكتروني</span> يُستخدم لإدارة العملية التعليمية بالكامل أونلاين.
+                    <div class="mt-4 flex gap-4 text-sm font-bold text-slate-400">
+                        <span>🔓 وصول 24/7</span>
+                        <span>🤝 تفاعل ذكي</span>
+                        <span>📊 متابعة دقيقة</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Functions -->
+            <div class="quest-step" data-step="2">
+                <span class="level-badge mb-8 inline-block">02. مهام النظام</span>
+                <div class="text-5xl mb-6">⚙️</div>
+                <h2 class="text-3xl font-black mb-6 text-white">وظائف الـ LMS</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                    <div class="mini-card">👤 تسجيل وإعداد المتعلمين</div>
+                    <div class="mini-card">📂 إدارة بيانات الطلاب</div>
+                    <div class="mini-card">📤 تقديم المحتوى التعليمي</div>
+                    <div class="mini-card">📅 تنظيم الصفوف والجداول</div>
+                    <div class="mini-card">📈 متابعة تقدم المتعلمين</div>
+                    <div class="mini-card">📝 إدارة الاختبارات والواجبات</div>
+                </div>
+            </div>
+
+            <!-- Step 3: Components 1 -->
+            <div class="quest-step" data-step="3">
+                <span class="level-badge mb-8 inline-block">03. المكونات (أ)</span>
+                <div class="text-5xl mb-6">🧩</div>
+                <h2 class="text-3xl font-black mb-6 text-white">إدارة المتعلم وتوصيل المحتوى</h2>
+                <div class="space-y-4 highlight-blue p-4">
+                    <p class="text-lg">✔️ عرض المقررات المتاحة</p>
+                    <p class="text-lg">✔️ التحقق من المتطلبات السابقة</p>
+                    <p class="text-lg">✔️ إشعار المتعلم ببيانات التسجيل</p>
+                    <p class="text-lg">✔️ إتاحة المحتوى فور التسجيل</p>
+                </div>
+            </div>
+
+            <!-- Step 4: Components 2 -->
+            <div class="quest-step" data-step="4">
+                <span class="level-badge mb-8 inline-block">04. المكونات (ب)</span>
+                <div class="text-5xl mb-6">🧠</div>
+                <h2 class="text-3xl font-black mb-6 text-white">إدارة التعلم</h2>
+                <div class="space-y-4 highlight-purple p-4">
+                    <p class="text-lg italic">هنا بنركز على "التنظيم":</p>
+                    <ul class="list-disc list-inside space-y-2 text-slate-300">
+                        <li>إدارة الفصل الدراسي الإلكتروني</li>
+                        <li>إنشاء التقارير الدورية</li>
+                        <li>تنظيم الأنشطة التعليمية</li>
+                        <li>مراقبة الجداول الزمنية</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 5: Interface & Tools -->
+            <div class="quest-step" data-step="5">
+                <span class="level-badge mb-8 inline-block">05. الأدوات</span>
+                <div class="text-5xl mb-6">🎨</div>
+                <h2 class="text-3xl font-black mb-6 text-white">الواجهة والتأليف</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-5 bg-slate-900/80 rounded-2xl border border-slate-700">
+                        <strong class="text-sky-400 block mb-2">🖥️ واجهة النظام:</strong>
+                        البوابة اللي بتخليك تتنقل بسهولة وتوصل لكل حاجة.
+                    </div>
+                    <div class="p-5 bg-slate-900/80 rounded-2xl border border-slate-700">
+                        <strong class="text-purple-400 block mb-2">✍️ أدوات التأليف:</strong>
+                        تساعد المعلم في تصميم محتوى احترافي دون الحاجة لبرمجة.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6: Sync Communication -->
+            <div class="quest-step" data-step="6">
+                <span class="level-badge mb-8 inline-block">06. التواصل (1)</span>
+                <div class="text-5xl mb-6">⚡</div>
+                <h2 class="text-3xl font-black mb-6 text-white text-right">أدوات الاتصال المتزامن</h2>
+                <p class="text-slate-400 mb-6">يحدث في "نفس اللحظة" (Live):</p>
+                <div class="flex flex-col gap-4">
+                    <div class="flex items-center gap-4 bg-indigo-900/20 p-4 rounded-xl">
+                        <span class="text-3xl">💬</span>
+                        <div>
+                            <strong class="text-white">المحادثة (Chat):</strong>
+                            <p class="text-xs text-slate-400">تبادل الرسائل الفورية في الوقت الحقيقي.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 bg-indigo-900/20 p-4 rounded-xl">
+                        <span class="text-3xl">🎥</span>
+                        <div>
+                            <strong class="text-white">الفصول الافتراضية:</strong>
+                            <p class="text-xs text-slate-400">شرح مباشر، تفاعل بالصوت والصورة.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 7: Async Communication -->
+            <div class="quest-step" data-step="7">
+                <span class="level-badge mb-8 inline-block">07. التواصل (2)</span>
+                <div class="text-5xl mb-6">✉️</div>
+                <h2 class="text-3xl font-black mb-6 text-white">أدوات الاتصال غير المتزامن</h2>
+                <p class="text-slate-400 mb-4 italic">لا يتطلب تواجد المستخدمين في نفس الوقت:</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="mini-card text-center">📧 البريد الإلكتروني</div>
+                    <div class="mini-card text-center">🗣️ المنتديات</div>
+                    <div class="mini-card text-center">📢 الإعلانات</div>
+                    <div class="mini-card text-center">📁 مشاركة الملفات</div>
+                </div>
+            </div>
+
+            <!-- Step 8: Challenges -->
+            <div class="quest-step" data-step="8">
+                <span class="level-badge mb-8 inline-block">08. العوائق</span>
+                <div class="text-5xl mb-6">⚠️</div>
+                <h2 class="text-3xl font-black mb-6 text-white text-right">معوقات تواجهنا</h2>
+                <div class="space-y-3 highlight-red p-4 text-sm">
+                    <p>❌ قد لا تراعي دائمًا الفروق الفردية بشكل مثالي.</p>
+                    <p>❌ نقص التفاعل الاجتماعي المباشر بين الزملاء.</p>
+                    <p>❌ الحاجة لمهارات تقنية لاستخدام النظام بكفاءة.</p>
+                    <p>❌ مشكلات تقنية مثل انقطاع الإنترنت أو صعوبة الدخول.</p>
+                </div>
+            </div>
+
+            <!-- Step 9: Classification Standards -->
+            <div class="quest-step" data-step="9">
+                <span class="level-badge mb-8 inline-block">09. المعايير</span>
+                <div class="text-5xl mb-6">⚖️</div>
+                <h2 class="text-3xl font-black mb-6 text-white">تصنيفات الأنظمة</h2>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center p-3 bg-slate-800/40 rounded-lg">
+                        <span>1. الفئة المستهدفة</span>
+                        <span class="text-xs text-indigo-400 font-bold">تعليمي vs تجاري</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-slate-800/40 rounded-lg">
+                        <span>2. التكلفة</span>
+                        <span class="text-xs text-indigo-400 font-bold">مجاني vs مدفوع</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-slate-800/40 rounded-lg">
+                        <span>3. طريقة الاستخدام</span>
+                        <span class="text-xs text-indigo-400 font-bold">Cloud vs تثبيت محلي</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-slate-800/40 rounded-lg">
+                        <span>4. المعايير التقنية</span>
+                        <span class="text-xs text-indigo-400 font-bold">دعم SCORM</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 10: Open Source -->
+            <div class="quest-step" data-step="10">
+                <span class="level-badge mb-8 inline-block">10. المصدر المفتوح</span>
+                <div class="text-5xl mb-6">🔓</div>
+                <h2 class="text-3xl font-black mb-6 text-white">أنظمة مفتوحة المصدر (مجانية)</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-4 bg-emerald-900/20 border border-emerald-500/30 rounded-2xl text-center font-black text-emerald-400">Moodle</div>
+                    <div class="p-4 bg-emerald-900/20 border border-emerald-500/30 rounded-2xl text-center font-black text-emerald-400">Sakai</div>
+                    <div class="p-4 bg-emerald-900/20 border border-emerald-500/30 rounded-2xl text-center font-black text-emerald-400">Dokeos</div>
+                    <div class="p-4 bg-emerald-900/20 border border-emerald-500/30 rounded-2xl text-center font-black text-emerald-400">Claroline</div>
+                </div>
+            </div>
+
+            <!-- Step 11: Proprietary Systems -->
+            <div class="quest-step" data-step="11">
+                <span class="level-badge mb-8 inline-block">11. الأنظمة المغلقة</span>
+                <div class="text-5xl mb-6">🔒</div>
+                <h2 class="text-3xl font-black mb-6 text-white">الأنظمة التجارية (المدفوعة)</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-4 bg-red-900/20 border border-red-500/30 rounded-2xl text-center font-black text-red-400">Blackboard</div>
+                    <div class="p-4 bg-red-900/20 border border-red-500/30 rounded-2xl text-center font-black text-red-400">Classera</div>
+                    <div class="p-4 bg-red-900/20 border border-red-500/30 rounded-2xl text-center font-black text-red-400">Google Classroom</div>
+                    <div class="p-4 bg-red-900/20 border border-red-500/30 rounded-2xl text-center font-black text-red-400">WizIQ</div>
+                </div>
+            </div>
+
+            <!-- Step 12: Conclusion -->
+            <div class="quest-step" data-step="12">
+                <div class="text-center py-8">
+                    <div class="text-7xl mb-6 animate-bounce">🏆</div>
+                    <h2 class="text-4xl font-black text-white mb-4">LEVEL 12 UNLOCKED!</h2>
+                    <p class="text-slate-400 mb-8">لقد تم إكمال مهام الفصل الثالث بنجاح.</p>
+                    
+                    <div class="bg-gradient-to-r from-slate-900 to-indigo-900 p-6 rounded-3xl border border-indigo-500/50">
+                        <p class="text-sm font-bold text-indigo-300 mb-4 italic">ملخص سريع للمحترفين:</p>
+                        <div class="flex flex-wrap justify-center gap-2">
+                            <span class="px-3 py-1 bg-white/10 rounded text-[10px]">LMS = إدارة تعلم</span>
+                            <span class="px-3 py-1 bg-white/10 rounded text-[10px]">متزامن = مباشر</span>
+                            <span class="px-3 py-1 bg-white/10 rounded text-[10px]">Moodle = مفتوح</span>
+                            <span class="px-3 py-1 bg-white/10 rounded text-[10px]">Blackboard = مدفوع</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="mt-12 flex justify-between items-center border-t border-slate-700/50 pt-8">
+                <button id="prevBtn" class="px-6 py-2 rounded-xl text-slate-500 font-bold hover:text-white transition-all disabled:opacity-0" onclick="changeStep(-1)">السابق</button>
+                <button id="nextBtn" class="btn-next px-10 py-3 rounded-2xl font-black tracking-widest uppercase text-xs" onclick="changeStep(1)">Next Step</button>
+            </div>
+        </div>
+
+        <div class="mt-8 text-center opacity-30">
+            <p class="text-[10px] font-bold tracking-[0.3em] text-white">CHAPTER 03 • SYSTEMS & STANDARDS • LEARNING QUEST</p>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 12;
+
+        const ranks = [
+            "مبتدئ رقمي", "مبتدئ رقمي", "مستكشف الأدوات", "مستكشف الأدوات", 
+            "منظم تعلم", "خبير تواصل", "خبير تواصل", "محلل عوائق", 
+            "مصنف أنظمة", "محترف مودل", "محترف أنظمة", "بطل الفصل الثالث"
+        ];
+
+        function updateUI() {
+            document.querySelectorAll('.quest-step').forEach(step => step.classList.remove('active'));
+            document.querySelector(`.quest-step[data-step="${currentStep}"]`).classList.add('active');
+
+            const progress = Math.round(((currentStep - 1) / (totalSteps - 1)) * 100);
+            document.getElementById('progress-bar').style.width = progress + '%';
+            document.getElementById('progress-text').innerText = progress + '%';
+            document.getElementById('rank-name').innerText = ranks[currentStep-1];
+
+            const nextBtn = document.getElementById('nextBtn');
+            if (currentStep === totalSteps) {
+                nextBtn.innerText = "Finish Level 🏁";
+                nextBtn.classList.replace('bg-indigo-600', 'bg-emerald-600');
+            } else {
+                nextBtn.innerText = "Next Step";
+                nextBtn.classList.add('bg-indigo-600');
+            }
+
+            document.getElementById('prevBtn').disabled = (currentStep === 1);
+        }
+
+        function changeStep(n) {
+            currentStep += n;
+            if (currentStep > totalSteps) {
+                currentStep = totalSteps;
+                return;
+            }
+            if (currentStep < 1) currentStep = 1;
+            updateUI();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        updateUI();
+    </script>
+</body>
+</html>

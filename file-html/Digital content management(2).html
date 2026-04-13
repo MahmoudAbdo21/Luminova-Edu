@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level Up - الفصل الثاني - Level 11</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #0f172a; /* Dark Navy Background */
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.95); /* Darker Slate Card */
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            border: 1px solid #334155;
+        }
+        .level-badge {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 6px 18px;
+            border-radius: 99px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+        }
+        .progress-container {
+            height: 14px;
+            background: #334155;
+            border-radius: 7px;
+            overflow: hidden;
+            border: 1px solid #475569;
+        }
+        #progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #059669);
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .quest-step {
+            display: none;
+            animation: slideUp 0.6s ease-out;
+        }
+        .quest-step.active {
+            display: block;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .btn-next {
+            background: #4f46e5;
+            color: white;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+        }
+        .btn-next:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+        }
+        .btn-prev:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        .emoji-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
+        }
+        .highlight-box {
+            background: rgba(59, 130, 246, 0.1);
+            border-right: 4px solid #3b82f6;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 12px;
+        }
+        .mini-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #334155;
+            padding: 1.25rem;
+            border-radius: 16px;
+            transition: transform 0.2s;
+        }
+        .mini-card:hover {
+            transform: scale(1.02);
+            border-color: #4f46e5;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-3xl mx-auto">
+        <!-- Header / Progress Area -->
+        <div class="mb-8 text-center">
+            <div class="inline-block px-4 py-1 rounded-full bg-indigo-900/50 text-indigo-300 text-xs font-bold mb-3 tracking-widest uppercase border border-indigo-700">
+                Chapter 02 | Level 11
+            </div>
+            <h1 class="text-4xl font-black text-white mb-2 tracking-tight">🚀 LEVEL UP QUEST</h1>
+            <p class="text-slate-400 mb-6 font-medium">مهمتك اليوم: إتقان نظم إدارة التعلم</p>
+            
+            <div class="flex justify-between items-center mb-3 px-2">
+                <span class="text-sm font-bold text-slate-500 italic">Quest Progress</span>
+                <span id="progress-text" class="text-sm font-black text-indigo-400">0%</span>
+            </div>
+            <div class="progress-container">
+                <div id="progress-bar" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Quest Card Container -->
+        <div class="glass-card p-6 md:p-12 relative overflow-hidden">
+            <!-- Decorative Light -->
+            <div class="absolute -top-24 -left-24 w-48 h-48 bg-indigo-600/10 rounded-full blur-3xl"></div>
+            
+            <!-- Step 1: Definition -->
+            <div class="quest-step active" data-step="1">
+                <span class="level-badge mb-6 inline-block">المحطة 1: البداية</span>
+                <span class="emoji-icon">🌟</span>
+                <h2 class="text-3xl font-bold mb-6 text-white leading-tight">يعني إيه نظم إدارة التعلم الإلكتروني؟</h2>
+                <p class="text-xl leading-relaxed text-slate-300">
+                    ببساطة جدًا 👇<br>
+                    تخيلي عندك مدرسة أونلاين كاملة على الإنترنت…<br>
+                    فيها:<br>
+                    <span class="text-indigo-400">طلاب 👩‍🎓 | مدرسين 👨‍🏫 | محاضرات 📚 | امتحانات 📝</span>
+                </p>
+            </div>
+
+            <!-- Step 2: The Heart -->
+            <div class="quest-step" data-step="2">
+                <span class="level-badge mb-6 inline-block">المحطة 2: القلب</span>
+                <span class="emoji-icon">🧠</span>
+                <h2 class="text-3xl font-bold mb-6 text-white leading-tight">ليه بنقول عليه "القلب" بتاع التعلم الإلكتروني؟</h2>
+                <div class="highlight-box text-lg leading-loose">
+                    لأنه بيعمل كل حاجة:<br>
+                    ✅ تسجيل الطلبة | ✅ عرض المحتوى | ✅ متابعة الطلاب | ✅ امتحانات | ✅ تقارير<br>
+                    <p class="mt-4 text-white font-black text-xl">👉 يعني من غيره التعلم الإلكتروني "يتلخبط"</p>
+                </div>
+            </div>
+
+            <!-- Step 3: Fast Comparison -->
+            <div class="quest-step" data-step="3">
+                <span class="level-badge mb-6 inline-block">المحطة 3: الرموز</span>
+                <span class="emoji-icon">🧩</span>
+                <h2 class="text-3xl font-bold mb-6 text-white leading-tight">خريطة الأنظمة السريعة</h2>
+                <div class="space-y-4 text-lg">
+                    <p class="flex items-center gap-3"><span class="w-2 h-2 bg-indigo-500 rounded-full"></span> •👉 <strong>CMS (المقرر)</strong> = إدارة كورس</p>
+                    <p class="flex items-center gap-3"><span class="w-2 h-2 bg-purple-500 rounded-full"></span> •👉 <strong>LMS</strong> = إدارة التعلم بالكامل</p>
+                    <p class="flex items-center gap-3"><span class="w-2 h-2 bg-pink-500 rounded-full"></span> •👉 <strong>LCMS</strong> = محتوى + تعلم</p>
+                    <p class="flex items-center gap-3"><span class="w-2 h-2 bg-blue-500 rounded-full"></span> •👉 <strong>LAMS</strong> = أنشطة</p>
+                    <p class="flex items-center gap-3"><span class="w-2 h-2 bg-emerald-500 rounded-full"></span> •👉 <strong>Smart</strong> = ذكاء اصطناعي</p>
+                </div>
+            </div>
+
+            <!-- Step 4: Functions 1-4 -->
+            <div class="quest-step" data-step="4">
+                <span class="level-badge mb-6 inline-block">المحطة 4: الوظائف (1)</span>
+                <span class="emoji-icon">⚙️</span>
+                <h2 class="text-3xl font-bold mb-6 text-white">وظائف نظم إدارة التعلم (جزء 1)</h2>
+                <div class="space-y-4 text-right">
+                    <div class="mini-card">
+                        <strong class="text-indigo-400">1. تسجيل وإدارة الطلاب 👥</strong><br>
+                        <p class="mt-1 text-slate-300">الطالب يعمل أكونت، يدخل الكورس، يتقسم جروبات.</p>
+                        <p class="text-sm text-slate-500 mt-2 italic">📌 مثال: زي لما تدخلي جوجل كلاس روم بالكود.</p>
+                    </div>
+                    <div class="mini-card">
+                        <strong class="text-indigo-400">2. إنشاء المحتوى 📚</strong><br>
+                        <p class="mt-1 text-slate-300">المدرس يرفع: PDF، PowerPoint، فيديو. 👉 من غير تعقيد.</p>
+                    </div>
+                    <div class="mini-card">
+                        <strong class="text-indigo-400">3. توصيل المحتوى 🚀</strong><br>
+                        <p class="mt-1 text-slate-300">الطالب يوصله المحتوى بسهولة وسرعة.</p>
+                    </div>
+                    <div class="mini-card">
+                        <strong class="text-indigo-400">4. إدارة الكورسات ✏️</strong><br>
+                        <p class="mt-1 text-slate-300">تعديل / حذف / إضافة، تنظيم الدروس.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Functions 5-8 -->
+            <div class="quest-step" data-step="5">
+                <span class="level-badge mb-6 inline-block">المحطة 5: الوظائف (2)</span>
+                <span class="emoji-icon">📢</span>
+                <h2 class="text-3xl font-bold mb-6 text-white">وظائف نظم إدارة التعلم (جزء 2)</h2>
+                <div class="space-y-4">
+                    <div class="mini-card">
+                        <strong class="text-emerald-400">5. إدارة التعلم 🤝</strong><br>
+                        <p class="mt-1 text-slate-300">تفاعل بين الطالب والمدرس والطلبة مع بعض.</p>
+                        <p class="text-sm text-slate-500 mt-2 italic">📌 مثال: مناقشات أو كومنتات.</p>
+                    </div>
+                    <div class="mini-card">
+                        <strong class="text-emerald-400">6. التواصل 📢</strong><br>
+                        <p class="mt-1 text-slate-300">رسائل، منتديات، إعلانات.</p>
+                    </div>
+                    <div class="mini-card">
+                        <strong class="text-emerald-400">7. التقييم 📝</strong><br>
+                        <p class="mt-1 text-slate-300">امتحانات، كويزات، ملفات إنجاز.</p>
+                    </div>
+                    <div class="mini-card">
+                        <strong class="text-emerald-400">8. التقارير 📊</strong><br>
+                        <p class="mt-1 text-slate-300">متابعة درجات الطالب، مستواه، تقدمه.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6: Users -->
+            <div class="quest-step" data-step="6">
+                <span class="level-badge mb-6 inline-block">المحطة 6: اللاعبون</span>
+                <span class="emoji-icon">👩‍💻</span>
+                <h2 class="text-3xl font-bold mb-6 text-white">المستخدمين في النظام</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="mini-card text-center border-indigo-500/30">
+                        <span class="text-4xl">👩‍🎓</span><br>
+                        <strong class="text-white block mt-2">الطالب</strong>
+                        <p class="text-xs text-slate-400 mt-1">يدخل، يحل، يشارك.</p>
+                    </div>
+                    <div class="mini-card text-center border-emerald-500/30">
+                        <span class="text-4xl">👨‍🏫</span><br>
+                        <strong class="text-white block mt-2">المدرس</strong>
+                        <p class="text-xs text-slate-400 mt-1">يشرح، يرفع، يمتحن.</p>
+                    </div>
+                    <div class="mini-card text-center border-purple-500/30">
+                        <span class="text-4xl">👨‍💼</span><br>
+                        <strong class="text-white block mt-2">الإداري</strong>
+                        <p class="text-xs text-slate-400 mt-1">ينظم، يدير الحسابات.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 7: Features -->
+            <div class="quest-step" data-step="7">
+                <span class="level-badge mb-6 inline-block">المحطة 7: المميزات</span>
+                <span class="emoji-icon">✅</span>
+                <h2 class="text-3xl font-bold mb-6 text-white uppercase tracking-tighter">مميزات نظم إدارة التعلم</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="p-3 bg-slate-800/50 rounded-xl border border-slate-700 text-slate-300 text-sm">✅ 1. متاحة في أي وقت (3 الفجر عادي 😅)</div>
+                    <div class="p-3 bg-slate-800/50 rounded-xl border border-slate-700 text-slate-300 text-sm">✅ 2. مرنة (مش مرتبطة بمكان)</div>
+                    <div class="p-3 bg-slate-800/50 rounded-xl border border-slate-700 text-slate-300 text-sm">✅ 3. الطالب هو المسؤول</div>
+                    <div class="p-3 bg-slate-800/50 rounded-xl border border-slate-700 text-slate-300 text-sm">✅ 4. عدد غير محدود (آلاف الطلبة)</div>
+                    <div class="p-3 bg-slate-800/50 rounded-xl border border-slate-700 text-slate-300 text-sm">✅ 5. مصادر كتير (فيديو+كتب)</div>
+                    <div class="p-3 bg-slate-800/50 rounded-xl border border-slate-700 text-slate-300 text-sm">✅ 6. تفاعل كبير</div>
+                    <div class="p-3 bg-slate-800/50 rounded-xl border border-slate-700 text-slate-300 text-sm">✅ 7. تعلم جماعي</div>
+                    <div class="p-3 bg-slate-800/50 rounded-xl border border-slate-700 text-slate-300 text-sm">✅ 8. تحليل بيانات</div>
+                </div>
+            </div>
+
+            <!-- Step 8: CMS Focus -->
+            <div class="quest-step" data-step="8">
+                <span class="level-badge mb-6 inline-block">المحطة 8: التفصيل (CMS)</span>
+                <span class="emoji-icon">🎯</span>
+                <h2 class="text-3xl font-bold mb-6 text-white">نظام إدارة المحتوى (CMS)</h2>
+                <p class="mb-4 text-slate-400 font-bold">ده بيعمل إيه؟</p>
+                <div class="bg-indigo-900/30 p-6 rounded-2xl border border-indigo-500/30 leading-loose text-indigo-100">
+                    1. إنشاء محتوى التعليمي (كائنات ومستودعات)<br>
+                    2. تخزينه<br>
+                    3. إعادة استخدامه<br>
+                    <span class="text-slate-400 block mt-2 text-sm italic italic">📌 مثال: تعملي درس وتستخدميه تاني في كورس تاني.</span>
+                </div>
+                <div class="mt-6 flex flex-wrap gap-2 text-xs">
+                    <span class="bg-slate-700 px-3 py-1 rounded">إنشاء المحتوى</span>
+                    <span class="bg-slate-700 px-3 py-1 rounded">المستودع</span>
+                    <span class="bg-slate-700 px-3 py-1 rounded">شخصنة المحتوى</span>
+                    <span class="bg-slate-700 px-3 py-1 rounded">المستخدمين</span>
+                </div>
+            </div>
+
+            <!-- Step 9: CMS Categories -->
+            <div class="quest-step" data-step="9">
+                <span class="level-badge mb-6 inline-block">المحطة 9: أنواع CMS</span>
+                <span class="emoji-icon">🛰️</span>
+                <h2 class="text-3xl font-bold mb-6 text-white">تصنيفات إدارة المحتوى</h2>
+                <div class="space-y-3">
+                    <div class="mini-card text-sm"><strong>1️⃣ البوابات الإلكترونية:</strong> مواقع إخبارية وجامعية.</div>
+                    <div class="mini-card text-sm"><strong>2️⃣ المدونات:</strong> بلوجر ووردبريس.</div>
+                    <div class="mini-card text-sm"><strong>3️⃣ المنتديات:</strong> للنقاش (زي زمان 😄).</div>
+                    <div class="mini-card text-sm"><strong>4️⃣ المتاجر:</strong> جوميا وأمازون.</div>
+                    <div class="mini-card text-sm"><strong>5️⃣ الويكي:</strong> مشاركة جماعية (ويكيبيديا).</div>
+                </div>
+            </div>
+
+            <!-- Step 10: Course Management -->
+            <div class="quest-step" data-step="10">
+                <span class="level-badge mb-6 inline-block">المحطة 10: نظام المقرر</span>
+                <span class="emoji-icon">📈</span>
+                <h2 class="text-3xl font-bold mb-6 text-white">Course Management System</h2>
+                <p class="text-slate-400 mb-6 italic italic">هو أكثر تطور من CMS لأنه مش محتوى بس.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="p-4 bg-slate-900 rounded-xl border border-slate-700">وضع المقرر أونلاين</div>
+                    <div class="p-4 bg-slate-900 rounded-xl border border-slate-700">تتبع تقدم الطالب</div>
+                    <div class="p-4 bg-slate-900 rounded-xl border border-slate-700">لوحة المناقشة</div>
+                    <div class="p-4 bg-slate-900 rounded-xl border border-slate-700">أدوات تواصل</div>
+                </div>
+                <div class="p-4 bg-red-900/20 rounded-xl border border-red-800/50 text-red-400 text-sm font-bold">
+                    ❌ العيوب: مرونة قليلة، تفاعل محدود، مشاكل أمان، ضعف في الحفظ.
+                </div>
+            </div>
+
+            <!-- Step 11: LCMS -->
+            <div class="quest-step" data-step="11">
+                <span class="level-badge mb-6 inline-block">المحطة 11: مصنع المحتوى</span>
+                <span class="emoji-icon">⚒️</span>
+                <h2 class="text-3xl font-bold mb-6 text-white">نظام LCMS</h2>
+                <p class="mb-4 text-purple-400 font-bold uppercase tracking-wider">Learning Content Management System</p>
+                <div class="bg-gradient-to-br from-purple-900/40 to-indigo-900/40 p-6 rounded-2xl border border-purple-500/30">
+                    <strong class="text-white text-lg block mb-2">💡 Learning Objects:</strong>
+                    هي "جزء صغير" (صورة، فيديو، سؤال) نقدر نعيد استخدامه كأنه مكعبات ليبو 🧱.<br><br>
+                    <strong>مهامه الأساسية:</strong><br>
+                    1. 📦 مستودع (Repository)<br>
+                    2. ✍️ إنشاء وتطوير المحتوى<br>
+                    3. 🔄 إعادة الاستخدام
+                </div>
+            </div>
+
+            <!-- Step 12: ERP & Conclusion -->
+            <div class="quest-step" data-step="12">
+                <span class="level-badge mb-6 inline-block">المحطة الأخيرة: المهمة اكتملت</span>
+                <span class="emoji-icon">🌌</span>
+                <h2 class="text-3xl font-bold mb-6 text-white">نظام ERP School</h2>
+                <p class="text-slate-300 mb-6">نظام إداري شامل للمؤسسة كلها (إدارة المؤسسة التعليمية وليس التعلم فقط).</p>
+                <div class="grid grid-cols-2 gap-2 text-xs text-slate-400 mb-8">
+                    <span>• تسجيل وقبول</span>
+                    <span>• حضور وغياب</span>
+                    <span>• رواتب وموظفين</span>
+                    <span>• جداول دراسية</span>
+                    <span>• حسابات وميزانية</span>
+                    <span>• تواصل مع الأولياء</span>
+                </div>
+                
+                <div class="bg-gradient-to-r from-indigo-600 to-purple-700 text-white p-8 rounded-3xl text-center shadow-2xl">
+                    <h3 class="text-3xl font-black mb-4 uppercase">Mission Accomplished! 🎉</h3>
+                    <p class="text-indigo-100 mb-6">لقد أنهيت الفصل الثاني بنجاح في Level 11.</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px] font-bold opacity-80 uppercase tracking-widest">
+                        <div class="bg-black/20 p-2 rounded">CMS: المقرر</div>
+                        <div class="bg-black/20 p-2 rounded">LMS: التعلم</div>
+                        <div class="bg-black/20 p-2 rounded">LCMS: العناصر</div>
+                        <div class="bg-black/20 p-2 rounded">ERP: المدرسة</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="mt-12 flex justify-between items-center border-t border-slate-700 pt-8">
+                <button id="prevBtn" class="btn-prev px-6 py-3 rounded-2xl font-bold text-slate-500 transition-colors disabled:opacity-0" onclick="changeStep(-1)">
+                    السابق
+                </button>
+                <button id="nextBtn" class="btn-next px-12 py-3 rounded-2xl font-bold" onclick="changeStep(1)">
+                    المهمة التالية 🚀
+                </button>
+            </div>
+
+        </div>
+        
+        <div class="flex flex-col items-center mt-8 space-y-2">
+            <p class="text-slate-600 text-[10px] font-bold tracking-[0.2em] uppercase">Level Up • Chapter 02 • Station 11</p>
+            <p class="text-slate-800 text-xs">صُمم باحترافية لسلمى 🌟</p>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 12;
+
+        function updateUI() {
+            // Hide all steps
+            document.querySelectorAll('.quest-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            // Show current step
+            document.querySelector(`.quest-step[data-step="${currentStep}"]`).classList.add('active');
+
+            // Update Progress
+            const progressPercent = Math.round(((currentStep - 1) / (totalSteps - 1)) * 100);
+            document.getElementById('progress-bar').style.width = progressPercent + '%';
+            document.getElementById('progress-text').innerText = progressPercent + '%';
+
+            // Update Buttons
+            const nextBtn = document.getElementById('nextBtn');
+            const prevBtn = document.getElementById('prevBtn');
+
+            if (currentStep === totalSteps) {
+                nextBtn.innerText = "إنهاء المهمة ✨";
+                nextBtn.classList.replace('btn-next', 'bg-emerald-600');
+            } else {
+                nextBtn.innerText = "المهمة التالية 🚀";
+                nextBtn.classList.add('btn-next');
+                nextBtn.classList.remove('bg-emerald-600');
+            }
+
+            prevBtn.disabled = (currentStep === 1);
+        }
+
+        function changeStep(n) {
+            currentStep += n;
+            if (currentStep > totalSteps) {
+                // Final interaction
+                document.querySelector('.glass-card').innerHTML = `
+                    <div class="text-center py-16 animate-pulse">
+                        <span class="text-8xl">💎</span>
+                        <h2 class="text-4xl font-black text-white mt-8 uppercase tracking-tighter">Level 11 Complete!</h2>
+                        <p class="text-indigo-400 mt-4 text-xl">أنتِ الآن جاهزة لاختبار الفصل الثاني.</p>
+                        <button onclick="location.reload()" class="mt-12 px-10 py-3 bg-slate-800 border border-slate-700 text-white rounded-full hover:bg-slate-700 transition-all font-bold">إعادة استكشاف المحطات</button>
+                    </div>
+                `;
+                return;
+            }
+            if (currentStep < 1) currentStep = 1;
+            updateUI();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize
+        updateUI();
+    </script>
+</body>
+</html>
