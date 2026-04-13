@@ -225,7 +225,18 @@
 
 
 
-        const isDoctor  = certificate.senderRole === 'doctor';
+        let displayRoleAr = certificate.senderRole || '';
+        let displayRoleEn = certificate.senderRoleEn || '';
+        
+        if (certificate.senderRole === 'doctor') {
+            displayRoleAr = 'دكتور المادة';
+            displayRoleEn = 'Professor';
+        } else if (certificate.senderRole === 'student') {
+            displayRoleAr = 'مسؤول المنصة';
+            displayRoleEn = 'Platform Moderator';
+        }
+
+        const isGoldSeal = certificate.sealType === 'gold' || (!certificate.sealType && certificate.senderRole === 'doctor');
 
         const studentName = lang === 'ar' ? certificate.studentName : (certificate.studentNameEn || certificate.studentName);
         const senderName  = lang === 'ar' ? certificate.senderName  : (certificate.senderNameEn  || certificate.senderName);
@@ -269,7 +280,7 @@
                             <div style=${{ position: 'absolute', inset: '24px', border: '3px solid #B8860B', boxSizing: 'border-box', pointerEvents: 'none', zIndex: 6 }}></div>
 
                             <!-- LAYER 3: Centered Watermark (text, no external image load) -->
-                            <div style=${{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: '120px', fontWeight: 900, color: '#000', opacity: 0.025, whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: 1, userSelect: 'none' }}>
+                            <div style=${{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(-45deg)', fontSize: '180px', fontWeight: 900, color: '#000', opacity: 0.03, whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: 1, userSelect: 'none' }}>
                                 LUMINOVA
                             </div>
 
@@ -318,13 +329,13 @@
                                 width: '88px', height: '88px', borderRadius: '50%',
                                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                                 transform: 'rotate(-12deg)',
-                                border: '4px solid ' + (isDoctor ? '#fde68a' : '#cbd5e1'),
-                                background: isDoctor ? 'linear-gradient(135deg,#fde68a,#f59e0b,#d97706)' : 'linear-gradient(135deg,#e2e8f0,#94a3b8,#64748b)',
+                                border: '4px solid ' + (isGoldSeal ? '#fde68a' : '#cbd5e1'),
+                                background: isGoldSeal ? 'linear-gradient(135deg,#fde68a,#f59e0b,#d97706)' : 'linear-gradient(135deg,#e2e8f0,#94a3b8,#64748b)',
                                 boxShadow: '0 8px 24px rgba(0,0,0,0.18)'
                             }}>
                                 <span style=${{ fontSize: '28px', lineHeight: 1 }}>🏅</span>
-                                <span style=${{ fontSize: '9px', fontWeight: 900, marginTop: '3px', textAlign: 'center', textTransform: 'uppercase', color: isDoctor ? '#fff' : '#1e293b', letterSpacing: 'normal' }}>
-                                    ${isDoctor ? 'Official' : 'Peer'}
+                                <span style=${{ fontSize: '9px', fontWeight: 900, marginTop: '3px', textAlign: 'center', textTransform: 'uppercase', color: isGoldSeal ? '#fff' : '#1e293b', letterSpacing: 'normal' }}>
+                                    ${isGoldSeal ? 'Official' : 'Peer'}
                                 </span>
                             </div>
 
@@ -334,7 +345,7 @@
                                     ${senderName}
                                 </p>
                                 <div style=${{ fontSize: '12px', fontWeight: 500, color: '#94a3b8', direction: 'rtl' }}>
-                                    ${isDoctor ? (lang === 'ar' ? 'دكتور المادة' : 'Professor') : (lang === 'ar' ? 'مسؤول المنصة' : 'Platform Moderator')}
+                                    ${lang === 'ar' ? displayRoleAr : displayRoleEn}
                                 </div>
                             </div>
 

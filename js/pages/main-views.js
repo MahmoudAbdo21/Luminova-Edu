@@ -77,7 +77,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
     Luminova.Pages = {};
 
     Luminova.Pages.HomePage = ({ data, lang, setView, setActiveSummary }) => {
-        const [newsVisibleCount, setNewsVisibleCount] = window.React.useState(5);
+        const [newsVisibleCount, setNewsVisibleCount] = window.React.useState(8);
         const [latestCert, setLatestCert] = window.React.useState(null);
         const [newsSearchQuery, setNewsSearchQuery] = window.React.useState('');
         const [showSearch, setShowSearch] = window.React.useState(false);
@@ -283,8 +283,9 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
 
                         <div className="col-span-full flex flex-col sm:flex-row justify-center items-center gap-4 mt-6">
                             ${(!newsSearchQuery.trim()) && (visibleNews.length < sortedNews.length) && html`
-                                <button onClick=${() => setNewsVisibleCount(prev => prev + 5)} className="px-8 py-3 bg-brand-DEFAULT hover:bg-brand-hover text-white font-bold rounded-xl shadow-md transition-transform hover:scale-105 active:scale-95">
-                                    ${lang === 'ar' ? 'عرض المزيد' : 'Load More'}
+                                <button onClick=${() => setNewsVisibleCount(prev => prev + 5)} className="w-full sm:w-auto px-8 py-3 bg-brand-DEFAULT hover:bg-brand-hover text-white font-bold rounded-xl shadow-md transition-transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
+                                    <span>${lang === 'ar' ? 'عرض المزيد' : 'Load More'}</span>
+                                    <span className="opacity-70 text-sm font-normal">(${sortedNews.length - newsVisibleCount} ${lang === 'ar' ? 'متبقية' : 'remaining'})</span>
                                 </button>
                             `}
                             

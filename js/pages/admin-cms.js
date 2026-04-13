@@ -14,6 +14,54 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
         const [qItem, setQItem] = useState(null); // Extracted dynamically to fix rules of hooks crash
         const [cmsSearchQuery, setCmsSearchQuery] = useState('');
         
+        const [isTranslating, setIsTranslating] = useState(false);
+
+        const translateText = async (arabicText) => {
+            if (!arabicText || !arabicText.trim()) return '';
+            try {
+                const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(arabicText)}&langpair=ar|en`);
+                const resData = await response.json();
+                return resData.responseData?.translatedText || '';
+            } catch (error) {
+                console.error('Translation failed:', error);
+                return '';
+            }
+        };
+
+        const handleAutoTranslate = async () => {
+            if (!editingItem) return;
+            setIsTranslating(true);
+            try {
+                let updates = { ...editingItem };
+                
+                if (activeTab === 'news' || activeTab === 'summaries') {
+                    if (updates.titleAr && !updates.titleEn) updates.titleEn = await translateText(updates.titleAr);
+                    if (updates.contentAr && !updates.contentEn) updates.contentEn = await translateText(updates.contentAr);
+                } else if (activeTab === 'quizzes') {
+                    const titleToTranslate = updates.titleAr || updates.title;
+                    if (titleToTranslate && !updates.titleEn) updates.titleEn = await translateText(titleToTranslate);
+                } else if (activeTab === 'certificates') {
+                    if (updates.title) updates.titleEn = await translateText(updates.title);
+                    if (updates.description) updates.descriptionEn = await translateText(updates.description);
+                    if (updates.senderName) updates.senderNameEn = await translateText(updates.senderName);
+                    if (updates.studentName) updates.studentNameEn = await translateText(updates.studentName);
+                    if (updates.senderRole) updates.senderRoleEn = await translateText(updates.senderRole);
+                } else if (['years', 'semesters', 'subjects', 'students'].includes(activeTab)) {
+                    if (updates.nameAr && !updates.nameEn) updates.nameEn = await translateText(updates.nameAr);
+                    if (activeTab === 'students') {
+                         if (updates.bioAr && !updates.bioEn) updates.bioEn = await translateText(updates.bioAr);
+                         if (updates.majorAr && !updates.majorEn) updates.majorEn = await translateText(updates.majorAr);
+                    }
+                }
+                setEditingItem(updates);
+            } catch (error) {
+                alert(lang === 'ar' ? '❌ فشلت الترجمة، تحقق من الاتصال' : '❌ Translation failed, check connection');
+            } finally {
+                setIsTranslating(false);
+            }
+        };
+
+        
         const [cmsVisibleCount, setCmsVisibleCount] = useState(15);
         const [filterYear, setFilterYear] = useState('');
         const [filterSem, setFilterSem] = useState('');
@@ -119,11 +167,20 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
         const handleSave = () => {
             if (!editingItem) return;
             editingItem.timestamp = editingItem.timestamp || new Date().toISOString();
+            if (activeTab === 'certificates') {
+                editingItem.date = editingItem.date || editingItem.timestamp;
+            }
             setData(prev => {
                 const isExisting = prev[activeTab].find(i => i.id === editingItem.id);
                 const newList = isExisting
                     ? prev[activeTab].map(i => i.id === editingItem.id ? editingItem : i)
                     : [editingItem, ...prev[activeTab]];
+                
+                // CRITICAL FIX: Ensure the public API sees the newly saved certificates
+                if (activeTab === 'certificates') {
+                    window.LUMINOVA_CERTIFICATES = newList;
+                }
+                
                 return { ...prev, [activeTab]: newList };
             });
             setEditingItem(null);
@@ -493,26 +550,85 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
                                     ${activeTab === 'certificates' ? html`
                                         <div className="col-span-2 w-full"><${Luminova.Components.Input} label="اسم الطالب المُكرم (Recipient Name - Arabic)" val=${editingItem.studentName} onChange=${v => setEditingItem({ ...editingItem, studentName: v })} /></div>
                                         <div className="col-span-2 w-full"><${Luminova.Components.Input} label="اسم الطالب المُكرم (Recipient Name - English)" val=${editingItem.studentNameEn} onChange=${v => setEditingItem({ ...editingItem, studentNameEn: v })} /></div>
-                                        <div className="col-span-2 w-full"><${Luminova.Components.Input} label="اسم المرسل/المانح (Sender Name - Arabic)" val=${editingItem.senderName} onChange=${v => setEditingItem({ ...editingItem, senderName: v })} /></div>
-                                        <div className="col-span-2 w-full"><${Luminova.Components.Input} label="اسم المرسل/المانح (Sender Name - English)" val=${editingItem.senderNameEn} onChange=${v => setEditingItem({ ...editingItem, senderNameEn: v })} /></div>
+                                        
                                         <div className="col-span-2 pt-4 border-t border-gray-200 dark:border-gray-700">
-                                            <label className="block text-sm font-black mb-3 opacity-80 text-brand-DEFAULT">دور المرسل/الختم (Seal Type)</label>
-                                            <div className="flex gap-4">
-                                                <label className="flex items-center gap-3 cursor-pointer bg-white dark:bg-gray-800 p-3 rounded-xl border-2 ${editingItem.senderRole === 'student' ? 'border-brand-DEFAULT' : 'border-gray-200 dark:border-gray-700'} shadow-sm flex-1">
-                                                    <input type="radio" value="student" checked=${editingItem.senderRole === 'student'} onChange=${() => setEditingItem({ ...editingItem, senderRole: 'student' })} className="w-5 h-5 accent-brand-DEFAULT" />
-                                                    <span className="font-bold">فضِّي 🥈 (Student/Peer)</span>
-                                                </label>
-                                                <label className="flex items-center gap-3 cursor-pointer bg-white dark:bg-gray-800 p-3 rounded-xl border-2 ${editingItem.senderRole === 'doctor' ? 'border-brand-gold' : 'border-gray-200 dark:border-gray-700'} shadow-sm flex-1">
-                                                    <input type="radio" value="doctor" checked=${editingItem.senderRole === 'doctor'} onChange=${() => setEditingItem({ ...editingItem, senderRole: 'doctor' })} className="w-5 h-5 accent-brand-gold" />
-                                                    <span className="font-bold text-brand-gold">ذهبي 🏅 (Doctor/Official)</span>
-                                                </label>
-                                            </div>
+                                            <label className="block text-sm font-black mb-2 opacity-80 text-brand-DEFAULT">اسم المرسل/المانح (Sender Name - Arabic)</label>
+                                            <input list="senderPresets" value=${editingItem.senderName || ''} onChange=${e => setEditingItem({ ...editingItem, senderName: e.target.value })} className="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 font-bold outline-none focus:border-brand-DEFAULT transition-all" placeholder="محمود عبد الرحمن" />
+                                            <datalist id="senderPresets">
+                                                <option value="محمود عبد الرحمن" />
+                                            </datalist>
                                         </div>
-                                        <div className="col-span-2 w-full"><${Luminova.Components.Input} label="عنوان الشهادة (Title - Arabic)" val=${editingItem.title} onChange=${v => setEditingItem({ ...editingItem, title: v })} /></div>
+                                        <div className="col-span-2 w-full"><${Luminova.Components.Input} label="اسم المرسل/المانح (Sender Name - English)" val=${editingItem.senderNameEn} onChange=${v => setEditingItem({ ...editingItem, senderNameEn: v })} /></div>
+                                        
+                                        <div className="col-span-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                            <label className="block text-sm font-black mb-3 opacity-80 text-brand-DEFAULT">دور المرسل أكاديمياً (Sender Role)</label>
+                                            <select 
+                                                value=${['زميل أكاديمي', 'دكتور مادة', 'مسؤول المنصة'].includes(editingItem.senderRole) ? editingItem.senderRole : (editingItem.senderRole ? 'custom' : '')} 
+                                                onChange=${e => {
+                                                    const val = e.target.value;
+                                                    setEditingItem({ ...editingItem, senderRole: val === 'custom' ? '' : val, senderRoleEn: '' });
+                                                }} 
+                                                className="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 font-bold outline-none focus:border-brand-DEFAULT transition-all mb-4">
+                                                <option value="">-- اختار الدور --</option>
+                                                <option value="زميل أكاديمي">زميل أكاديمي</option>
+                                                <option value="دكتور مادة">دكتور مادة</option>
+                                                <option value="مسؤول المنصة">مسؤول المنصة</option>
+                                                <option value="custom">✏️ تخصيص...</option>
+                                            </select>
+                                            ${!['زميل أكاديمي', 'دكتور مادة', 'مسؤول المنصة', ''].includes(editingItem.senderRole) && html`
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                                                    <${Luminova.Components.Input} label="Sender Role - Arabic" val=${editingItem.senderRole} onChange=${v => setEditingItem({ ...editingItem, senderRole: v })} />
+                                                    <${Luminova.Components.Input} label="Sender Role - English" val=${editingItem.senderRoleEn || ''} onChange=${v => setEditingItem({ ...editingItem, senderRoleEn: v })} />
+                                                </div>
+                                            `}
+                                        </div>
+                                        <div className="col-span-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                             <label className="block text-sm font-black mb-2 opacity-80 text-brand-DEFAULT">عنوان الشهادة (Title - Arabic Preset)</label>
+                                             <select 
+                                                 value=${['شهادة إثراء محتوى تقني', 'شهادة بطل الدفعة', 'شهادة تقدير تميز أكاديمي', 'شهادة مساهمة فعالة'].includes(editingItem.title) ? editingItem.title : (editingItem.title ? 'custom' : '')} 
+                                                 onChange=${e => {
+                                                     const val = e.target.value;
+                                                     setEditingItem({ ...editingItem, title: val === 'custom' ? '' : val });
+                                                 }} 
+                                                 className="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 font-bold outline-none focus:border-brand-DEFAULT transition-all mb-4">
+                                                 <option value="">-- اختار عنوان الشهادة --</option>
+                                                 <option value="شهادة إثراء محتوى تقني">شهادة إثراء محتوى تقني</option>
+                                                 <option value="شهادة بطل الدفعة">شهادة بطل الدفعة</option>
+                                                 <option value="شهادة تقدير تميز أكاديمي">شهادة تقدير تميز أكاديمي</option>
+                                                 <option value="شهادة مساهمة فعالة">شهادة مساهمة فعالة</option>
+                                                 <option value="custom">✏️ كتابة مخصصة...</option>
+                                             </select>
+                                             <${Luminova.Components.Input} label="عنوان الشهادة (Title - Arabic Custom)" val=${editingItem.title} onChange=${v => setEditingItem({ ...editingItem, title: v })} />
+                                        </div>
                                         <div className="col-span-2 w-full"><${Luminova.Components.Input} label="عنوان الشهادة (Title - English)" val=${editingItem.titleEn} onChange=${v => setEditingItem({ ...editingItem, titleEn: v })} /></div>
-                                        <div className="col-span-2 w-full"><${Luminova.Components.Input} type="textarea" label="الوصف وسبب المنح (Reason - Arabic)" val=${editingItem.description} onChange=${v => setEditingItem({ ...editingItem, description: v })} /></div>
+                                        
+                                        <div className="col-span-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                             <label className="block text-sm font-black mb-2 opacity-80 text-brand-DEFAULT">الوصف وسبب المنح (Reason - Arabic Preset)</label>
+                                             <select 
+                                                 value=${['تقديراً للمجهود الرائع والمشاركات الفعالة في إثراء المحتوى الأكاديمي.', 'لتفوقه الملحوظ وحصوله على أعلى الدرجات في التقييمات الأكاديمية.', 'لمساهمته الفعالة والمستمرة في دعم ومساعدة زملاء الدفعة.'].includes(editingItem.description) ? editingItem.description : (editingItem.description ? 'custom' : '')} 
+                                                 onChange=${e => {
+                                                     const val = e.target.value;
+                                                     setEditingItem({ ...editingItem, description: val === 'custom' ? '' : val });
+                                                 }} 
+                                                 className="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 font-bold outline-none focus:border-brand-DEFAULT transition-all mb-4">
+                                                 <option value="">-- اختار الوصف --</option>
+                                                 <option value="تقديراً للمجهود الرائع والمشاركات الفعالة في إثراء المحتوى الأكاديمي.">تقديراً للمجهود الرائع والمشاركات الفعالة في إثراء المحتوى الأكاديمي.</option>
+                                                 <option value="لتفوقه الملحوظ وحصوله على أعلى الدرجات في التقييمات الأكاديمية.">لتفوقه الملحوظ وحصوله على أعلى الدرجات في التقييمات الأكاديمية.</option>
+                                                 <option value="لمساهمته الفعالة والمستمرة في دعم ومساعدة زملاء الدفعة.">لمساهمته الفعالة والمستمرة في دعم ومساعدة زملاء الدفعة.</option>
+                                                 <option value="custom">✏️ كتابة مخصصة...</option>
+                                             </select>
+                                             <${Luminova.Components.Input} type="textarea" label="الوصف وسبب المنح (Reason - Arabic Custom)" val=${editingItem.description} onChange=${v => setEditingItem({ ...editingItem, description: v })} />
+                                        </div>
                                         <div className="col-span-2 w-full"><${Luminova.Components.Input} type="textarea" label="الوصف وسبب المنح (Reason - English)" val=${editingItem.descriptionEn} onChange=${v => setEditingItem({ ...editingItem, descriptionEn: v })} /></div>
                                         <div className="col-span-2 w-full p-4 border border-brand-DEFAULT rounded-xl"><${Luminova.Components.Input} type="checkbox" label="📌 إظهار كشهادة رئيسية في المنصة (Featured Certificate)" val=${editingItem.isFeatured} onChange=${v => setEditingItem({ ...editingItem, isFeatured: v })} /></div>
+                                        
+                                        <div className="col-span-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                            <label className="block text-sm font-black mb-3 opacity-80 tracking-wide text-brand-gold">نوع الشارة (Seal Type)</label>
+                                            <select value=${editingItem.sealType || 'gold'} onChange=${e => setEditingItem({ ...editingItem, sealType: e.target.value })} className="w-full p-4 rounded-xl bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 border-2 border-brand-gold font-black outline-none shadow-sm cursor-pointer">
+                                                <option value="gold">شارة ذهبية 🏅 (Gold Seal)</option>
+                                                <option value="silver">شارة فضية 🥈 (Silver Seal)</option>
+                                            </select>
+                                        </div>
                                         
                                         <!-- REALTIME LIVE PREVIEW -->
                                         ${window.Luminova?.Components?.CertificateCard ? html`
@@ -607,9 +723,16 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
                                     `}
                                 </div>
 
-                                <div className="mt-10 border-t-4 border-gray-200 dark:border-gray-800 pt-6 flex gap-6">
-                                    <${Luminova.Components.Button} onClick=${handleSave} className="flex-1 text-xl py-4 rounded-2xl shadow-[0_10px_40px_-10px_rgba(6,182,212,0.8)]">${Luminova.i18n[lang].save} Entity To Database</${Luminova.Components.Button}>
-                                    <${Luminova.Components.Button} variant="glass" onClick=${() => setEditingItem(null)} className="w-[30%] text-xl py-4 rounded-2xl">${Luminova.i18n[lang].cancel}</${Luminova.Components.Button}>
+                                <div className="mt-10 border-t-4 border-gray-200 dark:border-gray-800 pt-6 flex flex-col md:flex-row gap-6 items-center">
+                                    <${Luminova.Components.Button} onClick=${handleSave} className="flex-1 w-full text-xl py-4 rounded-2xl shadow-[0_10px_40px_-10px_rgba(6,182,212,0.8)]">${Luminova.i18n[lang].save} Entity To Database</${Luminova.Components.Button}>
+                                    <button
+                                        onClick=${handleAutoTranslate}
+                                        disabled=${isTranslating}
+                                        className="w-full md:w-auto px-6 py-4 rounded-2xl font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 hover:bg-purple-500 hover:text-white transition-all shadow-sm flex items-center justify-center gap-2 border border-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        ${isTranslating ? html`<span className="animate-spin">🔄</span>` : '🪄'}
+                                        ${lang === 'ar' ? 'ترجمة تلقائية للإنجليزية' : 'Auto-Translate to English'}
+                                    </button>
+                                    <${Luminova.Components.Button} variant="glass" onClick=${() => setEditingItem(null)} className="w-full md:w-[20%] text-xl py-4 rounded-2xl">${Luminova.i18n[lang].cancel}</${Luminova.Components.Button}>
                                 </div>
                             </div>
                         ` : html`
