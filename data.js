@@ -5,6 +5,45 @@
   },
   "news": [
     {
+      "id": "news_1776045679742",
+      "timestamp": "2026-04-13T02:01:19.742Z",
+      "titleAr": "اختبار على ذكاء وجداني 1",
+      "titleEn": "Emotional Intelligence Test 1",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "studentId": "students_1775125739063",
+      "mediaUrls": [
+        "https://docs.google.com/forms/d/e/1FAIpQLScX7BN0mT7d4Z-sxFmFanWSOg5A1fDwb_q3KVIv0L0qW5Vs_A/viewform"
+      ]
+    },
+    {
+      "id": "news_1776045618972",
+      "timestamp": "2026-04-13T02:00:18.973Z",
+      "titleAr": "اختبار على نظم إدارة المحتوى الرقمي الفصل الثاني",
+      "titleEn": "Test on Digital Content Management Systems, Second Semester",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "studentId": "students_1775125739063",
+      "mediaUrls": [
+        "https://docs.google.com/forms/d/e/1FAIpQLSfLW2ALo1Dy7RU8Lp2urG_PlPx9o7mBDV2rvgFydjcA-9V71g/viewform"
+      ]
+    },
+    {
+      "id": "news_1776045543116",
+      "timestamp": "2026-04-13T01:59:03.116Z",
+      "titleAr": "اختبار على ادارة المحتوى الرقمي الفصل الاول",
+      "titleEn": "Digital Content Management Test - First Semester",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "studentId": "students_1775125739063",
+      "mediaUrls": [
+        "https://docs.google.com/forms/d/e/1FAIpQLScuVjVh6u6fa2eyD1f3244HBEclbH0dAwvMdA2QFZ04Kn2HvQ/viewform"
+      ]
+    },
+    {
       "id": "news_1775854016936",
       "timestamp": "2026-04-10T20:46:56.936Z",
       "titleAr": "الفصل الثامن مشكلات النمو في مرحلة الطفولة والمراهقة",
