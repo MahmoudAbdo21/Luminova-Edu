@@ -76,42 +76,46 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
 
     Luminova.Pages = {};
 
-    Luminova.Pages.HomePage = ({ data, lang, setView, setActiveQuiz, setActiveSummary }) => {
-        const [expandedView, setExpandedView] = window.React.useState(null);
-        const [visibleCount, setVisibleCount] = window.React.useState(10);
+    Luminova.Pages.HomePage = ({ data, lang, setView, setActiveSummary }) => {
+        const [newsVisibleCount, setNewsVisibleCount] = window.React.useState(5);
+        const [latestCert, setLatestCert] = window.React.useState(null);
+        const [newsSearchQuery, setNewsSearchQuery] = window.React.useState('');
+        const [showSearch, setShowSearch] = window.React.useState(false);
 
-        const feedItems = useMemo(() => {
-            const groupedQuizActivities = {};
-            data.quizzes.forEach(q => {
-                (q.questions || []).forEach(qn => {
-                    const authorInfo = Luminova.getStudent(qn.studentId, data.students) || {};
-                    const authorNameAr = authorInfo.nameAr || authorInfo.name || '';
-                    const authorNameEn = authorInfo.nameEn || authorInfo.name || '';
-                    const qnTitleAr = `أضاف أسئلة في اختبار: ${q.titleAr || q.titleEn || q.title || 'اختبار'}`;
-                    const qnTitleEn = `Contributed questions to Quiz: ${q.titleEn || q.titleAr || q.title || 'Quiz'}`;
-                    const groupId = `${q.id}_${qn.studentId}`;
-                    if (!groupedQuizActivities[groupId]) {
-                        groupedQuizActivities[groupId] = {
-                            id: `group_${groupId}`,
-                            titleAr: qnTitleAr,
-                            titleEn: qnTitleEn,
-                            contentAr: `قام ${authorNameAr} بالمساهمة بإضافة أسئلة تفاعلية في هذا الاختبار.`,
-                            contentEn: `${authorNameEn} contributed interactive questions to this quiz.`,
-                            timestamp: qn.timestamp || q.timestamp || new Date().toISOString(),
-                            studentId: qn.studentId,
-                            subjectId: q.subjectId,
-                            isSingleQuestion: true,
-                            parentQuiz: q
-                        };
-                    } else {
-                        if (new Date(qn.timestamp) > new Date(groupedQuizActivities[groupId].timestamp)) {
-                            groupedQuizActivities[groupId].timestamp = qn.timestamp;
-                        }
-                    }
+        window.React.useEffect(() => {
+            const handleCerts = (certs) => {
+                if (!certs || !certs.length) return;
+                let featured = certs.filter(c => c.isFeatured);
+                featured.sort((a,b) => new Date(b.date) - new Date(a.date));
+                if (featured.length > 0) {
+                    setLatestCert(featured[0]);
+                } else {
+                    const allSorted = [...certs].sort((a,b) => new Date(b.date) - new Date(a.date));
+                    setLatestCert(allSorted[0]);
+                }
+            };
+
+            // Ensure loadCertificatesData exists (from certificate-engine.js)
+            if (window.loadCertificatesData) {
+                window.loadCertificatesData().then((certs) => {
+                    window.console.log("Certs natively loaded:", certs);
+                    handleCerts(certs);
                 });
-            });
-            return [...data.summaries, ...Object.values(groupedQuizActivities)].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        }, [data.summaries, data.quizzes, data.students]);
+            } else {
+                // If it wasn't loaded yet, try to load it dynamically
+                const script = document.createElement('script');
+                script.src = 'js/pages/certificate-engine.js?v=' + Date.now();
+                script.onload = () => {
+                    if(window.loadCertificatesData) {
+                        window.loadCertificatesData().then((certs) => {
+                            window.console.log("Certs dynamically loaded:", certs);
+                            handleCerts(certs);
+                        });
+                    }
+                };
+                document.body.appendChild(script);
+            }
+        }, []);
 
         const topContributors = useMemo(() => {
             // Count contributions from: summaries + news + quiz questions + quiz creation
@@ -128,34 +132,24 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                 if (sId) counts[sId] = (counts[sId] || 0) + 1;
             });
 
-            data.quizzes.forEach(q => {
-                const questionCounts = {};
-                (q.questions || []).forEach(qn => {
-                    const sId = normalizeId(qn.studentId);
-                    if (sId) questionCounts[sId] = (questionCounts[sId] || 0) + 1;
+            data.quizzes.forEach(quiz => {
+                let authorCounts = {};
+                (quiz.questions || []).forEach(q => {
+                    const sId = normalizeId(q.studentId);
+                    if (sId) authorCounts[sId] = (authorCounts[sId] || 0) + 1;
                 });
-                
-                let maxQuestions = 0;
-                for (const sId in questionCounts) {
-                    if (questionCounts[sId] > maxQuestions) {
-                        maxQuestions = questionCounts[sId];
-                    }
-                }
-                
-                for (const sId in questionCounts) {
-                    if (questionCounts[sId] === maxQuestions && maxQuestions > 0) {
-                        counts[sId] = (counts[sId] || 0) + 2;
-                    } else {
-                        counts[sId] = (counts[sId] || 0) + 1;
-                    }
+
+                let maxQuestions = Math.max(0, ...Object.values(authorCounts));
+
+                for (const [studentId, count] of Object.entries(authorCounts)) {
+                    let earnedPoints = (count === maxQuestions && maxQuestions > 0) ? 2 : 1;
+                    counts[studentId] = (counts[studentId] || 0) + earnedPoints;
                 }
             });
 
-            // Always include Founder with at least a base score so leaderboard is never empty
             if (!counts[Luminova.FOUNDER.id]) {
                 counts[Luminova.FOUNDER.id] = 0;
             }
-            // Give founder a base contribution for founding the platform
             counts[Luminova.FOUNDER.id] = (counts[Luminova.FOUNDER.id] || 0) + 1;
 
             const sorted = Object.entries(counts)
@@ -168,66 +162,19 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                 .filter(x => x.student && x.student.id !== 'unknown');
         }, [data.summaries, data.quizzes, data.students]);
 
-        if (expandedView !== null) {
-            const isNews = expandedView === 'news';
-            const subData = isNews ? data.news : feedItems;
-            
-            return html`
-                <div className="animate-fade-in space-y-6">
-                    <div className="flex justify-between items-center mb-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
-                        <h2 className="text-2xl font-bold">${isNews ? Luminova.i18n[lang].news : Luminova.i18n[lang].feed}</h2>
-                        <button onClick=${() => setExpandedView(null)} className="font-bold text-red-500 hover:text-red-700 transition-colors flex items-center gap-2 bg-red-500/10 px-4 py-2 rounded-lg hover:bg-red-500/20">✖ ${lang === 'ar' ? 'رجوع للرئيسية' : 'Back to Home'}</button>
-                    </div>
-                    
-                    ${isNews ? html`
-                        <div className="space-y-4">
-                            ${subData.slice(0, visibleCount).map((n, idx) => {
-                                const author = Luminova.getStudent(n.studentId, data.students);
-                                return html`
-                                    <${Luminova.Components.GlassCard} key=${idx} className=${`border-l-4 border-l-brand-DEFAULT`}>
-                                        ${n.studentId && html`
-                                            <div className="flex items-center gap-3 mb-4 opacity-80 border-b border-gray-200 dark:border-gray-700 pb-3">
-                                                <${Luminova.Components.Avatar} name=${author.nameAr || author.name} nameEn=${author.nameEn} image=${author.image} isVerified=${author.isVerified} isFounder=${author.isFounder} size="w-8 h-8" />
-                                                <div className="text-sm font-bold flex items-center gap-2 flex-wrap">
-                                                    <span>${lang === 'ar' ? 'الناشر:' : 'Publisher:'}</span>
-                                                    <span className="whitespace-normal break-words" style=${{ wordBreak: 'normal', overflowWrap: 'anywhere' }}>${lang === 'ar' ? (author.nameAr || author.name) : (author.nameEn || author.name)}</span>
-                                                    ${author.isVIP && html`<span className="text-xs text-brand-DEFAULT">✨</span>`}
-                                                    ${author.isFounder && html`<span className="text-xs bg-brand-gold text-black px-2 py-0.5 rounded-full">${Luminova.i18n[lang].founder}</span>`}
-                                                    ${!author.isFounder && author.role === 'doctor' && html`<span className="text-xs bg-teal-500 text-white px-2 py-0.5 rounded-full font-black">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
-                                                </div>
-                                            </div>
-                                        `}
-                                        <h3 className="text-xl font-bold mb-2">${n[`title${lang === 'ar' ? 'Ar' : 'En'}`] || n.titleAr || n.titleEn}</h3>
-                                        <${Luminova.Components.SmartText} text=${n[`content${lang === 'ar' ? 'Ar' : 'En'}`] || n.contentAr || n.contentEn} lang=${lang} />
-                                        ${((n.mediaUrls && n.mediaUrls.length > 0) || n.mediaUrl) ? html`
-                                            <div className="mt-4">
-                                                <button onClick=${() => { setActiveSummary(n.id); setView('summaryDetail'); }} className="w-full py-3 bg-indigo-500/10 hover:bg-indigo-500 text-indigo-600 dark:text-indigo-400 hover:text-white transition-all rounded-xl font-bold flex items-center justify-center gap-2 border border-indigo-500/20 shadow-sm">
-                                                    <span className="text-xl">📎</span>
-                                                    <span>${lang === 'ar' ? 'عرض المرفقات المنشورة' : 'View Attachments'}</span>
-                                                </button>
-                                            </div>
-                                        ` : null}
-                                        <div className="text-xs opacity-50 mt-4 font-semibold">${Luminova.formatDate(n.timestamp, lang)}</div>
-                                    </${Luminova.Components.GlassCard}>
-                                `;
-                            })}
-                        </div>
-                        ${visibleCount < subData.length && html`
-                            <div className="pt-2 pb-8">
-                                <button onClick=${() => setVisibleCount(prev => prev + 10)} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition-all block mx-auto mt-6 w-full sm:w-auto text-center">
-                                    ${lang === 'ar' ? 'عرض المزيد ➕' : 'Load More ➕'}
-                                </button>
-                            </div>
-                        `}
-                    ` : html`
-                        <${Luminova.Components.TimelineFeed} items=${subData} students=${data.students} subjects=${data.subjects} lang=${lang} onQuizClick=${(q) => { setActiveQuiz(q); setView('quiz'); }} onSummaryClick=${(itemId) => { setActiveSummary(itemId); setView('summaryDetail'); }} />
-                    `}
-                </div>
-            `;
-        }
+        // Sorting official news newest first
+        const sortedNews = [...(data.news || [])].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+        const filteredNews = newsSearchQuery.trim() ? sortedNews.filter(n => {
+            const tAr = n.titleAr || n.title || '';
+            const tEn = n.titleEn || n.title || '';
+            const query = newsSearchQuery.toLowerCase();
+            return tAr.toLowerCase().includes(query) || tEn.toLowerCase().includes(query);
+        }) : sortedNews;
+        const visibleNews = newsSearchQuery.trim() ? filteredNews : filteredNews.slice(0, newsVisibleCount);
 
         return html`
-        <div className="space-y-12 animate-fade-in">
+        <div className="space-y-12 animate-fade-in pb-10">
+            <!-- Section 1: Honor Roll -->
             ${topContributors.length > 0 && html`
                 <div className="mb-10">
                     <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-brand-gold">${Luminova.i18n[lang].topContributors}</h2>
@@ -244,59 +191,129 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                 </div>
             `}
 
-            ${data.news.length > 0 && html`
-                <div className="mb-10">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-2xl font-bold flex items-center gap-2">${Luminova.i18n[lang].news}</h2>
-                        <button onClick=${() => { setExpandedView('news'); setVisibleCount(10); }} className="text-sm font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors">${lang === 'ar' ? 'عرض الكل ➔' : 'View All ➔'}</button>
-                    </div>
-                    <div className="space-y-4">
-                        ${data.news.slice(0, 3).map((n, idx) => {
-            const author = Luminova.getStudent(n.studentId, data.students);
-            return html`
-                            <${Luminova.Components.GlassCard} key=${idx} className=${`border-l-4 ${idx === 0 ? 'border-l-brand-gold bg-brand-gold/5' : 'border-l-brand-DEFAULT'}`}>
-                                ${n.studentId && html`
-                                    <div className="flex items-center gap-3 mb-4 opacity-80 border-b border-gray-200 dark:border-gray-700 pb-3">
-                                        <${Luminova.Components.Avatar} name=${author.nameAr || author.name} nameEn=${author.nameEn} image=${author.image} isVerified=${author.isVerified} isFounder=${author.isFounder} size="w-8 h-8" />
-                                        <div className="text-sm font-bold flex items-center gap-2 flex-wrap">
-                                            <span>${lang === 'ar' ? 'الناشر:' : 'Publisher:'}</span>
-                                            <span className="whitespace-normal break-words" style=${{ wordBreak: 'normal', overflowWrap: 'anywhere' }}>${lang === 'ar' ? (author.nameAr || author.name) : (author.nameEn || author.name)}</span>
-                                            ${author.isVIP && html`<span className="text-xs text-brand-DEFAULT">✨</span>`}
-                                            ${author.isFounder && html`<span className="text-xs bg-brand-gold text-black px-2 py-0.5 rounded-full">${Luminova.i18n[lang].founder}</span>`}
-                                            ${!author.isFounder && author.role === 'doctor' && html`<span className="text-xs bg-teal-500 text-white px-2 py-0.5 rounded-full font-black">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
-                                        </div>
-                                    </div>
-                                `}
-                                <h3 className="text-xl font-bold mb-2">${n[`title${lang === 'ar' ? 'Ar' : 'En'}`] || n.titleAr || n.titleEn}</h3>
-                                <${Luminova.Components.SmartText} text=${n[`content${lang === 'ar' ? 'Ar' : 'En'}`] || n.contentAr || n.contentEn} lang=${lang} />
-                                ${((n.mediaUrls && n.mediaUrls.length > 0) || n.mediaUrl) ? html`
-                                    <div className="mt-4">
-                                        <button onClick=${() => { setActiveSummary(n.id); setView('summaryDetail'); }} className="w-full py-3 bg-indigo-500/10 hover:bg-indigo-500 text-indigo-600 dark:text-indigo-400 hover:text-white transition-all rounded-xl font-bold flex items-center justify-center gap-2 border border-indigo-500/20 shadow-sm">
-                                            <span className="text-xl">📎</span>
-                                            <span>${lang === 'ar' ? 'عرض المرفقات المنشورة' : 'View Attachments'}</span>
-                                        </button>
-                                    </div>
-                                ` : null}
-                                <div className="text-xs opacity-50 mt-4 font-semibold">${Luminova.formatDate(n.timestamp, lang)}</div>
-                            </${Luminova.Components.GlassCard}>
-                        `})}
+            <!-- Section 2: Honor Roll Spotlight (Certificates) -->
+            ${latestCert && Luminova.Components.CertificateImage && html`
+                <div className="mb-10 w-full animate-fade-in">
+                    <div className="relative overflow-hidden bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] rounded-3xl shadow-2xl border border-slate-800 p-8 pt-10">
+                        <!-- Decorative bg -->
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-gold opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                        <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500 opacity-10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+
+                        <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
+                            
+                            <!-- Content Side (RTL native: right on Desktop) -->
+                            <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-start space-y-6">
+                                <h2 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-gold to-yellow-200">
+                                    ${lang === 'ar' ? 'نتوج التميز الأكاديمي' : 'Crowning Academic Excellence'}
+                                </h2>
+                                <p className="text-slate-300 text-base md:text-lg font-medium leading-relaxed max-w-lg">
+                                    ${lang === 'ar' 
+                                        ? 'نقدر ونوثق جهود طلابنا الاستثنائية. كل شهادة هي قصة نجاح موثقة ومحفوظة في اللوحة الشرفية للمنصة عبر نظام تشفير متقدم يعتمد على الاستجابة السريعة (QR Code).' 
+                                        : 'We appreciate and document our students\' exceptional efforts. Each certificate is a success story, permanently archived via advanced QR cryptographic systems.'}
+                                </p>
+                                <button
+                                    onClick=${() => setView('certificates')}
+                                    className="inline-flex flex-row items-center justify-center gap-3 bg-gradient-to-r from-brand-DEFAULT to-blue-600 hover:from-brand-hover hover:to-blue-700 text-white font-black py-4 px-8 rounded-2xl shadow-xl shadow-brand-DEFAULT/30 transition-all hover:scale-105 active:scale-95 border-b-4 border-blue-800 text-lg sm:text-xl w-full sm:w-auto">
+                                    <span>🏆</span>
+                                    <span>${lang === 'ar' ? 'تصفح لوحة الشرف والشهادات' : 'Browse Honor Roll & Archive'}</span>
+                                </button>
+                            </div>
+
+                            <!-- Showcase Side (Image) -->
+                            <div className="w-full md:max-w-md">
+                                <div className="bg-white/10 p-2 rounded-[24px] backdrop-blur-md border border-white/20 shadow-2xl rotate-1 hover:rotate-0 transition-transform duration-300">
+                                    <${Luminova.Components.CertificateImage} 
+                                        certificate=${latestCert} 
+                                        lang=${lang} 
+                                        mode="thumb" 
+                                    />
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
             `}
-            <div>
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold flex items-center gap-2">${Luminova.i18n[lang].feed}</h2>
-                    <button onClick=${() => { setExpandedView('summaries'); setVisibleCount(10); }} className="text-sm font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors">${lang === 'ar' ? 'عرض الكل ➔' : 'View All ➔'}</button>
+
+            <!-- Section 3: Official News -->
+
+
+            ${sortedNews.length > 0 && html`
+                <div className="mb-10">
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-2xl font-bold flex items-center gap-2">${Luminova.i18n[lang].news}</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        ${visibleNews.map((n, idx) => {
+                            const author = Luminova.getStudent(n.studentId, data.students);
+                            return html`
+                                <${Luminova.Components.GlassCard} key=${idx} className=${`border-l-4 ${idx === 0 ? 'border-l-brand-gold bg-brand-gold/5' : 'border-l-brand-DEFAULT'}`}>
+                                    ${n.studentId && html`
+                                        <div className="flex items-center gap-3 mb-4 opacity-80 border-b border-gray-200 dark:border-gray-700 pb-3">
+                                            <${Luminova.Components.Avatar} name=${author.nameAr || author.name} nameEn=${author.nameEn} image=${author.image} isVerified=${author.isVerified} isFounder=${author.isFounder} size="w-8 h-8" />
+                                            <div className="text-sm font-bold flex items-center gap-2 flex-wrap">
+                                                <span>${lang === 'ar' ? 'الناشر:' : 'Publisher:'}</span>
+                                                <span className="whitespace-normal break-words" style=${{ wordBreak: 'normal', overflowWrap: 'anywhere' }}>${lang === 'ar' ? (author.nameAr || author.name) : (author.nameEn || author.name)}</span>
+                                                ${author.isVIP && html`<span className="text-xs text-brand-DEFAULT">✨</span>`}
+                                                ${author.isFounder && html`<span className="text-xs bg-brand-gold text-black px-2 py-0.5 rounded-full">${Luminova.i18n[lang].founder}</span>`}
+                                                ${!author.isFounder && author.role === 'doctor' && html`<span className="text-xs bg-teal-500 text-white px-2 py-0.5 rounded-full font-black">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
+                                            </div>
+                                        </div>
+                                    `}
+                                    <h3 className="text-xl font-bold mb-2">${n[`title${lang === 'ar' ? 'Ar' : 'En'}`] || n.titleAr || n.titleEn}</h3>
+                                    <${Luminova.Components.SmartText} text=${n[`content${lang === 'ar' ? 'Ar' : 'En'}`] || n.contentAr || n.contentEn} lang=${lang} />
+                                    ${((n.mediaUrls && n.mediaUrls.length > 0) || n.mediaUrl) ? html`
+                                        <div className="mt-4">
+                                            <button onClick=${() => { setActiveSummary(n.id); setView('summaryDetail'); }} className="w-full py-3 bg-indigo-500/10 hover:bg-indigo-500 text-indigo-600 dark:text-indigo-400 hover:text-white transition-all rounded-xl font-bold flex items-center justify-center gap-2 border border-indigo-500/20 shadow-sm">
+                                                <span className="text-xl">📎</span>
+                                                <span>${lang === 'ar' ? 'عرض المرفقات المنشورة' : 'View Attachments'}</span>
+                                            </button>
+                                        </div>
+                                    ` : null}
+                                    <div className="text-xs opacity-50 mt-4 font-semibold">${Luminova.formatDate(n.timestamp, lang)}</div>
+                                </${Luminova.Components.GlassCard}>
+                            `;
+                        })}
+                        
+                        ${visibleNews.length === 0 && newsSearchQuery.trim() !== '' && html`
+                            <div className="col-span-full text-center py-10 opacity-50 font-bold text-lg dark:text-gray-300">
+                                ${lang === 'ar' ? 'لا توجد أخبار مطابقة لبحثك' : 'No news matches your search'}
+                            </div>
+                        `}
+
+                        <div className="col-span-full flex flex-col sm:flex-row justify-center items-center gap-4 mt-6">
+                            ${(!newsSearchQuery.trim()) && (visibleNews.length < sortedNews.length) && html`
+                                <button onClick=${() => setNewsVisibleCount(prev => prev + 5)} className="px-8 py-3 bg-brand-DEFAULT hover:bg-brand-hover text-white font-bold rounded-xl shadow-md transition-transform hover:scale-105 active:scale-95">
+                                    ${lang === 'ar' ? 'عرض المزيد' : 'Load More'}
+                                </button>
+                            `}
+                            
+                            <div className="flex flex-col items-center sm:relative sm:items-end w-full sm:w-auto">
+                                <button onClick=${() => { setShowSearch(!showSearch); if(showSearch) setNewsSearchQuery(''); }} className="w-14 h-14 rounded-full bg-white dark:bg-slate-800 shadow-xl border border-gray-100 dark:border-gray-700 flex items-center justify-center text-2xl hover:scale-110 active:scale-95 transition-all focus:outline-none z-10 relative">
+                                    ${showSearch ? '✖️' : '🔍'}
+                                </button>
+                                ${showSearch && html`
+                                    <div className="mt-4 sm:mt-0 sm:absolute sm:bottom-[120%] sm:end-0 sm:rtl:end-auto sm:rtl:start-0 w-full max-w-[calc(100vw-2rem)] sm:w-[350px] p-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl shadow-[20px_20px_60px_rgba(0,0,0,0.2)] dark:shadow-[0_10px_50px_rgba(0,0,0,0.6)] rounded-2xl border border-white/50 dark:border-gray-700 animate-fade-in z-50">
+                                        <input 
+                                            type="text" 
+                                            autoFocus
+                                            value=${newsSearchQuery} 
+                                            onChange=${(e) => setNewsSearchQuery(e.target.value)} 
+                                            placeholder=${lang === 'ar' ? 'بحث في الأخبار...' : 'Search news...'} 
+                                            className="w-full px-4 py-3 bg-gray-50/50 dark:bg-slate-900/50 rounded-xl outline-none font-bold text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-brand-DEFAULT transition-shadow" 
+                                        />
+                                    </div>
+                                `}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <${Luminova.Components.TimelineFeed} items=${feedItems.slice(0, 5)} students=${data.students} subjects=${data.subjects} lang=${lang} onQuizClick=${(q) => { setActiveQuiz(q); setView('quiz'); }} onSummaryClick=${(itemId) => { setActiveSummary(itemId); setView('summaryDetail'); }} />
-            </div>
+            `}
         </div>
     `;
     };
 
-
-
-Luminova.Pages.AcademicHierarchyPage = ({ data, lang, setView, setActiveQuiz, setActiveSummary }) => {
+    Luminova.Pages.AcademicHierarchyPage = ({ data, lang, setView, setActiveQuiz, setActiveSummary }) => {
         const [selectedYear, setSelectedYear] = useState(data.years?.[0] || null);
         const [selectedSem, setSelectedSem] = useState(data.semesters?.find(s => s.yearId === data.years?.[0]?.id) || null);
         const [selectedSub, setSelectedSub] = useState(null);

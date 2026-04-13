@@ -1,0 +1,1 @@
+window.LUMINOVA_CERTIFICATES = [];

@@ -7,7 +7,7 @@
     const Luminova = window.__LUMINOVA;
 
 Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
-        const validTabs = ['news', 'years', 'semesters', 'subjects', 'students', 'summaries', 'quizzes'];
+        const validTabs = ['news', 'years', 'semesters', 'subjects', 'students', 'summaries', 'quizzes', 'certificates'];
         const [activeTab, setActiveTab] = useState('news');
         const [editingItem, setEditingItem] = useState(null);
         const [subView, setSubView] = useState(''); // '' or 'questions'
@@ -25,16 +25,85 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
             setFilterSem('');
             setFilterSub('');
             setCmsSearchQuery('');
+
+            // Lazy-load certificates.js when the certificates tab is activated
+            if (activeTab === 'certificates' && !data.certificates) {
+                if (window.loadCertificatesData) {
+                    window.loadCertificatesData().then(certs => {
+                        setData(prev => ({ ...prev, certificates: certs }));
+                    });
+                } else {
+                    const script = document.createElement('script');
+                    script.src = 'js/pages/certificate-engine.js?v=' + Date.now();
+                    script.onload = () => {
+                        if(window.loadCertificatesData) {
+                            window.loadCertificatesData().then(certs => {
+                                setData(prev => ({ ...prev, certificates: certs }));
+                            });
+                        }
+                    };
+                    document.body.appendChild(script);
+                }
+            }
+
+            // Lazy-load exam.js when the quizzes tab is activated
+            if (activeTab === 'quizzes' && (!data.quizzes || data.quizzes.length === 0)) {
+                if (window.LUMINOVA_EXAMS && window.LUMINOVA_EXAMS.length > 0) {
+                    setData(prev => ({ ...prev, quizzes: window.LUMINOVA_EXAMS }));
+                } else {
+                    const existing = document.querySelector('script[data-lmv-page="exam"]');
+                    if (!existing) {
+                        const script = document.createElement('script');
+                        script.src = 'exam.js?v=2';
+                        script.setAttribute('data-lmv-page', 'exam');
+                        script.onload = () => {
+                            setData(prev => ({ ...prev, quizzes: window.LUMINOVA_EXAMS || [] }));
+                        };
+                        document.body.appendChild(script);
+                    }
+                }
+            }
         }, [activeTab]);
 
         const studentsWithFounder = [Luminova.FOUNDER, ...(data.students || []).filter(s => !s.isFounder)];
 
-        const handleExport = () => {
-            const dataString = `window.LUMINOVA_DATA = ${JSON.stringify(data, null, 2)};`;
-            navigator.clipboard.writeText(dataString).then(() => {
-                alert(lang === 'ar' ? 'تم نسخ الكود بنجاح! الصقه في ملف data.js' : 'Code copied! Paste into data.js');
+        // ==========================================
+        // 3-PILLAR EXPORT ENGINE
+        // ==========================================
+
+        // Export 1 — data.js: core platform data ONLY (no quizzes, no certificates)
+        const handleExportData = () => {
+            const { certificates, quizzes, ...coreData } = data;
+            const str = `window.LUMINOVA_DATA = ${JSON.stringify(coreData, null, 2)};`;
+            navigator.clipboard.writeText(str).then(() => {
+                alert(lang === 'ar'
+                    ? '✅ تم نسخ كود data.js!\nالصق المحتوى في ملف data.js على GitHub.'
+                    : '✅ Copied data.js code! Paste into data.js on GitHub.');
             });
         };
+
+        // Export 2 — certificates.js: certificate array ONLY
+        const handleExportCertificates = () => {
+            const certs = data.certificates || [];
+            const str = `window.LUMINOVA_CERTIFICATES = ${JSON.stringify(certs, null, 2)};`;
+            navigator.clipboard.writeText(str).then(() => {
+                alert(lang === 'ar'
+                    ? '✅ تم نسخ كود certificates.js!\nالصق المحتوى في ملف certificates.js على GitHub.'
+                    : '✅ Copied certificates.js code! Paste into certificates.js on GitHub.');
+            });
+        };
+
+        // Export 3 — exam.js: quiz/exam array ONLY
+        const handleExportExams = () => {
+            const exams = data.quizzes || [];
+            const str = `window.LUMINOVA_EXAMS = ${JSON.stringify(exams, null, 2)};`;
+            navigator.clipboard.writeText(str).then(() => {
+                alert(lang === 'ar'
+                    ? '✅ تم نسخ كود exam.js!\nالصق المحتوى في ملف exam.js على GitHub.'
+                    : '✅ Copied exam.js code! Paste into exam.js on GitHub.');
+            });
+        };
+
 
         const handleDelete = (collection, id) => {
             if (collection === 'years' && data.semesters.some(s => s.yearId === id)) return alert(Luminova.i18n[lang].deleteProtected);
@@ -80,6 +149,7 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
             if (activeTab === 'years' || activeTab === 'semesters' || activeTab === 'subjects') return { ...base, nameAr: '', nameEn: '', yearId: '', semesterId: '' };
             if (activeTab === 'summaries') return { ...base, titleAr: '', titleEn: '', contentAr: '', contentEn: '', mediaUrl: '', subjectId: '', studentId: '' };
             if (activeTab === 'quizzes') return { ...base, titleAr: '', titleEn: '', isShuffled: false, feedbackMode: 'end', subjectId: '', publisherId: '', questions: [] };
+            if (activeTab === 'certificates') return { ...base, studentName: '', studentNameEn: '', senderName: '', senderNameEn: '', senderRole: 'doctor', title: '', titleEn: '', description: '', descriptionEn: '', isFeatured: false, badges: [], date: base.timestamp };
             return base;
         };
 
@@ -256,8 +326,8 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
         if (cmsSearchQuery.trim() !== '') {
             const query = cmsSearchQuery.toLowerCase();
             activeTableItems = activeTableItems.filter(item =>
-                (item.nameAr || item.titleAr || item.title || item.name || '').toLowerCase().includes(query) ||
-                (item.nameEn || item.titleEn || item.title || '').toLowerCase().includes(query) ||
+                (item.nameAr || item.titleAr || item.title || item.name || item.studentName || '').toLowerCase().includes(query) ||
+                (item.nameEn || item.titleEn || item.title || item.studentNameEn || '').toLowerCase().includes(query) ||
                 item.id.toLowerCase().includes(query)
             );
         }
@@ -268,9 +338,45 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
         <div className="animate-fade-in pb-20 max-w-[1400px] mx-auto">
             <div className="flex justify-between items-center mb-10 border-b-4 border-brand-DEFAULT pb-6 sticky top-0 bg-white/50 dark:bg-gray-900/50 backdrop-blur-xl z-30 pt-4 rounded-b-3xl px-8 shadow-sm">
                 <h2 className="text-4xl font-black flex items-center gap-4 text-transparent bg-clip-text bg-gradient-to-r from-brand-hover to-brand-gold">⚙️ CMS Control Center</h2>
-                <div className="flex gap-4">
-                    <${Luminova.Components.Button} onClick=${handleExport} className="bg-brand-gold text-black shadow-lg hover:bg-yellow-500 text-lg px-8"><span className="animate-pulse">💾</span> ${Luminova.i18n[lang].exportData}</${Luminova.Components.Button}>
-                    <${Luminova.Components.Button} variant="danger" onClick=${goBack} className="text-lg px-8">${Luminova.i18n[lang].logout}</${Luminova.Components.Button}>
+                <div className="flex gap-3 flex-wrap justify-end">
+
+                    ${/* Always visible: Export core data.js */ html`
+                        <${Luminova.Components.Button}
+                            onClick=${handleExportData}
+                            className="bg-brand-DEFAULT text-white shadow-lg hover:bg-brand-hover text-sm sm:text-base px-4 sm:px-6"
+                            title=${lang === 'ar' ? 'تصدير الإعدادات والأخبار والطلاب والمواد والتلخيصات' : 'Export settings, news, students, subjects & summaries'}
+                        >
+                            <span className="animate-pulse">💾</span>
+                            <span className="hidden sm:inline">${lang === 'ar' ? 'تصدير data.js' : 'Export data.js'}</span>
+                            <span className="sm:hidden">data.js</span>
+                        </${Luminova.Components.Button}>
+                    `}
+
+                    ${/* Context-sensitive: show certificates export only on certificates tab */ activeTab === 'certificates' && html`
+                        <${Luminova.Components.Button}
+                            onClick=${handleExportCertificates}
+                            className="bg-brand-gold text-black shadow-lg hover:bg-yellow-500 text-sm sm:text-base px-4 sm:px-6"
+                            title=${lang === 'ar' ? 'تصدير ملف الشهادات فقط' : 'Export certificates.js only'}
+                        >
+                            <span>📜</span>
+                            <span className="hidden sm:inline">${lang === 'ar' ? 'تصدير certificates.js' : 'Export certificates.js'}</span>
+                            <span className="sm:hidden">certs.js</span>
+                        </${Luminova.Components.Button}>
+                    `}
+
+                    ${/* Context-sensitive: show exam export only on quizzes tab */ activeTab === 'quizzes' && html`
+                        <${Luminova.Components.Button}
+                            onClick=${handleExportExams}
+                            className="bg-indigo-500 text-white shadow-lg hover:bg-indigo-600 text-sm sm:text-base px-4 sm:px-6"
+                            title=${lang === 'ar' ? 'تصدير ملف الاختبارات فقط' : 'Export exam.js only'}
+                        >
+                            <span>📝</span>
+                            <span className="hidden sm:inline">${lang === 'ar' ? 'تصدير exam.js' : 'Export exam.js'}</span>
+                            <span className="sm:hidden">exam.js</span>
+                        </${Luminova.Components.Button}>
+                    `}
+
+                    <${Luminova.Components.Button} variant="danger" onClick=${goBack} className="text-sm sm:text-base px-4 sm:px-8">${Luminova.i18n[lang].logout}</${Luminova.Components.Button}>
                 </div>
             </div>
 
@@ -384,7 +490,43 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
                                         </div>
                                     `}
 
-                                    ${activeTab === 'students' ? html`
+                                    ${activeTab === 'certificates' ? html`
+                                        <div className="col-span-2 w-full"><${Luminova.Components.Input} label="اسم الطالب المُكرم (Recipient Name - Arabic)" val=${editingItem.studentName} onChange=${v => setEditingItem({ ...editingItem, studentName: v })} /></div>
+                                        <div className="col-span-2 w-full"><${Luminova.Components.Input} label="اسم الطالب المُكرم (Recipient Name - English)" val=${editingItem.studentNameEn} onChange=${v => setEditingItem({ ...editingItem, studentNameEn: v })} /></div>
+                                        <div className="col-span-2 w-full"><${Luminova.Components.Input} label="اسم المرسل/المانح (Sender Name - Arabic)" val=${editingItem.senderName} onChange=${v => setEditingItem({ ...editingItem, senderName: v })} /></div>
+                                        <div className="col-span-2 w-full"><${Luminova.Components.Input} label="اسم المرسل/المانح (Sender Name - English)" val=${editingItem.senderNameEn} onChange=${v => setEditingItem({ ...editingItem, senderNameEn: v })} /></div>
+                                        <div className="col-span-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                            <label className="block text-sm font-black mb-3 opacity-80 text-brand-DEFAULT">دور المرسل/الختم (Seal Type)</label>
+                                            <div className="flex gap-4">
+                                                <label className="flex items-center gap-3 cursor-pointer bg-white dark:bg-gray-800 p-3 rounded-xl border-2 ${editingItem.senderRole === 'student' ? 'border-brand-DEFAULT' : 'border-gray-200 dark:border-gray-700'} shadow-sm flex-1">
+                                                    <input type="radio" value="student" checked=${editingItem.senderRole === 'student'} onChange=${() => setEditingItem({ ...editingItem, senderRole: 'student' })} className="w-5 h-5 accent-brand-DEFAULT" />
+                                                    <span className="font-bold">فضِّي 🥈 (Student/Peer)</span>
+                                                </label>
+                                                <label className="flex items-center gap-3 cursor-pointer bg-white dark:bg-gray-800 p-3 rounded-xl border-2 ${editingItem.senderRole === 'doctor' ? 'border-brand-gold' : 'border-gray-200 dark:border-gray-700'} shadow-sm flex-1">
+                                                    <input type="radio" value="doctor" checked=${editingItem.senderRole === 'doctor'} onChange=${() => setEditingItem({ ...editingItem, senderRole: 'doctor' })} className="w-5 h-5 accent-brand-gold" />
+                                                    <span className="font-bold text-brand-gold">ذهبي 🏅 (Doctor/Official)</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div className="col-span-2 w-full"><${Luminova.Components.Input} label="عنوان الشهادة (Title - Arabic)" val=${editingItem.title} onChange=${v => setEditingItem({ ...editingItem, title: v })} /></div>
+                                        <div className="col-span-2 w-full"><${Luminova.Components.Input} label="عنوان الشهادة (Title - English)" val=${editingItem.titleEn} onChange=${v => setEditingItem({ ...editingItem, titleEn: v })} /></div>
+                                        <div className="col-span-2 w-full"><${Luminova.Components.Input} type="textarea" label="الوصف وسبب المنح (Reason - Arabic)" val=${editingItem.description} onChange=${v => setEditingItem({ ...editingItem, description: v })} /></div>
+                                        <div className="col-span-2 w-full"><${Luminova.Components.Input} type="textarea" label="الوصف وسبب المنح (Reason - English)" val=${editingItem.descriptionEn} onChange=${v => setEditingItem({ ...editingItem, descriptionEn: v })} /></div>
+                                        <div className="col-span-2 w-full p-4 border border-brand-DEFAULT rounded-xl"><${Luminova.Components.Input} type="checkbox" label="📌 إظهار كشهادة رئيسية في المنصة (Featured Certificate)" val=${editingItem.isFeatured} onChange=${v => setEditingItem({ ...editingItem, isFeatured: v })} /></div>
+                                        
+                                        <!-- REALTIME LIVE PREVIEW -->
+                                        ${window.Luminova?.Components?.CertificateCard ? html`
+                                        <div className="col-span-2 mt-8 py-8 bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-gray-800 rounded-3xl overflow-hidden relative group">
+                                            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+                                            <h4 className="font-black text-center mb-6 tracking-[0.3em] opacity-40">✨ LIVE CSS PREVIEW</h4>
+                                            <div className="w-full flex justify-center origin-top pointer-events-none scale-[0.55] sm:scale-75 lg:scale-[0.85] transition-transform" style=${{transformOrigin:'top center'}}>
+                                                <div className="w-[1000px] shadow-2xl">
+                                                    <${Luminova.Components.CertificateCard} certificate=${editingItem} lang=${lang} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        ` : html`<div className="col-span-2 p-10 text-center font-bold opacity-50">Loading Certificate Engine Viewer...</div>`}
+                                    ` : activeTab === 'students' ? html`
                                         <div className="col-span-2 flex flex-col md:flex-row gap-4"><div className="w-full"><${Luminova.Components.Input} label="الاسم العربي" val=${editingItem.nameAr} onChange=${v => setEditingItem({ ...editingItem, nameAr: v })} /></div> <div className="w-full"><${Luminova.Components.Input} label="English Name" val=${editingItem.nameEn} onChange=${v => setEditingItem({ ...editingItem, nameEn: v })} /></div></div>
                                         <div className="col-span-2 flex flex-col md:flex-row gap-4"><div className="w-full"><${Luminova.Components.Input} label="التخصص العربي" val=${editingItem.majorAr} onChange=${v => setEditingItem({ ...editingItem, majorAr: v })} /></div> <div className="w-full"><${Luminova.Components.Input} label="English Major" val=${editingItem.majorEn} onChange=${v => setEditingItem({ ...editingItem, majorEn: v })} /></div></div>
                                         <div className="col-span-2 w-full"><${Luminova.Components.Input} type="textarea" label="نبذة عربية" val=${editingItem.bioAr} onChange=${v => setEditingItem({ ...editingItem, bioAr: v })} /></div>
@@ -515,7 +657,8 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
                                                         <span>${item.titleAr || item.nameAr || item.name || item.titleEn || item.nameEn || item.title || 'N/A'}</span>
                                                         <span className="text-gray-400 font-normal mx-2">-</span>
                                                         <span className="opacity-70 text-sm font-normal">${item.titleEn || item.nameEn || item.title || ''}</span>
-                                                        ${item.isVIP && html`<span className="ml-2 text-brand-DEFAULT" title="VIP">✨</span>`}
+                                                      ${item.isVIP && html`<span className="ml-2 text-brand-DEFAULT" title="VIP">✨</span>`}
+                                                        ${item.isFeatured && html`<span className="ml-2 text-brand-gold" title="Featured">📌 مميزة</span>`}
                                                         ${item.isVerified && html`<span className="ml-2" title="Verified">🔵✔️</span>`}
                                                         ${item.role === 'doctor' && html`<span className="ml-2 text-xs bg-teal-500 text-white px-2 py-0.5 rounded-full font-black">🎓 دكتور</span>`}
                                                     `}

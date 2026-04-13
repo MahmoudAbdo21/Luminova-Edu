@@ -33,7 +33,8 @@
             save: "حفظ", delete: "حذف", cancel: "إلغاء", exportData: "سحب الكود (Export initialData)",
             logout: "خروج الإدارة", passwordPrompt: "أدخل كلمة سر الإدارة:", wrongPassword: "كلمة السر خاطئة!",
             major: "التخصص", correct: "إجابة صحيحة", wrong: "إجابة خاطئة", results: "النتائج",
-            topContributors: "شرف المساهمين 🏆", news: "أحدث الأخبار 📢", feed: "الخلاصة 🔥"
+            topContributors: "شرف المساهمين 🏆", news: "أحدث الأخبار 📢", feed: "الخلاصة 🔥",
+            certificates: "الشهادات والتوثيق"
         },
         en: {
             appName: "Luminova Edu", home: "Home", community: "Community", academic: "Academic Library",
@@ -47,7 +48,8 @@
             save: "Save", delete: "Delete", cancel: "Cancel", exportData: "Export initialData Code",
             logout: "Admin Logout", passwordPrompt: "Enter admin password:", wrongPassword: "Wrong password!",
             major: "Major", correct: "Correct", wrong: "Wrong", results: "Results",
-            topContributors: "Top Contributors 🏆", news: "Latest News 📢", feed: "The Feed 🔥"
+            topContributors: "Top Contributors 🏆", news: "Latest News 📢", feed: "The Feed 🔥",
+            certificates: "Certificates Archive"
         }
     };
 
@@ -438,8 +440,9 @@
         const fallbackData = window.initialData || window.LUMINOVA_DATA || {};
 
         // الاعتماد الحصري على data.js كمصدر وحيد وتجاهل التخزين المحلي
+        // quizzes start as [] — exam.js is lazy-loaded in the background on mount
         const [data, setData] = useState(() => {
-            return fallbackData;
+            return { ...fallbackData, quizzes: [] };
         });
 
         const [lang, setLang] = useState(data.settings?.language || 'ar');
@@ -455,7 +458,8 @@
             'community': 'js/pages/main-views.js',
             'academics': 'js/pages/main-views.js',
             'quiz': 'js/pages/quiz-engine.js',
-            'cms': 'js/pages/admin-cms.js'
+            'cms': 'js/pages/admin-cms.js',
+            'certificates': 'js/pages/certificate-engine.js'
         };
 
         // MUST be defined before any useEffect that calls it
@@ -515,7 +519,31 @@
         };
 
         useEffect(() => {
-            changeView('home');
+            const searchParams = new URLSearchParams(window.location.search);
+            if (searchParams.has('verify')) {
+                changeView('certificates');
+            } else {
+                changeView('home');
+            }
+
+            // Silently pre-fetch exam.js in the background after initial paint.
+            // Uses a dedicated script-injection loader defined inside exam.js.
+            const fetchExams = () => {
+                if (window.LUMINOVA_EXAMS) {
+                    // Already loaded (e.g. cached by browser)
+                    setData(prev => ({ ...prev, quizzes: window.LUMINOVA_EXAMS }));
+                    return;
+                }
+                const script = document.createElement('script');
+                script.src = 'exam.js?v=2';
+                script.setAttribute('data-lmv-page', 'exam');
+                script.onload = () => {
+                    setData(prev => ({ ...prev, quizzes: window.LUMINOVA_EXAMS || [] }));
+                };
+                script.onerror = () => console.warn('Luminova: exam.js failed to load.');
+                document.body.appendChild(script);
+            };
+            fetchExams();
         }, []);
 
         const renderView = () => {
@@ -525,7 +553,8 @@
                 case 'cms': return Luminova.Pages.AdminCMS ? html`<${Luminova.Pages.AdminCMS} data=${data} setData=${setData} lang=${lang} goBack=${() => changeView('home')} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
                 case 'community': return Luminova.Pages.StudentCommunityPage ? html`<${Luminova.Pages.StudentCommunityPage} data=${data} lang=${lang} setView=${changeView} setActiveSummary=${setActiveSummary} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
                 case 'academics': return Luminova.Pages.AcademicHierarchyPage ? html`<${Luminova.Pages.AcademicHierarchyPage} data=${data} lang=${lang} setView=${changeView} setActiveQuiz=${setActiveQuiz} setActiveSummary=${setActiveSummary} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
-                default: return Luminova.Pages.HomePage ? html`<${Luminova.Pages.HomePage} data=${data} lang=${lang} setView=${changeView} setActiveQuiz=${setActiveQuiz} setActiveSummary=${setActiveSummary} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
+                case 'certificates': return Luminova.Pages.CertificateArchivePage ? html`<${Luminova.Pages.CertificateArchivePage} lang=${lang} goBack=${() => changeView('home')} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
+                default: return Luminova.Pages.HomePage ? html`<${Luminova.Pages.HomePage} data=${data} lang=${lang} setView=${changeView} setActiveSummary=${setActiveSummary} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
             }
         };
 
