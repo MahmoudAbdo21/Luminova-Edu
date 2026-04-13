@@ -567,6 +567,98 @@
   ],
   "summaries": [
     {
+      "id": "summaries_1776043399147",
+      "timestamp": "2026-04-13T01:23:19.147Z",
+      "titleAr": "الوحدة الاولى في نظم ادارة المحتوى الرقمي",
+      "titleEn": "Unit 1 in Digital Content Management Systems",
+      "contentAr": "​أولاً: ماهية المحتوى التعليمي الرقمي\n​هو مجموعة من الخبرات التعليمية التي يتم صياغتها باستخدام الوسائط المتعددة (نص، صوت، صورة، فيديو، رسوم متحركة) ويتم تقديمه للطالب عبر الوسائط الإلكترونية (كمبيوتر، موبايل، إنترنت).\n​ثانياً: خصائص المحتوى الرقمي (المعايير التقنية)\n​عشان نقول إن المحتوى ده \"كويس\"، لازم يتوفر فيه (9) نقاط أساسية:\n​الاستقلالية (Alone-Stand): كل وحدة تعليمية قائمة بذاتها ومفهومة دون الحاجة لغيرها.\n​التكيف (Scalable): يعمل بكفاءة على جميع الأجهزة (شاشة كبيرة أو صغيرة).\n​الربط المنطقي (Linkable): العناصر مرتبطة ببعضها بتسلسل يسهل التنقل.\n​الاستدامة (Durable): لا يتأثر بتغير التكنولوجيا سريعاً ويظل صالحاً للاستخدام.\n​إعادة الاستخدام (Reusability): إمكانية استخدام نفس \"العنصر\" في سياقات تعليمية مختلفة.\n​تعدد المسارات (Customizable): يراعي الفروق الفردية، فكل طالب يختار المسار اللي يناسبه.\n​القابلية للتطبيق (Applicable): مناسب لاحتياجات المتعلمين الحقيقية.\n​سهولة التعلم (Learnable): الواجهة بسيطة والتعامل مع المحتوى مش معقد.\n​التفاعلية (Interactive): الطالب مشارك فعال (بيضغط، بيجاوب، بياخد رد فعل) مش مجرد مستمع.\n​ثالثاً: أنواع المحتوى الرقمي وأشكاله\n​1. المحتوى النصي المطور:\n​الكتب الإلكترونية: تتميز بوجود \"الروابط التشعبية\" التي تنقل الطالب لمصادر خارجية.\n​المدونات التعليمية (Blogs): مواقع لنشر المقالات والمناقشات التعليمية، وتسمح للطلاب بالتعليق.\n​2. المحتوى البصري والسمعي:\n​الرسوم التوضيحية والإنفوجرافيك: لتبسيط البيانات المعقدة.\n​البودكاست (Podcast): ملفات صوتية تعليمية يمكن سماعها في أي وقت (أوفلاين).\n​الفيديو والرسوم المتحركة: تدمج الصوت والحركة لجذب الانتباه وشرح العمليات الصعبة.\n​رابعاً: منظومة أدوات جوجل التعليمية (Google Apps)\n​تعتبر من أهم الأدوات لتنفيذ المحتوى الرقمي:\n​Google Docs: معالج نصوص يسمح بالعمل الجماعي \"في نفس الوقت\" (Collaborative).\n​Google Slides: لعمل عروض تقديمية تفاعلية ومشاركتها برابط.\n​Google Sheets: للجداول الحسابية، تنظيم البيانات، وعمل رسوم بيانية.\n​Google Forms: الأداة السحرية لعمل (الامتحانات الإلكترونية) وجمع الاستبيانات وتصحيحها تلقائياً.\n​Google Drawings: لتصميم الخرائط الذهنية والرسومات الهندسية.\n​خامساً: منصات وتطبيقات التعلم الذاتي\n​Duolingo: لتعلم اللغات بأسلوب التلعيب (Games).\n​Memrise: يعتمد على التكرار المتباعد لتقوية الذاكرة في الكلمات الجديدة.\n​Quizlet: موقع متخصص في عمل \"الفلاش كاردز\" والاختبارات القصيرة التفاعلية.\n​Brilliant: يركز على تنمية مهارات التفكير المنطقي في العلوم والرياضيات (STEM).\n​سادساً: التقييم الإلكتروني (الامتحانات)\n​هو عملية استخدام التكنولوجيا لقياس أداء الطالب، وينقسم إلى:\n​CBA (Computer Based Assessment): اختبار يتم على جهاز الكمبيوتر (سواء بإنترنت أو بدونه).\n​NBA (Network Based Assessment): اختبار يعتمد كلياً على وجود شبكة إنترنت لإرسال واستقبال الأسئلة والنتائج.\n​مميزاته: سرعة التصحيح، دقة النتائج، التغذية الراجعة الفورية للطالب، وتوفير الورق.\n​سابعاً: معايير تصميم الاختبار الإلكتروني الجيد\n​وضوح التعليمات والأهداف.\n​تنوع الأسئلة (اختياري، صح وغلط، توصيل).\n​مناسبة الوقت لعدد الأسئلة.\n​تقديم تغذية راجعة (يعرف الطالب غلط في إيه فوراً).",
+      "contentEn": "First: What is Digital Educational Content?\n\nIt is a collection of learning experiences created using multimedia (text, audio, images, video, animation) and delivered to the student via electronic media (computer, mobile, internet).\n\nSecond: Characteristics of Digital Content (Technical Standards)\n\nFor content to be considered \"good,\" it must meet nine essential criteria:\n\nAlone-Stand: Each learning unit is self-contained and understandable without needing anything else.\n\nScalable: Works efficiently on all devices (large or small screen).\n\nLinkable: Elements are linked together in a sequence that facilitates easy navigation.\n\nDurable: Resists rapid technological changes and remains usable.\n\nReusability: The same element can be used in different learning contexts.\n\nCustomizable: Accommodates individual differences, allowing each student to choose the path that suits them best.\n\nApplicable: Appropriate to the actual needs of learners. Learnability: The interface is simple and the content is easy to navigate.\n\nInteractivity: The student is an active participant (clicking, answering, and receiving feedback), not just a passive listener.\n\nThird: Types and Forms of Digital Content\n1. Enhanced Textual Content:\n\nE-books: Characterized by hyperlinks that direct the student to external resources.\n\nEducational Blogs: Websites for publishing educational articles and discussions, allowing students to comment.\n\n2. Visual and Audio Content:\n\nIllustrations and Infographics: Used to simplify complex data.\n\nPodcasts: Educational audio files that can be listened to anytime (offline).\n\nVideos and Animations: Combine sound and movement to capture attention and explain complex processes. Fourth: Google's Learning Tools (Google Apps)\n\nThese are among the most important tools for creating digital content:\n\nGoogle Docs: A word processor that allows for collaborative work.\n\nGoogle Slides: For creating interactive presentations and sharing them via link.\n\nGoogle Sheets: For spreadsheets, organizing data, and creating charts and graphs.\n\nGoogle Forms: The perfect tool for creating online exams, collecting surveys, and automatically grading them.\n\nGoogle Drawings: For designing mind maps and engineering drawings.\n\nFifth: Self-Learning Platforms and Applications\n\nDuolingo: For learning languages ​​through games.\n\nMemrise: Relies on spaced repetition to strengthen memory for new words.\n\nQuizlet: A website specializing in creating flashcards and interactive quizzes.\n\nBrilliant: Focuses on developing logical thinking skills in science and mathematics (STEM). Sixth: Electronic Assessment (Exams)\n\nThis is the process of using technology to measure student performance and is divided into:\n\nCBA (Computer-Based Assessment): A test taken on a computer (with or without internet access).\n\nNBA (Network-Based Assessment): A test that relies entirely on an internet connection for sending and receiving questions and results.\n\nIts advantages: Fast grading, accurate results, immediate feedback for the student, and paper savings.\n\nSeventh: Criteria for Designing a Good Electronic Exam\n\nClear instructions and objectives.\n\nVariety of questions (multiple choice, true/false, matching).\n\nAdequate time for the number of questions.\n\nProvision of feedback (the student is immediately informed of their mistakes).",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775908403709",
+      "studentId": "students_1775855642761",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "img/WhatsApp Image 2026-04-11 at 3.22.12 PM.jpeg",
+        "pdf/Digital_Learning_Blueprint.pdf"
+      ]
+    },
+    {
+      "id": "summaries_1776042783551",
+      "timestamp": "2026-04-13T01:13:03.551Z",
+      "titleAr": "محاضرات الذكاء الوجداني حتى 26 مارس",
+      "titleEn": "Emotional Intelligence lectures until March 26",
+      "contentAr": "يتناول هذا الفصل مفهوم الذكاء الوجداني وأهميته في حياة الفرد، حيث يوضح كيفية فهم المشاعر وإدارتها لدى الذات والآخرين، ودوره في النجاح الدراسي والمهني والتفاعل الاجتماعي. كما يعرض مجالات الذكاء الوجداني ومكوناته الأساسية مثل الوعي الذاتي والتنظيم الذاتي والمهارات الاجتماعية. ويتطرق أيضًا إلى العوامل المؤثرة فيه، ومفهوم الصمود النفسي ومراحله ومقوماته، بالإضافة إلى استراتيجيات التنظيم الذاتي للتعلم، واستراتيجيات التنظيم الانفعالي، ومفهوم اليقظة العقلية ومهارات ما وراء المعرفة، بما يساعد الفرد على تحسين أدائه النفسي والتعليمي والتكيف مع المواقف المختلفة",
+      "contentEn": "This chapter explores the concept of emotional intelligence and its importance in an individual's life. It explains how to understand and manage emotions in oneself and others, and its role in academic and professional success and social interaction. It also presents the areas of emotional intelligence and its basic components, such as self-awareness, self-regulation, and social skills. Furthermore, it addresses the factors that influence it, the concept of psychological resilience, its stages and components, as well as self-regulation strategies for learning, emotional regulation strategies, the concept of mindfulness, and metacognitive skills. These elements help individuals improve their psychological and academic performance and adapt to different situations.",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775848318508",
+      "studentId": "students_1775125739063",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "https://drive.google.com/file/d/18pXvVs3eOxeXZnj_lAQ_ko3r3PttXVJ2/view?usp=drivesdk",
+        "img/EMOTIONAL INTELLIGENCE mind map(1).png",
+        "img/EMOTIONAL INTELLIGENCE info(1).png",
+        "file-html/EMOTIONAL INTELLIGENCE(1).html"
+      ]
+    },
+    {
+      "id": "summaries_1776042436231",
+      "timestamp": "2026-04-13T01:07:16.231Z",
+      "titleAr": "الفصل الثالث: نظام إدارة التعلم الرقمي Level 12",
+      "titleEn": "Chapter Three: Digital Learning Management System Level 12",
+      "contentAr": "يتناول هذا الفصل أنظمة إدارة التعلم المختلفة، مثل نظام إدارة التعلم (LMS) ونظام إدارة المحتوى (CMS) ونظام إدارة محتوى التعلم (LCMS)، مع توضيح وظائف كل نظام وإمكانياته ودوره في تنظيم وإدارة العملية التعليمية الإلكترونية والمعايير والتصنيفات",
+      "contentEn": "This chapter discusses various learning management systems, such as Learning Management Systems (LMS), Content Management Systems (CMS), and Learning Content Management Systems (LCMS), explaining the functions, capabilities, and role of each system in organizing and managing the e-learning process, as well as the standards and classifications.",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775908403709",
+      "studentId": "students_1775125739063",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "https://drive.google.com/file/d/1qwlLsDGDmkKzXE3NfI1vFgX141nomiWF/view?usp=drivesdk",
+        "img/Digital content mind map(3).png",
+        "file-html/Digital content management(3).html"
+      ]
+    },
+    {
+      "id": "summaries_1776042215400",
+      "timestamp": "2026-04-13T01:03:35.400Z",
+      "titleAr": "الفصل الثاني: نظم ادارة التعلم الرقمي الالكتروني Level 11",
+      "titleEn": "Chapter Two: Digital Learning Management Systems (Level 11)",
+      "contentAr": "يركّز هذا الفصل على مفهوم التعلم الرقمي، ويوضح وظائفه ومكوناته الأساسية، كما يعرض أنماطه المختلفة الثلاثة، ويبيّن كيف يتم استخدام التكنولوجيا في دعم عملية التعلم وتحسين تفاعل المتعلمين",
+      "contentEn": "This chapter focuses on the concept of digital learning, explaining its functions and basic components. It also presents its three different models and demonstrates how technology is used to support the learning process and improve learner engagement.",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775908403709",
+      "studentId": "students_1775125739063",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "https://drive.google.com/file/d/11K3ZLZDft-J7SuHfNIWHdnfAQ__-R-Ys/view?usp=drivesdk",
+        "img/Digital content mind map(2).png",
+        "img/Digital content info(2).png",
+        "file-html/Digital content management(2).html"
+      ]
+    },
+    {
+      "id": "summaries_1776041879448",
+      "timestamp": "2026-04-13T00:57:59.448Z",
+      "titleAr": "الفصل الأول: المحتوى التعليمي الرقمي Level 10",
+      "titleEn": "Chapter 1: Digital Educational Content Level 10",
+      "contentAr": "يتناول هذا الفصل مفهوم المحتوى التعليمي الرقمي، وخصائصه التي تميّزه، وأنماطه وأشكاله المختلفة، بالإضافة إلى كيفية تصميمه بطريقة تعليمية فعالة تساعد على تحقيق الأهداف التعليمية",
+      "contentEn": "This chapter addresses the concept of digital educational content, its distinguishing characteristics, its various styles and forms, and how to design it in an effective educational way that helps achieve educational goals.",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775908403709",
+      "studentId": "students_1775125739063",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        "https://drive.google.com/file/d/1iwypCJFWb5Dk5KMHdqbRh-WNfwQp7-bH/view?usp=drivesdk",
+        "img/Digital content mind map(1).png",
+        "img/Digital content info(1).png",
+        "file-html/Digital content management(1).html"
+      ]
+    },
+    {
       "id": "summaries_1775908604262",
       "timestamp": "2026-04-11T11:56:44.262Z",
       "titleAr": "تلخيص نظم ادارة المحتوى",
@@ -1109,40 +1201,6 @@
         "file-html/NotebookLM Mind Map (11).png",
         "file-html/unnamed (2).png"
       ]
-    }
-  ],
-  "projects": [
-    {
-      "id": 1,
-      "name": {
-        "ar": "مجتمع الأمل (Hope Community)",
-        "en": "Hope Community"
-      },
-      "url": "https://hope.org",
-      "shortDesc": {
-        "ar": "منصة رقمية مخصصة للصم وضعاف السمع للتواصل والتعلم.",
-        "en": "Digital platform dedicated to the deaf and hard of hearing for communication and learning."
-      },
-      "extraDesc": {
-        "ar": "تم بناء المنصة باستخدام React لتوفير واجهة خالية من العوائق (Accessibility First). تدعم المنصة محادثات الفيديو بجودة عالية لتمكين التواصل بلغة الإشارة، بالإضافة إلى قواميس تفاعلية وموارد تعليمية مرئية بالكامل.",
-        "en": "Built with React to provide an accessible interface. Supports high-quality video chats for sign language, plus interactive dictionaries and visual educational resources."
-      }
-    },
-    {
-      "id": 2,
-      "name": {
-        "ar": "تطبيق نقاط البيع (Smart POS)",
-        "en": "Smart POS System"
-      },
-      "url": "https://smartpos.io",
-      "shortDesc": {
-        "ar": "نظام إدارة مبيعات ومخازن سحابي متكامل وسريع.",
-        "en": "Integrated and fast cloud sales and inventory management system."
-      },
-      "extraDesc": {
-        "ar": "متوافق مع أجهزة التابلت وشاشات اللمس المتعددة. يوفر لوحة تحكم متقدمة للمديرين لمتابعة المبيعات والأرباح بشكل لحظي، وإدارة المخزون والتنبيه عند انخفاض الكميات.",
-        "en": "Compatible with tablets and multi-touch screens. Provides an advanced dashboard for managers to track sales/profits in real-time, and manage inventory."
-      }
     }
   ]
 };
