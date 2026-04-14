@@ -5,6 +5,19 @@
   },
   "news": [
     {
+      "id": "news_1776197128452",
+      "timestamp": "2026-04-14T20:05:28.452Z",
+      "titleAr": "اختبار الذكاء الوجداني  ✨👑",
+      "titleEn": "Emotional Intelligence Test  ✨👑",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "studentId": "students_1775125739063",
+      "mediaUrls": [
+        "https://docs.google.com/forms/d/e/1FAIpQLSfygWEOQaPCEaij1PSVgWcL4DxyDF1ljLCexBUs9rkBuEM4YQ/viewform?usp=header"
+      ]
+    },
+    {
       "id": "news_1776076228585",
       "timestamp": "2026-04-13T10:30:28.585Z",
       "titleAr": "امتحان مواطنه رقمية ",
