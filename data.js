@@ -5,6 +5,19 @@
   },
   "news": [
     {
+      "id": "news_1776287804833",
+      "timestamp": "2026-04-15T21:16:44.833Z",
+      "titleAr": "ملفات شرح ذكاء وجداني",
+      "titleEn": "Emotional Intelligence Explanation Files",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "studentId": "students_1775855642761",
+      "mediaUrls": [
+        "https://drive.google.com/drive/folders/1RnGUqdCmE6mXYCYUEzZD2xaWDwO6R_rL?usp=drive_link"
+      ]
+    },
+    {
       "id": "news_1776197128452",
       "timestamp": "2026-04-14T20:05:28.452Z",
       "titleAr": "اختبار الذكاء الوجداني  ✨👑",
