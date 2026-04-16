@@ -240,8 +240,19 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
 
             ${sortedNews.length > 0 && html`
                 <div className="mb-10">
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-2xl font-bold flex items-center gap-2">${Luminova.i18n[lang].news}</h2>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                        <h2 className="text-3xl font-black flex items-center gap-2">${Luminova.i18n[lang].news}</h2>
+                        
+                        <div className="relative w-full sm:w-[350px]">
+                            <span className="absolute inset-y-0 start-4 flex items-center opacity-40 text-xl pointer-events-none">🔍</span>
+                            <input 
+                                type="text" 
+                                value=${newsSearchQuery} 
+                                onChange=${(e) => setNewsSearchQuery(e.target.value)} 
+                                placeholder=${lang === 'ar' ? 'بحث في الأخبار...' : 'Search news...'} 
+                                className="w-full px-12 py-3.5 text-sm sm:text-base font-bold text-gray-800 dark:text-gray-100 placeholder-gray-500 bg-slate-900/5 dark:bg-slate-900/40 backdrop-blur-xl rounded-full outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-brand-DEFAULT shadow-inner focus:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300" 
+                            />
+                        </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         ${visibleNews.map((n, idx) => {
@@ -281,31 +292,13 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                             </div>
                         `}
 
-                        <div className="col-span-full flex flex-col sm:flex-row justify-center items-center gap-4 mt-6">
+                        <div className="col-span-full flex justify-center items-center mt-6">
                             ${(!newsSearchQuery.trim()) && (visibleNews.length < sortedNews.length) && html`
                                 <button onClick=${() => setNewsVisibleCount(prev => prev + 5)} className="w-full sm:w-auto px-8 py-3 bg-brand-DEFAULT hover:bg-brand-hover text-white font-bold rounded-xl shadow-md transition-transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
                                     <span>${lang === 'ar' ? 'عرض المزيد' : 'Load More'}</span>
                                     <span className="opacity-70 text-sm font-normal">(${sortedNews.length - newsVisibleCount} ${lang === 'ar' ? 'متبقية' : 'remaining'})</span>
                                 </button>
                             `}
-                            
-                            <div className="flex flex-col items-center sm:relative sm:items-end w-full sm:w-auto">
-                                <button onClick=${() => { setShowSearch(!showSearch); if(showSearch) setNewsSearchQuery(''); }} className="w-14 h-14 rounded-full bg-white dark:bg-slate-800 shadow-xl border border-gray-100 dark:border-gray-700 flex items-center justify-center text-2xl hover:scale-110 active:scale-95 transition-all focus:outline-none z-10 relative">
-                                    ${showSearch ? '✖️' : '🔍'}
-                                </button>
-                                ${showSearch && html`
-                                    <div className="mt-4 sm:mt-0 sm:absolute sm:bottom-[120%] sm:end-0 sm:rtl:end-auto sm:rtl:start-0 w-full max-w-[calc(100vw-2rem)] sm:w-[350px] p-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl shadow-[20px_20px_60px_rgba(0,0,0,0.2)] dark:shadow-[0_10px_50px_rgba(0,0,0,0.6)] rounded-2xl border border-white/50 dark:border-gray-700 animate-fade-in z-50">
-                                        <input 
-                                            type="text" 
-                                            autoFocus
-                                            value=${newsSearchQuery} 
-                                            onChange=${(e) => setNewsSearchQuery(e.target.value)} 
-                                            placeholder=${lang === 'ar' ? 'بحث في الأخبار...' : 'Search news...'} 
-                                            className="w-full px-4 py-3 bg-gray-50/50 dark:bg-slate-900/50 rounded-xl outline-none font-bold text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-brand-DEFAULT transition-shadow" 
-                                        />
-                                    </div>
-                                `}
-                            </div>
                         </div>
                     </div>
                 </div>
