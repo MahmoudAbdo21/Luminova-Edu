@@ -24,7 +24,7 @@ Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
         const [isFinished, setIsFinished] = useState(false);
         const [isFeedbackRevealed, setIsFeedbackRevealed] = useState(false);
         const [showExitWarning, setShowExitWarning] = useState(false);
-        const [exitIntent, setExitIntent] = useState('back'); // 'back' | 'finish'
+        const [modalType, setModalType] = useState(null); // null | 'exit' | 'submit'
 
         if (questions.length === 0) {
             return html`
@@ -40,8 +40,7 @@ Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
         const maxScore = questions.reduce((sum, curr) => sum + (Number(curr.score) || 0), 0);
 
         const handleFinish = () => {
-            setExitIntent('finish');
-            setShowExitWarning(true);
+            setModalType('submit');
         };
 
         if (isFinished) {
@@ -134,8 +133,8 @@ Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
         return html`
         <div className="max-w-4xl mx-auto min-h-[70vh] flex flex-col pt-10 pb-20">
 
-            <!-- Exit Warning Modal -->
-            ${showExitWarning && html`
+            <!-- Exit Modal -->
+            ${modalType === 'exit' && html`
                 <div
                     className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
                     style=${{ background: 'rgba(127,29,29,0.25)', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)' }}
@@ -143,28 +142,50 @@ Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
                     <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-[0_32px_80px_rgba(0,0,0,0.35)] p-8 w-full max-w-sm border border-red-200/40 dark:border-red-900/40 animate-fade-in text-center">
                         <div className="text-5xl mb-4">⚠️</div>
                         <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-3">
-                            ${lang === 'ar' ? 'هل أنت متأكد؟' : 'Are you sure?'}
+                            ${lang === 'ar' ? 'خروج من الامتحان' : 'Leave Exam'}
                         </h2>
                         <p className="text-base font-bold text-gray-500 dark:text-gray-400 mb-7 leading-relaxed">
-                            ${lang === 'ar' ? 'هل أنت متأكد من الخروج؟ الإجابات لن تُحفظ.' : 'Are you sure you want to quit? Your answers will not be saved.'}
+                            ${lang === 'ar' ? 'هل أنت متأكد من الخروج من الامتحان؟ الإجابات لن تُحفظ.' : 'Are you sure you want to leave? Your answers will not be saved.'}
                         </p>
                         <div className="flex gap-3">
-                            <button
-                                id="quiz-exit-cancel"
-                                onClick=${() => setShowExitWarning(false)}
+                            <button id="quiz-exit-cancel" onClick=${() => setModalType(null)}
                                 className="flex-1 py-3.5 rounded-2xl font-black bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200 transition-all"
                             >${lang === 'ar' ? 'تراجع' : 'Stay'}</button>
-                            <button
-                                id="quiz-exit-confirm"
-                                onClick=${() => { setShowExitWarning(false); if (exitIntent === 'finish') { setIsFinished(true); } else { goBack(); } }}
+                            <button id="quiz-exit-confirm" onClick=${() => { setModalType(null); goBack(); }}
                                 className="flex-1 py-3.5 rounded-2xl font-black bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30 transition-all"
                             >${lang === 'ar' ? 'نعم، خروج' : 'Yes, Exit'}</button>
                         </div>
                     </div>
                 </div>
             `}
+
+            <!-- Submit Modal -->
+            ${modalType === 'submit' && html`
+                <div
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+                    style=${{ background: 'rgba(6,78,59,0.2)', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)' }}
+                >
+                    <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-[0_32px_80px_rgba(0,0,0,0.35)] p-8 w-full max-w-sm border border-green-200/40 dark:border-green-900/40 animate-fade-in text-center">
+                        <div className="text-5xl mb-4">📝</div>
+                        <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-3">
+                            ${lang === 'ar' ? 'تسليم الامتحان' : 'Submit Exam'}
+                        </h2>
+                        <p className="text-base font-bold text-gray-500 dark:text-gray-400 mb-7 leading-relaxed">
+                            ${lang === 'ar' ? 'هل أنت متأكد من إنهاء الامتحان وتسليم الإجابات؟' : 'Are you sure you want to finish and submit your answers?'}
+                        </p>
+                        <div className="flex gap-3">
+                            <button id="quiz-submit-cancel" onClick=${() => setModalType(null)}
+                                className="flex-1 py-3.5 rounded-2xl font-black bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200 transition-all"
+                            >${lang === 'ar' ? 'تراجع' : 'Cancel'}</button>
+                            <button id="quiz-submit-confirm" onClick=${() => { setModalType(null); setIsFinished(true); }}
+                                className="flex-1 py-3.5 rounded-2xl font-black bg-gradient-to-r from-brand-DEFAULT to-green-500 text-white shadow-lg shadow-brand-DEFAULT/30 transition-all hover:opacity-90"
+                            >${lang === 'ar' ? 'نعم، إنهاء وتسليم' : 'Yes, Submit'}</button>
+                        </div>
+                    </div>
+                </div>
+            `}
             <div className="flex justify-between items-center mb-10 bg-white/50 dark:bg-gray-800/50 p-4 rounded-2xl shadow-sm backdrop-blur">
-                <${Luminova.Components.Button} variant="danger" onClick=${() => { setExitIntent('back'); setShowExitWarning(true); }} className="rounded-full shadow-lg hover:-translate-x-1">
+                <${Luminova.Components.Button} variant="danger" onClick=${() => setModalType('exit')} className="rounded-full shadow-lg hover:-translate-x-1">
                     <${Luminova.Icons.XCircle} /> <span className="hidden sm:inline">${lang === 'ar' ? 'خروج' : 'Quit'}</span>
                 </${Luminova.Components.Button}>
                 <div className="flex-1 mx-8 relative">

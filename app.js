@@ -455,6 +455,7 @@
         const [showAdminAuth, setShowAdminAuth] = useState(false);
         const [adminPwd, setAdminPwd] = useState('');
         const [adminPwdError, setAdminPwdError] = useState(false);
+        const [showSplash, setShowSplash] = useState(true);
 
         const routeMap = {
             'home': 'js/pages/main-views.js',
@@ -496,6 +497,11 @@
             root.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
             root.setAttribute('lang', lang);
         }, [data.settings?.theme, lang]);
+
+        useEffect(() => {
+            const t = setTimeout(() => setShowSplash(false), 2500);
+            return () => clearTimeout(t);
+        }, []);
 
         const handleLogoClick = () => {
             setClickCount(prev => prev + 1);
@@ -580,6 +586,51 @@
 
         return html`
         <div className="min-h-screen lmv-page-wrapper">
+
+            <!-- Splash Screen Intro -->
+            <div style=${{
+                position: 'fixed', inset: 0, zIndex: 10000,
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                background: 'linear-gradient(135deg, #0a0f1e 0%, #0f172a 60%, #1a0a2e 100%)',
+                pointerEvents: showSplash ? 'all' : 'none',
+                opacity: showSplash ? 1 : 0,
+                transition: 'opacity 0.85s cubic-bezier(0.4, 0, 0.2, 1)',
+            }}>
+                <div style=${{ textAlign: 'center', animation: 'lmv-splash-in 1s cubic-bezier(0.22, 1, 0.36, 1) forwards' }}>
+                    <div style=${{
+                        width: '72px', height: '72px',
+                        background: 'linear-gradient(135deg, #06b6d4, #f59e0b)',
+                        borderRadius: '20px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: 'white', fontWeight: 900, fontSize: '38px',
+                        boxShadow: '0 0 60px rgba(6,182,212,0.5), 0 0 120px rgba(245,158,11,0.2)',
+                        margin: '0 auto 24px',
+                    }}>L</div>
+                    <p style=${{
+                        fontFamily: "'Inter', 'Segoe UI', sans-serif",
+                        fontSize: 'clamp(2.5rem, 8vw, 5rem)',
+                        fontWeight: 900,
+                        letterSpacing: '0.18em',
+                        textTransform: 'uppercase',
+                        background: 'linear-gradient(135deg, #ffffff 0%, #06b6d4 40%, #f59e0b 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                        margin: 0, lineHeight: 1.1,
+                        filter: 'drop-shadow(0 0 30px rgba(6,182,212,0.4))',
+                    }}>LUMINOVA</p>
+                    <p style=${{
+                        fontFamily: "'Inter', 'Segoe UI', sans-serif",
+                        color: 'rgba(148,163,184,0.7)',
+                        fontSize: '0.8rem',
+                        letterSpacing: '0.35em',
+                        textTransform: 'uppercase',
+                        marginTop: '12px',
+                        fontWeight: 600,
+                    }}>Educational Platform</p>
+                </div>
+                <style>{'@keyframes lmv-splash-in { from { opacity: 0; transform: scale(0.88) translateY(16px); } to { opacity: 1; transform: scale(1) translateY(0); } }'}</style>
+            </div>
 
             <!-- Admin Auth Modal -->
             ${showAdminAuth && html`
