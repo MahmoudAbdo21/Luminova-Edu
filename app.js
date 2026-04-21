@@ -98,15 +98,22 @@
     Luminova.Components.SmartMedia = ({ url, lang = 'ar' }) => {
         if (!url || (Array.isArray(url) && url.length === 0)) return null;
 
-        const urls = Array.isArray(url) ? url : [url];
+        const rawUrls = Array.isArray(url) ? url : [url];
+        
+        // 1. Normalize mixed arrays (strings/objects)
+        // 2. Sort by custom order logically
+        const sortedItems = rawUrls.map((item, idx) => {
+            if (typeof item === 'string') return { url: item, titleAr: '', titleEn: '', order: idx, type: 'legacy' };
+            return { ...item, order: item.order !== undefined ? item.order : idx };
+        }).sort((a, b) => (a.order || 0) - (b.order || 0));
 
         return html`
-        <div className="mt-6 w-full relative group space-y-6">
+        <div className="mt-6 w-full relative group space-y-10">
             <div className="absolute -inset-1 bg-gradient-to-r from-brand-DEFAULT to-brand-gold opacity-10 rounded-2xl blur transition duration-1000 group-hover:opacity-30 -z-10"></div>
-            ${urls.map((rawUrl, idx) => {
-                if (!rawUrl) return null;
+            ${sortedItems.map((item, idx) => {
+                if (!item || !item.url) return null;
                 let embedContent = null;
-                let urlStr = typeof rawUrl === 'string' ? rawUrl : String(rawUrl);
+                let urlStr = typeof item.url === 'string' ? item.url : String(item.url);
                 const isBase64 = urlStr.startsWith('data:');
                 const mimeMatch = isBase64 ? urlStr.match(/data:(.*?);/) : null;
                 const mimeType = mimeMatch ? mimeMatch[1] : '';
@@ -210,7 +217,28 @@
                         `;
                     }
                 }
-                return html`<div key=${idx} className="w-full block">${embedContent}</div>`;
+                
+                const activeTitle = lang === 'ar' ? (item.titleAr || item.titleEn || item.title) : (item.titleEn || item.titleAr || item.title);
+                const customTitle = typeof activeTitle === 'string' ? activeTitle.trim() : '';
+                let titleBadge = null;
+                
+                if (customTitle) {
+                    const isArabicLang = lang === 'ar';
+                    const positionClass = isArabicLang ? "absolute -top-5 right-4 sm:right-6" : "absolute -top-5 left-4 sm:left-6";
+                    const dirAttr = isArabicLang ? "rtl" : "ltr";
+                    
+                    // Luxurious Nano Banana Pill Badge Overlay
+                    titleBadge = html`
+                    <div className=${`${positionClass} z-20 pointer-events-none`} dir=${dirAttr}>
+                        <div className="backdrop-blur-md bg-gray-900/80 dark:bg-black/80 border border-white/10 dark:border-white/5 shadow-xl shadow-black/20 rounded-xl px-4 py-2 flex items-center gap-3">
+                            <span className="text-brand-gold text-lg drop-shadow-md">✨</span>
+                            <span className="text-white font-bold text-sm tracking-wide truncate max-w-[200px] sm:max-w-md drop-shadow-sm flex-1" style=${{ direction: 'auto' }} title=${customTitle}>${customTitle}</span>
+                        </div>
+                    </div>`;
+                }
+
+                const padClass = titleBadge ? 'pt-2' : '';
+                return html`<div key=${idx} className=${`w-full block relative hover:scale-[1.01] transition-transform duration-300 ${padClass}`}>${titleBadge}${embedContent}</div>`;
             })}
         </div>
     `;
@@ -331,70 +359,119 @@
     `;
     };
 
-    Luminova.Components.SingleMediaRow = ({ val, onChange, onRemove, idx }) => {
-        const initialType = val ? (String(val).startsWith('data:') ? 'base64' : (!String(val).startsWith('http') ? 'local' : 'url')) : 'url';
+    Luminova.Components.SingleMediaRow = ({ val, onChange, onRemove, onMoveUp, onMoveDown, isFirst, isLast, idx }) => {
+        const isLegacyString = typeof val === 'string';
+        const urlStr = isLegacyString ? val : (val?.url || '');
+        const titleAr = isLegacyString ? '' : (val?.titleAr || val?.title || '');
+        const titleEn = isLegacyString ? '' : (val?.titleEn || '');
+        const currentOrder = isLegacyString ? idx : (val?.order !== undefined ? val.order : idx);
+        
+        const initialType = urlStr ? (String(urlStr).startsWith('data:') ? 'base64' : (!String(urlStr).startsWith('http') ? 'local' : 'url')) : 'url';
         const [inputType, setInputType] = useState(initialType);
+        
+        const emitChange = (newUrl, newTitleAr, newTitleEn) => {
+            onChange({ url: newUrl, titleAr: newTitleAr, titleEn: newTitleEn, order: currentOrder, type: inputType });
+        };
         
         let inputContent = null;
         if (inputType === 'url') {
-            inputContent = html`<${Luminova.Components.Input} label="رابط مباشر (URL YouTube, Drive, Image...)" val=${val} onChange=${onChange} />`;
+            inputContent = html`<${Luminova.Components.Input} label="رابط مباشر (URL YouTube, Drive, Image...)" val=${urlStr} onChange=${v => emitChange(v, titleAr, titleEn)} />`;
         } else if (inputType === 'base64') {
             inputContent = html`
                 <div className="mb-2 text-xs font-bold text-gray-400">سيتم حفظ الملف وتضمينه كـ Base64 ليعمل بدون إنترنت.</div>
-                <${Luminova.Components.FileInput} label="رفع ملف (Upload File Base64)" accept="*/*" onFileLoaded=${onChange} />
+                <${Luminova.Components.FileInput} label="رفع ملف (Upload File Base64)" accept="*/*" onFileLoaded=${v => emitChange(v, titleAr, titleEn)} />
             `;
         } else {
             inputContent = html`
                 <div className="mb-2 text-xs font-bold text-gray-400">مثال: file-html/lesson1/index.html أو files/document.pdf </div>
-                <${Luminova.Components.Input} label="مسار ملف محلي (Local Path)" placeholder="example/path/index.html" val=${val} onChange=${onChange} />
+                <${Luminova.Components.Input} label="مسار ملف محلي (Local Path)" placeholder="example/path/index.html" val=${urlStr} onChange=${v => emitChange(v, titleAr, titleEn)} />
             `;
         }
 
         return html`
-        <div className="flex flex-col gap-2 p-4 bg-white/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700/50 rounded-xl w-full">
-            <div className="flex justify-between items-center mb-2">
-                <div className="flex gap-2">
-                    <button onClick=${() => setInputType('url')} className=${`px-3 py-1 rounded-md text-xs font-bold transition-all ${inputType === 'url' ? 'bg-brand-DEFAULT text-white' : 'bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'}`}>رابط (URL)</button>
-                    <button onClick=${() => setInputType('base64')} className=${`px-3 py-1 rounded-md text-xs font-bold transition-all ${inputType === 'base64' ? 'bg-brand-DEFAULT text-white' : 'bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'}`}>ملف (Base64)</button>
-                    <button onClick=${() => setInputType('local')} className=${`px-3 py-1 rounded-md text-xs font-bold transition-all ${inputType === 'local' ? 'bg-brand-DEFAULT text-white' : 'bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700'}`}>مسار محلي</button>
+        <div className="flex flex-col gap-2 p-4 bg-white/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700/50 rounded-xl w-full hover:border-brand-DEFAULT/30 transition-colors">
+            <div className="flex justify-between items-center mb-2 flex-wrap gap-4">
+                <div className="flex gap-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg shadow-inner">
+                    <button onClick=${() => setInputType('url')} className=${`px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-sm ${inputType === 'url' ? 'bg-brand-DEFAULT text-white' : 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>رابط (URL)</button>
+                    <button onClick=${() => setInputType('base64')} className=${`px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-sm ${inputType === 'base64' ? 'bg-brand-DEFAULT text-white' : 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>ملف (Base64)</button>
+                    <button onClick=${() => setInputType('local')} className=${`px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-sm ${inputType === 'local' ? 'bg-brand-DEFAULT text-white' : 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>مسار محلي</button>
                 </div>
-                <button onClick=${onRemove} className="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1"><span>✖</span> حذف المرفق</button>
+                <div className="flex items-center gap-2">
+                    <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1 shadow-inner">
+                        <button onClick=${onMoveUp} disabled=${isFirst} className="px-2 py-1.5 rounded-md hover:bg-white dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-gray-700 dark:text-gray-300 shadow-sm" title="تحريك لأعلى (Move Up)">↑</button>
+                        <div className="w-[1px] h-4 bg-gray-300 dark:bg-gray-600 mx-1"></div>
+                        <button onClick=${onMoveDown} disabled=${isLast} className="px-2 py-1.5 rounded-md hover:bg-white dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-gray-700 dark:text-gray-300 shadow-sm" title="تحريك لأسفل (Move Down)">↓</button>
+                    </div>
+                    <button onClick=${onRemove} className="text-red-500 hover:text-white hover:bg-red-500 px-3 py-2 rounded-lg text-sm font-bold flex items-center shadow-sm transition-all border border-red-500/20" title="حذف المرفق">✖</button>
+                </div>
             </div>
-            <div className="w-full">
+            <div className="w-full flex flex-col gap-4 mt-2">
                 ${inputContent}
+                <div className="w-full pl-0 flex flex-col md:flex-row gap-4 border-t border-brand-DEFAULT/10 pt-4 mt-2">
+                    <div className="flex-1 border-l-4 border-brand-DEFAULT/30 pl-2 sm:pl-4">
+                        <${Luminova.Components.Input} label="عنوان المرفق (عربي) - Optional" placeholder="مثال: فيديو شرح الدرس الأول..." val=${titleAr} onChange=${v => emitChange(urlStr, v, titleEn)} />
+                    </div>
+                    <div className="flex-1 border-l-4 border-brand-hover/30 pl-2 sm:pl-4">
+                        <${Luminova.Components.Input} label="Custom Title (English) - Optional" placeholder="e.g. Lesson One Video..." val=${titleEn} onChange=${v => emitChange(urlStr, titleAr, v)} />
+                    </div>
+                </div>
             </div>
         </div>
         `;
     };
 
     Luminova.Components.UniversalMediaInput = ({ attachments = [], onChange, label = "إرفاق وسائط (Media Attachments)" }) => {
-        // Enforce array safely
-        const items = Array.isArray(attachments) ? attachments : (attachments ? [attachments] : []);
+        // Enforce array safely and normalize items structurally
+        const rawItems = Array.isArray(attachments) ? attachments : (attachments ? [attachments] : []);
         
-        // Build items into variables completely outside the htm template rule
-        const renderedItems = items.map((val, idx) => {
-            return html`<${Luminova.Components.SingleMediaRow} key=${idx} idx=${idx} val=${val || ''} 
+        const sortedItems = rawItems.map((item, index) => {
+            if (typeof item === 'string') return { url: item, titleAr: '', titleEn: '', order: index, type: 'legacy' };
+            return { ...item, order: item.order !== undefined ? item.order : index };
+        }).sort((a, b) => (a.order || 0) - (b.order || 0));
+
+        const handleMove = (currentIndex, direction) => {
+            if (direction === 'up' && currentIndex === 0) return;
+            if (direction === 'down' && currentIndex === sortedItems.length - 1) return;
+
+            const newArray = [...sortedItems];
+            const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+            
+            // Swap semantic orders logically
+            const tempOrder = newArray[currentIndex].order;
+            newArray[currentIndex].order = newArray[targetIndex].order;
+            newArray[targetIndex].order = tempOrder;
+            
+            // Re-sort and dispatch to update state universally
+            newArray.sort((a, b) => (a.order || 0) - (b.order || 0));
+            onChange(newArray);
+        };
+
+        const renderedItems = sortedItems.map((val, idx) => {
+            return html`<${Luminova.Components.SingleMediaRow} key=${idx} idx=${idx} val=${val}
+                isFirst=${idx === 0} isLast=${idx === sortedItems.length - 1}
+                onMoveUp=${() => handleMove(idx, 'up')}
+                onMoveDown=${() => handleMove(idx, 'down')}
                 onChange=${(newVal) => {
-                    const newArr = [...items];
+                    const newArr = [...sortedItems];
                     newArr[idx] = newVal;
                     onChange(newArr);
                 }} 
                 onRemove=${() => {
-                    const newArr = items.filter((_, i) => i !== idx);
+                    const newArr = sortedItems.filter((_, i) => i !== idx);
                     onChange(newArr);
                 }} 
             />`;
         });
 
         return html`
-        <div className="bg-gray-50 dark:bg-gray-800/40 p-4 rounded-2xl border border-gray-200 dark:border-gray-700/50 shadow-sm w-full space-y-4">
-            <h4 className="font-bold text-brand-DEFAULT border-b border-gray-200 dark:border-gray-700 pb-2">${label}</h4>
+        <div className="bg-gray-50 dark:bg-gray-800/40 p-5 rounded-2xl border border-gray-200 dark:border-gray-700/50 shadow-inner w-full space-y-4">
+            <h4 className="font-black text-brand-DEFAULT border-b border-brand-DEFAULT/20 dark:border-gray-700 pb-3 flex items-center gap-2"><span>📎</span> ${label} <span className="bg-brand-DEFAULT text-white px-2.5 py-0.5 rounded-full text-xs shadow-sm">${sortedItems.length}</span></h4>
             <div className="flex flex-col gap-4 w-full">
                 ${renderedItems}
             </div>
-            <div className="flex justify-center pt-2 mt-4">
-                <button onClick=${() => onChange([...items, ''])} className="px-6 py-2 bg-brand-DEFAULT/10 hover:bg-brand-DEFAULT text-brand-DEFAULT hover:text-white font-bold rounded-xl transition-colors text-sm shadow-sm flex items-center gap-2">
-                    <span>➕</span> إضافة مرفق آخر (Add Another Attachment)
+            <div className="flex justify-center pt-4">
+                <button onClick=${() => onChange([...sortedItems, { url: '', titleAr: '', titleEn: '', order: sortedItems.length }])} className="px-8 py-3 bg-brand-DEFAULT/10 hover:bg-brand-DEFAULT text-brand-DEFAULT hover:text-white font-black rounded-xl transition-colors shadow-sm flex items-center gap-2 border border-brand-DEFAULT/30 border-dashed hover:border-solid">
+                    <span className="text-xl">➕</span> إضافة مرفق جديد (Add Media Attachment)
                 </button>
             </div>
         </div>

@@ -37,6 +37,15 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
                 if (activeTab === 'news' || activeTab === 'summaries') {
                     if (updates.titleAr && !updates.titleEn) updates.titleEn = await translateText(updates.titleAr);
                     if (updates.contentAr && !updates.contentEn) updates.contentEn = await translateText(updates.contentAr);
+                    
+                    if (updates.mediaUrls && Array.isArray(updates.mediaUrls)) {
+                        updates.mediaUrls = await Promise.all(updates.mediaUrls.map(async (media) => {
+                            if (typeof media === 'object' && media.titleAr && !media.titleEn) {
+                                return { ...media, titleEn: await translateText(media.titleAr) };
+                            }
+                            return media;
+                        }));
+                    }
                 } else if (activeTab === 'quizzes') {
                     const titleToTranslate = updates.titleAr || updates.title;
                     if (titleToTranslate && !updates.titleEn) updates.titleEn = await translateText(titleToTranslate);
