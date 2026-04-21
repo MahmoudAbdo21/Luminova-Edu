@@ -321,6 +321,31 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
             }
         }, [selectedYear?.id, data.semesters]);
 
+        // Shallow History: push when entering sub-views, pop to close them
+        useEffect(() => {
+            if (selectedSub) {
+                window.history.pushState({ lmv: 'academics-subject' }, '', '');
+            }
+        }, [selectedSub?.id]);
+
+        useEffect(() => {
+            if (selectedSummaryId) {
+                window.history.pushState({ lmv: 'academics-summary' }, '', '');
+            }
+        }, [selectedSummaryId]);
+
+        useEffect(() => {
+            const onPop = () => {
+                if (selectedSummaryId) {
+                    setSelectedSummaryId(null);
+                } else if (selectedSub) {
+                    setSelectedSub(null);
+                }
+            };
+            window.addEventListener('popstate', onPop);
+            return () => window.removeEventListener('popstate', onPop);
+        }, [selectedSub, selectedSummaryId]);
+
         const semesters = selectedYear ? data.semesters.filter(s => s.yearId === selectedYear.id) : [];
         const subjects = selectedSem ? data.subjects.filter(s => s.semesterId === selectedSem.id) : [];
         const summaries = selectedSub ? data.summaries.filter(s => s.subjectId === selectedSub.id) : [];
@@ -333,7 +358,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
             const author = Luminova.getStudent(targetSummary.studentId, data.students);
             return html`
                 <div className="animate-fade-in w-full max-w-4xl mx-auto space-y-6">
-                    <button onClick=${() => setSelectedSummaryId(null)} 
+                    <button onClick=${() => window.history.back()} 
                         className="flex items-center gap-2 px-6 py-3 bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40 rounded-xl font-bold transition-all shadow-sm w-fit">
                         ✖ ${lang === 'ar' ? 'رجوع للتلخيص' : 'Back to Summary'}
                     </button>
@@ -363,7 +388,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                 <div className="animate-fade-in space-y-8">
                     <div className="flex justify-between items-center mb-6 border-b border-gray-100 dark:border-gray-800 pb-4">
                         <div className="flex items-center gap-4">
-                            <button onClick=${() => setSelectedSub(null)} 
+                            <button onClick=${() => window.history.back()} 
                                 className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl transition-colors border border-slate-700 font-bold backdrop-blur-sm shadow-sm">
                                 ${lang === 'ar' ? 'رجوع للمواد ➔' : '➔ Back to Semester'}
                             </button>
@@ -586,6 +611,22 @@ Luminova.Pages.StudentCommunityPage = ({ data, lang, setView, setActiveSummary }
             );
         }
 
+        // Shallow History for student profile sub-view
+        useEffect(() => {
+            if (selectedStudent !== null) {
+                window.history.pushState({ lmv: 'community-student' }, '', '');
+            }
+        }, [selectedStudent?.id]);
+
+        useEffect(() => {
+            const onPop = () => {
+                if (selectedStudent !== null) {
+                    setSelectedStudent(null);
+                }
+            };
+            window.addEventListener('popstate', onPop);
+            return () => window.removeEventListener('popstate', onPop);
+        }, [selectedStudent]);
         
         if (selectedStudent !== null) {
             const studentPosts = (() => {
@@ -636,7 +677,7 @@ Luminova.Pages.StudentCommunityPage = ({ data, lang, setView, setActiveSummary }
                                 ${!selectedStudent.isFounder && selectedStudent.role === 'doctor' && html`<span className="text-xs bg-teal-500 text-white px-3 py-1 rounded-full font-black shadow-lg">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
                             </h2>
                         </div>
-                        <button onClick=${() => setSelectedStudent(null)} className="font-bold text-red-500 hover:text-red-700 transition-colors flex items-center gap-2 bg-red-500/10 px-4 py-2 rounded-lg hover:bg-red-500/20">✖ ${lang === 'ar' ? 'رجوع للطلاب' : 'Back to Students'}</button>
+                        <button onClick=${() => window.history.back()} className="font-bold text-red-500 hover:text-red-700 transition-colors flex items-center gap-2 bg-red-500/10 px-4 py-2 rounded-lg hover:bg-red-500/20">✖ ${lang === 'ar' ? 'رجوع للطلاب' : 'Back to Students'}</button>
                     </div>
 
                     <div className="bg-white/50 dark:bg-gray-900/50 rounded-2xl p-6 mb-6 border border-gray-200 dark:border-gray-700">

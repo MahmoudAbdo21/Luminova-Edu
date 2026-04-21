@@ -14,9 +14,27 @@ window.LUMINOVA_DATA = {
       "mediaUrl": "",
       "studentId": "students_1775848220866",
       "mediaUrls": [
-        "https://drive.google.com/drive/folders/1bZyFEjlF9XPS42_FMug0qBZvsycARyyw",
-        "https://drive.google.com/drive/folders/1Ak9DD9igaTdYUEA_sgDQ0tHvfLHagkTc?usp=drive_link",
-        "https://drive.google.com/file/d/1m1teoO4N-7HwLU7JPFxL1UnRkwMCPu1i/view?usp=drivesdk"
+        {
+          "url": "https://drive.google.com/drive/folders/1bZyFEjlF9XPS42_FMug0qBZvsycARyyw",
+          "titleAr": "التكليف الاول",
+          "titleEn": "First Assignment",
+          "order": 0,
+          "type": "url"
+        },
+        {
+          "url": "https://drive.google.com/drive/folders/1Ak9DD9igaTdYUEA_sgDQ0tHvfLHagkTc?usp=drive_link",
+          "titleAr": "التكليف الثاني",
+          "titleEn": "Second Assignment",
+          "order": 1,
+          "type": "url"
+        },
+        {
+          "url": "https://drive.google.com/file/d/1m1teoO4N-7HwLU7JPFxL1UnRkwMCPu1i/view?usp=drivesdk",
+          "titleAr": "التكليف الثالث",
+          "titleEn": "Third Assignment",
+          "order": 2,
+          "type": "url"
+        }
       ]
     },
     {
@@ -449,6 +467,35 @@ window.LUMINOVA_DATA = {
     }
   ],
   "summaries": [
+    {
+      "id": "summaries_1776791194025",
+      "timestamp": "2026-04-21T17:06:34.025Z",
+      "titleAr": "الفصل التاني نظم ادارة المحتوى",
+      "titleEn": "Chapter Two Content Management Systems",
+      "contentAr": "1. ماهية \"نظم إدارة التعلم الرقمي\" (LMS)\n​تعتبر هذه النظم \"العمود الفقري\" للتعليم الإلكتروني. هي ليست مجرد \"موقع\" بل هي بيئة متكاملة تجمع بين التقنية (البرمجيات) والتربية (المناهج).\n​أهم المسميات الواردة:\n​CMS: يركز على \"المحتوى\" كملفات.\n​LMS: يركز على \"إدارة العملية\" (تسجيل، حضور، غياب).\n​LCMS: يجمع الاثنين (صناعة المحتوى + إدارته).\n​LAMS: متخصص في إدارة \"الأنشطة\" التعليمية.\n​2. الوظائف الثمانية بالتفصيل الدقيق\n​التسجيل وإدارة الطلاب: ليس فقط كتابة أسماء، بل تشمل (منح صلاحيات الدخول، تقسيم الطلاب لمجموعات \"بنين/بنات\" أو \"مستويات\"، ومتابعة الملفات الشخصية).\n​التخطيط والإنشاء: تسمح للمعلم برفع الملفات بصيغ (PDF, Word, PPT) ويقوم النظام تلقائياً بتحويلها لـ HTML لتفتح على أي متصفح بسهولة.\n​توصيل المحتوى: ضمان وصول المادة للطالب بضغطة زر دون تعقيدات تقنية.\n​إدارة المقررات: تشمل (الفهرسة) أي وضع الدروس في \"شجرة\" منطقية، و(البحث) داخل المحتوى.\n​إدارة التفاعل: تسهيل التعلم الذاتي، وتوفير \"وعاء\" للنقاشات الصفية.\n​التواصل والتشارك: استخدام أدوات مثل (المنتديات، غرف الدردشة، البريد الداخلي) لخلق مجتمع تعليمي.\n​التقويم (الامتحانات): تشمل 4 أنواع:\n​بنائي: أثناء الدرس.\n​نهائي: في آخر المنهج.\n​أسئلة قصيرة (Quizzes).\n​ملفات الإنجاز (E-Portfolios).\n​التتبع والتقارير: رصد كل حركة للطالب (متى دخل؟ ماذا قرأ؟ كم درجة حصل؟) وإصدار شهادات إلكترونية.\n​3. أدوار المستخدمين (من يستخدم ماذا؟)\n​الطالب: دوره (استقبال، تنفيذ المهام، المشاركة في النقاش).\n​المعلم: دوره (مصمم تعليمي، مدير للنقاش، مقيّم للأداء، ومنشئ للاختبارات).\n​الإداري: دوره (الدعم الفني، إدارة قواعد البيانات، مراقبة أمن المعلومات على النظام).\n​4. المميزات (لماذا نستخدمها؟)\n​الإتاحة والمرونة: كسر حاجزي الزمان والمكان.\n​المرونة في التعلم: الطالب يختار المسار الذي يناسب قدراته (Personalized Learning).\n​تعدد المصادر: المحتوى لا يقتصر على نص، بل يمتد لروابط خارجية ومكتبات رقمية.\n​التحديث الفوري: إذا تغيرت معلومة علمية، يتم تعديلها في ثوانٍ لتصل للآلاف.\n​جمع البيانات الضخمة (Big Data): جمع معلومات عن سلوك المتعلمين لتحسين المناهج مستقبلاً.\n​5. التصميم والمعايير الفنية (كيف يُبنى النظام؟)\n​هذا الجزء يركز على \"واجهة المستخدم\" (Interface):\n​سهولة التصفح: وجود أزرار واضحة (Home, Next, Back) في أماكن ثابتة.\n​معايير النصوص: * استخدام خطوط (Sans Serif) أو (Simplified Arabic) لراحة العين.\n​تجنب كتابة نصوص طويلة جداً في صفحة واحدة.\n​استخدام \"المساحات البيضاء\" لتقليل تشتت الطالب.\n​التغذية الراجعة (Feedback): أن يعطي النظام رداً فورياً للطالب عند الخطأ أو الصواب.\n​إمكانية الوصول (Accessibility): مراعاة الألوان لذوي عمى الألوان، وتكبير الخط لضعاف البصر.\n​6. الجودة التقنية والتعليمية\n​الترابط المنطقي: الدروس يجب أن تكون متسلسلة (لا يفتح الدرس الثاني إلا بعد إنهاء الأول).\n​التوافق: أن يعمل النظام على (الموبايل، التابلت، الكمبيوتر).\n​الأمن: حماية بيانات الطلاب من الاختراق أو الضياع.\n​بالمختصر المفيد:\n​نحن لا نتحدث عن مجرد \"تكنولوجيا\"، بل عن نظام إدارة شامل يضمن أن المعلم يستطيع التدريس، والطالب يستطيع التعلم، والإدارة تستطيع الرقابة، وكل ذلك يتم وفق معايير فنية تجعل العملية التعليمية ممتعة وسهلة.",
+      "contentEn": "1. What is a Learning Management System (LMS)?\n\nThese systems are considered the backbone of e-learning. They are not just websites, but integrated environments that combine technology (software) and education (curriculum).\n\nKey terms include:\n\nCMS: Focuses on content as files.\n\nLMS: Focuses on process management (registration, attendance, absence).\n\nLCMS: Combines both (content creation and management).\n\nLAMS: Specializes in managing educational activities.\n\n2. The Eight Functions in Detail\n\nStudent Registration and Management: This includes more than just entering names; it also involves granting access permissions, dividing students into groups (boys/girls) or levels, and monitoring student profiles.\n\nPlanning and Creation: Allows teachers to upload files in PDF, Word, and PPT formats, which the system automatically converts to HTML for easy opening in any browser.\n\nContent Delivery: Ensures students can access the material with a single click, without technical complexities. Course Management: This includes indexing (placing lessons in a logical \"tree\") and content search.\n\nInteraction Management: Facilitating self-directed learning and providing a platform for classroom discussions.\n\nCommunication and Collaboration: Using tools such as forums, chat rooms, and internal messaging to create a learning community.\n\nAssessment (Exams): This includes four types:\nFormative: During the lesson.\n\nSummative: At the end of the course.\n\nQuizzes.\n\nE-Portfolios.\n\nTracking and Reporting: Monitoring all student activity (when they logged in, what they read, what grades they received) and issuing electronic certificates.\n\n3. User Roles (Who Uses What?):\nStudent: Their role is to receive and complete assignments and participate in discussions.\n\nTeacher: Their role is to be an instructional designer, a discussion facilitator, a performance evaluator, and a test creator. Administrator: Their role includes technical support, database management, and monitoring information security on the system.\n\n4. Features (Why Use Them?)\nAccessibility and Flexibility: Breaking down the barriers of time and place.\n\nFlexible Learning: Students choose the path that suits their abilities (Personalized Learning).\n\nMultiple Sources: Content is not limited to text but extends to external links and digital libraries.\n\nReal-Time Updates: If scientific information changes, it is updated within seconds and reaches thousands.\n\nBig Data Collection: Gathering information about learner behavior to improve curricula in the future.\n\n5. Design and Technical Standards (How is the System Built?)\nThis section focuses on the user interface:\nEase of Navigation: Clear buttons (Home, Next, Back) in fixed locations.\n\nText Standards: * Use Sans Serif or Simplified Arabic fonts for eye comfort.\n\nAvoid writing excessively long texts on a single page.\n\nUse white space to reduce student distraction.\n\nFeedback: The system should provide immediate feedback to the student regarding correct or incorrect answers.\n\nAccessibility: The system should accommodate color blindness and provide larger font sizes for visually impaired students.\n\n6. Technical and Educational Quality\n\nLogical Sequence: Lessons should be sequential (the second lesson should not be opened until the first has been completed).\n\nCompatibility: The system should be compatible with mobile phones, tablets, and computers.\n\nSecurity: Student data should be protected from hacking or loss.\n\nIn Short:\n\nWe are not talking about mere \"technology,\" but rather a comprehensive management system that ensures teachers can teach, students can learn, and administrators can monitor, all according to technical standards that make the educational process enjoyable and easy.",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775908403709",
+      "studentId": "students_1775855642761",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "img/lM5.jpeg",
+          "titleAr": "مخطط توضيحي",
+          "titleEn": "diagram",
+          "order": 0,
+          "type": "local"
+        },
+        {
+          "url": "pdf/الفصل الثاني نظم ادارةالمحتوى.pdf",
+          "titleAr": "ملف اضافي لتوضيح بعض النقاط",
+          "titleEn": "Additional file to clarify some points",
+          "order": 1,
+          "type": "local"
+        }
+      ]
+    },
     {
       "id": "summaries_1776076028078",
       "timestamp": "2026-04-13T10:27:08.078Z",

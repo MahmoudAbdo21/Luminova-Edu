@@ -543,6 +543,10 @@
             'certificates': 'js/pages/certificate-engine.js'
         };
 
+        // Sentinel: true while a popstate-triggered navigation is in progress.
+        // Prevents changeView from pushing a duplicate history entry.
+        const isPopNavRef = window.React.useRef(false);
+
         // MUST be defined before any useEffect that calls it
         const changeView = useCallback(async (newView) => {
             if (routeMap[newView]) {
@@ -563,9 +567,23 @@
                 }
                 setIsNavigating(false);
             }
+
+            // Shallow History: push state only for detail/overlay views, and only
+            // when this navigation was NOT triggered by a popstate (back-button).
+            const isDetailView = ['summaryDetail', 'quiz', 'cms', 'certificates'].includes(newView);
+            if (isDetailView && !isPopNavRef.current) {
+                window.history.pushState({ lmv: newView }, '', '');
+            }
+            isPopNavRef.current = false; // reset sentinel after every navigation
+
             setView(prev => { setPreviousView(prev); return newView; });
         }, []);
 
+
+        // Task 2: Scroll Restoration — scroll to top on every primary view change
+        useEffect(() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, [view]);
 
         useEffect(() => {
             const root = document.documentElement;
@@ -579,6 +597,33 @@
             const t = setTimeout(() => setShowSplash(false), 2500);
             return () => clearTimeout(t);
         }, []);
+
+        // Shallow History: listen for hardware/browser back-button
+        useEffect(() => {
+            const onPopState = () => {
+                isPopNavRef.current = true; // signal changeView to NOT push again
+                // Dispatch a custom event that sub-pages (academics, community) can
+                // listen to for closing their own internal detail views.
+                const handled = window.dispatchEvent(new CustomEvent('lmv:popstate', { cancelable: true }));
+                // If no sub-page cancelled the event, handle at top-level
+                if (handled !== false) {
+                    setView(prev => {
+                        const detailViews = ['summaryDetail', 'quiz', 'cms', 'certificates'];
+                        if (detailViews.includes(prev)) {
+                            // Return to the logical parent
+                            if (prev === 'summaryDetail') return previousView !== 'summaryDetail' ? previousView : 'home';
+                            if (prev === 'quiz') return 'academics';
+                            if (prev === 'cms') return 'home';
+                            if (prev === 'certificates') return 'home';
+                        }
+                        // Already on a root view — do nothing, let the browser handle normally
+                        return prev;
+                    });
+                }
+            };
+            window.addEventListener('popstate', onPopState);
+            return () => window.removeEventListener('popstate', onPopState);
+        }, [previousView]);
 
         const handleLogoClick = () => {
             setClickCount(prev => prev + 1);
@@ -651,12 +696,12 @@
 
         const renderView = () => {
             switch (view) {
-                case 'summaryDetail': return html`<${Luminova.Components.SummaryCard} item=${activeSummary} data=${data} lang=${lang} onClose=${() => changeView(previousView !== 'summaryDetail' ? previousView : 'home')} />`;
-                case 'quiz': return Luminova.Pages.QuizEngine ? html`<${Luminova.Pages.QuizEngine} quiz=${activeQuiz} data=${data} lang=${lang} goBack=${() => changeView('academics')} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
-                case 'cms': return Luminova.Pages.AdminCMS ? html`<${Luminova.Pages.AdminCMS} data=${data} setData=${setData} lang=${lang} goBack=${() => changeView('home')} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
+                case 'summaryDetail': return html`<${Luminova.Components.SummaryCard} item=${activeSummary} data=${data} lang=${lang} onClose=${() => window.history.back()} />`;
+                case 'quiz': return Luminova.Pages.QuizEngine ? html`<${Luminova.Pages.QuizEngine} quiz=${activeQuiz} data=${data} lang=${lang} goBack=${() => window.history.back()} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
+                case 'cms': return Luminova.Pages.AdminCMS ? html`<${Luminova.Pages.AdminCMS} data=${data} setData=${setData} lang=${lang} goBack=${() => window.history.back()} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
                 case 'community': return Luminova.Pages.StudentCommunityPage ? html`<${Luminova.Pages.StudentCommunityPage} data=${data} lang=${lang} setView=${changeView} setActiveSummary=${setActiveSummary} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
                 case 'academics': return Luminova.Pages.AcademicHierarchyPage ? html`<${Luminova.Pages.AcademicHierarchyPage} data=${data} lang=${lang} setView=${changeView} setActiveQuiz=${setActiveQuiz} setActiveSummary=${setActiveSummary} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
-                case 'certificates': return Luminova.Pages.CertificateArchivePage ? html`<${Luminova.Pages.CertificateArchivePage} lang=${lang} goBack=${() => changeView('home')} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
+                case 'certificates': return Luminova.Pages.CertificateArchivePage ? html`<${Luminova.Pages.CertificateArchivePage} lang=${lang} goBack=${() => window.history.back()} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
                 default: return Luminova.Pages.HomePage ? html`<${Luminova.Pages.HomePage} data=${data} lang=${lang} setView=${changeView} setActiveSummary=${setActiveSummary} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
             }
         };

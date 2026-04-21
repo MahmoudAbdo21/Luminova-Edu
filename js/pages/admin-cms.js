@@ -21,7 +21,16 @@ Luminova.Pages.AdminCMS = ({ data, setData, lang, goBack }) => {
             try {
                 const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(arabicText)}&langpair=ar|en`);
                 const resData = await response.json();
-                return resData.responseData?.translatedText || '';
+                const result = resData.responseData?.translatedText || '';
+                // Task 3: Arabic Leakage Filter
+                // If the "translated" result still contains Arabic characters, the API failed silently.
+                // Reject it and return '' to avoid duplicating Arabic text into English fields.
+                const containsArabic = /[\u0600-\u06FF]/.test(result);
+                if (containsArabic) {
+                    console.warn('Luminova: Translation API returned Arabic text — rejecting result.');
+                    return '';
+                }
+                return result;
             } catch (error) {
                 console.error('Translation failed:', error);
                 return '';
