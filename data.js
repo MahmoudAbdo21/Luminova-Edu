@@ -1,9 +1,24 @@
-﻿window.LUMINOVA_DATA = {
+window.LUMINOVA_DATA = {
   "settings": {
     "language": "ar",
     "theme": "dark"
   },
   "news": [
+    {
+      "id": "news_1776771026972",
+      "timestamp": "2026-04-21T11:30:26.972Z",
+      "titleAr": "فيديوهات شرح تكاليف التعلم الرقمي",
+      "titleEn": "Videos explaining the costs of digital learning",
+      "contentAr": "يوجد 3 ملفات \nاول ملف للتكليف الول \nالملف الثاني للتكليف الثاني \nالفيديو الثالث للتكليف الثالث ويوجد به 2 تاسك\nطريقة فتح الملفات 📂   بالضغط على زرار الفتح بالخارج تحت الملف المرفق.",
+      "contentEn": "There are 3 files \nThe first file of the first assignment \nSecond File of the Second Assignment \nThe third video of the third assignment and it has 2 TASKs\nHow to open the files 📂   by pressing the open button outside under the attached file.",
+      "mediaUrl": "",
+      "studentId": "students_1775848220866",
+      "mediaUrls": [
+        "https://drive.google.com/drive/folders/1bZyFEjlF9XPS42_FMug0qBZvsycARyyw",
+        "https://drive.google.com/drive/folders/1Ak9DD9igaTdYUEA_sgDQ0tHvfLHagkTc?usp=drive_link",
+        "https://drive.google.com/file/d/1m1teoO4N-7HwLU7JPFxL1UnRkwMCPu1i/view?usp=drivesdk"
+      ]
+    },
     {
       "id": "news_1776287804833",
       "timestamp": "2026-04-15T21:16:44.833Z",
@@ -15,136 +30,6 @@
       "studentId": "students_1775855642761",
       "mediaUrls": [
         "https://drive.google.com/drive/folders/1RnGUqdCmE6mXYCYUEzZD2xaWDwO6R_rL?usp=drive_link"
-      ]
-    },
-    {
-      "id": "news_1776197128452",
-      "timestamp": "2026-04-14T20:05:28.452Z",
-      "titleAr": "اختبار الذكاء الوجداني  ✨👑",
-      "titleEn": "Emotional Intelligence Test  ✨👑",
-      "contentAr": "",
-      "contentEn": "",
-      "mediaUrl": "",
-      "studentId": "students_1775125739063",
-      "mediaUrls": [
-        "https://docs.google.com/forms/d/e/1FAIpQLSfygWEOQaPCEaij1PSVgWcL4DxyDF1ljLCexBUs9rkBuEM4YQ/viewform?usp=header"
-      ]
-    },
-    {
-      "id": "news_1776076228585",
-      "timestamp": "2026-04-13T10:30:28.585Z",
-      "titleAr": "امتحان مواطنه رقمية ",
-      "titleEn": "Digital Citizenship Exam",
-      "contentAr": "امتحان 30 سؤال وفي تحليل للأجابات علشان لو حد مش عارف ليه الاجابة دي",
-      "contentEn": "The exam has 30 questions and includes an analysis of the answers in case anyone doesn't understand the reason behind a particular answer.",
-      "mediaUrl": "",
-      "mediaUrls": [
-        "https://docs.google.com/forms/d/e/1FAIpQLSe3UXZ_aYiOVvB3A98WzuLohXUwo17buP_SKriqCsEQOxwqBA/viewform?usp=header"
-      ],
-      "studentId": "students_1775821794374"
-    },
-    {
-      "id": "news_1776045679742",
-      "timestamp": "2026-04-13T02:01:19.742Z",
-      "titleAr": "اختبار على ذكاء وجداني 1",
-      "titleEn": "Emotional Intelligence Test 1",
-      "contentAr": "",
-      "contentEn": "",
-      "mediaUrl": "",
-      "studentId": "students_1775125739063",
-      "mediaUrls": [
-        "https://docs.google.com/forms/d/e/1FAIpQLScX7BN0mT7d4Z-sxFmFanWSOg5A1fDwb_q3KVIv0L0qW5Vs_A/viewform"
-      ]
-    },
-    {
-      "id": "news_1776045618972",
-      "timestamp": "2026-04-13T02:00:18.973Z",
-      "titleAr": "اختبار على نظم إدارة المحتوى الرقمي الفصل الثاني",
-      "titleEn": "Test on Digital Content Management Systems, Second Semester",
-      "contentAr": "",
-      "contentEn": "",
-      "mediaUrl": "",
-      "studentId": "students_1775125739063",
-      "mediaUrls": [
-        "https://docs.google.com/forms/d/e/1FAIpQLSfLW2ALo1Dy7RU8Lp2urG_PlPx9o7mBDV2rvgFydjcA-9V71g/viewform"
-      ]
-    },
-    {
-      "id": "news_1776045543116",
-      "timestamp": "2026-04-13T01:59:03.116Z",
-      "titleAr": "اختبار على ادارة المحتوى الرقمي الفصل الاول",
-      "titleEn": "Digital Content Management Test - First Semester",
-      "contentAr": "",
-      "contentEn": "",
-      "mediaUrl": "",
-      "studentId": "students_1775125739063",
-      "mediaUrls": [
-        "https://docs.google.com/forms/d/e/1FAIpQLScuVjVh6u6fa2eyD1f3244HBEclbH0dAwvMdA2QFZ04Kn2HvQ/viewform"
-      ]
-    },
-    {
-      "id": "news_1775854016936",
-      "timestamp": "2026-04-10T20:46:56.936Z",
-      "titleAr": "الفصل الثامن مشكلات النمو في مرحلة الطفولة والمراهقة",
-      "titleEn": "Chapter Eight: Developmental Problems in Childhood and Adolescence",
-      "contentAr": "",
-      "contentEn": "",
-      "mediaUrl": "",
-      "studentId": "students_1775125739063",
-      "mediaUrls": [
-        "https://docs.google.com/forms/d/e/1FAIpQLScbp2wFrM8v5rT6eumOoIQmUAEOBrh28wuKA4kbl-UceDXrzg/viewform?usp=header"
-      ]
-    },
-    {
-      "id": "news_1775853982892",
-      "timestamp": "2026-04-10T20:46:22.892Z",
-      "titleAr": "من الفصل الرابع حتى الفصل السابع مراحل النمو",
-      "titleEn": "From chapter four to chapter seven, stages of growth",
-      "contentAr": "",
-      "contentEn": "",
-      "mediaUrl": "",
-      "studentId": "students_1775125739063",
-      "mediaUrls": [
-        "https://docs.google.com/forms/d/e/1FAIpQLSfmieYqCJ4NNzPG0lv-3bn9A3Qx6pGLT0fG4EDaIjojIm18yQ/viewform?usp=header"
-      ]
-    },
-    {
-      "id": "news_1775853919810",
-      "timestamp": "2026-04-10T20:45:19.810Z",
-      "titleAr": "الفصل الثالث نماذج من نظريات علم نفس النمو Level 7",
-      "titleEn": "Chapter 3: Examples of Developmental Psychology Theories (Level 7)",
-      "contentAr": "",
-      "contentEn": "",
-      "mediaUrl": "",
-      "studentId": "students_1775125739063",
-      "mediaUrls": [
-        "https://docs.google.com/forms/d/e/1FAIpQLSfNffvGwIYf1gXnkNFEw5yFtBnvTwPcrCgbB1JBtkRkKV-pXg/viewform?usp=header"
-      ]
-    },
-    {
-      "id": "news_1775853885379",
-      "timestamp": "2026-04-10T20:44:45.379Z",
-      "titleAr": "الفصل الثاني مناهج علم نفس النمو Level6",
-      "titleEn": "Chapter Two: Developmental Psychology Methods (Level 6)",
-      "contentAr": "",
-      "contentEn": "",
-      "mediaUrl": "",
-      "studentId": "students_1775125739063",
-      "mediaUrls": [
-        "https://docs.google.com/forms/d/e/1FAIpQLSdWmxC6rnOe2-GYTt5-p8qSW7y9AufgS_aBmlKVZgxXdJzg0g/viewform?usp=publish-editor"
-      ]
-    },
-    {
-      "id": "news_1775853807999",
-      "timestamp": "2026-04-10T20:43:27.999Z",
-      "titleAr": "الفصل الأول مدخل الى علم نفس النمو Level 6",
-      "titleEn": "Chapter 1: Introduction to Developmental Psychology (Level 6)",
-      "contentAr": "",
-      "contentEn": "",
-      "mediaUrl": "",
-      "studentId": "students_1775125739063",
-      "mediaUrls": [
-        "https://docs.google.com/forms/d/e/1FAIpQLScvQBn5p5NZntgBcl4gSvoZ6zxHRyM4_R2iDI8NxufjZju5Iw/viewform?usp=publish-editor"
       ]
     },
     {
@@ -188,47 +73,6 @@
       ]
     },
     {
-      "id": "news_1775504932951",
-      "timestamp": "2026-04-06T19:48:52.951Z",
-      "titleAr": "الامتحان الخاص ب اول ٣ محاضرات مادة التعلم الرقمي",
-      "titleEn": "The exam covers the first 3 lectures of the Digital Learning course.",
-      "contentAr": "",
-      "contentEn": "",
-      "mediaUrl": "",
-      "studentId": "students_1775125739063",
-      "mediaUrls": [
-        "https://docs.google.com/forms/d/e/1FAIpQLSf5axdaKAHGCeG6G2KPjsQkQzw6nXjSVsmXD4s8nFiUn1nHoA/viewform?usp=publish-editor"
-      ]
-    },
-    {
-      "id": "news_1775504356199",
-      "timestamp": "2026-04-06T19:39:16.199Z",
-      "titleAr": "امتحان شامل على اول فصلين بالتصوير الفوتوغرافي",
-      "titleEn": "Comprehensive exam covering the first two chapters of photography",
-      "contentAr": "",
-      "contentEn": "",
-      "mediaUrl": "",
-      "studentId": "students_1775125739063",
-      "mediaUrls": [
-        "https://docs.google.com/forms/d/e/1FAIpQLScw0a0bEOM_rAmZRnLk3uQYnve6NUwiCgGutFtGNDqFokVxoA/viewform?usp=publish-editor"
-      ]
-    },
-    {
-      "id": "news_1775503935214",
-      "timestamp": "2026-04-06T19:32:15.214Z",
-      "titleAr": "اختبارات على الفصل الاول مقرر التصوير الفوتوغرافي",
-      "titleEn": "Tests on the first semester of the photography course",
-      "contentAr": "",
-      "contentEn": "",
-      "mediaUrl": "",
-      "studentId": "students_1775125739063",
-      "mediaUrls": [
-        "https://docs.google.com/forms/d/e/1FAIpQLSdAETT6lIFg_2866jR7hMD5HF6bOX7L_dnTQqOZu0WBFqfw4Q/viewform?usp=header",
-        "https://docs.google.com/forms/d/e/1FAIpQLScVOC21EB8ZYxwnxhTI5vf-cv19c6rmlQCphEm1uvuje_onSQ/viewform?usp=header",
-        "https://docs.google.com/forms/d/e/1FAIpQLSce8dD0Kb2urBVc1FT33LmuBYcVx5A5iFbtmPrqo2sVrDC0Kg/viewform?usp=header"
-      ]
-    },
-    {
       "id": "news_1775421489443",
       "timestamp": "2026-04-05T20:38:09.443Z",
       "titleAr": "ملخص شامل لجميع التسكيات والمقررات من بداية الترم",
@@ -239,45 +83,6 @@
       "studentId": "students_1775125739063",
       "mediaUrls": [
         "file-html/Tasks.mp3"
-      ]
-    },
-    {
-      "id": "news_1775311312001",
-      "timestamp": "2026-04-04T14:01:52.001Z",
-      "titleAr": "امتحان على الفصل الثالث والرابع مادة الاذاعة والتسجيل ",
-      "titleEn": "Exam on Chapters 3 and 4, Radio and Recording subject",
-      "contentAr": "الامتحان الشامل يضم الفصل الثالث والرابع على جوجل فورم",
-      "contentEn": "The comprehensive exam includes chapters three and four on Google Forms.",
-      "mediaUrl": "",
-      "studentId": "students_1775125739063",
-      "mediaUrls": [
-        "https://docs.google.com/forms/d/e/1FAIpQLScjdrGnOoFatW3u1EE29W5GYIJdr-gKN9dmdTeKiunsDhlHoA/viewform?usp=header"
-      ]
-    },
-    {
-      "id": "news_1775311216667",
-      "timestamp": "2026-04-04T14:00:16.667Z",
-      "titleAr": "امتحان على الفصل الاول و الثاني مادة الاذاعة والتسجيل ",
-      "titleEn": "Exam on the first and second semesters of the Radio and Recording course",
-      "contentAr": "الامتحان الشامل يضم الفصل الاول والفصل الثاني على جوجل فورم",
-      "contentEn": "The comprehensive exam includes both the first and second semesters and is available on Google Forms.",
-      "mediaUrl": "",
-      "studentId": "students_1775125739063",
-      "mediaUrls": [
-        "https://docs.google.com/forms/d/e/1FAIpQLSeN3FPNIeW76pOpVbfsFi4qQRTmQlEmaD88pZUId-0E31IYdQ/viewform?usp=header"
-      ]
-    },
-    {
-      "id": "news_1775309634836",
-      "timestamp": "2026-04-04T13:33:54.836Z",
-      "titleAr": "امتحان على الفصل الاول مادة الاذاعة والتسجيل ",
-      "titleEn": "Exam on the first semester, Radio and Recording course",
-      "contentAr": "الامتحان الشامل يضم الفصل الاول والفصل الثاني على جوجل فورم",
-      "contentEn": "The comprehensive exam includes both the first and second semesters and is available on Google Forms.",
-      "mediaUrl": "",
-      "studentId": "students_1775125739063",
-      "mediaUrls": [
-        "https://docs.google.com/forms/d/e/1FAIpQLSeN3FPNIeW76pOpVbfsFi4qQRTmQlEmaD88pZUId-0E31IYdQ/viewform?usp=header"
       ]
     }
   ],
