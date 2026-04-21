@@ -505,6 +505,100 @@
         </div>
         `;
     };
+
+    Luminova.Components.CustomDropdown = ({ options, value, onChange, placeholder, className = "" }) => {
+        const [isOpen, setIsOpen] = useState(false);
+        const selectedOption = options.find(o => String(o.value) === String(value)) || null;
+        
+        return html`
+        <div className=${`relative ${className}`}>
+            <button onClick=${() => setIsOpen(!isOpen)} onBlur=${() => setTimeout(() => setIsOpen(false), 200)}
+                className="w-full appearance-none bg-slate-800/50 hover:bg-slate-800/80 border border-slate-700 text-white rounded-2xl px-4 py-3.5 outline-none transition-all cursor-pointer shadow-sm font-bold flex justify-between items-center z-10 relative"
+            >
+                <span className=${selectedOption ? 'opacity-100' : 'opacity-70'}>
+                    ${selectedOption ? selectedOption.label : placeholder}
+                </span>
+                <span className=${`transition-transform duration-300 transform opacity-50 ${isOpen ? 'rotate-180' : ''}`}>▼</span>
+            </button>
+            ${isOpen && html`
+                <div className="absolute top-full left-0 right-0 mt-2 z-[999] animate-fade-in backdrop-blur-xl bg-slate-900/90 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden max-h-[250px] overflow-y-auto">
+                    <ul className="py-2 flex flex-col m-0 p-0">
+                        ${options.map(opt => html`
+                            <li key=${opt.value} 
+                                onClick=${() => { onChange(opt.value); setIsOpen(false); }}
+                                className=${`px-5 py-3 cursor-pointer transition-colors font-bold ${String(value) === String(opt.value) ? 'bg-brand-DEFAULT/20 text-brand-gold' : 'text-slate-300 hover:bg-brand-DEFAULT/20 hover:text-white'}`}
+                            >
+                                ${opt.label}
+                            </li>
+                        `)}
+                    </ul>
+                </div>
+            `}
+        </div>
+        `;
+    };
+
+    Luminova.Components.TabletPortraitOverlay = ({ lang }) => {
+        const [showOverlay, setShowOverlay] = useState(false);
+        const [ignoreOrientation, setIgnoreOrientation] = useState(false);
+
+        useEffect(() => {
+            const checkOrientation = () => {
+                const width = window.innerWidth;
+                const height = window.innerHeight;
+                // Target generic tablet boundaries in portrait (width between 768 and 1024, height > width)
+                if (width >= 768 && width <= 1024 && height > width) {
+                    setShowOverlay(true);
+                } else {
+                    setShowOverlay(false);
+                }
+            };
+            checkOrientation();
+            window.addEventListener('resize', checkOrientation);
+            return () => window.removeEventListener('resize', checkOrientation);
+        }, []);
+
+        if (!showOverlay || ignoreOrientation) return null;
+
+        return html`
+        <div className="fixed inset-0 z-[11000] flex flex-col items-center justify-center p-6 backdrop-blur-xl bg-slate-900/95 text-white animate-fade-in" dir=${lang === 'ar' ? 'rtl' : 'ltr'}>
+            <div className="flex flex-col items-center text-center max-w-lg w-full">
+                <!-- Rotating Tablet Icon CSS Animation -->
+                <style>
+                    ${`
+                    @keyframes rotateTabletOS {
+                        0% { transform: rotate(0deg) scale(1); }
+                        25% { transform: rotate(90deg) scale(1.1); }
+                        50% { transform: rotate(90deg) scale(1.1); box-shadow: 0 0 30px rgba(6,182,212,0.6); }
+                        75% { transform: rotate(0deg) scale(1); }
+                        100% { transform: rotate(0deg) scale(1); }
+                    }
+                    `}
+                </style>
+                <div style=${{ 
+                    width: '120px', height: '170px', 
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.5))',
+                    border: '6px solid white', 
+                    borderRadius: '16px', 
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 10px 40px rgba(0,0,0,0.5)'
+                }} className="mb-8 relative animate-[rotateTabletOS_4s_cubic-bezier(0.4,0,0.2,1)_infinite]">
+                    <!-- Tablet Home Button / Camera Indication -->
+                    <div style=${{ width: '40px', height: '4px', backgroundColor: 'rgba(255,255,255,0.8)', borderRadius: '2px', position: 'absolute', bottom: '10px' }}></div>
+                    <div style=${{ width: '8px', height: '8px', backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: '50%', position: 'absolute', top: '10px' }}></div>
+                </div>
+                
+                <h2 className="text-3xl lg:text-4xl font-black mb-6 leading-tight bg-gradient-to-r from-brand-gold to-yellow-200 bg-clip-text text-transparent drop-shadow-md">
+                    ${lang === 'ar' ? 'للحصول على أفضل تجربة تصفح، يرجى تدوير التابلت أو الآيباد إلى الوضع العرضي' : 'For the best browsing experience, please rotate your tablet/iPad to landscape mode'}
+                </h2>
+                <button onClick=${() => setIgnoreOrientation(true)} className="mt-8 px-8 py-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-sm font-bold transition-all shadow-xl hover:shadow-2xl active:scale-95 text-xl">
+                    ${lang === 'ar' ? 'إكمال على أي حال' : 'Continue anyway'}
+                </button>
+            </div>
+        </div>
+        `;
+    };
+
     // END OF PART 1
 
     // ==========================================
@@ -512,6 +606,15 @@
     // (All pages loaded on-demand via changeView)
     // ==========================================
 
+
+    const routeMap = {
+        'home': 'js/pages/main-views.js',
+        'community': 'js/pages/main-views.js',
+        'academics': 'js/pages/main-views.js',
+        'quiz': 'js/pages/quiz-engine.js',
+        'cms': 'js/pages/admin-cms.js',
+        'certificates': 'js/pages/certificate-engine.js'
+    };
 
     const App = () => {
         const fallbackData = window.initialData || window.LUMINOVA_DATA || {};
@@ -533,15 +636,6 @@
         const [adminPwd, setAdminPwd] = useState('');
         const [adminPwdError, setAdminPwdError] = useState(false);
         const [showSplash, setShowSplash] = useState(true);
-
-        const routeMap = {
-            'home': 'js/pages/main-views.js',
-            'community': 'js/pages/main-views.js',
-            'academics': 'js/pages/main-views.js',
-            'quiz': 'js/pages/quiz-engine.js',
-            'cms': 'js/pages/admin-cms.js',
-            'certificates': 'js/pages/certificate-engine.js'
-        };
 
         // Sentinel: true while a popstate-triggered navigation is in progress.
         // Prevents changeView from pushing a duplicate history entry.
@@ -753,6 +847,9 @@
                 </div>
                 <style>{'@keyframes lmv-splash-in { from { opacity: 0; transform: scale(0.88) translateY(16px); } to { opacity: 1; transform: scale(1) translateY(0); } }'}</style>
             </div>
+
+            <!-- Task 4: Tablet Portrait Overlay -->
+            <${Luminova.Components.TabletPortraitOverlay} lang=${lang} />
 
             <!-- Admin Auth Modal -->
             ${showAdminAuth && html`
