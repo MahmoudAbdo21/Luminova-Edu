@@ -450,45 +450,29 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
         return html`
             <div className="animate-fade-in space-y-10">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 max-w-4xl mx-auto">
-                    <div className="relative">
-                        <select 
-                            value=${selectedYear?.id || ''} 
-                            onChange=${(e) => {
-                                const year = data.years.find(y => y.id === e.target.value);
+                    <div className="relative z-20">
+                        <${Luminova.Components.CustomDropdown}
+                            value=${selectedYear?.id || ''}
+                            onChange=${(val) => {
+                                const year = data.years.find(y => y.id === val);
                                 setSelectedYear(year);
                             }}
-                            className="appearance-none w-full bg-slate-800/50 border border-slate-700 text-white rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer shadow-sm font-bold text-center"
-                        >
-                            ${data.years.map(y => html`
-                                <option key=${y.id} value=${y.id} className="bg-slate-800 text-white opacity-100">${y[`name${lang === 'ar' ? 'Ar' : 'En'}`] || y.nameAr || y.nameEn}</option>
-                            `)}
-                        </select>
-                        <div className=${`pointer-events-none absolute inset-y-0 flex items-center text-slate-400 ` + (lang === 'ar' ? 'left-4' : 'right-4')}>
-                            <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                            </svg>
-                        </div>
+                            options=${data.years.map(y => ({ value: y.id, label: y[`name${lang === 'ar' ? 'Ar' : 'En'}`] || y.nameAr || y.nameEn }))}
+                            placeholder=${lang === 'ar' ? 'اختر الفرقة' : 'Select Year'}
+                        />
                     </div>
 
                     ${selectedYear && semesters.length > 0 && html`
-                        <div className="relative animate-fade-in">
-                            <select 
-                                value=${selectedSem?.id || ''} 
-                                onChange=${(e) => {
-                                    const sem = semesters.find(s => s.id === e.target.value);
+                        <div className="relative animate-fade-in z-10">
+                            <${Luminova.Components.CustomDropdown}
+                                value=${selectedSem?.id || ''}
+                                onChange=${(val) => {
+                                    const sem = semesters.find(s => s.id === val);
                                     setSelectedSem(sem);
                                 }}
-                                className="appearance-none w-full bg-slate-800/50 border border-slate-700 text-white rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer shadow-sm font-bold text-center"
-                            >
-                                ${semesters.map(s => html`
-                                    <option key=${s.id} value=${s.id} className="bg-slate-800 text-white opacity-100">${s[`name${lang === 'ar' ? 'Ar' : 'En'}`] || s.nameAr || s.nameEn}</option>
-                                `)}
-                            </select>
-                            <div className=${`pointer-events-none absolute inset-y-0 flex items-center text-slate-400 ` + (lang === 'ar' ? 'left-4' : 'right-4')}>
-                                <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                </svg>
-                            </div>
+                                options=${semesters.map(s => ({ value: s.id, label: s[`name${lang === 'ar' ? 'Ar' : 'En'}`] || s.nameAr || s.nameEn }))}
+                                placeholder=${lang === 'ar' ? 'اختر الترم' : 'Select Semester'}
+                            />
                         </div>
                     `}
                 </div>
