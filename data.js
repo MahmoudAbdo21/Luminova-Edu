@@ -468,6 +468,42 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
+      "id": "summaries_1776873024667",
+      "timestamp": "2026-04-22T15:50:24.667Z",
+      "titleAr": "الفصل الثاني نظم ادارة المحتوى",
+      "titleEn": "Chapter Two Content Management Systems",
+      "contentAr": "ملف pdf يشرح الفصل \nفيديو توضيحي\nوملف pdf توضيحي",
+      "contentEn": "A pdf that explains the chapter \nExplanatory video\nand an illustrated pdf file",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775908403709",
+      "studentId": "students_1775848220866",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1betHANUT2tXEbj5tEcw9Qne4VwPtgiE9/view?usp=drivesdk",
+          "titleAr": "شرح الفصل",
+          "titleEn": "Chapter Explanation",
+          "order": 0,
+          "type": "url"
+        },
+        {
+          "url": "https://drive.google.com/file/d/1oIYJ_pblF7PRArBCPZB8up_TmlIYeKTL/view?usp=drivesdk",
+          "titleAr": "فيديو توضيحي",
+          "titleEn": "Video Caption",
+          "order": 1,
+          "type": "url"
+        },
+        {
+          "url": "https://drive.google.com/file/d/1zSgU5Rm62q9-v4VnvuF9wL3koo7HGv2G/view?usp=drivesdk",
+          "titleAr": "شرائح توضيحية",
+          "titleEn": "Illustrative Slides",
+          "order": 2,
+          "type": "url"
+        }
+      ],
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791"
+    },
+    {
       "id": "summaries_1776858799061",
       "timestamp": "2026-04-22T11:53:19.061Z",
       "titleAr": "الفصل الأول نظم ادارة المحتوى ",
