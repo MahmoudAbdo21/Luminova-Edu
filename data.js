@@ -468,6 +468,42 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
+      "id": "summaries_1776858799061",
+      "timestamp": "2026-04-22T11:53:19.061Z",
+      "titleAr": "الفصل الأول نظم ادارة المحتوى ",
+      "titleEn": "Chapter One Content Management Systems",
+      "contentAr": "ملفات شرح الفصل الاول  لنظم ادارة المحتوى ",
+      "contentEn": "CMS Chapter 1 Explanation Files",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775908403709",
+      "studentId": "students_1775848220866",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1-K5qs_GQZW7WO-85J-ULaMyJEs0w4U-Y/view?usp=drivesdk",
+          "titleAr": "ملف pdf  شرح الفصل",
+          "titleEn": "pdf chapter explanation",
+          "order": 0,
+          "type": "url"
+        },
+        {
+          "url": "https://drive.google.com/file/d/1E5U-28EViR7_V8pKQIfBt-eSLsf8O3Ef/view?usp=drivesdk",
+          "titleAr": "ملف pdf  رسومات توضيحية للفصل",
+          "titleEn": "pdf file chapter illustrations",
+          "order": 1,
+          "type": "url"
+        },
+        {
+          "url": "https://drive.google.com/file/d/1RJi51ZB9gZ6lL5wtkLkrfgDDXjVGoozo/view?usp=drivesdk",
+          "titleAr": "الفيديو توضيحي للمعلومات",
+          "titleEn": "Explanatory video of the information",
+          "order": 2,
+          "type": "url"
+        }
+      ]
+    },
+    {
       "id": "summaries_1776791194025",
       "timestamp": "2026-04-21T17:06:34.025Z",
       "titleAr": "الفصل التاني نظم ادارة المحتوى",
