@@ -195,44 +195,5 @@ window.LUMINOVA_EXAMS = [
     ],
     "yearId": "year_1",
     "semesterId": "semesters_1775125622791"
-  },
-  {
-    "id": "quizzes_1775311492411",
-    "timestamp": "2026-04-04T14:04:52.411Z",
-    "titleAr": "امتحان على الفصل الثالث والرابع مادة الاذاعة والتسجيل ",
-    "titleEn": "Exam on Chapters 3 and 4, Radio and Recording subject",
-    "isShuffled": false,
-    "feedbackMode": "end",
-    "subjectId": "subjects_1775125681706",
-    "publisherId": "s_founder_hardcoded",
-    "questions": [],
-    "yearId": "year_1",
-    "semesterId": "semesters_1775125622791"
-  },
-  {
-    "id": "quizzes_1775311450759",
-    "timestamp": "2026-04-04T14:04:10.759Z",
-    "titleAr": "امتحان على الفصل الاول و الثاني مادة الاذاعة والتسجيل ",
-    "titleEn": "Exam on the first and second semesters of the Radio and Recording course",
-    "isShuffled": true,
-    "feedbackMode": "end",
-    "subjectId": "subjects_1775125681706",
-    "publisherId": "s_founder_hardcoded",
-    "questions": [],
-    "yearId": "year_1",
-    "semesterId": "semesters_1775125622791"
-  },
-  {
-    "id": "quizzes_1775311390334",
-    "timestamp": "2026-04-04T14:03:10.334Z",
-    "titleAr": "امتحان على الفصل الاول مادة الاذاعة والتسجيل ",
-    "titleEn": "Exam on the first semester, Radio and Recording course",
-    "isShuffled": true,
-    "feedbackMode": "end",
-    "subjectId": "subjects_1775125681706",
-    "publisherId": "s_founder_hardcoded",
-    "questions": [],
-    "yearId": "year_1",
-    "semesterId": "semesters_1775125622791"
   }
 ];
