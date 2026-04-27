@@ -7,6 +7,31 @@
     const Luminova = window.__LUMINOVA;
 
     Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
+        // ── GUARDRAIL: Redirect to gateway if critical data is missing ──
+        if (!quiz || !data) {
+            return html`
+            <div className="min-h-screen flex items-center justify-center p-4">
+                <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-10 text-center animate-fade-in border border-red-200 dark:border-red-900">
+                    <div className="text-7xl mb-6">⚠️</div>
+                    <h2 className="text-2xl font-black text-red-600 dark:text-red-400 mb-4">
+                        ${lang === 'ar' ? 'خطأ في تحميل الامتحان' : 'Exam Load Error'}
+                    </h2>
+                    <p className="text-base font-bold text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
+                        ${lang === 'ar' ? 'لم يتم العثور على بيانات الامتحان أو بيانات المنصة. يرجى العودة والمحاولة مرة أخرى.' : 'Exam data or platform data is missing. Please go back and try again.'}
+                    </p>
+                    <button onClick=${goBack}
+                        className="w-full py-4 rounded-2xl font-black text-lg text-white shadow-xl transition-all hover:scale-[1.02]"
+                        style=${{ background: 'linear-gradient(135deg, #06b6d4, #0891b2)', boxShadow: '0 10px 30px -10px rgba(6,182,212,0.6)' }}>
+                        ${lang === 'ar' ? '🔙 العودة' : '🔙 Go Back'}
+                    </button>
+                </div>
+            </div>
+            `;
+        }
+
+        // ── SAFE DATA ACCESSOR ──
+        const safeStudents = data?.students || [];
+
         const questions = useMemo(() => {
             if (!quiz || !quiz.questions) return [];
             let arr = [...quiz.questions];
@@ -21,7 +46,7 @@
 
         const maxScore = questions.reduce((sum, curr) => sum + (Number(curr.score) || 0), 0);
 
-        const isEvaluation = quiz.examMode === 'evaluation';
+        const isEvaluation = quiz?.examMode === 'evaluation';
         const [isStarted, setIsStarted] = useState(!isEvaluation);
         const [studentInfo, setStudentInfo] = useState({ name: '', seatNumber: '', department: '', email: '' });
         const [now, setNow] = useState(new Date());
@@ -197,7 +222,7 @@
                     submitExam('time_expired');
                 }
             }
-        }, [now, isStarted, isFinished, isEvaluation]);
+        }, [now, isStarted, isFinished, isEvaluation, submitExam, quiz?.endTime]);
 
         useEffect(() => {
             if (isStarted && !isFinished && isEvaluation && !hasAttemptedSubmit) {
@@ -249,7 +274,7 @@
                     window.removeEventListener('beforeunload', handleBeforeUnload);
                 };
             }
-        }, [isStarted, isFinished, isEvaluation, isSubmitting, hasAttemptedSubmit, cheatWarnings]);
+        }, [isStarted, isFinished, isEvaluation, isSubmitting, hasAttemptedSubmit, cheatWarnings, submitExam, quiz?.autoSubmitOnCheat]);
 
         if (!isStarted) {
             // ── EXAM RULES MODAL (Post-Verification, Pre-Start) ──────
@@ -550,10 +575,10 @@
                             let isCorrect = false;
                             if (que.type === 'mcq') isCorrect = answers[que.id] === que.correctAnswers?.[0];
                             if (que.type === 'multi_select') isCorrect = [...(que.correctAnswers || [])].sort().join(',') === [...(answers[que.id] || [])].sort().join(',');
-                            const studentProv = data.students.find(s => s.id === que.studentId) || (que.studentId === 's_founder' || que.studentId === Luminova.FOUNDER.id ? Luminova.FOUNDER : null);
+                            const studentProv = safeStudents.find(s => s.id === que?.studentId) || (que?.studentId === 's_founder' || que?.studentId === Luminova.FOUNDER.id ? Luminova.FOUNDER : null);
 
                             return html`
-                        <${Luminova.Components.GlassCard} key=${idx} className=${`border-r-4 ${que.type !== 'essay' ? (isCorrect ? 'border-r-green-500' : 'border-r-red-500') : 'border-r-brand-gold'} relative`}>
+                        <${Luminova.Components.GlassCard} key=${que?.id || `result-q-${idx}`} className=${`border-r-4 ${que.type !== 'essay' ? (isCorrect ? 'border-r-green-500' : 'border-r-red-500') : 'border-r-brand-gold'} relative`}>
                             <div className="absolute top-0 right-0 px-4 py-1 rounded-bl-xl bg-black/10 dark:bg-white/10 font-bold text-sm">
                                 ${que.score} ${Luminova.i18n[lang].score}
                             </div>
@@ -604,7 +629,35 @@
         `;
         }
 
-        const currentQStudent = data.students.find(s => s.id === q.studentId) || ((q.studentId === 's_founder' || q.studentId === Luminova.FOUNDER.id) ? Luminova.FOUNDER : {});
+        // ── UX FIX: Graceful Empty State (Coming Soon) ──
+        if (!q) {
+            return html`
+            <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-slate-950">
+                <div className="absolute inset-0 bg-gradient-to-br from-brand-DEFAULT/10 to-brand-gold/10 pointer-events-none"></div>
+                <div className="max-w-md w-full backdrop-blur-3xl bg-white/5 border border-white/10 rounded-[2.5rem] p-12 text-center animate-fade-in shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] relative z-10">
+                    <div className="relative mb-8">
+                        <div className="text-7xl animate-pulse drop-shadow-[0_0_15px_rgba(251,191,36,0.5)]">⏳</div>
+                        <div className="absolute -inset-4 bg-brand-gold/20 rounded-full blur-2xl animate-pulse -z-10"></div>
+                    </div>
+                    
+                    <h2 className="text-3xl font-black text-white mb-4 tracking-tight">
+                        ${lang === 'ar' ? 'جاري تحضير الاختبار...' : 'Preparing Exam...'}
+                    </h2>
+                    
+                    <p className="text-lg font-bold text-gray-400 mb-10 leading-relaxed">
+                        ${lang === 'ar' ? 'يرجى العودة لاحقاً' : 'Please check back later'}
+                    </p>
+                    
+                    <button onClick=${goBack}
+                        className="w-full py-4 rounded-2xl font-black text-lg text-white transition-all hover:scale-[1.02] active:scale-[0.98] bg-gradient-to-r from-white/10 to-white/5 hover:from-white/20 hover:to-white/10 border border-white/20 shadow-xl backdrop-blur-md">
+                        ${lang === 'ar' ? '🔙 العودة للمكتبة' : '🔙 Back to Library'}
+                    </button>
+                </div>
+            </div>
+            `;
+        }
+
+        const currentQStudent = safeStudents.find(s => s.id === q?.studentId) || ((q?.studentId === 's_founder' || q?.studentId === Luminova.FOUNDER.id) ? Luminova.FOUNDER : {});
 
         return html`
         <div className="max-w-4xl mx-auto min-h-[70vh] flex flex-col pt-10 pb-20">
@@ -807,10 +860,10 @@
                             <button onClick=${() => setShowDrawer(false)} className="text-gray-500 hover:text-red-500">❌</button>
                         </div>
                         <div className="grid grid-cols-4 gap-3">
-                            ${questions.map((_, i) => {
-                        const isAnswered = answers[questions[i].id] !== undefined && (Array.isArray(answers[questions[i].id]) ? answers[questions[i].id].length > 0 : answers[questions[i].id] !== '');
+                            ${questions.map((qItem, i) => {
+                        const isAnswered = answers[qItem?.id] !== undefined && (Array.isArray(answers[qItem?.id]) ? answers[qItem?.id].length > 0 : answers[qItem?.id] !== '');
                         return html`
-                                    <button 
+                                    <button key=${qItem?.id || `nav-q-${i}`} 
                                         onClick=${() => {
                                 if (quiz.allowBackNavigation !== false || i >= currentIndex) {
                                     setCurrentIndex(i);
@@ -885,7 +938,7 @@
                             setAnswers(prev => ({ ...prev, [q.id]: i }));
                         };
                         return html`
-                                <button key=${i} onClick=${handleMCQClick}
+                                <button key=${`opt-${q.id}-${i}`} onClick=${handleMCQClick}
                                     disabled=${isFeedbackRevealed}
                                     className=${`w-full text-start p-5 rounded-2xl border-4 transition-all duration-200 text-lg font-bold shadow-sm ${answers[q.id] === i ? 'border-brand-DEFAULT bg-brand-DEFAULT/10 scale-105 shadow-xl' : 'border-transparent bg-gray-100 dark:bg-gray-800/80 hover:border-gray-300 dark:hover:border-gray-600 hover:scale-[1.02]'} ${isFeedbackRevealed ? 'opacity-70 cursor-not-allowed object-none' : ''}`}>
                                     <span className="inline-block w-8 h-8 rounded-full bg-black/5 dark:bg-white/5 text-center leading-8 mr-4 ml-4">${String.fromCharCode(65 + i)}</span>
@@ -907,7 +960,7 @@
                     setAnswers(prev => ({ ...prev, [q.id]: next }));
                 };
                 return html`
-                                    <button key=${i} disabled=${isFeedbackRevealed} onClick=${handleMultiClick}
+                                    <button key=${`opt-${q.id}-${i}`} disabled=${isFeedbackRevealed} onClick=${handleMultiClick}
                                     className=${`w-full text-start p-5 rounded-2xl border-4 transition-all duration-200 text-lg font-bold shadow-sm flex items-center gap-4 ${isSelected ? 'border-brand-DEFAULT bg-brand-DEFAULT/10 scale-[1.02] shadow-xl' : 'border-transparent bg-gray-100 dark:bg-gray-800/80 hover:border-gray-300 dark:hover:border-gray-600'} ${isFeedbackRevealed ? 'opacity-70 cursor-not-allowed' : ''}`}>
                                         <div className=${`w-8 h-8 rounded-xl flex items-center justify-center border-2 text-xl transition-colors ${isSelected ? 'bg-brand-DEFAULT border-brand-DEFAULT text-white' : 'border-gray-400'}`}>
                                             ${isSelected && '✓'}
@@ -941,7 +994,7 @@
                             <h4 className="font-black text-2xl mb-4">نتيجتك في هذا السؤال:</h4>
                             
                             ${q.type !== 'essay' && html`
-                                <p className="flex items-start gap-2 mb-4" dangerouslySetInnerHTML=${{ __html: `<span class='font-bold opacity-70 min-w-[120px]'>النموذجية:</span> <strong class="text-green-600 dark:text-green-400 font-bold text-xl">${(q.type === 'mcq' ? (q.options || q.optionsAr)[q.correctAnswers[0]] : (q.correctAnswers || []).map(c => (q.options || q.optionsAr)[c]).join(' <span class="text-gray-400">|</span> '))}</strong>` }} />
+                                <p className="flex items-start gap-2 mb-4" dangerouslySetInnerHTML=${{ __html: `<span class='font-bold opacity-70 min-w-[120px]'>النموذجية:</span> <strong class="text-green-600 dark:text-green-400 font-bold text-xl">${(q.type === 'mcq' ? (q.options || q.optionsAr)?.[q.correctAnswers?.[0]] : (q.correctAnswers || []).map(c => (q.options || q.optionsAr)?.[c]).join(' <span class="text-gray-400">|</span> '))}</strong>` }} />
                             `}
                             ${q.type === 'essay' && html`
                                 <p className="font-bold opacity-70 border-b pb-2 mb-2">الإجابة النموذجية المرجعية:</p>

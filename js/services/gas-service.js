@@ -28,6 +28,15 @@
     // Single point of truth for ALL outbound requests to GAS.
     // Enforces POST + text/plain on every call.
     async function _gasFetch(url, payload) {
+        // 0. Protocol Safety: Detect file:// execution environment
+        if (window.location.protocol === 'file:') {
+            throw new Error(
+                "PROTOCOL ERROR: This application is running from a local file (file://). " +
+                "API calls require an HTTP server. Please host the application on a web server " +
+                "(e.g., Live Server, localhost, or a deployed URL) to enable exam submission."
+            );
+        }
+
         // 1. URL Sanity Check
         if (!url || !url.includes('/macros/s/') || !url.endsWith('/exec')) {
             throw new Error(
@@ -35,14 +44,31 @@
             );
         }
 
-        // 2. Strict Simple-Request Fetch
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8'
-            },
-            body: JSON.stringify(payload)
-        });
+        // 2. Strict Simple-Request Fetch (with timeout & error handling)
+        let response;
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+            response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8'
+                },
+                body: JSON.stringify(payload),
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+        } catch (fetchError) {
+            if (fetchError.name === 'AbortError') {
+                throw new Error('REQUEST TIMEOUT: The server did not respond within 30 seconds. Please check your internet connection and try again.');
+            }
+            // Network errors (offline, CORS, DNS failure)
+            throw new Error(
+                'NETWORK ERROR: Could not reach the server. ' +
+                'Please check your internet connection. ' +
+                '(Detail: ' + (fetchError.message || 'Unknown network error') + ')'
+            );
+        }
 
         // 3. HTTP Status Guard
         if (!response.ok) {
@@ -50,7 +76,12 @@
         }
 
         // 4. Parse JSON response from GAS
-        const data = await response.json();
+        let data;
+        try {
+            data = await response.json();
+        } catch (parseError) {
+            throw new Error('PARSE ERROR: The server returned an invalid response. Expected JSON. (Detail: ' + (parseError.message || 'Unknown parse error') + ')');
+        }
         return data;
     }
 

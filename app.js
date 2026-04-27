@@ -23,7 +23,7 @@
     Luminova.i18n = {
         ar: {
             appName: "Luminova Edu", home: "الرئيسية", community: "مجتمع الطلاب", academic: "المكتبة الأكاديمية",
-            adminToggle: "الإدارة", founder: "المؤسس", vip: "مميز", verified: "موثوق", doctor: "دكتور",
+            founder: "المؤسس", vip: "مميز", verified: "موثوق", doctor: "دكتور",
             readMore: "عرض المزيد", readLess: "عرض أقل", searchPlaceholder: "ابحث هنا...", emptyState: "لا يوجد بيانات لعرضها.",
             years: "الفرق الدراسية", semesters: "الفصول الدراسية", subjects: "المواد الدراسية",
             summaries: "التلخيصات", quizzes: "الاختبارات", startQuiz: "بدء الاختبار", questions: "الأسئلة",
@@ -31,14 +31,13 @@
             modelAnswer: "الإجابة النموذجية:", explanation: "التعليل:",
             deleteProtected: "لا يمكن الحذف.. الرجاء مسح المحتويات الداخلية أولاً",
             save: "حفظ", delete: "حذف", cancel: "إلغاء", exportData: "سحب الكود (Export initialData)",
-            logout: "خروج الإدارة", passwordPrompt: "أدخل كلمة سر الإدارة:", wrongPassword: "كلمة السر خاطئة!",
             major: "التخصص", correct: "إجابة صحيحة", wrong: "إجابة خاطئة", results: "النتائج",
             topContributors: "شرف المساهمين 🏆", news: "أحدث الأخبار 📢", feed: "الخلاصة 🔥",
             certificates: "الشهادات والتوثيق"
         },
         en: {
             appName: "Luminova Edu", home: "Home", community: "Community", academic: "Academic Library",
-            adminToggle: "Admin", founder: "Founder", vip: "VIP", verified: "Verified", doctor: "Doctor",
+            founder: "Founder", vip: "VIP", verified: "Verified", doctor: "Doctor",
             readMore: "Read More", readLess: "Read Less", searchPlaceholder: "Search...", emptyState: "No data available.",
             years: "Academic Years", semesters: "Semesters", subjects: "Subjects",
             summaries: "Summaries", quizzes: "Quizzes", startQuiz: "Start Quiz", questions: "Questions",
@@ -46,7 +45,6 @@
             modelAnswer: "Model Answer:", explanation: "Explanation:",
             deleteProtected: "Cannot delete. Please remove inner contents first.",
             save: "Save", delete: "Delete", cancel: "Cancel", exportData: "Export initialData Code",
-            logout: "Admin Logout", passwordPrompt: "Enter admin password:", wrongPassword: "Wrong password!",
             major: "Major", correct: "Correct", wrong: "Wrong", results: "Results",
             topContributors: "Top Contributors 🏆", news: "Latest News 📢", feed: "The Feed 🔥",
             certificates: "Certificates Archive"
@@ -238,7 +236,7 @@
                 }
 
                 const padClass = titleBadge ? 'pt-2' : '';
-                return html`<div key=${idx} className=${`w-full block relative hover:scale-[1.01] transition-transform duration-300 ${padClass}`}>${titleBadge}${embedContent}</div>`;
+                return html`<div key=${item.id || item.url || idx} className=${`w-full block relative hover:scale-[1.01] transition-transform duration-300 ${padClass}`}>${titleBadge}${embedContent}</div>`;
             })}
         </div>
     `;
@@ -288,7 +286,7 @@
                         <h3 className="text-2xl font-black text-indigo-500 drop-shadow-sm">${lang === 'ar' ? 'المرفقات والشروحات' : 'Attachments & Media'}</h3>
                     </div>
                     ${currentUrls.map((mUrl, i) => html`
-                        <div key=${i} className="relative z-10 w-full hover:scale-[1.01] transition-transform duration-300">
+                        <div key=${mUrl.url || mUrl.id || i} className="relative z-10 w-full hover:scale-[1.01] transition-transform duration-300">
                             ${currentUrls.length > 1 && html`<div className="absolute -top-4 -start-4 w-10 h-10 bg-indigo-500 text-white font-black rounded-full flex items-center justify-center shadow-lg border-4 border-white dark:border-gray-900 z-20">${i + 1}</div>`}
                             <${Luminova.Components.SmartMedia} url=${mUrl} lang=${lang} />
                         </div>
@@ -612,7 +610,6 @@
         'community': 'js/pages/main-views.js',
         'academics': 'js/pages/main-views.js',
         'quiz': 'js/pages/quiz-engine.js',
-        'cms': 'js/pages/admin-cms.js',
         'certificates': 'js/pages/certificate-engine.js'
     };
 
@@ -660,7 +657,7 @@
 
             // Shallow History: push state only for detail/overlay views, and only
             // when this navigation was NOT triggered by a popstate (back-button).
-            const isDetailView = ['summaryDetail', 'quiz', 'cms', 'certificates'].includes(newView);
+            const isDetailView = ['summaryDetail', 'quiz', 'certificates'].includes(newView);
             if (isDetailView && !isPopNavRef.current) {
                 window.history.pushState({ lmv: newView }, '', '');
             }
@@ -698,12 +695,11 @@
                 // If no sub-page cancelled the event, handle at top-level
                 if (handled !== false) {
                     setView(prev => {
-                        const detailViews = ['summaryDetail', 'quiz', 'cms', 'certificates'];
+                        const detailViews = ['summaryDetail', 'quiz', 'certificates'];
                         if (detailViews.includes(prev)) {
                             // Return to the logical parent
                             if (prev === 'summaryDetail') return previousView !== 'summaryDetail' ? previousView : 'home';
                             if (prev === 'quiz') return 'academics';
-                            if (prev === 'cms') return 'home';
                             if (prev === 'certificates') return 'home';
                         }
                         // Already on a root view — do nothing, let the browser handle normally
@@ -761,7 +757,6 @@
             switch (view) {
                 case 'summaryDetail': return html`<${Luminova.Components.SummaryCard} item=${activeSummary} data=${data} lang=${lang} onClose=${() => window.history.back()} />`;
                 case 'quiz': return Luminova.Pages.QuizEngine ? html`<${Luminova.Pages.QuizEngine} quiz=${activeQuiz} data=${data} lang=${lang} goBack=${() => window.history.back()} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
-                case 'cms': return Luminova.Pages.AdminCMS ? html`<${Luminova.Pages.AdminCMS} data=${data} setData=${setData} lang=${lang} goBack=${() => window.history.back()} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
                 case 'community': return Luminova.Pages.StudentCommunityPage ? html`<${Luminova.Pages.StudentCommunityPage} data=${data} lang=${lang} setView=${changeView} setActiveSummary=${setActiveSummary} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
                 case 'academics': return Luminova.Pages.AcademicHierarchyPage ? html`<${Luminova.Pages.AcademicHierarchyPage} data=${data} lang=${lang} setView=${changeView} setActiveQuiz=${setActiveQuiz} setActiveSummary=${setActiveSummary} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
                 case 'certificates': return Luminova.Pages.CertificateArchivePage ? html`<${Luminova.Pages.CertificateArchivePage} lang=${lang} goBack=${() => window.history.back()} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
@@ -839,7 +834,7 @@
 
                 <!-- Center: Platform name on MOBILE only (fills the empty space) -->
                 <!-- On desktop this is replaced by the nav links -->
-                ${view !== 'cms' && view !== 'quiz' ? html`
+                ${view !== 'quiz' ? html`
                     <!-- Desktop nav links (hidden on mobile) -->
                     <div key="dt-nav" className="lmv-top-nav-links hidden md:flex items-center gap-1 mx-auto">
                         <button onClick=${() => changeView('home')} title=${lang === 'ar' ? Luminova.i18n.ar.home : Luminova.i18n.en.home}
@@ -885,7 +880,7 @@
             </main>
 
             <!-- Mobile Bottom Navigation Bar (hidden on desktop via CSS) -->
-            ${view !== 'cms' && view !== 'quiz' && html`
+            ${view !== 'quiz' && html`
                 <nav key="bottom-nav-container" className="lmv-bottom-nav" aria-label=${lang === 'ar' ? 'التنقل الرئيسي' : 'Main navigation'}>
                     <button className=${`lmv-bottom-nav-btn ${view === 'home' ? 'active' : ''}`} onClick=${() => changeView('home')} title=${lang === 'ar' ? Luminova.i18n.ar.home : Luminova.i18n.en.home}>
                         <${Luminova.Icons.Home} />

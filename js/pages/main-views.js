@@ -255,10 +255,10 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                         </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        ${visibleNews.map((n, idx) => {
+                        ${visibleNews.map((n) => {
                             const author = Luminova.getStudent(n.studentId, data.students);
                             return html`
-                                <${Luminova.Components.GlassCard} key=${idx} className=${`border-l-4 ${idx === 0 ? 'border-l-brand-gold bg-brand-gold/5' : 'border-l-brand-DEFAULT'}`}>
+                                <${Luminova.Components.GlassCard} key=${n.id || n.timestamp || Math.random().toString(36)} className=${`border-l-4 ${n === sortedNews[0] ? 'border-l-brand-gold bg-brand-gold/5' : 'border-l-brand-DEFAULT'}`}>
                                     ${n.studentId && html`
                                         <div className="flex items-center gap-3 mb-4 opacity-80 border-b border-gray-200 dark:border-gray-700 pb-3">
                                             <${Luminova.Components.Avatar} name=${author.nameAr || author.name} nameEn=${author.nameEn} image=${author.image} isVerified=${author.isVerified} isFounder=${author.isFounder} size="w-8 h-8" />
