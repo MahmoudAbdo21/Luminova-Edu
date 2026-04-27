@@ -496,6 +496,12 @@ window.LUMINOVA_DATA = {
       "titleEn": "CHAPTER 1 ",
       "contentAr": "ملف شرح الفصل",
       "contentEn": "Chapter Explanation File",
+      "id": "summaries_1777317823104",
+      "timestamp": "2026-04-27T19:23:43.104Z",
+      "titleAr": "الفصل الثاني",
+      "titleEn": "—Chapter 2—",
+      "contentAr": "شرح الفصل ",
+      "contentEn": "Chapter Explanation",
       "mediaUrl": "",
       "subjectId": "subjects_1775125681706",
       "studentId": "students_1775125739063",
@@ -585,8 +591,11 @@ window.LUMINOVA_DATA = {
         {
           "url": "pdf/الإذاعة.pdf",
           "titleAr": "ملف شرح",
+          "url": "pdf/الفصل الثاني الاذاعة والتسجيلات الصوتية.pdf",
+          "titleAr": "ملف الشرح",
           "titleEn": "Explanation File",
           "order": 1,
+          "order": 0,
           "type": "local"
         }
       ]
@@ -1380,4 +1389,3 @@ window.LUMINOVA_DATA = {
       ]
     }
   ]
-};
