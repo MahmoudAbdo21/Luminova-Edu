@@ -1389,3 +1389,4 @@ window.LUMINOVA_DATA = {
       ]
     }
   ]
+};

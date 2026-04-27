@@ -77,6 +77,28 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
     Luminova.Pages = {};
 
     Luminova.Pages.HomePage = ({ data, lang, setView, setActiveSummary }) => {
+        if (!data || !data.summaries || !data.quizzes || !data.news || !data.students) {
+            return html`
+                <div className="flex items-center justify-center min-h-[60vh] p-4">
+                    <div className="bg-white/5 backdrop-blur-2xl p-12 text-center max-w-md animate-fade-in border border-white/10 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+                        <div className="text-7xl mb-8 animate-bounce">⚠️</div>
+                        <h2 className="text-3xl font-black text-white mb-6 tracking-tight">
+                            ${lang === 'ar' ? 'خطأ في تحميل البيانات' : 'Data Load Error'}
+                        </h2>
+                        <p className="text-white/50 font-bold mb-10 leading-relaxed text-lg">
+                            ${lang === 'ar' 
+                                ? 'حدث خطأ غير متوقع أثناء تحميل ملفات النظام. يرجى إعادة تحميل التطبيق.' 
+                                : 'An unexpected error occurred while loading system files. Please reload the application.'}
+                        </p>
+                        <button onClick=${() => window.location.reload()} 
+                            className="w-full py-4 bg-gradient-to-r from-brand-DEFAULT to-brand-gold text-slate-900 rounded-2xl font-black shadow-[0_10px_20px_rgba(250,204,21,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all text-lg">
+                            ${lang === 'ar' ? 'تحديث النظام الآن ↻' : 'Reload System Now ↻'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
         const [newsVisibleCount, setNewsVisibleCount] = window.React.useState(8);
         const [latestCert, setLatestCert] = window.React.useState(null);
         const [newsSearchQuery, setNewsSearchQuery] = window.React.useState('');
@@ -308,11 +330,33 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
     };
 
     Luminova.Pages.AcademicHierarchyPage = ({ data, lang, setView, setActiveQuiz, setActiveSummary }) => {
+        if (!data || !data.years || !data.semesters || !data.subjects || !data.summaries || !data.quizzes || !data.students) {
+            return html`
+                <div className="flex items-center justify-center min-h-[60vh] p-4 text-center">
+                    <div className="bg-white/5 backdrop-blur-2xl p-12 border border-white/10 rounded-[2.5rem] shadow-2xl max-w-md animate-fade-in">
+                        <div className="text-7xl mb-8">📂</div>
+                        <h2 className="text-3xl font-black text-white mb-4">
+                            ${lang === 'ar' ? 'فشل تحميل المكتبة' : 'Library Load Failed'}
+                        </h2>
+                        <p className="text-white/50 font-bold mb-8">
+                            ${lang === 'ar' ? 'ملفات البيانات تالفة أو مفقودة. يرجى العودة للرئيسية.' : 'Data files are corrupted or missing. Please return home.'}
+                        </p>
+                        <button onClick=${() => setView('home')} className="w-full py-4 bg-brand-gold text-slate-900 rounded-2xl font-black shadow-lg">
+                            ${lang === 'ar' ? 'العودة للرئيسية' : 'Back to Home'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
         const [selectedYear, setSelectedYear] = useState(data.years?.[0] || null);
         const [selectedSem, setSelectedSem] = useState(data.semesters?.find(s => s.yearId === data.years?.[0]?.id) || null);
         const [selectedSub, setSelectedSub] = useState(null);
         const [selectedSummaryId, setSelectedSummaryId] = useState(null);
         const [activeTab, setActiveTab] = useState('summaries');
+        const [searchQuery, setSearchQuery] = useState('');
+        const [selectedAuthor, setSelectedAuthor] = useState(null);
+        const [isAuthorOpen, setIsAuthorOpen] = useState(false);
 
         useEffect(() => {
             if (data.semesters && selectedYear) {
@@ -324,6 +368,8 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
         // Shallow History: push when entering sub-views, pop to close them
         useEffect(() => {
             if (selectedSub) {
+                setSearchQuery('');
+                setSelectedAuthor(null);
                 window.history.pushState({ lmv: 'academics-subject' }, '', '');
             }
         }, [selectedSub?.id]);
@@ -348,8 +394,49 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
 
         const semesters = selectedYear ? data.semesters.filter(s => s.yearId === selectedYear.id) : [];
         const subjects = selectedSem ? data.subjects.filter(s => s.semesterId === selectedSem.id) : [];
-        const summaries = selectedSub ? data.summaries.filter(s => s.subjectId === selectedSub.id) : [];
-        const quizzes = selectedSub ? data.quizzes.filter(q => q.subjectId === selectedSub.id) : [];
+        
+        const rawSummaries = selectedSub ? data.summaries.filter(s => s.subjectId === selectedSub.id) : [];
+        const rawQuizzes = selectedSub ? data.quizzes.filter(q => q.subjectId === selectedSub.id) : [];
+
+        const authors = useMemo(() => {
+            const list = new Set();
+            rawSummaries.forEach(s => {
+                const author = Luminova.getStudent(s.studentId, data.students);
+                const name = lang === 'ar' ? (author.nameAr || author.name) : (author.nameEn || author.name);
+                if (name && name !== 'غير معروف' && name !== 'Unknown') list.add(name);
+            });
+            rawQuizzes.forEach(q => {
+                const author = Luminova.getStudent(q.publisherId, data.students);
+                const name = lang === 'ar' ? (author.nameAr || author.name) : (author.nameEn || author.name);
+                if (name && name !== 'غير معروف' && name !== 'Unknown') list.add(name);
+            });
+            return Array.from(list).sort();
+        }, [rawSummaries, rawQuizzes, data.students, lang]);
+
+        const filteredSummaries = useMemo(() => {
+            return rawSummaries.filter(s => {
+                const author = Luminova.getStudent(s.studentId, data.students);
+                const authorName = lang === 'ar' ? (author.nameAr || author.name) : (author.nameEn || author.name);
+                const matchesAuthor = !selectedAuthor || selectedAuthor === authorName;
+                const q = searchQuery.toLowerCase();
+                const title = (s[`title${lang === 'ar' ? 'Ar' : 'En'}`] || s.titleAr || s.titleEn || '').toLowerCase();
+                const content = (s[`content${lang === 'ar' ? 'Ar' : 'En'}`] || s.contentAr || s.contentEn || '').toLowerCase();
+                const matchesSearch = title.includes(q) || content.includes(q);
+                return matchesAuthor && matchesSearch;
+            });
+        }, [rawSummaries, selectedAuthor, searchQuery, data.students, lang]);
+
+        const filteredQuizzes = useMemo(() => {
+            return rawQuizzes.filter(q => {
+                const author = Luminova.getStudent(q.publisherId, data.students);
+                const authorName = lang === 'ar' ? (author.nameAr || author.name) : (author.nameEn || author.name);
+                const matchesAuthor = !selectedAuthor || selectedAuthor === authorName;
+                const search = searchQuery.toLowerCase();
+                const title = (q[`title${lang === 'ar' ? 'Ar' : 'En'}`] || q.titleAr || q.titleEn || q.title || '').toLowerCase();
+                const matchesSearch = title.includes(search);
+                return matchesAuthor && matchesSearch;
+            });
+        }, [rawQuizzes, selectedAuthor, searchQuery, data.students, lang]);
 
         // LEVEL 3: ATTACHMENTS SUB-VIEW
         if (selectedSummaryId) {
@@ -399,15 +486,72 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                     }
                 </style>
                 <div className="animate-fade-in space-y-8 max-w-7xl mx-auto">
-                    <div className="flex justify-between items-center mb-6 border-b border-gray-100 dark:border-gray-800 pb-4 px-2">
-                        <div className="flex items-center gap-4">
-                            <button onClick=${() => window.history.back()} 
-                                className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl transition-colors border border-slate-700 font-bold backdrop-blur-sm shadow-sm">
-                                ${lang === 'ar' ? 'رجوع للمواد ➔' : '➔ Back to Semester'}
+                    <div className="flex flex-wrap md:flex-nowrap items-center gap-4 mb-8 border-b border-white/5 pb-8 px-2">
+                        <!-- 1. Back Button: First in DOM (Right in RTL) -->
+                        <div className="w-full md:w-auto flex items-center justify-between gap-4">
+                             <button onClick=${() => window.history.back()} 
+                                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 text-slate-300 rounded-2xl transition-all border border-white/10 font-bold backdrop-blur-xl shadow-lg hover:scale-105 active:scale-95 group">
+                                <span className="group-hover:translate-x-1 transition-transform duration-300">${lang === 'ar' ? '➔' : '➔'}</span>
+                                <span>${lang === 'ar' ? 'الرجوع للمواد' : 'Back to Semester'}</span>
                             </button>
-                            <h2 className="hidden sm:block text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-brand-DEFAULT to-brand-gold tracking-tight">
+                            <h2 className="md:hidden text-xl font-black text-white/90 truncate max-w-[150px]">
                                 ${selectedSub[`name${lang === 'ar' ? 'Ar' : 'En'}`] || selectedSub.nameAr}
                             </h2>
+                        </div>
+
+                        <!-- 2. Search Bar: Center space filling -->
+                        <div className="w-full md:flex-1 relative group">
+                            <span className="absolute inset-y-0 start-4 flex items-center opacity-40 text-lg group-focus-within:text-brand-gold transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                            </span>
+                            <input 
+                                type="text" 
+                                value=${searchQuery} 
+                                onChange=${(e) => setSearchQuery(e.target.value)} 
+                                placeholder=${lang === 'ar' ? 'بحث في المحتوى...' : 'Search content...'} 
+                                className="w-full pl-12 pr-6 py-3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl text-white placeholder-white/30 outline-none transition-all focus:border-brand-gold/50 focus:ring-1 focus:ring-brand-gold/50 font-bold shadow-2xl"
+                            />
+                        </div>
+
+                        <!-- 3. Filter Dropdown: Left in RTL -->
+                        <div className="w-full md:w-auto relative">
+                            <button 
+                                onClick=${() => setIsAuthorOpen(!isAuthorOpen)}
+                                onBlur=${() => setTimeout(() => setIsAuthorOpen(false), 200)}
+                                className=${`w-full md:w-auto flex items-center justify-between gap-4 px-6 py-3 rounded-2xl border transition-all duration-300 backdrop-blur-2xl shadow-xl font-bold ${isAuthorOpen ? 'bg-brand-gold/20 border-brand-gold/50 text-brand-gold' : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'}`}
+                            >
+                                <div className="flex items-center gap-2">
+                                    <span className="text-lg">👤</span>
+                                    <span className="truncate max-w-[150px]">
+                                        ${selectedAuthor ? `${lang === 'ar' ? 'بواسطة: ' : 'By: '}${selectedAuthor}` : (lang === 'ar' ? 'تصفية بالمؤلف' : 'Filter by Author')}
+                                    </span>
+                                </div>
+                                <span className=${`transition-transform duration-300 ${isAuthorOpen ? 'rotate-180' : ''}`}>▼</span>
+                            </button>
+
+                            ${isAuthorOpen && html`
+                                <div className="absolute top-full left-0 right-0 mt-3 z-[100] animate-fade-in backdrop-blur-3xl bg-slate-900/90 border border-white/10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden min-w-[200px]">
+                                    <ul className="py-2 max-h-[300px] overflow-y-auto m-0 p-0">
+                                        <li 
+                                            onClick=${() => { setSelectedAuthor(null); setIsAuthorOpen(false); }}
+                                            className=${`px-6 py-4 cursor-pointer transition-all flex items-center justify-between font-bold ${!selectedAuthor ? 'text-brand-gold bg-brand-gold/10' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}
+                                        >
+                                            <span>${lang === 'ar' ? 'الجميع' : 'All Authors'}</span>
+                                            ${!selectedAuthor && html`<span className="text-brand-gold">✓</span>`}
+                                        </li>
+                                        ${authors.map(author => html`
+                                            <li 
+                                                key=${author}
+                                                onClick=${() => { setSelectedAuthor(author); setIsAuthorOpen(false); }}
+                                                className=${`px-6 py-4 cursor-pointer transition-all flex items-center justify-between font-bold ${selectedAuthor === author ? 'text-brand-gold bg-brand-gold/10' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}
+                                            >
+                                                <span className="truncate">${author}</span>
+                                                ${selectedAuthor === author && html`<span className="text-brand-gold">✓</span>`}
+                                            </li>
+                                        `)}
+                                    </ul>
+                                </div>
+                            `}
                         </div>
                     </div>
 
@@ -434,12 +578,12 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                     <div className="w-full animate-fade-in">
                         ${activeTab === 'summaries' ? html`
                             <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl rounded-3xl p-6 border border-gray-200 dark:border-gray-800 shadow-lg">
-                                <${Luminova.Components.TimelineFeed} items=${summaries} students=${data.students} subjects=${data.subjects} lang=${lang} onQuizClick=${() => { }} onSummaryClick=${(itemId) => setSelectedSummaryId(itemId)} />
+                                <${Luminova.Components.TimelineFeed} items=${filteredSummaries} students=${data.students} subjects=${data.subjects} lang=${lang} onQuizClick=${() => { }} onSummaryClick=${(itemId) => setSelectedSummaryId(itemId)} />
                             </div>
                         ` : html`
                             <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl rounded-3xl p-6 border border-gray-200 dark:border-gray-800 shadow-lg">
                                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                                    ${quizzes.map(q => html`
+                                    ${filteredQuizzes.map(q => html`
                                         <${Luminova.Components.GlassCard} key=${q.id} className="border-t-4 border-t-brand-gold hover:scale-[1.02] transition-transform shadow-md hover:shadow-xl flex flex-col h-full">
                                             ${q.publisherId && html`
                                                 <div className="flex items-center gap-3 mb-4 bg-gray-50 dark:bg-gray-800/80 p-3 rounded-xl border border-gray-100 dark:border-gray-700 w-fit shrink-0">
@@ -459,7 +603,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                                             </div>
                                         </${Luminova.Components.GlassCard}>
                                     `)}
-                                    ${quizzes.length === 0 ? html`
+                                    ${filteredQuizzes.length === 0 ? html`
                                         <div className="col-span-full text-center py-20 opacity-50 border-2 border-dashed rounded-2xl dark:border-gray-700 font-bold text-xl">${Luminova.i18n[lang].emptyState}</div>
                                     ` : null}
                                 </div>
