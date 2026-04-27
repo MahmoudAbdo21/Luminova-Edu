@@ -385,8 +385,21 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
         // LEVEL 2: SUBJECT SUB-VIEW (PREMIUM DASHBOARD)
         if (selectedSub) {
             return html`
-                <div className="animate-fade-in space-y-8">
-                    <div className="flex justify-between items-center mb-6 border-b border-gray-100 dark:border-gray-800 pb-4">
+                <style>
+                    @keyframes tabNeonPulse {
+                      0% { box-shadow: 0 0 10px 0 rgba(250, 204, 21, 0.4); border-color: rgba(250, 204, 21, 0.5); }
+                      50% { box-shadow: 0 0 25px 5px rgba(250, 204, 21, 0.7); border-color: rgba(250, 204, 21, 1); }
+                      100% { box-shadow: 0 0 10px 0 rgba(250, 204, 21, 0.4); border-color: rgba(250, 204, 21, 0.5); }
+                    }
+                    .nano-banana-tab-active {
+                      animation: tabNeonPulse 2s infinite;
+                      background: linear-gradient(to right, #1e40af, #ca8a04);
+                      color: white;
+                      transform: scale(1.02);
+                    }
+                </style>
+                <div className="animate-fade-in space-y-8 max-w-7xl mx-auto">
+                    <div className="flex justify-between items-center mb-6 border-b border-gray-100 dark:border-gray-800 pb-4 px-2">
                         <div className="flex items-center gap-4">
                             <button onClick=${() => window.history.back()} 
                                 className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl transition-colors border border-slate-700 font-bold backdrop-blur-sm shadow-sm">
@@ -396,49 +409,60 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                                 ${selectedSub[`name${lang === 'ar' ? 'Ar' : 'En'}`] || selectedSub.nameAr}
                             </h2>
                         </div>
-                        <div className="relative shrink-0">
-                            <select 
-                                value=${activeTab}
-                                onChange=${(e) => setActiveTab(e.target.value)}
-                                className=${`appearance-none bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl outline-none cursor-pointer shadow-sm text-sm transition-colors ` + (lang === 'ar' ? 'pl-8' : 'pr-8')}
-                            >
-                                <option value="summaries" className="bg-slate-800 text-white">${lang === 'ar' ? 'التلخيصات 📚' : 'Summaries 📚'}</option>
-                                <option value="quizzes" className="bg-slate-800 text-white">${lang === 'ar' ? 'الاختبارات 📝' : 'Quizzes 📝'}</option>
-                            </select>
-                            <div className=${`pointer-events-none absolute inset-y-0 flex items-center px-2 text-white ` + (lang === 'ar' ? 'left-0' : 'right-0')}>
-                                <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                </svg>
-                            </div>
-                        </div>
                     </div>
 
-                    <div className="animate-fade-in mt-6 max-w-5xl mx-auto">
+                    <!-- Full-Width Tab Navigation -->
+                    <div className="w-full flex gap-3 p-2 bg-white/50 dark:bg-slate-900/60 backdrop-blur-xl rounded-2xl mb-8 border border-gray-200 dark:border-gray-800 shadow-sm">
+                        <button 
+                            onClick=${() => setActiveTab('summaries')}
+                            className=${`flex-1 py-4 px-2 text-center text-lg sm:text-xl font-black rounded-xl transition-all duration-300 flex items-center justify-center gap-3 ${activeTab === 'summaries' ? 'nano-banana-tab-active border border-brand-gold/60' : 'bg-transparent text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white border border-transparent'}`}
+                        >
+                            <span className="text-2xl">📚</span>
+                            ${lang === 'ar' ? 'التلخيصات' : 'Summaries'}
+                        </button>
+                        
+                        <button 
+                            onClick=${() => setActiveTab('quizzes')}
+                            className=${`flex-1 py-4 px-2 text-center text-lg sm:text-xl font-black rounded-xl transition-all duration-300 flex items-center justify-center gap-3 ${activeTab === 'quizzes' ? 'nano-banana-tab-active border border-brand-gold/60' : 'bg-transparent text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white border border-transparent'}`}
+                        >
+                            <span className="text-2xl">📝</span>
+                            ${lang === 'ar' ? 'الاختبارات' : 'Exams'}
+                        </button>
+                    </div>
+
+                    <!-- Full-Width Content Area -->
+                    <div className="w-full animate-fade-in">
                         ${activeTab === 'summaries' ? html`
-                            <${Luminova.Components.TimelineFeed} items=${summaries} students=${data.students} subjects=${data.subjects} lang=${lang} onQuizClick=${() => { }} onSummaryClick=${(itemId) => setSelectedSummaryId(itemId)} />
+                            <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl rounded-3xl p-6 border border-gray-200 dark:border-gray-800 shadow-lg">
+                                <${Luminova.Components.TimelineFeed} items=${summaries} students=${data.students} subjects=${data.subjects} lang=${lang} onQuizClick=${() => { }} onSummaryClick=${(itemId) => setSelectedSummaryId(itemId)} />
+                            </div>
                         ` : html`
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                ${quizzes.map(q => html`
-                                    <${Luminova.Components.GlassCard} key=${q.id} className="border-t-4 border-t-brand-gold hover:scale-[1.02] transition-transform shadow-md hover:shadow-xl">
-                                        ${q.publisherId && html`
-                                            <div className="flex items-center gap-3 mb-4 bg-gray-50 dark:bg-gray-800/80 p-3 rounded-xl border border-gray-100 dark:border-gray-700 w-fit shrink-0">
-                                                <${Luminova.Components.Avatar} name=${Luminova.getStudent(q.publisherId, data.students).nameAr || Luminova.getStudent(q.publisherId, data.students).name} image=${Luminova.getStudent(q.publisherId, data.students).image} isVIP=${Luminova.getStudent(q.publisherId, data.students).isVIP} isFounder=${Luminova.getStudent(q.publisherId, data.students).isFounder || q.publisherId === 's_founder_hardcoded'} isVerified=${Luminova.getStudent(q.publisherId, data.students).isVerified} size="w-8 h-8" />
-                                                <div>
-                                                    <span className="text-xs opacity-50 block leading-tight font-bold">نُشر بواسطة:</span>
-                                                    <span className="text-sm font-black flex items-center gap-1">${lang === 'ar' ? (Luminova.getStudent(q.publisherId, data.students).nameAr || Luminova.getStudent(q.publisherId, data.students).name) : (Luminova.getStudent(q.publisherId, data.students).nameEn || Luminova.getStudent(q.publisherId, data.students).name)}</span>
+                            <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl rounded-3xl p-6 border border-gray-200 dark:border-gray-800 shadow-lg">
+                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                    ${quizzes.map(q => html`
+                                        <${Luminova.Components.GlassCard} key=${q.id} className="border-t-4 border-t-brand-gold hover:scale-[1.02] transition-transform shadow-md hover:shadow-xl flex flex-col h-full">
+                                            ${q.publisherId && html`
+                                                <div className="flex items-center gap-3 mb-4 bg-gray-50 dark:bg-gray-800/80 p-3 rounded-xl border border-gray-100 dark:border-gray-700 w-fit shrink-0">
+                                                    <${Luminova.Components.Avatar} name=${Luminova.getStudent(q.publisherId, data.students).nameAr || Luminova.getStudent(q.publisherId, data.students).name} image=${Luminova.getStudent(q.publisherId, data.students).image} isVIP=${Luminova.getStudent(q.publisherId, data.students).isVIP} isFounder=${Luminova.getStudent(q.publisherId, data.students).isFounder || q.publisherId === 's_founder_hardcoded'} isVerified=${Luminova.getStudent(q.publisherId, data.students).isVerified} size="w-8 h-8" />
+                                                    <div>
+                                                        <span className="text-xs opacity-50 block leading-tight font-bold">نُشر بواسطة:</span>
+                                                        <span className="text-sm font-black flex items-center gap-1">${lang === 'ar' ? (Luminova.getStudent(q.publisherId, data.students).nameAr || Luminova.getStudent(q.publisherId, data.students).name) : (Luminova.getStudent(q.publisherId, data.students).nameEn || Luminova.getStudent(q.publisherId, data.students).name)}</span>
+                                                    </div>
                                                 </div>
+                                            `}
+                                            <h3 className="text-2xl font-bold mb-3 flex-1">${q[`title${lang === 'ar' ? 'Ar' : 'En'}`] || q.titleAr || q.titleEn || q.title || 'بدون عنوان'}</h3>
+                                            <div className="mt-auto">
+                                                <p className="text-sm opacity-70 mb-6 bg-black/5 dark:bg-white/5 inline-block px-3 py-1 rounded-full">${(q.questions || []).length} ${Luminova.i18n[lang].questions}</p>
+                                                <${Luminova.Components.Button} onClick=${() => { setActiveQuiz(q); setView('quiz'); }} className="w-full text-lg py-3 rounded-xl shadow-md">
+                                                    ${Luminova.i18n[lang].startQuiz}
+                                                </${Luminova.Components.Button}>
                                             </div>
-                                        `}
-                                        <h3 className="text-2xl font-bold mb-3">${q[`title${lang === 'ar' ? 'Ar' : 'En'}`] || q.titleAr || q.titleEn || q.title || 'بدون عنوان'}</h3>
-                                        <p className="text-sm opacity-70 mb-6 bg-black/5 dark:bg-white/5 inline-block px-3 py-1 rounded-full">${(q.questions || []).length} ${Luminova.i18n[lang].questions}</p>
-                                        <${Luminova.Components.Button} onClick=${() => { setActiveQuiz(q); setView('quiz'); }} className="w-full text-lg py-3 rounded-xl shadow-md">
-                                            ${Luminova.i18n[lang].startQuiz}
-                                        </${Luminova.Components.Button}>
-                                    </${Luminova.Components.GlassCard}>
-                                `)}
-                                ${quizzes.length === 0 ? html`
-                                    <div className="col-span-full text-center py-20 opacity-50 border-2 border-dashed rounded-2xl dark:border-gray-700 font-bold text-xl">${Luminova.i18n[lang].emptyState}</div>
-                                ` : null}
+                                        </${Luminova.Components.GlassCard}>
+                                    `)}
+                                    ${quizzes.length === 0 ? html`
+                                        <div className="col-span-full text-center py-20 opacity-50 border-2 border-dashed rounded-2xl dark:border-gray-700 font-bold text-xl">${Luminova.i18n[lang].emptyState}</div>
+                                    ` : null}
+                                </div>
                             </div>
                         `}
                     </div>

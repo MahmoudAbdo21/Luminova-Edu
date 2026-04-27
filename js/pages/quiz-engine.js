@@ -2,11 +2,11 @@
     "use strict";
 
     if (!window.__LUMINOVA) return;
-    const { useState, useEffect, useMemo, useCallback } = window.React;
+    const { useState, useEffect, useMemo, useCallback, useRef } = window.React;
     const html = window.htm.bind(window.React.createElement);
     const Luminova = window.__LUMINOVA;
 
-Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
+    Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
         const questions = useMemo(() => {
             if (!quiz || !quiz.questions) return [];
             let arr = [...quiz.questions];
@@ -19,31 +19,501 @@ Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
             return arr;
         }, [quiz]);
 
+        const maxScore = questions.reduce((sum, curr) => sum + (Number(curr.score) || 0), 0);
+
+        const isEvaluation = quiz.examMode === 'evaluation';
+        const [isStarted, setIsStarted] = useState(!isEvaluation);
+        const [studentInfo, setStudentInfo] = useState({ name: '', seatNumber: '', department: '', email: '' });
+        const [now, setNow] = useState(new Date());
+        const [isSubmitting, setIsSubmitting] = useState(false);
+        const [showDrawer, setShowDrawer] = useState(false);
+
         const [currentIndex, setCurrentIndex] = useState(0);
         const [answers, setAnswers] = useState({});
         const [isFinished, setIsFinished] = useState(false);
         const [isFeedbackRevealed, setIsFeedbackRevealed] = useState(false);
-        const [showExitWarning, setShowExitWarning] = useState(false);
-        const [modalType, setModalType] = useState(null); // null | 'exit' | 'submit'
+        const [cheatWarnings, setCheatWarnings] = useState(0);
+        const [isLateSubmission, setIsLateSubmission] = useState(false);
+        const [isVerifying, setIsVerifying] = useState(false);
+        const [gatewayError, setGatewayError] = useState(null);
+        const [debugError, setDebugError] = useState(null);
+        const [terminationReason, setTerminationReason] = useState('completed');
+        const [modalType, setModalType] = useState(null);
+        const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+        const immunityRef = useRef(false);
+        const loginTimeRef = useRef(null);
 
-        if (questions.length === 0) {
+        useEffect(() => {
+            if (isEvaluation && (!isStarted || !isFinished)) {
+                const timer = setInterval(() => setNow(new Date()), 1000);
+                return () => clearInterval(timer);
+            }
+        }, [isEvaluation, isStarted, isFinished]);
+
+        useEffect(() => {
+            if (isStarted && !isFinished) {
+                const saved = localStorage.getItem('quiz_progress_' + quiz.id);
+                if (saved) {
+                    try {
+                        const parsed = JSON.parse(saved);
+                        if (parsed.answers) setAnswers(parsed.answers);
+                        if (parsed.studentInfo) setStudentInfo(parsed.studentInfo);
+                    } catch (e) { }
+                }
+            }
+        }, [isStarted, isFinished, quiz.id]);
+
+        useEffect(() => {
+            if (isStarted && !isFinished) {
+                localStorage.setItem('quiz_progress_' + quiz.id, JSON.stringify({ answers, studentInfo }));
+            }
+        }, [answers, studentInfo, isStarted, isFinished, quiz.id]);
+
+        const submitExam = async (reason = 'completed') => {
+            if (hasAttemptedSubmit && reason === 'time_expired') return;
+            immunityRef.current = true;
+            setIsSubmitting(true);
+            setHasAttemptedSubmit(true);
+            setModalType(null);
+            setTerminationReason(reason);
+
+            if (quiz.endTime && new Date() > new Date(quiz.endTime)) {
+                setIsLateSubmission(true);
+            }
+
+            let score = 0;
+            questions.forEach(que => {
+                if (que.type === 'mcq') {
+                    if (answers[que.id] === que.correctAnswers?.[0]) score += Number(que.score);
+                } else if (que.type === 'multi_select') {
+                    const correctStr = [...(que.correctAnswers || [])].sort().join(',');
+                    const ansStr = [...(answers[que.id] || [])].sort().join(',');
+                    if (correctStr === ansStr) score += Number(que.score);
+                }
+                // Essay questions: score = 0 for auto-grading (manual grading by professor)
+            });
+
+            if (isEvaluation) {
+                // ── IRON-CLAD SANITIZER ──────────────────────────────
+                // Aggressively strips DOM nodes, React fibers, events,
+                // and any non-primitive object to guarantee clean JSON.
+                const sanitizeValue = (val) => {
+                    if (val === null || val === undefined) return null;
+                    if (typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean') return val;
+                    if (Array.isArray(val)) return val.map(v => sanitizeValue(v));
+                    // If it's ANY object (DOM node, Event, React fiber, etc.) — kill it
+                    return 'Invalid Format';
+                };
+
+                // ── HUMAN-READABLE ANSWER RESOLVER ──────────────────
+                const resolveAnswerText = (que) => {
+                    const raw = answers[que.id];
+                    if (raw === null || raw === undefined) return 'لم يتم الإجابة';
+                    const opts = que.options || que.optionsAr || [];
+                    if (que.type === 'mcq') {
+                        return typeof raw === 'number' && opts[raw] ? String(opts[raw]) : sanitizeValue(raw);
+                    }
+                    if (que.type === 'multi_select') {
+                        if (Array.isArray(raw)) return raw.map(idx => opts[idx] ? String(opts[idx]) : String(idx)).join(' | ');
+                        return sanitizeValue(raw);
+                    }
+                    // essay or other
+                    return sanitizeValue(raw);
+                };
+
+                // ── BINARY SCORE (1/0) ───────────────────────────────
+                const resolveQuestionScore = (que) => {
+                    if (que.type === 'essay') return 0; // Manual grading
+                    if (que.type === 'mcq') return answers[que.id] === que.correctAnswers?.[0] ? 1 : 0;
+                    if (que.type === 'multi_select') {
+                        const correctStr = [...(que.correctAnswers || [])].sort().join(',');
+                        const ansStr = [...(answers[que.id] || [])].sort().join(',');
+                        return correctStr === ansStr ? 1 : 0;
+                    }
+                    return 0;
+                };
+
+                const payload = {
+                    studentName: studentInfo.name || studentInfo.nameAr || "غير مسجل",
+                    seatNumber: studentInfo.seatNumber || studentInfo.seat || "غير مسجل",
+                    department: String(studentInfo.department || ''),
+                    email: String(studentInfo.email || ''),
+                    examTitle: String(quiz.titleEn || quiz.titleAr || quiz.title || ''),
+                    score,
+                    maxScore,
+                    timeTaken: 'N/A',
+                    loginTime: loginTimeRef.current || new Date().toISOString(),
+                    submitTime: new Date().toISOString(),
+                    terminationReason: String(reason),
+                    adminEmails: String(quiz.adminEmails || ''),
+                    settings: {
+                        sendToStudent: Boolean(quiz.settings && quiz.settings.showResultEmail) && !isEvaluation
+                    },
+                    responses: questions.map(que => ({
+                        question: String(que.text || que.textAr || ''),
+                        studentAnswer: resolveAnswerText(que),
+                        questionScore: resolveQuestionScore(que),
+                        isCorrect: que.type === 'essay' ? null : (resolveQuestionScore(que) === 1)
+                    }))
+                };
+
+                try {
+                    const url = quiz.webhookUrl || '';
+                    const response = await Luminova.Services.GAS.submitExam(url, payload);
+                    
+                    if (response && response.status === 'ok') {
+                        if (document.fullscreenElement) {
+                            document.exitFullscreen().catch(err => console.log(err));
+                        }
+                        
+                        setIsSubmitting(false);
+                        setIsFinished(true);
+                        if (reason === 'completed') {
+                            setModalType('success');
+                        } else {
+                            setModalType('force_submitted');
+                        }
+                        setDebugError(null);
+                        localStorage.removeItem('quiz_progress_' + quiz.id);
+                    } else {
+                        throw new Error('Backend validation failed');
+                    }
+                } catch (e) {
+                    console.error('Submission failed:', e);
+                    setDebugError(e.message || 'Unknown Error');
+                    setIsSubmitting(false);
+                    setModalType('submission_failed');
+                    return; // Prevent exam from finishing so user can retry
+                }
+            } else {
+                setIsFinished(true);
+                localStorage.removeItem('quiz_progress_' + quiz.id);
+            }
+        };
+
+        useEffect(() => {
+            if (isStarted && !isFinished && isEvaluation && quiz.endTime) {
+                if (now >= new Date(quiz.endTime)) {
+                    submitExam('time_expired');
+                }
+            }
+        }, [now, isStarted, isFinished, isEvaluation]);
+
+        useEffect(() => {
+            if (isStarted && !isFinished && isEvaluation && !hasAttemptedSubmit) {
+                const cheatGuard = () => {
+                    if (immunityRef.current || isSubmitting) return;
+                    if (!isStarted || hasAttemptedSubmit) return;
+                    if (cheatWarnings === 0) {
+                        setCheatWarnings(1);
+                        setModalType('cheat_warning');
+                    } else {
+                        submitExam('anti_cheat_violation');
+                    }
+                };
+
+                // Tab switch / app switch
+                const handleVisibility = () => {
+                    if (immunityRef.current || !isStarted) return;
+                    if (document.hidden) cheatGuard();
+                };
+
+                // Window blur (fallback for visibility)
+                const handleBlur = () => {
+                    if (immunityRef.current || !isStarted) return;
+                    cheatGuard();
+                };
+
+                // Fullscreen exit detection
+                const handleFullscreenChange = () => {
+                    if (immunityRef.current || !isStarted) return;
+                    if (!document.fullscreenElement && isStarted && !isFinished) {
+                        cheatGuard();
+                    }
+                };
+
+                const handleBeforeUnload = (e) => {
+                    e.preventDefault();
+                    e.returnValue = '';
+                };
+
+                document.addEventListener('visibilitychange', handleVisibility);
+                window.addEventListener('blur', handleBlur);
+                document.addEventListener('fullscreenchange', handleFullscreenChange);
+                window.addEventListener('beforeunload', handleBeforeUnload);
+
+                return () => {
+                    document.removeEventListener('visibilitychange', handleVisibility);
+                    window.removeEventListener('blur', handleBlur);
+                    document.removeEventListener('fullscreenchange', handleFullscreenChange);
+                    window.removeEventListener('beforeunload', handleBeforeUnload);
+                };
+            }
+        }, [isStarted, isFinished, isEvaluation, isSubmitting, hasAttemptedSubmit, cheatWarnings]);
+
+        if (!isStarted) {
+            // ── EXAM RULES MODAL (Post-Verification, Pre-Start) ──────
+            if (modalType === 'exam_rules') {
+                const startExamNow = () => {
+                    // Force fullscreen for proctored environment
+                    document.documentElement.requestFullscreen().catch(err => console.log('Fullscreen denied:', err));
+                    loginTimeRef.current = new Date().toISOString();
+                    setModalType(null);
+                    setIsStarted(true);
+                };
+
+                return html`
+                <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-brand-DEFAULT/20 to-brand-gold/10 backdrop-blur-3xl"></div>
+                    <div className="relative z-10 max-w-lg w-full rounded-3xl shadow-2xl p-10 animate-fade-in" style=${{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '2px solid rgba(251,191,36,0.3)', boxShadow: '0 8px 40px rgba(251,191,36,0.12), inset 0 0 60px rgba(251,191,36,0.02)' }}>
+                        <div className="text-center mb-8">
+                            <div className="text-7xl mb-4" style=${{ filter: 'drop-shadow(0 0 15px rgba(251,191,36,0.5))' }}>📋</div>
+                            <h2 className="text-3xl font-black mb-2" style=${{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                                ${lang === 'ar' ? 'تعليمات الامتحان' : 'Exam Instructions'}
+                            </h2>
+                            <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                                ${lang === 'ar' ? 'يرجى قراءة التعليمات بعناية قبل البدء' : 'Please read the instructions carefully before starting'}
+                            </p>
+                        </div>
+
+                        <div className="space-y-4 mb-8">
+                            <div className="flex items-start gap-3 p-4 rounded-2xl bg-white/10 dark:bg-gray-800/40 border border-white/10">
+                                <span className="text-2xl mt-0.5">⏱️</span>
+                                <p className="text-sm font-bold text-gray-700 dark:text-gray-300 leading-relaxed">
+                                    ${lang === 'ar'
+                                    ? quiz.endTime
+                                        ? 'الامتحان محدد بوقت. سيتم تسليم إجاباتك تلقائياً عند انتهاء الوقت.'
+                                        : 'لا يوجد حد زمني لهذا الامتحان.'
+                                    : quiz.endTime
+                                        ? 'This exam is timed. Your answers will be auto-submitted when time runs out.'
+                                        : 'There is no time limit for this exam.'}
+                                </p>
+                            </div>
+                            <div className="flex items-start gap-3 p-4 rounded-2xl bg-red-500/5 dark:bg-red-900/20 border border-red-500/20">
+                                <span className="text-2xl mt-0.5">🚫</span>
+                                <p className="text-sm font-bold text-gray-700 dark:text-gray-300 leading-relaxed">
+                                    ${lang === 'ar'
+                                    ? 'نظام مراقبة إلكتروني مفعّل. مغادرة شاشة الامتحان (تبديل التطبيقات أو النوافذ) ستمنحك إنذاراً واحداً فقط. عند التكرار، سيتم سحب الامتحان وتسليمه تلقائياً.'
+                                    : 'Electronic proctoring is active. Switching tabs or apps will give you ONE warning only. A second violation will auto-submit and terminate your exam.'}
+                                </p>
+                            </div>
+                            <div className="flex items-start gap-3 p-4 rounded-2xl bg-white/10 dark:bg-gray-800/40 border border-white/10">
+                                <span className="text-2xl mt-0.5">📝</span>
+                                <p className="text-sm font-bold text-gray-700 dark:text-gray-300 leading-relaxed">
+                                    ${lang === 'ar'
+                                    ? 'لا يمكنك إعادة الامتحان بعد التسليم. تأكد من مراجعة إجاباتك قبل الضغط على زر الإنهاء.'
+                                    : 'You cannot retake the exam after submission. Make sure to review your answers before finishing.'}
+                                </p>
+                            </div>
+                        </div>
+
+                        <button onClick=${startExamNow}
+                            className="w-full py-4 rounded-2xl font-black text-xl text-white shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            style=${{ background: 'linear-gradient(135deg, #06b6d4, #0891b2)', boxShadow: '0 10px 30px -10px rgba(6,182,212,0.6)' }}>
+                            ${lang === 'ar' ? '🚀 ابدأ الامتحان الآن' : '🚀 Start Exam Now'}
+                        </button>
+                    </div>
+                </div>
+                `;
+            }
+
+            const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(studentInfo.email);
+            const isFormValid = studentInfo.name && studentInfo.seatNumber && studentInfo.department && isEmailValid;
+            const verifyAndStart = async () => {
+                if (!quiz.webhookUrl || !quiz.webhookUrl.includes('/macros/s/') || !quiz.webhookUrl.endsWith('/exec')) {
+                    setDebugError("INVALID WEBHOOK URL: The URL must be a Web App URL ending in '/exec', not a library or script ID URL.");
+                    setModalType('network_error');
+                    return;
+                }
+                setIsVerifying(true);
+                setGatewayError(null);
+                setDebugError(null);
+                try {
+                    const examTitle = quiz.titleEn || quiz.titleAr || quiz.title;
+                    const response = await Luminova.Services.GAS.verifyStudent(quiz.webhookUrl, {
+                        exam: examTitle,
+                        name: studentInfo.name,
+                        email: studentInfo.email,
+                        seat: studentInfo.seatNumber
+                    });
+
+                    if (response && response.status === 'clear') {
+                        setModalType('exam_rules');
+                    } else if (response && response.status === 'exists') {
+                        setModalType('already_submitted');
+                    } else {
+                        throw new Error('Invalid response from server');
+                    }
+                } catch (error) {
+                    console.error('Verification failed:', error);
+                    setDebugError(error.message || 'Unknown Error');
+                    setModalType('network_error');
+                } finally {
+                    setIsVerifying(false);
+                }
+            };
+
+            let timeStatus = 'open';
+            let timeMsg = '';
+
+            if (quiz.startTime && now < new Date(quiz.startTime)) {
+                timeStatus = 'early';
+                const diff = new Date(quiz.startTime) - now;
+                const m = Math.floor(diff / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
+                timeMsg = lang === 'ar' ? `يبدأ الاختبار بعد ${m} دقيقة و ${s} ثانية` : `Starts in ${m}m ${s}s`;
+            } else if (quiz.endTime && now > new Date(quiz.endTime)) {
+                timeStatus = 'late';
+                timeMsg = lang === 'ar' ? 'عذراً، لقد انتهى موعد الاختبار' : 'Sorry, the exam has ended';
+            }
+
             return html`
-            <div className="text-center py-20 min-h-[50vh] flex flex-col justify-center items-center">
-                <span className="text-4xl opacity-50 mb-4">📭</span>
-                <p className="text-xl font-bold opacity-50 mb-6">${lang === 'ar' ? 'الاختبار قيد التجهيز..' : 'Quiz is under construction..'}</p>
-                <${Luminova.Components.Button} onClick=${goBack}>${lang === 'ar' ? 'العودة للمادة' : 'Back to Subject'}</${Luminova.Components.Button}>
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4 relative overflow-hidden">
+                <button onClick=${goBack} className="absolute top-6 left-6 sm:left-10 z-50 bg-white/50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800 backdrop-blur-md px-6 py-3 rounded-2xl font-black shadow-sm transition-all flex items-center gap-2 border border-brand-gold/30 hover:scale-105">
+                    <span className="text-xl">🔙</span> ${lang === 'ar' ? 'الخروج' : 'Back'}
+                </button>
+                <div className="absolute inset-0 bg-gradient-to-br from-brand-gold/20 to-amber-500/10 backdrop-blur-3xl"></div>
+                <div className="relative z-10 max-w-lg w-full bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl border border-brand-gold/30 p-8 rounded-3xl shadow-2xl">
+                    <div className="text-center mb-8">
+                        <div className="text-6xl mb-4">🎓</div>
+                        <h2 className="text-3xl font-black text-brand-gold drop-shadow-sm mb-2">${quiz.titleAr || quiz.title || quiz.titleEn}</h2>
+                        <p className="text-gray-600 dark:text-gray-300 font-bold opacity-80">${lang === 'ar' ? 'بوابة الدخول للاختبار التقييمي' : 'Evaluation Exam Gateway'}</p>
+                    </div>
+
+                    ${timeStatus === 'early' ? html`
+                        <div className="text-center p-6 bg-brand-gold/10 rounded-2xl border border-brand-gold/30 mb-6">
+                            <div className="text-4xl font-black text-brand-gold mb-2 tabular-nums">${timeMsg}</div>
+                            <p className="text-sm opacity-70 font-bold">يرجى الانتظار، سيتم التفعيل تلقائياً</p>
+                        </div>
+                    ` : timeStatus === 'late' ? html`
+                        <div className="text-center p-6 bg-red-500/10 rounded-2xl border border-red-500/30 mb-6">
+                            <div className="text-2xl font-black text-red-500 mb-2">🚫 ${timeMsg}</div>
+                        </div>
+                        <div className="text-center">
+                            <${Luminova.Components.Button} onClick=${goBack}>${lang === 'ar' ? 'العودة' : 'Go Back'}</${Luminova.Components.Button}>
+                        </div>
+                    ` : gatewayError === 'exists' ? html`
+                        <div className="text-center p-10 rounded-3xl mb-6 animate-fade-in relative overflow-hidden" style=${{ background: 'rgba(127,29,29,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '2px solid rgba(239,68,68,0.25)', boxShadow: '0 8px 32px rgba(239,68,68,0.15), inset 0 0 80px rgba(239,68,68,0.03)' }}>
+                            <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 via-transparent to-orange-500/5 pointer-events-none"></div>
+                            <div className="relative z-10">
+                                <div className="text-8xl mb-6 animate-pulse" style=${{ filter: 'drop-shadow(0 0 20px rgba(239,68,68,0.4))' }}>🔒</div>
+                                <h2 className="text-3xl font-black mb-3" style=${{ background: 'linear-gradient(135deg, #ef4444, #f97316)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                                    ${lang === 'ar' ? 'عفواً، لا يمكنك الدخول' : 'Sorry, You Cannot Enter'}
+                                </h2>
+                                <p className="text-base font-bold text-gray-600 dark:text-gray-300 mb-8 leading-relaxed max-w-sm mx-auto">
+                                    ${lang === 'ar'
+                                ? 'بياناتك (الاسم، أو رقم الجلوس، أو البريد الإلكتروني) مسجلة مسبقاً في هذا الامتحان. لقد قمت بالتسجيل من قبل.'
+                                : 'Your information (name, seat number, or email) is already registered for this exam. You have already submitted.'}
+                                </p>
+                                <div className="space-y-3">
+                                    <button onClick=${() => { setGatewayError(null); setDebugError(null); }}
+                                        className="w-full py-4 rounded-2xl font-black text-lg text-white shadow-xl transition-all hover:scale-[1.02]" 
+                                        style=${{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', boxShadow: '0 10px 30px -10px rgba(245,158,11,0.6)' }}>
+                                        ${lang === 'ar' ? '🔄 رجوع وتعديل البيانات' : '🔄 Back to Edit Info'}
+                                    </button>
+                                    <button onClick=${goBack}
+                                        className="w-full py-3.5 rounded-2xl font-black text-base bg-gray-200/80 dark:bg-gray-700/80 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition-all">
+                                        ${lang === 'ar' ? 'العودة لصفحة المواد' : 'Return to Subjects'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ` : gatewayError === 'network_error' ? html`
+                        <div className="text-center p-8 bg-orange-900/10 rounded-3xl border border-orange-500/30 mb-6 animate-fade-in">
+                            <div className="text-7xl mb-6">📡</div>
+                            <h2 className="text-2xl font-black text-orange-600 dark:text-orange-500 mb-4">
+                                ${lang === 'ar' ? 'فشل الاتصال بالخادم' : 'Connection Error'}
+                            </h2>
+                            <p className="text-base font-bold text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
+                                ${lang === 'ar' ? 'حدثت مشكلة في الاتصال أثناء التحقق من بياناتك. يرجى التأكد من الإنترنت والمحاولة مرة أخرى.' : 'There was a connection issue verifying your data. Please check your internet and try again.'}
+                            </p>
+                            ${debugError && html`<div className="p-3 mb-6 bg-red-100 text-red-800 rounded-xl text-xs font-mono text-left break-words border border-red-300">${debugError}</div>`}
+                            <${Luminova.Components.Button} onClick=${() => { setGatewayError(null); setDebugError(null); }} className="w-full py-4 rounded-2xl font-black bg-orange-600 hover:bg-orange-700 text-white shadow-xl shadow-orange-600/30 transition-all text-lg mb-3">
+                                ${lang === 'ar' ? 'إعادة المحاولة' : 'Try Again'}
+                            </${Luminova.Components.Button}>
+                            <${Luminova.Components.Button} variant="secondary" onClick=${goBack} className="w-full py-4 rounded-2xl font-black transition-all text-lg">
+                                ${lang === 'ar' ? 'العودة لصفحة المواد' : 'Return to Subjects'}
+                            </${Luminova.Components.Button}>
+                        </div>
+                    ` : html`
+                        <div className="space-y-4">
+                            <${Luminova.Components.Input} label=${lang === 'ar' ? 'الاسم الرباعي' : 'Full Name'} val=${studentInfo.name} onChange=${v => setStudentInfo({ ...studentInfo, name: v })} />
+                            <${Luminova.Components.Input} label=${lang === 'ar' ? 'رقم الجلوس' : 'Seat Number'} val=${studentInfo.seatNumber} onChange=${v => setStudentInfo({ ...studentInfo, seatNumber: v })} />
+                            <${Luminova.Components.Input} label=${lang === 'ar' ? 'الشعبة / القسم' : 'Department'} val=${studentInfo.department} onChange=${v => setStudentInfo({ ...studentInfo, department: v })} />
+                            <${Luminova.Components.Input} label=${lang === 'ar' ? 'البريد الإلكتروني' : 'Email'} val=${studentInfo.email} onChange=${v => setStudentInfo({ ...studentInfo, email: v })} />
+                            
+                            <button 
+                                disabled=${!isFormValid || isVerifying}
+                                onClick=${verifyAndStart}
+                                className="w-full py-4 mt-6 rounded-2xl font-black text-xl text-white bg-gradient-to-r from-brand-gold to-amber-600 shadow-[0_10px_30px_-10px_rgba(245,158,11,0.8)] hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:cursor-not-allowed">
+                                ${isVerifying ? (lang === 'ar' ? '⏳ جاري التحقق من السجلات...' : '⏳ Verifying records...') : (lang === 'ar' ? 'بدء الاختبار' : 'Start Exam')}
+                            </button>
+                        </div>
+                    `}
+                </div>
             </div>
-        `;
+            `;
         }
 
         const q = questions[currentIndex];
-        const maxScore = questions.reduce((sum, curr) => sum + (Number(curr.score) || 0), 0);
 
         const handleFinish = () => {
             setModalType('submit');
         };
 
         if (isFinished) {
+            const successModal = modalType === 'success' ? html`
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style=${{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
+                    <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-[0_32px_80px_rgba(0,0,0,0.5)] p-10 w-full max-w-md border-2 border-green-500/30 animate-fade-in text-center">
+                        <div className="text-7xl mb-6 text-green-500">✅</div>
+                        <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-4">
+                            ${lang === 'ar' ? 'نجاح التسليم' : 'Success'}
+                        </h2>
+                        <p className="text-lg font-bold text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
+                            ${lang === 'ar' ? 'تم تسليم امتحانك بنجاح بطريقة طبيعية، وتم تسجيل نتيجتك وحالة التسليم في النظام.' : 'Exam submitted normally and status recorded.'}
+                        </p>
+                        <button onClick=${() => setModalType(null)} className="w-full py-4 rounded-2xl font-black bg-green-600 hover:bg-green-700 text-white shadow-xl shadow-green-600/30 transition-all text-xl">
+                            ${lang === 'ar' ? 'متابعة' : 'Continue'}
+                        </button>
+                    </div>
+                </div>
+            ` : '';
+
+            if (isEvaluation && String(quiz.showResultsAfter) !== 'true') {
+                return html`
+                ${successModal}
+                <div className="min-h-screen flex items-center justify-center p-4">
+                    <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-3xl shadow-[0_32px_80px_rgba(0,0,0,0.35)] p-10 border border-green-200/40 dark:border-green-900/40 animate-fade-in text-center">
+                        ${isLateSubmission && html`
+                            <div className="mb-6 px-4 py-2 bg-yellow-500/20 text-yellow-600 dark:text-yellow-500 border border-yellow-500/50 rounded-xl font-bold text-sm">
+                                ⚠️ ${lang === 'ar' ? 'تم التسليم بنجاح، ولكن تم تسجيل تأخيرك عن الموعد المحدد.' : 'Successfully submitted, but marked as late.'}
+                            </div>
+                        `}
+                        <div className="text-7xl mb-6 ${terminationReason === 'completed' ? 'text-green-500 animate-bounce' : 'text-red-500'}">
+                            ${terminationReason === 'completed' ? '✅' : '⛔'}
+                        </div>
+                        <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-4">
+                            ${terminationReason === 'completed'
+                        ? (lang === 'ar' ? 'تم تسليم امتحانك بنجاح!' : 'Your exam has been submitted successfully!')
+                        : terminationReason === 'time_expired'
+                            ? (lang === 'ar' ? 'انتهى الوقت!' : 'Time Expired!')
+                            : (lang === 'ar' ? 'تم سحب الامتحان' : 'Exam Terminated')}
+                        </h2>
+                        <p className="text-lg font-bold text-gray-500 dark:text-gray-400 mb-10 leading-relaxed">
+                            ${terminationReason === 'completed'
+                        ? (lang === 'ar' ? 'شكراً لك، تم حفظ جميع إجاباتك.' : 'Thank you, all your answers have been saved.')
+                        : terminationReason === 'time_expired'
+                            ? (lang === 'ar' ? 'انتهى الوقت المسموح به، تم حفظ وتسليم إجاباتك تلقائياً.' : 'Time is up. Your answers have been automatically saved and submitted.')
+                            : (lang === 'ar' ? 'تم سحب الامتحان وإرساله للإدارة نظراً لمخالفة قواعد المراقبة والخروج من الشاشة أكثر من مرة.' : 'Exam force-submitted and sent to administration due to repeated proctoring violations.')}
+                        </p>
+                        <${Luminova.Components.Button} onClick=${goBack} className="w-full py-4 text-xl rounded-2xl font-black bg-gradient-to-r from-brand-DEFAULT to-green-500 text-white shadow-xl shadow-green-500/30 transition-all hover:scale-[1.02]">
+                            ${lang === 'ar' ? 'الخروج للمواد' : 'Return to Subjects'}
+                        </${Luminova.Components.Button}>
+                    </div>
+                </div>
+                `;
+            }
+
             let score = 0;
             questions.forEach(que => {
                 if (que.type === 'mcq') {
@@ -56,21 +526,33 @@ Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
             });
 
             return html`
+            ${successModal}
             <div className="max-w-4xl mx-auto space-y-8 animate-fade-in pb-10">
+                ${terminationReason !== 'completed' && html`
+                    <div className="text-center mt-6 px-6 py-4 bg-red-500/20 text-red-600 dark:text-red-500 border border-red-500/50 rounded-2xl font-bold text-lg max-w-xl mx-auto shadow-lg animate-pulse">
+                        ⚠️ ${terminationReason === 'time_expired'
+                        ? (lang === 'ar' ? 'انتهى الوقت المسموح به، تم حفظ وتسليم إجاباتك تلقائياً.' : 'Time is up. Your answers have been automatically saved and submitted.')
+                        : (lang === 'ar' ? 'تم سحب الامتحان وإرساله للإدارة نظراً لمخالفة قواعد المراقبة والخروج من الشاشة أكثر من مرة.' : 'Exam force-submitted and sent to administration due to repeated proctoring violations.')}
+                    </div>
+                `}
+                ${isLateSubmission && html`
+                    <div className="text-center mt-6 px-6 py-4 bg-yellow-500/20 text-yellow-600 dark:text-yellow-500 border border-yellow-500/50 rounded-2xl font-bold text-lg max-w-xl mx-auto shadow-lg animate-pulse">
+                        ⚠️ ${lang === 'ar' ? 'تم التسليم بنجاح، ولكن تم تسجيل تأخيرك عن الموعد المحدد.' : 'Successfully submitted, but marked as late.'}
+                    </div>
+                `}
                 <${Luminova.Components.GlassCard} className="text-center py-16 bg-gradient-to-b from-brand-DEFAULT/10 to-transparent border-t-8 border-t-brand-DEFAULT">
                     <h2 className="text-5xl font-black mb-6 uppercase tracking-wider">${Luminova.i18n[lang].results}</h2>
                     <div className="text-8xl font-black text-brand-DEFAULT drop-shadow-2xl mb-8">${score} <span className="text-4xl opacity-50">/ ${maxScore}</span></div>
-                    <${Luminova.Components.Button} onClick=${goBack} className="px-10 py-4 text-xl rounded-full shadow-2xl hover:scale-105">${lang === 'ar' ? 'العودة للمادة' : 'Back to Subject'}</${Luminova.Components.Button}>
+                    <${Luminova.Components.Button} onClick=${goBack} className="px-10 py-4 text-xl rounded-full shadow-2xl hover:scale-105">${lang === 'ar' ? 'العودة لصفحة الاختبارات' : 'Return to Subjects'}</${Luminova.Components.Button}>
                 </${Luminova.Components.GlassCard}>
                 
                 ${questions.map((que, idx) => {
-                const qLang = lang === 'ar' ? 'Ar' : 'En';
-                let isCorrect = false;
-                if (que.type === 'mcq') isCorrect = answers[que.id] === que.correctAnswers?.[0];
-                if (que.type === 'multi_select') isCorrect = [...(que.correctAnswers || [])].sort().join(',') === [...(answers[que.id] || [])].sort().join(',');
-                const studentProv = data.students.find(s => s.id === que.studentId) || (que.studentId === 's_founder' || que.studentId === Luminova.FOUNDER.id ? Luminova.FOUNDER : null);
+                            let isCorrect = false;
+                            if (que.type === 'mcq') isCorrect = answers[que.id] === que.correctAnswers?.[0];
+                            if (que.type === 'multi_select') isCorrect = [...(que.correctAnswers || [])].sort().join(',') === [...(answers[que.id] || [])].sort().join(',');
+                            const studentProv = data.students.find(s => s.id === que.studentId) || (que.studentId === 's_founder' || que.studentId === Luminova.FOUNDER.id ? Luminova.FOUNDER : null);
 
-                return html`
+                            return html`
                         <${Luminova.Components.GlassCard} key=${idx} className=${`border-r-4 ${que.type !== 'essay' ? (isCorrect ? 'border-r-green-500' : 'border-r-red-500') : 'border-r-brand-gold'} relative`}>
                             <div className="absolute top-0 right-0 px-4 py-1 rounded-bl-xl bg-black/10 dark:bg-white/10 font-bold text-sm">
                                 ${que.score} ${Luminova.i18n[lang].score}
@@ -81,14 +563,8 @@ Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
                                     <div className="flex flex-col items-start gap-1">
                                         <span className="text-xs text-slate-400">المساهم بالمعلومة:</span>
                                         <span className="text-sm font-bold text-yellow-500">${lang === 'ar' ? studentProv.nameAr || studentProv.name : studentProv.nameEn || studentProv.name}</span>
-                                        <div className="flex flex-row items-center gap-2 mt-1">
-                                            ${studentProv.isFounder && html`<span className="text-xs bg-brand-gold text-black font-black px-2 py-0.5 rounded-full shadow-md shrink-0">${Luminova.i18n[lang].founder}</span>`}
-                                            ${studentProv.role === 'doctor' && html`<span className="text-xs bg-teal-500 text-white font-black px-2 py-0.5 rounded-full shadow-md shrink-0">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
-                                            ${studentProv.isVIP && html`<span title="VIP">✨</span>`}
-                                            ${studentProv.isVerified && html`<span title="Verified">🔵</span>`}
-                                        </div>
                                     </div>
-                                    <${Luminova.Components.Avatar} name=${studentProv.nameAr || studentProv.name} nameEn=${studentProv.nameEn} image=${studentProv.image} size="w-12 h-12 rounded-full border-2 border-slate-600 shadow-sm shrink-0" />
+                                    <${Luminova.Components.Avatar} name=${studentProv.nameAr || studentProv.name} image=${studentProv.image} size="w-12 h-12 rounded-full border-2 border-slate-600 shadow-sm shrink-0" />
                                 </div>
                             `}
 
@@ -123,7 +599,7 @@ Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
                             `}
                         </${Luminova.Components.GlassCard}>
                     `;
-            })}
+                        })}
             </div>
         `;
         }
@@ -132,6 +608,15 @@ Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
 
         return html`
         <div className="max-w-4xl mx-auto min-h-[70vh] flex flex-col pt-10 pb-20">
+
+            ${isSubmitting && html`
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style=${{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(18px)' }}>
+                    <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 flex flex-col items-center">
+                        <div className="animate-spin text-5xl mb-4">⏳</div>
+                        <h2 className="text-xl font-black text-white">${lang === 'ar' ? 'جاري تسليم وإرسال إجاباتك...' : 'Submitting your answers...'}</h2>
+                    </div>
+                </div>
+            `}
 
             <!-- Exit Modal -->
             ${modalType === 'exit' && html`
@@ -145,15 +630,19 @@ Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
                             ${lang === 'ar' ? 'خروج من الامتحان' : 'Leave Exam'}
                         </h2>
                         <p className="text-base font-bold text-gray-500 dark:text-gray-400 mb-7 leading-relaxed">
-                            ${lang === 'ar' ? 'هل أنت متأكد من الخروج من الامتحان؟ الإجابات لن تُحفظ.' : 'Are you sure you want to leave? Your answers will not be saved.'}
+                            ${isEvaluation
+                    ? (lang === 'ar' ? 'تحذير: خروجك الآن سيعتبر تسليماً نهائياً للامتحان.' : 'Warning: Exiting now will count as a final submission.')
+                    : (lang === 'ar' ? 'هل أنت متأكد من الخروج من الامتحان؟ الإجابات لن تُحفظ.' : 'Are you sure you want to leave? Your progress will be lost.')}
                         </p>
                         <div className="flex gap-3">
-                            <button id="quiz-exit-cancel" onClick=${() => setModalType(null)}
+                            <button onClick=${() => setModalType(null)}
                                 className="flex-1 py-3.5 rounded-2xl font-black bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200 transition-all"
                             >${lang === 'ar' ? 'تراجع' : 'Stay'}</button>
-                            <button id="quiz-exit-confirm" onClick=${() => { setModalType(null); goBack(); }}
+                            <button onMouseDown=${() => { if (isEvaluation) { immunityRef.current = true; setIsSubmitting(true); } }} onClick=${() => {
+                    if (isEvaluation) { submitExam(); } else { setModalType(null); goBack(); }
+                }}
                                 className="flex-1 py-3.5 rounded-2xl font-black bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30 transition-all"
-                            >${lang === 'ar' ? 'نعم، خروج' : 'Yes, Exit'}</button>
+                            >${isEvaluation ? (lang === 'ar' ? 'تسليم وخروج' : 'Submit & Exit') : (lang === 'ar' ? 'نعم، خروج' : 'Yes, Exit')}</button>
                         </div>
                     </div>
                 </div>
@@ -174,16 +663,186 @@ Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
                             ${lang === 'ar' ? 'هل أنت متأكد من إنهاء الامتحان وتسليم الإجابات؟' : 'Are you sure you want to finish and submit your answers?'}
                         </p>
                         <div className="flex gap-3">
-                            <button id="quiz-submit-cancel" onClick=${() => setModalType(null)}
+                            <button onClick=${() => setModalType(null)}
                                 className="flex-1 py-3.5 rounded-2xl font-black bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200 transition-all"
                             >${lang === 'ar' ? 'تراجع' : 'Cancel'}</button>
-                            <button id="quiz-submit-confirm" onClick=${() => { setModalType(null); setIsFinished(true); }}
+                            <button onMouseDown=${() => { immunityRef.current = true; setIsSubmitting(true); }} onClick=${() => submitExam('completed')}
                                 className="flex-1 py-3.5 rounded-2xl font-black bg-gradient-to-r from-brand-DEFAULT to-green-500 text-white shadow-lg shadow-brand-DEFAULT/30 transition-all hover:opacity-90"
                             >${lang === 'ar' ? 'نعم، إنهاء وتسليم' : 'Yes, Submit'}</button>
                         </div>
                     </div>
                 </div>
             `}
+
+            <!-- Cheat Warning Modal -->
+            ${modalType === 'cheat_warning' && html`
+                <div
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+                    style=${{ background: 'rgba(127,29,29,0.5)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
+                >
+                    <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-[0_32px_80px_rgba(0,0,0,0.5)] p-10 w-full max-w-md border-2 border-red-500/50 animate-fade-in text-center">
+                        <div className="text-7xl mb-6 animate-pulse">🚫</div>
+                        <h2 className="text-3xl font-black text-red-600 dark:text-red-500 mb-4">
+                            ${lang === 'ar' ? 'إنذار: مخالفة قواعد المراقبة' : 'Warning: Proctored Rule Violation'}
+                        </h2>
+                        <p className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+                            ${lang === 'ar'
+                    ? 'لقد قمت بمغادرة شاشة الاختبار. تكرار هذا الإجراء سيؤدي إلى سحب ورقتك وتسليم الامتحان تلقائياً.'
+                    : 'You left the exam screen. Repeating this action will force submit your exam automatically.'}
+                        </p>
+                        <button onClick=${() => setModalType(null)}
+                            className="w-full py-4 rounded-2xl font-black bg-red-600 hover:bg-red-700 text-white shadow-xl shadow-red-600/30 transition-all text-xl"
+                        >${lang === 'ar' ? 'موافق / أوافق على الاستمرار' : 'Understood'}</button>
+                    </div>
+                </div>
+            `}
+
+            <!-- Network Error Modal (Gatekeeper & Verification) -->
+            ${modalType === 'network_error' && html`
+                <div
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+                    style=${{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+                >
+                    <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-3xl rounded-3xl shadow-[0_32px_80px_rgba(250,204,21,0.2)] p-10 w-full max-w-md border border-brand-gold/50 animate-fade-in text-center">
+                        <div className="text-7xl mb-6 text-brand-gold drop-shadow-lg">📡</div>
+                        <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-4">
+                            ${lang === 'ar' ? 'Network Error' : 'Network Error'}
+                        </h2>
+                        <p className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+                            ${lang === 'ar'
+                    ? 'حدث خطأ في الاتصال، يرجى المحاولة مرة أخرى.'
+                    : 'A network error occurred. Please try again.'}
+                        </p>
+                        ${debugError && html`<div className="p-3 mb-6 bg-red-100 text-red-800 rounded-xl text-xs font-mono text-left break-words border border-red-300">${debugError}</div>`}
+                        <button onClick=${() => setModalType(null)}
+                            className="w-full py-4 rounded-2xl font-black bg-gradient-to-r from-brand-DEFAULT to-brand-gold hover:opacity-90 text-white shadow-xl shadow-brand-gold/30 transition-all text-xl"
+                        >${lang === 'ar' ? 'إغلاق والمحاولة لاحقاً' : 'Close and Retry'}</button>
+                    </div>
+                </div>
+            `}
+
+            <!-- Already Submitted Modal (Gatekeeper) -->
+            ${modalType === 'already_submitted' && html`
+                <div
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+                    style=${{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+                >
+                    <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-3xl rounded-3xl shadow-[0_32px_80px_rgba(250,204,21,0.2)] p-10 w-full max-w-md border border-brand-gold/50 animate-fade-in text-center">
+                        <div className="text-7xl mb-6 text-brand-gold drop-shadow-lg">🛑</div>
+                        <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-4">
+                            ${lang === 'ar' ? 'عفواً، لا يمكنك الدخول' : 'Access Denied'}
+                        </h2>
+                        <p className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+                            ${lang === 'ar'
+                    ? 'لقد قمت بأداء هذا الاختبار مسبقاً.'
+                    : 'You have already submitted this exam.'}
+                        </p>
+                        <button onClick=${() => setModalType(null)}
+                            className="w-full py-4 rounded-2xl font-black bg-gradient-to-r from-brand-DEFAULT to-brand-gold hover:opacity-90 text-white shadow-xl shadow-brand-gold/30 transition-all text-xl"
+                        >${lang === 'ar' ? 'رجوع لتعديل البيانات' : 'Back to Edit Info'}</button>
+                    </div>
+                </div>
+            `}
+
+            <!-- Submit Error Modal (Final Submission) -->
+            ${modalType === 'submit_error' && html`
+                <div
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+                    style=${{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+                >
+                    <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-3xl rounded-3xl shadow-[0_32px_80px_rgba(250,204,21,0.2)] p-10 w-full max-w-md border border-brand-gold/50 animate-fade-in text-center">
+                        <div className="text-7xl mb-6 text-brand-gold drop-shadow-lg">⚠️</div>
+                        <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-4">
+                            ${lang === 'ar' ? 'فشل الإرسال' : 'Submission Failed'}
+                        </h2>
+                        <p className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+                            ${lang === 'ar'
+                    ? 'حدث خطأ أثناء إرسال إجاباتك. لا تقلق، إجاباتك محفوظة. يرجى المحاولة مرة أخرى.'
+                    : 'An error occurred while sending your answers. Don\'t worry, your answers are saved. Please try again.'}
+                        </p>
+                        ${debugError && html`<div className="p-3 mb-6 bg-red-100 text-red-800 rounded-xl text-xs font-mono text-left break-words border border-red-300">${debugError}</div>`}
+                        <button onMouseDown=${() => { immunityRef.current = true; setIsSubmitting(true); }} onClick=${() => submitExam(terminationReason)}
+                            disabled=${isSubmitting}
+                            className="w-full py-4 rounded-2xl font-black bg-gradient-to-r from-brand-DEFAULT to-brand-gold hover:opacity-90 text-white shadow-xl shadow-brand-gold/30 transition-all text-xl disabled:opacity-50"
+                        >
+                            ${isSubmitting ? (lang === 'ar' ? 'جاري إعادة الإرسال...' : 'Retrying...') : (lang === 'ar' ? 'إعادة إرسال النتيجة (Retry)' : 'Retry Submission')}
+                        </button>
+                    </div>
+                </div>
+            `}
+
+            <!-- Force Submitted Modal -->
+            ${modalType === 'force_submitted' && html`
+                <div
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+                    style=${{ background: 'rgba(127,29,29,0.5)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
+                >
+                    <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-[0_32px_80px_rgba(0,0,0,0.5)] p-10 w-full max-w-md border-2 border-red-500/50 animate-fade-in text-center">
+                        <div className="text-7xl mb-6 text-red-500">⛔</div>
+                        <h2 className="text-3xl font-black text-red-600 dark:text-red-500 mb-4">
+                            ${lang === 'ar' ? 'تعذر إكمال الاختبار' : 'Exam Terminated'}
+                        </h2>
+                        <p className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+                            ${lang === 'ar'
+                    ? 'تم إرسال امتحانك تلقائياً نظراً لخروجك أكثر من مرة من شاشة الامتحان.'
+                    : 'Your exam has been forcibly submitted due to repeated screen leaving violations.'}
+                        </p>
+                        <button onClick=${goBack}
+                            className="w-full py-4 rounded-2xl font-black bg-red-600 hover:bg-red-700 text-white shadow-xl shadow-red-600/30 transition-all text-xl"
+                        >${lang === 'ar' ? 'العودة لصفحة الاختبارات' : 'Go Back'}</button>
+                    </div>
+                </div>
+            `}
+
+            <button onClick=${() => setShowDrawer(true)} className="fixed top-24 right-4 z-40 bg-brand-gold text-black px-4 py-2 font-bold rounded-full shadow-2xl flex items-center gap-2">
+                📑 <span className="hidden sm:inline">${lang === 'ar' ? 'الأسئلة' : 'Questions'}</span>
+            </button>
+
+            ${showDrawer && html`
+                <div className="fixed inset-0 z-[8000] flex animate-fade-in">
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick=${() => setShowDrawer(false)}></div>
+                    <div className="relative w-72 bg-white dark:bg-gray-900 h-full shadow-2xl p-6 flex flex-col overflow-y-auto">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="font-black text-xl text-brand-gold">📑 ${lang === 'ar' ? 'خريطة الأسئلة' : 'Questions Map'}</h3>
+                            <button onClick=${() => setShowDrawer(false)} className="text-gray-500 hover:text-red-500">❌</button>
+                        </div>
+                        <div className="grid grid-cols-4 gap-3">
+                            ${questions.map((_, i) => {
+                        const isAnswered = answers[questions[i].id] !== undefined && (Array.isArray(answers[questions[i].id]) ? answers[questions[i].id].length > 0 : answers[questions[i].id] !== '');
+                        return html`
+                                    <button 
+                                        onClick=${() => {
+                                if (quiz.allowBackNavigation !== false || i >= currentIndex) {
+                                    setCurrentIndex(i);
+                                    setShowDrawer(false);
+                                    setIsFeedbackRevealed(false);
+                                }
+                            }}
+                                        disabled=${quiz.allowBackNavigation === false && i < currentIndex}
+                                        className=${`aspect-square rounded-xl font-bold border-2 transition-all ${isAnswered ? 'bg-green-500 border-green-500 text-white' : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800'} ${currentIndex === i ? 'ring-4 ring-brand-gold scale-110' : ''} ${(quiz.allowBackNavigation === false && i < currentIndex) ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                        ${i + 1}
+                                    </button>
+                                `;
+                    })}
+                        </div>
+                    </div>
+                </div>
+            `}
+
+            ${(isEvaluation && isStarted && !isFinished && quiz.endTime) ? (() => {
+                let diff = new Date(quiz.endTime) - now;
+                if (diff < 0) diff = 0;
+                const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
+                const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
+                const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
+                const isUrgent = diff < 300000;
+                return html`
+                    <div className=${`sticky top-4 z-50 mx-auto w-max px-6 py-3 rounded-full border-2 shadow-2xl backdrop-blur-md mb-6 font-mono text-2xl font-black tracking-widest transition-colors duration-300 ${isUrgent ? 'bg-red-500/20 border-red-500 text-red-600 dark:text-red-400 animate-pulse shadow-[0_0_20px_rgba(239,68,68,0.4)]' : 'bg-gray-900/10 dark:bg-white/10 border-gray-400 dark:border-gray-500 text-gray-800 dark:text-gray-200'}`}>
+                        ⏳ ${h}:${m}:${s}
+                    </div>
+                `;
+            })() : ''}
+
             <div className="flex justify-between items-center mb-10 bg-white/50 dark:bg-gray-800/50 p-4 rounded-2xl shadow-sm backdrop-blur">
                 <${Luminova.Components.Button} variant="danger" onClick=${() => setModalType('exit')} className="rounded-full shadow-lg hover:-translate-x-1">
                     <${Luminova.Icons.XCircle} /> <span className="hidden sm:inline">${lang === 'ar' ? 'خروج' : 'Quit'}</span>
@@ -201,7 +860,6 @@ Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
                     <div className="absolute -top-12 sm:-top-6 start-1/2 -translate-x-1/2 sm:translate-x-0 sm:start-8 flex flex-col sm:flex-row items-center gap-1 sm:gap-3 bg-white dark:bg-gray-800 shadow-xl p-2 sm:p-2 sm:pl-4 rounded-xl sm:rounded-full border border-gray-100 dark:border-gray-700 z-10 animate-fade-in group hover:scale-105 transition-transform max-w-[90vw] sm:max-w-none text-center sm:text-start mx-auto w-max mb-8 sm:mb-0">
                         <${Luminova.Components.Avatar} name=${currentQStudent.nameAr || currentQStudent.name} image=${currentQStudent.image} isVerified=${currentQStudent.isVerified} size="w-8 h-8 shrink-0" />
                         <span className="text-xs sm:text-sm font-black mx-1 text-brand-DEFAULT group-hover:text-brand-gold break-words whitespace-normal">${lang === 'ar' ? currentQStudent.nameAr || currentQStudent.name : currentQStudent.nameEn || currentQStudent.name}</span>
-                        ${currentQStudent.isFounder && html`<span className="text-xs bg-brand-gold text-black font-black px-2 py-0.5 rounded-full shadow-md shrink-0">${Luminova.i18n[lang].founder}</span>`}
                         <span className="text-xs font-bold opacity-50 hidden sm:inline border-r pr-2 dark:border-gray-700 shrink-0">:المساهم بالسؤال</span>
                     </div>
                 `}
@@ -221,28 +879,35 @@ Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
                     
                     ${q.type === 'mcq' && html`
                         <div className="space-y-4 max-w-2xl mx-auto">
-                            ${(q.options || q.optionsAr || []).map((opt, i) => html`
-                                <button key=${i} onClick=${() => !isFeedbackRevealed && setAnswers({ ...answers, [q.id]: i })}
+                            ${(q.options || q.optionsAr || []).map((opt, i) => {
+                        const handleMCQClick = () => {
+                            if (isFeedbackRevealed) return;
+                            setAnswers(prev => ({ ...prev, [q.id]: i }));
+                        };
+                        return html`
+                                <button key=${i} onClick=${handleMCQClick}
                                     disabled=${isFeedbackRevealed}
                                     className=${`w-full text-start p-5 rounded-2xl border-4 transition-all duration-200 text-lg font-bold shadow-sm ${answers[q.id] === i ? 'border-brand-DEFAULT bg-brand-DEFAULT/10 scale-105 shadow-xl' : 'border-transparent bg-gray-100 dark:bg-gray-800/80 hover:border-gray-300 dark:hover:border-gray-600 hover:scale-[1.02]'} ${isFeedbackRevealed ? 'opacity-70 cursor-not-allowed object-none' : ''}`}>
                                     <span className="inline-block w-8 h-8 rounded-full bg-black/5 dark:bg-white/5 text-center leading-8 mr-4 ml-4">${String.fromCharCode(65 + i)}</span>
                                     ${opt}
                                 </button>
-                            `)}
+                            `;
+                        })}
                         </div>
                     `}
 
                     ${q.type === 'multi_select' && html`
                         <div className="space-y-4 max-w-2xl mx-auto">
                             ${(q.options || q.optionsAr || []).map((opt, i) => {
-            const selected = answers[q.id] || [];
-            const isSelected = selected.includes(i);
-            return html`
-                                    <button key=${i} disabled=${isFeedbackRevealed} onClick=${() => {
+                const selected = answers[q.id] || [];
+                const isSelected = selected.includes(i);
+                const handleMultiClick = () => {
                     if (isFeedbackRevealed) return;
                     const next = isSelected ? selected.filter(x => x !== i) : [...selected, i];
-                    setAnswers({ ...answers, [q.id]: next });
-                }}
+                    setAnswers(prev => ({ ...prev, [q.id]: next }));
+                };
+                return html`
+                                    <button key=${i} disabled=${isFeedbackRevealed} onClick=${handleMultiClick}
                                     className=${`w-full text-start p-5 rounded-2xl border-4 transition-all duration-200 text-lg font-bold shadow-sm flex items-center gap-4 ${isSelected ? 'border-brand-DEFAULT bg-brand-DEFAULT/10 scale-[1.02] shadow-xl' : 'border-transparent bg-gray-100 dark:bg-gray-800/80 hover:border-gray-300 dark:hover:border-gray-600'} ${isFeedbackRevealed ? 'opacity-70 cursor-not-allowed' : ''}`}>
                                         <div className=${`w-8 h-8 rounded-xl flex items-center justify-center border-2 text-xl transition-colors ${isSelected ? 'bg-brand-DEFAULT border-brand-DEFAULT text-white' : 'border-gray-400'}`}>
                                             ${isSelected && '✓'}
@@ -250,7 +915,7 @@ Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
                                         ${opt}
                                     </button>
                                 `;
-        })}
+            })}
                         </div>
                     `}
 
@@ -261,7 +926,11 @@ Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
                                 className=${`w-full p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/80 border-4 border-gray-200 dark:border-gray-700 focus:border-brand-DEFAULT focus:bg-white dark:focus:bg-black outline-none min-h-[250px] text-lg transition-all shadow-inner resize-y ${isFeedbackRevealed ? 'opacity-70 font-bold' : ''}`}
                                 placeholder=${lang === 'ar' ? 'اكتب إجابتك بتفصيل هنا...' : 'Type your detailed answer here...'}
                                 value=${answers[q.id] || ''}
-                                onChange=${(e) => !isFeedbackRevealed && setAnswers({ ...answers, [q.id]: e.target.value })}
+                                onChange=${(e) => {
+                            if (isFeedbackRevealed) return;
+                            const val = e.target.value;
+                            setAnswers(prev => ({ ...prev, [q.id]: val }));
+                        }}
                             />
                         </div>
                     `}
@@ -293,7 +962,7 @@ Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
             </${Luminova.Components.GlassCard}>
 
             <div className="flex justify-between items-center bg-white/50 dark:bg-gray-800/50 p-4 rounded-2xl shadow-sm backdrop-blur">
-                <${Luminova.Components.Button} variant="glass" disabled=${currentIndex === 0} onClick=${() => { setCurrentIndex(i => i - 1); setIsFeedbackRevealed(false); }} className="px-8 py-3 text-lg rounded-full">
+                <${Luminova.Components.Button} variant="glass" disabled=${currentIndex === 0 || quiz.allowBackNavigation === false} onClick=${() => { setCurrentIndex(i => i - 1); setIsFeedbackRevealed(false); }} className="px-8 py-3 text-lg rounded-full">
                     ${lang === 'ar' ? 'السابق' : 'Previous'}
                 </${Luminova.Components.Button}>
                 
@@ -304,7 +973,7 @@ Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
                     </${Luminova.Components.Button}>
                 ` : currentIndex === questions.length - 1 ? html`
                     <${Luminova.Components.Button} onClick=${handleFinish} className="px-10 py-3 text-lg bg-green-500 hover:bg-green-600 rounded-full shadow-lg shadow-green-500/30 font-black animate-pulse">
-                        <${Luminova.Icons.CheckCircle} /> ${lang === 'ar' ? 'إنهاء الاختبار ورؤية النتيجة' : 'Finish & View Results'}
+                        <${Luminova.Icons.CheckCircle} /> ${lang === 'ar' ? 'إنهاء الاختبار' : 'Finish Exam'}
                     </${Luminova.Components.Button}>
                 ` : html`
                     <${Luminova.Components.Button} onClick=${() => { setCurrentIndex(i => i + 1); setIsFeedbackRevealed(false); }} className="px-10 py-3 text-lg rounded-full shadow-lg shadow-brand-DEFAULT/30 group">

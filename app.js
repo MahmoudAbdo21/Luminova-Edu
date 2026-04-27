@@ -630,11 +630,7 @@
         const [previousView, setPreviousView] = useState('home');
         const [activeQuiz, setActiveQuiz] = useState(null);
         const [activeSummary, setActiveSummary] = useState(null);
-        const [clickCount, setClickCount] = useState(0);
         const [isNavigating, setIsNavigating] = useState(false);
-        const [showAdminAuth, setShowAdminAuth] = useState(false);
-        const [adminPwd, setAdminPwd] = useState('');
-        const [adminPwdError, setAdminPwdError] = useState(false);
         const [showSplash, setShowSplash] = useState(true);
 
         // Sentinel: true while a popstate-triggered navigation is in progress.
@@ -720,34 +716,7 @@
         }, [previousView]);
 
         const handleLogoClick = () => {
-            setClickCount(prev => prev + 1);
-            setTimeout(() => setClickCount(0), 4000);
-        };
-
-        useEffect(() => {
-            if (clickCount >= 5) {
-                setClickCount(0);
-                setAdminPwd('');
-                setAdminPwdError(false);
-                setShowAdminAuth(true);
-            }
-        }, [clickCount]);
-
-        const handleAdminSubmit = () => {
-            if (adminPwd === 'admin') {
-                setShowAdminAuth(false);
-                setAdminPwd('');
-                setAdminPwdError(false);
-                changeView('cms');
-            } else {
-                setAdminPwdError(true);
-            }
-        };
-
-        const handleAdminCancel = () => {
-            setShowAdminAuth(false);
-            setAdminPwd('');
-            setAdminPwdError(false);
+            changeView('home');
         };
 
         const toggleTheme = () => {
@@ -851,54 +820,8 @@
             <!-- Task 4: Tablet Portrait Overlay -->
             <${Luminova.Components.TabletPortraitOverlay} lang=${lang} />
 
-            <!-- Admin Auth Modal -->
-            ${showAdminAuth && html`
-                <div
-                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-                    style=${{ background: 'rgba(15,23,42,0.55)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
-                    onClick=${(e) => { if (e.target === e.currentTarget) handleAdminCancel(); }}
-                >
-                    <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-[0_32px_80px_rgba(0,0,0,0.35)] p-8 w-full max-w-sm border border-white/30 dark:border-slate-700 animate-fade-in">
-                        <div className="flex flex-col items-center mb-6">
-                            <div style=${{ width: '56px', height: '56px', background: 'linear-gradient(135deg,#06b6d4,#f59e0b)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '900', fontSize: '28px', boxShadow: '0 4px 20px rgba(6,182,212,0.4)', marginBottom: '16px' }}>L</div>
-                            <h2 className="text-2xl font-black text-gray-900 dark:text-white">${lang === 'ar' ? 'دخول الإدارة' : 'Admin Access'}</h2>
-                            <p className="text-sm opacity-50 font-bold mt-1">${lang === 'ar' ? 'أدخل كلمة السر للمتابعة' : 'Enter password to continue'}</p>
-                        </div>
 
-                        <div className="relative mb-2">
-                            <span className="absolute inset-y-0 start-4 flex items-center opacity-40 text-xl pointer-events-none">🔑</span>
-                            <input
-                                id="admin-password-input"
-                                type="password"
-                                autoFocus
-                                value=${adminPwd}
-                                onChange=${(e) => { setAdminPwd(e.target.value); setAdminPwdError(false); }}
-                                onKeyDown=${(e) => e.key === 'Enter' && handleAdminSubmit()}
-                                placeholder=${lang === 'ar' ? 'كلمة السر...' : 'Password...'}
-                                className=${`w-full px-12 py-4 rounded-2xl font-bold text-gray-800 dark:text-white bg-slate-100 dark:bg-slate-900 outline-none transition-all duration-300 text-base ${adminPwdError ? 'ring-2 ring-red-500 bg-red-50 dark:bg-red-900/20' : 'focus:ring-2 focus:ring-brand-DEFAULT'}`}
-                            />
-                        </div>
-                        ${adminPwdError && html`
-                            <p className="text-red-500 font-bold text-sm text-center mb-3 animate-fade-in">
-                                ${lang === 'ar' ? '❌ كلمة السر خاطئة، حاول مجدداً' : '❌ Wrong password, try again'}
-                            </p>
-                        `}
 
-                        <div className="flex gap-3 mt-5">
-                            <button
-                                id="admin-modal-cancel"
-                                onClick=${handleAdminCancel}
-                                className="flex-1 py-3.5 rounded-2xl font-black bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200 transition-all"
-                            >${lang === 'ar' ? 'تراجع' : 'Cancel'}</button>
-                            <button
-                                id="admin-modal-submit"
-                                onClick=${handleAdminSubmit}
-                                className="flex-1 py-3.5 rounded-2xl font-black bg-gradient-to-r from-brand-DEFAULT to-brand-gold text-white shadow-lg hover:opacity-90 hover:shadow-brand-DEFAULT/40 transition-all"
-                            >${lang === 'ar' ? 'دخول' : 'Enter'}</button>
-                        </div>
-                    </div>
-                </div>
-            `}
             ${view !== 'fullscreenViewer' && html`
                 <!-- Slim loading bar at top (shown during page transitions) -->
                 ${isNavigating ? html`<div key="loading-bar" className="lmv-loading-bar"></div>` : null}

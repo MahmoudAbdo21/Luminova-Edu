@@ -237,6 +237,14 @@
         }
 
         const isGoldSeal = certificate.sealType === 'gold' || (!certificate.sealType && certificate.senderRole === 'doctor');
+        const isSilverTheme = certificate.sealType === 'silver';
+
+        const outerBorderColor = isSilverTheme ? '#334155' : '#0f172a';
+        const innerRingColor = isSilverTheme ? '#94a3b8' : '#B8860B';
+        const brandAccentColor = isSilverTheme ? '#64748b' : '#B8860B';
+        const dividerColor = isSilverTheme ? '#94a3b8' : '#ca8a04';
+        const nameColor = isSilverTheme ? '#334155' : '#92660a';
+        const signatureLineColor = isSilverTheme ? '#94a3b8' : '#eab308';
 
         const studentName = lang === 'ar' ? certificate.studentName : (certificate.studentNameEn || certificate.studentName);
         const senderName  = lang === 'ar' ? certificate.senderName  : (certificate.senderNameEn  || certificate.senderName);
@@ -270,14 +278,14 @@
                                 overflow: 'hidden'
                             }}>
 
-                            <!-- LAYER 1: Heavy Navy Outer Border -->
-                            <div style=${{ position: 'absolute', inset: '0', border: '16px solid #0f172a', boxSizing: 'border-box', pointerEvents: 'none', zIndex: 5 }}></div>
+                            <!-- LAYER 1: Heavy Outer Border -->
+                            <div style=${{ position: 'absolute', inset: '0', border: `16px solid ${outerBorderColor}`, boxSizing: 'border-box', pointerEvents: 'none', zIndex: 5 }}></div>
 
                             <!-- LAYER 2: White Middle Space -->
                             <div style=${{ position: 'absolute', inset: '16px', border: '8px solid #ffffff', boxSizing: 'border-box', pointerEvents: 'none', zIndex: 5 }}></div>
 
-                            <!-- LAYER 3: Gold Inner Ring -->
-                            <div style=${{ position: 'absolute', inset: '24px', border: '3px solid #B8860B', boxSizing: 'border-box', pointerEvents: 'none', zIndex: 6 }}></div>
+                            <!-- LAYER 3: Inner Ring -->
+                            <div style=${{ position: 'absolute', inset: '24px', border: `3px solid ${innerRingColor}`, boxSizing: 'border-box', pointerEvents: 'none', zIndex: 6 }}></div>
 
                             <!-- LAYER 3: Centered Watermark (text, no external image load) -->
                             <div style=${{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%) rotate(-45deg)', fontSize: '180px', fontWeight: 900, color: '#000', opacity: 0.03, whiteSpace: 'nowrap', pointerEvents: 'none', zIndex: 1, userSelect: 'none' }}>
@@ -289,11 +297,11 @@
 
                                 <!-- Platform Label + Title -->
                                 <div style=${{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', marginBottom: '16px' }}>
-                                    <div style=${{ fontSize: '12px', fontWeight: 900, color: '#B8860B', letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: '8px' }}>LUMINOVA EDU</div>
-                                    <div style=${{ fontSize: '48px', fontWeight: 900, color: '#0f172a', letterSpacing: 'normal' }}>
+                                    <div style=${{ fontSize: '12px', fontWeight: 900, color: brandAccentColor, letterSpacing: '0.3em', textTransform: 'uppercase', marginBottom: '8px' }}>LUMINOVA EDU</div>
+                                    <div style=${{ fontSize: '48px', fontWeight: 900, color: outerBorderColor, letterSpacing: 'normal' }}>
                                         ${certTitle}
                                     </div>
-                                    <div style=${{ color: '#ca8a04', fontSize: '24px', margin: '16px 0' }}>✦ ✦ ✦</div>
+                                    <div style=${{ color: dividerColor, fontSize: '24px', margin: '16px 0' }}>✦ ✦ ✦</div>
                                 </div>
 
                                 <!-- Certification Body -->
@@ -301,7 +309,7 @@
                                     <p style=${{ fontSize: '20px', fontWeight: 500, color: '#475569', marginBottom: '16px', letterSpacing: 'normal' }}>
                                         ${lang === 'ar' ? 'تشهد منصة لومينوفا التعليمية بأن' : 'Luminova Edu Platform certifies that'}
                                     </p>
-                                    <div style=${{ fontSize: '64px', fontWeight: 900, color: '#92660a', marginBottom: '24px', letterSpacing: 'normal', textShadow: '0 2px 2px rgba(0,0,0,0.05)' }}>
+                                    <div style=${{ fontSize: '64px', fontWeight: 900, color: nameColor, marginBottom: '24px', letterSpacing: 'normal', textShadow: '0 2px 2px rgba(0,0,0,0.05)' }}>
                                         ${studentName}
                                     </div>
                                     <p style=${{ fontSize: '28px', fontWeight: 500, color: '#1e293b', maxWidth: '720px', lineHeight: 1.8, letterSpacing: 'normal' }}>
@@ -315,7 +323,7 @@
                             
                             <!-- QR Code (bottom-left) -->
                             <div style=${{ position: 'absolute', bottom: '40px', left: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 20 }}>
-                                <div style=${{ width: '88px', height: '88px', background: '#fff', padding: '4px', border: '4px solid #0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <div style=${{ width: '88px', height: '88px', background: '#fff', padding: '4px', border: `4px solid ${outerBorderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <img crossOrigin="anonymous" src=${qrImgSrc} alt="QR Code" onLoad=${onReady} onError=${onReady} style=${{ width: '100%', height: '100%', display: 'block' }} />
                                 </div>
                                 <span style=${{ fontSize: '10px', fontWeight: 700, color: '#64748b', marginTop: '6px', fontFamily: 'monospace' }}>
@@ -341,7 +349,7 @@
 
                             <!-- Signature (bottom-center) -->
                             <div style=${{ position: 'absolute', bottom: '40px', left: '50%', transform: 'translateX(-50%)', textAlign: 'center', zIndex: 20 }}>
-                                <p style=${{ fontSize: '26px', fontWeight: 900, color: '#0f172a', borderBottom: '2px solid #eab308', paddingBottom: '6px', paddingLeft: '24px', paddingRight: '24px', marginBottom: '8px', whiteSpace: 'nowrap', letterSpacing: 'normal' }}>
+                                <p style=${{ fontSize: '26px', fontWeight: 900, color: outerBorderColor, borderBottom: `2px solid ${signatureLineColor}`, paddingBottom: '6px', paddingLeft: '24px', paddingRight: '24px', marginBottom: '8px', whiteSpace: 'nowrap', letterSpacing: 'normal' }}>
                                     ${senderName}
                                 </p>
                                 <div style=${{ fontSize: '12px', fontWeight: 500, color: '#94a3b8', direction: 'rtl' }}>
