@@ -476,7 +476,7 @@ window.LUMINOVA_DATA = {
       "contentEn": "Explanatory video for the class",
       "mediaUrl": "",
       "subjectId": "subjects_1775125681706",
-      "studentId": "students_1775125739063",
+      "studentId": "students_1775848220866",
       "yearId": "year_1",
       "semesterId": "semesters_1775125622791",
       "mediaUrls": [
