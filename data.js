@@ -468,6 +468,28 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
+      "id": "summaries_1777373012024",
+      "timestamp": "2026-04-28T10:43:32.024Z",
+      "titleAr": "شرح الفصل الثاني",
+      "titleEn": "—Chapter 2—",
+      "contentAr": "ملف شرح للفصل الثاني",
+      "contentEn": "Chapter 2 Explanation File",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775125681706",
+      "studentId": "students_1775125739063",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "pdf/الفصل الثاني الاذاعة والتسجيلات الصوتية.pdf",
+          "titleAr": "ملف الشرح",
+          "titleEn": "Explanation File",
+          "order": 0,
+          "type": "local"
+        }
+      ]
+    },
+    {
       "id": "summaries_1777292753286",
       "timestamp": "2026-04-27T12:25:53.286Z",
       "titleAr": "الفصل الأول اذاعه",
@@ -490,16 +512,10 @@ window.LUMINOVA_DATA = {
       ]
     },
     {
-      "id": "summaries_1777292614565",
-      "timestamp": "2026-04-27T12:23:34.565Z",
-      "titleAr": "الفصل الاول ",
-      "titleEn": "CHAPTER 1 ",
-      "contentAr": "ملف شرح الفصل",
-      "contentEn": "Chapter Explanation File",
       "id": "summaries_1777317823104",
       "timestamp": "2026-04-27T19:23:43.104Z",
-      "titleAr": "الفصل الثاني",
-      "titleEn": "—Chapter 2—",
+      "titleAr": "الفصل الاول",
+      "titleEn": "First Semester",
       "contentAr": "شرح الفصل ",
       "contentEn": "Chapter Explanation",
       "mediaUrl": "",
@@ -589,12 +605,9 @@ window.LUMINOVA_DATA = {
           "type": "local"
         },
         {
-          "url": "pdf/الإذاعة.pdf",
-          "titleAr": "ملف شرح",
           "url": "pdf/الفصل الثاني الاذاعة والتسجيلات الصوتية.pdf",
           "titleAr": "ملف الشرح",
           "titleEn": "Explanation File",
-          "order": 1,
           "order": 0,
           "type": "local"
         }
