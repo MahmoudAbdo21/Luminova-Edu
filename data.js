@@ -1473,6 +1473,42 @@ window.LUMINOVA_DATA = {
           "type": "url"
         }
       ]
+    },
+    {
+      "id": "summaries_1777499038565",
+      "timestamp": "2026-04-29T21:43:58.565Z",
+      "titleAr": "شرح الفصل الثالث ",
+      "titleEn": "Section Three",
+      "contentAr": "شرح محتوي الفصل الثالث {فيديو وملفات }",
+      "contentEn": "Explanation of the Content of Chapter Three {Video and Files }",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775125681706",
+      "studentId": "students_1775848220866",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1pnXaaF1znVAMNuiHBIzCevUGuZaiCc7D/view?usp=drive_link",
+          "titleAr": "فيديو الشرح",
+          "titleEn": "Explanation video",
+          "order": 0,
+          "type": "url"
+        },
+        {
+          "url": "https://drive.google.com/file/d/15SxitR1JwZ742XiJjK_Y0TWMnR-bbdEp/view?usp=drive_link",
+          "titleAr": "ملف شرح الفصل الثالث ",
+          "titleEn": "Chapter Three Explanation File",
+          "order": 1,
+          "type": "url"
+        },
+        {
+          "url": "https://drive.google.com/file/d/1R3kMdIL1f67N-rnEBP491-Drsce7OS3f/view?usp=drive_link",
+          "titleAr": "ملف شرح ",
+          "titleEn": "Explanation File",
+          "order": 2,
+          "type": "url"
+        }
+      ]
     }
   ]
 };
