@@ -259,13 +259,13 @@
             
             ${author && author.id !== 'unknown' && html`
                 <div className="bg-white dark:bg-gray-800 rounded-3xl p-4 sm:p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-4 mb-8">
-                    <${Luminova.Components.Avatar} name=${author.nameAr || author.name} image=${author.image} isVIP=${author.isVIP} isVerified=${author.isVerified} isFounder=${author.isFounder} size="w-16 h-16 sm:w-20 sm:h-20 shrink-0 border-4 border-gray-50 dark:border-gray-900" />
-                    <div>
+                    <${Luminova.Components.Avatar} name=${author.nameAr || author.name} image=${author.image} isVIP=${author.isVIP} isVerified=${author.isVerified} isFounder=${author.isFounder} size="w-14 h-14 sm:w-20 sm:h-20 shrink-0 border-4 border-gray-50 dark:border-gray-900" />
+                    <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
-                            <h3 className="font-black text-xl sm:text-2xl text-brand-DEFAULT drop-shadow-sm">${lang === 'ar' ? (author.nameAr || author.name) : (author.nameEn || author.name)}</h3>
-                            ${author.isVIP && html`<span className="text-xs text-brand-DEFAULT bg-brand-DEFAULT/10 px-3 py-1 rounded-full font-bold shadow-sm">VIP ✨</span>`}
-                            ${author.isFounder && html`<span className="text-xs bg-brand-gold text-black shadow-lg px-3 py-1 rounded-full font-black tracking-widest">${Luminova.i18n[lang].founder}</span>`}
-                            ${!author.isFounder && author.role === 'doctor' && html`<span className="text-xs bg-teal-500 text-white shadow-lg px-3 py-1 rounded-full font-black tracking-widest">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
+                            <h3 className="font-black text-lg sm:text-2xl text-brand-DEFAULT drop-shadow-sm truncate max-w-full">${lang === 'ar' ? (author.nameAr || author.name) : (author.nameEn || author.name)}</h3>
+                            ${author.isVIP && html`<span className="text-xs text-brand-DEFAULT bg-brand-DEFAULT/10 px-2.5 py-0.5 rounded-full font-bold shadow-sm shrink-0">VIP ✨</span>`}
+                            ${author.isFounder && html`<span className="text-xs bg-brand-gold text-black shadow-lg px-2.5 py-0.5 rounded-full font-black tracking-widest shrink-0">${Luminova.i18n[lang].founder}</span>`}
+                            ${!author.isFounder && author.role === 'doctor' && html`<span className="text-xs bg-teal-500 text-white shadow-lg px-2.5 py-0.5 rounded-full font-black tracking-widest shrink-0">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
                         </div>
                         <p className="text-sm font-bold opacity-60 text-gray-500 dark:text-gray-400 font-mono">${Luminova.formatDate(item.timestamp, lang)}</p>
                     </div>

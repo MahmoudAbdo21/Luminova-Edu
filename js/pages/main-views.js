@@ -27,17 +27,17 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                             ${isQuizItem ? Luminova.Icons.CheckCircle() : Luminova.Icons.Book()}
                         </span>
                         <${Luminova.Components.GlassCard} className="ms-6">
-                            <div className="flex items-start gap-4 mb-4">
+                            <div className="flex items-center gap-3 mb-3 flex-wrap">
                                 <${Luminova.Components.Avatar} name=${student.nameAr || student.name} image=${student.image} isVIP=${student.isVIP} isVerified=${student.isVerified} isFounder=${student.isFounder || (student.id === 's_founder')} size="w-10 h-10" />
-                                <div className="flex-1">
-                                    <h4 className="font-bold whitespace-normal break-words flex items-center gap-1 flex-wrap" style=${{ wordBreak: 'normal', overflowWrap: 'anywhere' }}>
-                                        ${lang === 'ar' ? (student.nameAr || student.name) : (student.nameEn || student.name)}
-                                        ${student.isVIP && html`<span className="text-xs text-brand-DEFAULT bg-brand-DEFAULT/10 px-2 py-0.5 rounded-full ml-2">VIP ✨</span>`}
-                                        ${!student.isFounder && student.role === 'doctor' && html`<span className="text-xs bg-teal-500 text-white px-2 py-0.5 rounded-full font-black ml-1">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
-                                    </h4>
-                                    <p className="text-xs opacity-70">${subject[`name${lang === 'ar' ? 'Ar' : 'En'}`] || subject.nameAr || subject.nameEn}</p>
-                                </div>
-                                <div className="text-xs opacity-50">${Luminova.formatDate(item.timestamp, lang)}</div>
+                                <h4 className="font-bold whitespace-normal break-words flex items-center gap-1.5 flex-wrap flex-1 min-w-0" style=${{ wordBreak: 'normal', overflowWrap: 'anywhere' }}>
+                                    ${lang === 'ar' ? (student.nameAr || student.name) : (student.nameEn || student.name)}
+                                    ${student.isVIP && html`<span className="text-xs text-brand-DEFAULT bg-brand-DEFAULT/10 px-2 py-0.5 rounded-full shrink-0">VIP ✨</span>`}
+                                    ${!student.isFounder && student.role === 'doctor' && html`<span className="text-xs bg-teal-500 text-white px-2 py-0.5 rounded-full font-black shrink-0">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
+                                </h4>
+                            </div>
+                            <div className="flex items-center justify-between gap-2 mb-4 px-1">
+                                <p className="text-xs font-bold opacity-70 flex-1 min-w-0 truncate">${subject[`name${lang === 'ar' ? 'Ar' : 'En'}`] || subject.nameAr || subject.nameEn}</p>
+                                <span className="text-xs opacity-50 shrink-0">${Luminova.formatDate(item.timestamp, lang)}</span>
                             </div>
                             <h3 className="text-xl font-bold mb-2">${item[`title${lang === 'ar' ? 'Ar' : 'En'}`] || item.titleAr || item.titleEn}</h3>
                             <${Luminova.Components.SmartText} text=${item[`content${lang === 'ar' ? 'Ar' : 'En'}`] || item.contentAr || item.contentEn} lang=${lang} />
@@ -371,12 +371,14 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                 setSearchQuery('');
                 setSelectedAuthor(null);
                 window.history.pushState({ lmv: 'academics-subject' }, '', '');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }, [selectedSub?.id]);
 
         useEffect(() => {
             if (selectedSummaryId) {
                 window.history.pushState({ lmv: 'academics-summary' }, '', '');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }, [selectedSummaryId]);
 
@@ -767,6 +769,7 @@ Luminova.Pages.StudentCommunityPage = ({ data, lang, setView, setActiveSummary }
         useEffect(() => {
             if (selectedStudent !== null) {
                 window.history.pushState({ lmv: 'community-student' }, '', '');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }, [selectedStudent?.id]);
 

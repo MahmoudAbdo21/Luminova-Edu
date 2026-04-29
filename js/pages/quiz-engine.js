@@ -57,6 +57,7 @@
         const [answers, setAnswers] = useState({});
         const [isFinished, setIsFinished] = useState(false);
         const [isFeedbackRevealed, setIsFeedbackRevealed] = useState(false);
+        const [revealedQuestions, setRevealedQuestions] = useState(new Set());
         const [cheatWarnings, setCheatWarnings] = useState(0);
         const [isLateSubmission, setIsLateSubmission] = useState(false);
         const [isVerifying, setIsVerifying] = useState(false);
@@ -93,6 +94,24 @@
                 localStorage.setItem('quiz_progress_' + quiz.id, JSON.stringify({ answers, studentInfo }));
             }
         }, [answers, studentInfo, isStarted, isFinished, quiz.id]);
+
+        // Task 3: Auto-fullscreen for ALL exam types on start
+        useEffect(() => {
+            if (isStarted && !isFinished) {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => console.log('Fullscreen denied:', err));
+                }
+            }
+        }, [isStarted]);
+
+        // Task 3: Helper — safe exit fullscreen
+        const safeExitFullscreen = () => {
+            try {
+                if (document.fullscreenElement) {
+                    document.exitFullscreen().catch(err => console.log('Exit fullscreen error:', err));
+                }
+            } catch (e) { /* ignore */ }
+        };
 
         const submitExam = async (reason = 'completed') => {
             if (hasAttemptedSubmit && reason === 'time_expired') return;
@@ -187,9 +206,7 @@
                     const response = await Luminova.Services.GAS.submitExam(url, payload);
                     
                     if (response && response.status === 'ok') {
-                        if (document.fullscreenElement) {
-                            document.exitFullscreen().catch(err => console.log(err));
-                        }
+                        safeExitFullscreen();
                         
                         setIsSubmitting(false);
                         setIsFinished(true);
@@ -211,6 +228,7 @@
                     return; // Prevent exam from finishing so user can retry
                 }
             } else {
+                safeExitFullscreen();
                 setIsFinished(true);
                 localStorage.removeItem('quiz_progress_' + quiz.id);
             }
@@ -281,7 +299,10 @@
             if (modalType === 'exam_rules') {
                 const startExamNow = () => {
                     // Force fullscreen for proctored environment
-                    document.documentElement.requestFullscreen().catch(err => console.log('Fullscreen denied:', err));
+                    // Force fullscreen for proctored environment (already handled by useEffect, but ensure)
+                    if (!document.fullscreenElement) {
+                        document.documentElement.requestFullscreen().catch(err => console.log('Fullscreen denied:', err));
+                    }
                     loginTimeRef.current = new Date().toISOString();
                     setModalType(null);
                     setIsStarted(true);
@@ -692,7 +713,7 @@
                                 className="flex-1 py-3.5 rounded-2xl font-black bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200 transition-all"
                             >${lang === 'ar' ? 'تراجع' : 'Stay'}</button>
                             <button onMouseDown=${() => { if (isEvaluation) { immunityRef.current = true; setIsSubmitting(true); } }} onClick=${() => {
-                    if (isEvaluation) { submitExam(); } else { setModalType(null); goBack(); }
+                    if (isEvaluation) { submitExam(); } else { safeExitFullscreen(); setModalType(null); goBack(); }
                 }}
                                 className="flex-1 py-3.5 rounded-2xl font-black bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30 transition-all"
                             >${isEvaluation ? (lang === 'ar' ? 'تسليم وخروج' : 'Submit & Exit') : (lang === 'ar' ? 'نعم، خروج' : 'Yes, Exit')}</button>
@@ -847,36 +868,57 @@
                 </div>
             `}
 
-            <button onClick=${() => setShowDrawer(true)} className="fixed top-24 right-4 z-40 bg-brand-gold text-black px-4 py-2 font-bold rounded-full shadow-2xl flex items-center gap-2">
-                📑 <span className="hidden sm:inline">${lang === 'ar' ? 'الأسئلة' : 'Questions'}</span>
-            </button>
-
             ${showDrawer && html`
                 <div className="fixed inset-0 z-[8000] flex animate-fade-in">
-                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick=${() => setShowDrawer(false)}></div>
-                    <div className="relative w-72 bg-white dark:bg-gray-900 h-full shadow-2xl p-6 flex flex-col overflow-y-auto">
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="font-black text-xl text-brand-gold">📑 ${lang === 'ar' ? 'خريطة الأسئلة' : 'Questions Map'}</h3>
-                            <button onClick=${() => setShowDrawer(false)} className="text-gray-500 hover:text-red-500">❌</button>
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick=${() => setShowDrawer(false)}></div>
+                    <div className="quiz-side-drawer fixed top-0 bottom-0 end-0 w-[300px] sm:w-[340px] flex flex-col overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.6)]" style=${{ background: 'rgba(2,6,23,0.88)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', borderInlineStart: '1px solid rgba(255,255,255,0.1)' }}>
+                        <!-- Close button -->
+                        <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-white/10">
+                            <h3 className="font-black text-lg text-brand-gold flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                                ${lang === 'ar' ? 'خريطة الأسئلة' : 'Questions Map'}
+                            </h3>
+                            <button onClick=${() => setShowDrawer(false)} className="w-9 h-9 rounded-xl bg-white/10 hover:bg-red-500/30 flex items-center justify-center text-white/70 hover:text-red-400 transition-all text-base font-black">✕</button>
                         </div>
-                        <div className="grid grid-cols-4 gap-3">
-                            ${questions.map((qItem, i) => {
+                        <!-- Progress summary -->
+                        <div className="px-5 py-3 flex items-center justify-between text-xs font-bold text-white/50 border-b border-white/5">
+                            <span>${lang === 'ar' ? 'تمت الإجابة' : 'Answered'}: <span className="text-green-400">${Object.keys(answers).filter(k => { const v = answers[k]; return v !== undefined && v !== '' && (!Array.isArray(v) || v.length > 0); }).length}</span> / ${questions.length}</span>
+                            <span className="text-brand-gold">${lang === 'ar' ? 'الحالي' : 'Current'}: ${currentIndex + 1}</span>
+                        </div>
+                        <!-- Question list -->
+                        <div className="flex-1 overflow-y-auto px-4 py-3">
+                            <div className="flex flex-col gap-2">
+                                ${questions.map((qItem, i) => {
                         const isAnswered = answers[qItem?.id] !== undefined && (Array.isArray(answers[qItem?.id]) ? answers[qItem?.id].length > 0 : answers[qItem?.id] !== '');
+                        const isCurrent = currentIndex === i;
+                        const isLocked = quiz.allowBackNavigation === false && i < currentIndex;
+                        const qLabel = lang === 'ar' ? `السؤال ${(i + 1).toLocaleString('ar-EG')}` : `Question ${i + 1}`;
                         return html`
                                     <button key=${qItem?.id || `nav-q-${i}`} 
                                         onClick=${() => {
-                                if (quiz.allowBackNavigation !== false || i >= currentIndex) {
+                                if (!isLocked) {
                                     setCurrentIndex(i);
                                     setShowDrawer(false);
-                                    setIsFeedbackRevealed(false);
+                                    if (quiz.feedbackMode === 'immediate' && revealedQuestions.has(qItem?.id)) {
+                                        setIsFeedbackRevealed(true);
+                                    } else {
+                                        setIsFeedbackRevealed(false);
+                                    }
                                 }
                             }}
-                                        disabled=${quiz.allowBackNavigation === false && i < currentIndex}
-                                        className=${`aspect-square rounded-xl font-bold border-2 transition-all ${isAnswered ? 'bg-green-500 border-green-500 text-white' : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800'} ${currentIndex === i ? 'ring-4 ring-brand-gold scale-110' : ''} ${(quiz.allowBackNavigation === false && i < currentIndex) ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                        ${i + 1}
+                                        disabled=${isLocked}
+                                        className=${`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-start transition-all duration-200 ${isCurrent ? 'bg-brand-DEFAULT/20 border border-brand-DEFAULT shadow-[0_0_12px_rgba(6,182,212,0.25)] text-white' : isAnswered ? 'bg-white/5 hover:bg-white/10 border border-white/5 text-white/80' : 'bg-white/[0.03] hover:bg-white/10 border border-transparent text-white/50'} ${isLocked ? 'opacity-30 cursor-not-allowed' : 'active:scale-[0.98]'}`}>
+                                        <!-- Number circle -->
+                                        <span className=${`w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm shrink-0 ${isCurrent ? 'bg-brand-DEFAULT text-white shadow-md' : isAnswered ? 'bg-green-500/80 text-white' : 'bg-white/10 text-white/40'}`}>${i + 1}</span>
+                                        <!-- Label -->
+                                        <span className="flex-1 font-bold text-sm truncate">${qLabel}</span>
+                                        <!-- Status indicator -->
+                                        ${isAnswered && !isCurrent ? html`<span className="text-green-400 text-base shrink-0">✓</span>` : null}
+                                        ${isCurrent ? html`<span className="w-2 h-2 rounded-full bg-brand-DEFAULT animate-pulse shrink-0"></span>` : null}
                                     </button>
                                 `;
                     })}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -900,12 +942,16 @@
                 <${Luminova.Components.Button} variant="danger" onClick=${() => setModalType('exit')} className="rounded-full shadow-lg hover:-translate-x-1">
                     <${Luminova.Icons.XCircle} /> <span className="hidden sm:inline">${lang === 'ar' ? 'خروج' : 'Quit'}</span>
                 </${Luminova.Components.Button}>
-                <div className="flex-1 mx-8 relative">
+                <div className="flex-1 mx-4 sm:mx-8 relative">
                     <div className="bg-gray-300 dark:bg-gray-700 h-3 rounded-full overflow-hidden shadow-inner">
                         <div className="bg-gradient-to-r from-brand-hover to-brand-DEFAULT h-full transition-all duration-500 ease-out" style=${{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}></div>
                     </div>
                 </div>
-                <span className="font-black text-2xl text-brand-DEFAULT drop-shadow-sm">${currentIndex + 1} <span className="opacity-40 text-lg">/ ${questions.length}</span></span>
+                <span className="font-black text-xl sm:text-2xl text-brand-DEFAULT drop-shadow-sm shrink-0">${currentIndex + 1} <span className="opacity-40 text-lg">/ ${questions.length}</span></span>
+                <!-- Drawer trigger button -->
+                <button onClick=${() => setShowDrawer(true)} className="ms-3 w-10 h-10 rounded-xl bg-brand-gold/15 hover:bg-brand-gold/30 border border-brand-gold/30 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shrink-0 group" title=${lang === 'ar' ? 'خريطة الأسئلة' : 'Questions Map'}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-brand-gold group-hover:text-brand-DEFAULT transition-colors"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                </button>
             </div>
 
             <${Luminova.Components.GlassCard} className="relative overflow-visible mb-10 flex-1 flex flex-col border-t-8 border-t-brand-DEFAULT shadow-2xl">
@@ -934,13 +980,13 @@
                         <div className="space-y-4 max-w-2xl mx-auto">
                             ${(q.options || q.optionsAr || []).map((opt, i) => {
                         const handleMCQClick = () => {
-                            if (isFeedbackRevealed) return;
+                            if (isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))) return;
                             setAnswers(prev => ({ ...prev, [q.id]: i }));
                         };
                         return html`
                                 <button key=${`opt-${q.id}-${i}`} onClick=${handleMCQClick}
-                                    disabled=${isFeedbackRevealed}
-                                    className=${`w-full text-start p-5 rounded-2xl border-4 transition-all duration-200 text-lg font-bold shadow-sm ${answers[q.id] === i ? 'border-brand-DEFAULT bg-brand-DEFAULT/10 scale-105 shadow-xl' : 'border-transparent bg-gray-100 dark:bg-gray-800/80 hover:border-gray-300 dark:hover:border-gray-600 hover:scale-[1.02]'} ${isFeedbackRevealed ? 'opacity-70 cursor-not-allowed object-none' : ''}`}>
+                                    disabled=${isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))}
+                                    className=${`w-full text-start p-5 rounded-2xl border-4 transition-all duration-200 text-lg font-bold shadow-sm ${answers[q.id] === i ? 'border-brand-DEFAULT bg-brand-DEFAULT/10 scale-105 shadow-xl' : 'border-transparent bg-gray-100 dark:bg-gray-800/80 hover:border-gray-300 dark:hover:border-gray-600 hover:scale-[1.02]'} ${(isFeedbackRevealed || revealedQuestions.has(q.id)) ? 'opacity-70 cursor-not-allowed object-none' : ''}`}>
                                     <span className="inline-block w-8 h-8 rounded-full bg-black/5 dark:bg-white/5 text-center leading-8 mr-4 ml-4">${String.fromCharCode(65 + i)}</span>
                                     ${opt}
                                 </button>
@@ -955,13 +1001,13 @@
                 const selected = answers[q.id] || [];
                 const isSelected = selected.includes(i);
                 const handleMultiClick = () => {
-                    if (isFeedbackRevealed) return;
+                    if (isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))) return;
                     const next = isSelected ? selected.filter(x => x !== i) : [...selected, i];
                     setAnswers(prev => ({ ...prev, [q.id]: next }));
                 };
                 return html`
-                                    <button key=${`opt-${q.id}-${i}`} disabled=${isFeedbackRevealed} onClick=${handleMultiClick}
-                                    className=${`w-full text-start p-5 rounded-2xl border-4 transition-all duration-200 text-lg font-bold shadow-sm flex items-center gap-4 ${isSelected ? 'border-brand-DEFAULT bg-brand-DEFAULT/10 scale-[1.02] shadow-xl' : 'border-transparent bg-gray-100 dark:bg-gray-800/80 hover:border-gray-300 dark:hover:border-gray-600'} ${isFeedbackRevealed ? 'opacity-70 cursor-not-allowed' : ''}`}>
+                                    <button key=${`opt-${q.id}-${i}`} disabled=${isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))} onClick=${handleMultiClick}
+                                    className=${`w-full text-start p-5 rounded-2xl border-4 transition-all duration-200 text-lg font-bold shadow-sm flex items-center gap-4 ${isSelected ? 'border-brand-DEFAULT bg-brand-DEFAULT/10 scale-[1.02] shadow-xl' : 'border-transparent bg-gray-100 dark:bg-gray-800/80 hover:border-gray-300 dark:hover:border-gray-600'} ${(isFeedbackRevealed || revealedQuestions.has(q.id)) ? 'opacity-70 cursor-not-allowed' : ''}`}>
                                         <div className=${`w-8 h-8 rounded-xl flex items-center justify-center border-2 text-xl transition-colors ${isSelected ? 'bg-brand-DEFAULT border-brand-DEFAULT text-white' : 'border-gray-400'}`}>
                                             ${isSelected && '✓'}
                                         </div>
@@ -975,12 +1021,12 @@
                     ${q.type === 'essay' && html`
                         <div className="max-w-3xl mx-auto">
                             <textarea 
-                                disabled=${isFeedbackRevealed}
-                                className=${`w-full p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/80 border-4 border-gray-200 dark:border-gray-700 focus:border-brand-DEFAULT focus:bg-white dark:focus:bg-black outline-none min-h-[250px] text-lg transition-all shadow-inner resize-y ${isFeedbackRevealed ? 'opacity-70 font-bold' : ''}`}
+                                disabled=${isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))}
+                                className=${`w-full p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/80 border-4 border-gray-200 dark:border-gray-700 focus:border-brand-DEFAULT focus:bg-white dark:focus:bg-black outline-none min-h-[250px] text-lg transition-all shadow-inner resize-y ${(isFeedbackRevealed || revealedQuestions.has(q.id)) ? 'opacity-70 font-bold' : ''}`}
                                 placeholder=${lang === 'ar' ? 'اكتب إجابتك بتفصيل هنا...' : 'Type your detailed answer here...'}
                                 value=${answers[q.id] || ''}
                                 onChange=${(e) => {
-                            if (isFeedbackRevealed) return;
+                            if (isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))) return;
                             const val = e.target.value;
                             setAnswers(prev => ({ ...prev, [q.id]: val }));
                         }}
@@ -1015,12 +1061,12 @@
             </${Luminova.Components.GlassCard}>
 
             <div className="flex justify-between items-center bg-white/50 dark:bg-gray-800/50 p-4 rounded-2xl shadow-sm backdrop-blur">
-                <${Luminova.Components.Button} variant="glass" disabled=${currentIndex === 0 || quiz.allowBackNavigation === false} onClick=${() => { setCurrentIndex(i => i - 1); setIsFeedbackRevealed(false); }} className="px-8 py-3 text-lg rounded-full">
+                <${Luminova.Components.Button} variant="glass" disabled=${currentIndex === 0 || quiz.allowBackNavigation === false} onClick=${() => { setCurrentIndex(i => i - 1); if (quiz.feedbackMode === 'immediate' && questions[currentIndex - 1] && revealedQuestions.has(questions[currentIndex - 1].id)) { setIsFeedbackRevealed(true); } else { setIsFeedbackRevealed(false); } }} className="px-8 py-3 text-lg rounded-full">
                     ${lang === 'ar' ? 'السابق' : 'Previous'}
                 </${Luminova.Components.Button}>
                 
                 ${quiz.feedbackMode === 'immediate' && !isFeedbackRevealed ? html`
-                    <${Luminova.Components.Button} disabled=${answers[q.id] === undefined || (Array.isArray(answers[q.id]) && !answers[q.id].length)} onClick=${() => setIsFeedbackRevealed(true)} 
+                    <${Luminova.Components.Button} disabled=${answers[q.id] === undefined || (Array.isArray(answers[q.id]) && !answers[q.id].length)} onClick=${() => { setIsFeedbackRevealed(true); setRevealedQuestions(prev => new Set([...prev, q.id])); }} 
                         className="px-10 py-3 text-lg bg-blue-500 hover:bg-blue-600 rounded-full shadow-lg shadow-blue-500/30 font-black animate-pulse transition-transform hover:scale-105">
                         ✅ تحقق من الإجابة
                     </${Luminova.Components.Button}>
@@ -1029,7 +1075,7 @@
                         <${Luminova.Icons.CheckCircle} /> ${lang === 'ar' ? 'إنهاء الاختبار' : 'Finish Exam'}
                     </${Luminova.Components.Button}>
                 ` : html`
-                    <${Luminova.Components.Button} onClick=${() => { setCurrentIndex(i => i + 1); setIsFeedbackRevealed(false); }} className="px-10 py-3 text-lg rounded-full shadow-lg shadow-brand-DEFAULT/30 group">
+                    <${Luminova.Components.Button} onClick=${() => { setCurrentIndex(i => i + 1); if (quiz.feedbackMode === 'immediate' && questions[currentIndex + 1] && revealedQuestions.has(questions[currentIndex + 1].id)) { setIsFeedbackRevealed(true); } else { setIsFeedbackRevealed(false); } }} className="px-10 py-3 text-lg rounded-full shadow-lg shadow-brand-DEFAULT/30 group">
                         ${lang === 'ar' ? 'التالي' : 'Next'} <span className="opacity-0 group-hover:opacity-100 transition-opacity ml-2">→</span>
                     </${Luminova.Components.Button}>
                 `}

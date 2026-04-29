@@ -570,3 +570,29 @@ video:not(.media-container video) {
     background: #0891b2;
     transform: scale(1.1);
 }
+
+/* ============================================================
+   14. QUIZ SIDE DRAWER (Nano Banana frosted glass)
+   ============================================================ */
+@keyframes quizDrawerSlideIn {
+    from { transform: translateX(100%); opacity: 0.5; }
+    to   { transform: translateX(0);    opacity: 1;   }
+}
+[dir="rtl"] .quiz-side-drawer {
+    animation: quizDrawerSlideInRTL 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+[dir="ltr"] .quiz-side-drawer {
+    animation: quizDrawerSlideIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes quizDrawerSlideInRTL {
+    from { transform: translateX(-100%); opacity: 0.5; }
+    to   { transform: translateX(0);     opacity: 1;   }
+}
+
+/* Mobile: slightly wider drawer */
+@media (max-width: 768px) {
+    .quiz-side-drawer {
+        width: 85vw !important;
+        max-width: 340px !important;
+    }
+}
