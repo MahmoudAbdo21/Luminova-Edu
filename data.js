@@ -503,7 +503,7 @@ window.LUMINOVA_DATA = {
       "semesterId": "semesters_1775125622791",
       "mediaUrls": [
         {
-          "url": "Img/IMG-20260429-WA0003.jpg",
+          "url": "img/IMG-20260429-WA0003.jpg",
           "titleAr": "صورة توضيحية",
           "titleEn": "Illustrative image",
           "order": 0,
