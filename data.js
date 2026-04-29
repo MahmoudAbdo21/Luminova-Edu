@@ -1451,6 +1451,28 @@ window.LUMINOVA_DATA = {
         "file-html/NotebookLM Mind Map (11).png",
         "file-html/unnamed (2).png"
       ]
+    },
+    {
+      "id": "summaries_1777493458501",
+      "timestamp": "2026-04-29T20:10:58.501Z",
+      "titleAr": "الفصل الثالث",
+      "titleEn": "chapter 3",
+      "contentAr": "شرح مبسط للفصل الثالث",
+      "contentEn": "Simplified explanation of Chapter 3",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775125681706",
+      "studentId": "students_1775125739063",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1xQ5g0vPVWEVlP9n3XAGjDCoXUc05dp8m/view?usp=sharing",
+          "titleAr": "pdf",
+          "titleEn": "PDF",
+          "order": 0,
+          "type": "url"
+        }
+      ]
     }
   ]
 };
