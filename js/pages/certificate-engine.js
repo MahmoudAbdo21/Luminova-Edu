@@ -137,9 +137,9 @@
 
         if (isRendering || !imgSrc) {
             return html`
-                <div style=${{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px', background: '#f8fafc', borderRadius: mode === 'thumb' ? '16px 16px 0 0' : '16px', aspectRatio: mode === 'thumb' ? '1.414' : 'auto', width: '100%' }}>
-                    <div className="w-10 h-10 border-4 border-brand-DEFAULT border-t-transparent rounded-full animate-spin"></div>
-                    <span style=${{ marginTop: '10px', fontSize: '13px', fontWeight: 600, color: '#64748b' }}>${lang === 'ar' ? 'جاري إنشاء الشهادة...' : 'Generating certificate...'}</span>
+                <div style=${{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px', background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(16px)', borderRadius: mode === 'thumb' ? '24px 24px 0 0' : '24px', aspectRatio: mode === 'thumb' ? '1.414' : 'auto', width: '100%', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+                    <span style=${{ marginTop: '10px', fontSize: '13px', fontWeight: 800, color: 'rgba(217,70,239,0.6)' }}>${lang === 'ar' ? 'جاري إنشاء الشهادة...' : 'Generating certificate...'}</span>
                 </div>
             `;
         }
@@ -171,27 +171,27 @@
         const certTitle   = lang === 'ar' ? certificate.title       : (certificate.titleEn || certificate.title);
 
         return html`
-            <div style=${{ display: 'flex', flexDirection: 'column', background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.07)', overflow: 'hidden', transition: 'transform 0.2s, box-shadow 0.2s', width: '100%', height: '100%' }} className="hover:-translate-y-1 hover:shadow-lg group">
+            <div style=${{ display: 'flex', flexDirection: 'column', background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', overflow: 'hidden', transition: 'all 0.3s', width: '100%', height: '100%' }} className="hover:-translate-y-1 hover:border-rose-400/30 hover:shadow-[0_8px_30px_rgba(244,63,94,0.1)] group">
                 <!-- Top: The Generated Image Thumbnail -->
-                <div style=${{ width: '100%', position: 'relative', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                <div style=${{ width: '100%', position: 'relative', background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                     <${Luminova.Components.CertificateImage} certificate=${certificate} lang=${lang} mode="thumb" />
                 </div>
                 
                 <!-- Bottom: Info & Actions -->
                 <div style=${{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     <div style=${{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <div style=${{ fontSize: '13px', fontWeight: 800, color: '#1e293b', lineHeight: 1.3 }}>${certTitle}</div>
+                        <div style=${{ fontSize: '13px', fontWeight: 800, color: 'white', lineHeight: 1.3 }}>${certTitle}</div>
                         <div style=${{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <span style=${{ fontSize: '14px' }}>👤</span>
-                            <span style=${{ fontSize: '15px', fontWeight: 900, color: '#0f172a' }}>${studentName}</span>
+                            <span style=${{ fontSize: '15px', fontWeight: 900, color: '#fb7185' }}>${studentName}</span>
                         </div>
                     </div>
                     
                     <div style=${{ marginTop: 'auto', display: 'flex', gap: '8px' }}>
                         <button
                             onClick=${() => onView && onView(certificate)}
-                            style=${{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'var(--color-brand, #3b82f6)', color: '#fff', fontWeight: 800, padding: '10px 0', borderRadius: '12px', border: 'none', cursor: 'pointer', fontSize: '13px' }}
-                            className="hover:opacity-90 transition-opacity">
+                            style=${{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(244,63,94,0.15)', color: '#fb7185', fontWeight: 800, padding: '10px 0', borderRadius: '12px', border: '1px solid rgba(244,63,94,0.3)', cursor: 'pointer', fontSize: '13px', boxShadow: '0 4px 12px rgba(244,63,94,0.1)' }}
+                            className="hover:scale-[1.02] transition-transform">
                             👁️ ${lang === 'ar' ? 'عرض الشهادة' : 'Details'}
                         </button>
                         <button
@@ -201,8 +201,8 @@
                                 if (cached) Luminova.downloadCertificateImage(cached, certificate.id);
                                 else alert(lang === 'ar' ? 'انتظر اكتمال التحميل أولاً' : 'Please wait for generation to finish');
                             }}
-                            style=${{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: '#e2e8f0', color: '#334155', fontWeight: 800, padding: '10px 0', borderRadius: '12px', border: 'none', cursor: 'pointer', fontSize: '13px' }}
-                            className="hover:bg-slate-200 transition-colors">
+                            style=${{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.7)', fontWeight: 800, padding: '10px 0', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: '13px' }}
+                            className="hover:bg-white/10 transition-colors">
                             ⬇️ ${lang === 'ar' ? 'تنزيل' : 'Download'}
                         </button>
                     </div>
@@ -421,7 +421,7 @@
                     <div className="flex justify-start mb-6 w-full max-w-6xl mx-auto px-4 pt-6">
                         <button
                             onClick=${() => setSelectedCert(null)}
-                            className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-lg font-bold">
+                            className="flex items-center gap-2 text-rose-400/60 hover:text-white transition-colors text-lg font-black">
                             <span>←</span>
                             <span>${lang === 'ar' ? 'رجوع للأرشيف' : 'Back to Archive'}</span>
                         </button>
@@ -459,18 +459,19 @@
 
                 <!-- Nav bar -->
                 <div style=${{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px', padding: '0 16px', gap: '16px' }}>
-                    <button onClick=${goBack} style=${{ display: 'flex', alignItems: 'center', gap: '8px', background: '#fff', border: '1px solid #e2e8f0', color: '#475569', fontWeight: 800, padding: '12px 24px', borderRadius: '12px', cursor: 'pointer', fontSize: '15px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+                    <button onClick=${goBack} style=${{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', fontWeight: 800, padding: '12px 24px', borderRadius: '12px', cursor: 'pointer', fontSize: '15px', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
                         <span>${lang === 'ar' ? '←' : '→'}</span>
                         ${lang === 'ar' ? 'الرجوع للرئيسية' : 'Back to Home'}
                     </button>
-                    <h2 style=${{ fontSize: '28px', fontWeight: 900, margin: 0, color: 'var(--color-brand, #3b82f6)' }}>
+                    <h2 style=${{ fontSize: '28px', fontWeight: 900, margin: 0, color: '#fb7185', textShadow: '0 0 20px rgba(244,63,94,0.3)' }}>
                         🏆 ${lang === 'ar' ? 'أرشيف الشهادات والتوثيق' : 'Certificates & Verification Archive'}
                     </h2>
                 </div>
 
                 <!-- Search / Verify bar -->
-                <div style=${{ background: 'linear-gradient(135deg, var(--color-brand,#3b82f6), #2563eb)', padding: '32px', borderRadius: '24px', boxShadow: '0 12px 40px rgba(37,99,235,0.25)', marginBottom: '48px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <h3 style=${{ color: '#fff', fontSize: '22px', fontWeight: 800, marginBottom: '16px', marginTop: 0 }}>
+                <div style=${{ background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(32px)', padding: '32px', borderRadius: '32px', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 20px 40px rgba(0,0,0,0.3)', marginBottom: '48px', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
+                    <div style=${{ position: 'absolute', top: 0, right: 0, width: '100%', height: '100%', background: 'linear-gradient(135deg, rgba(244,63,94,0.05), rgba(99,102,241,0.05))', pointerEvents: 'none' }}></div>
+                    <h3 style=${{ color: '#fff', fontSize: '22px', fontWeight: 900, marginBottom: '20px', marginTop: 0, position: 'relative' }}>
                         ${lang === 'ar' ? 'تحقق من صحة شهادة' : 'Verify a Certificate'}
                     </h3>
                     <div style=${{ width: '100%', maxWidth: '600px', position: 'relative' }}>
@@ -479,13 +480,13 @@
                             value=${searchQuery}
                             onChange=${e => setSearchQuery(e.target.value)}
                             placeholder=${lang === 'ar' ? 'أدخل كود الشهادة أو اسم الطالب...' : 'Enter Certificate ID or Student Name...'}
-                            style=${{ width: '100%', boxSizing: 'border-box', padding: '16px 24px', borderRadius: '999px', fontSize: '16px', fontWeight: 700, border: 'none', outline: 'none', textAlign: 'center', color: '#1e293b', boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.08)' }}
+                            style=${{ width: '100%', boxSizing: 'border-box', padding: '18px 30px', borderRadius: '999px', fontSize: '16px', fontWeight: 800, border: '1px solid rgba(255,255,255,0.1)', outline: 'none', textAlign: 'center', color: '#fff', background: 'rgba(255,255,255,0.05)', boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.2)' }}
                         />
                         ${searchQuery && html`
-                            <button onClick=${() => setSearchQuery('')} style=${{ position: 'absolute', insetBlock: 0, left: '16px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '22px', fontWeight: 700, color: '#94a3b8' }}>×</button>
+                            <button onClick=${() => setSearchQuery('')} style=${{ position: 'absolute', insetBlock: 0, left: '20px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '24px', fontWeight: 900, color: 'rgba(255,255,255,0.4)' }}>×</button>
                         `}
                     </div>
-                    <p style=${{ color: 'rgba(255,255,255,0.75)', fontWeight: 700, marginTop: '12px', marginBottom: 0, fontSize: '13px' }}>
+                    <p style=${{ color: 'rgba(251,113,133,0.6)', fontWeight: 800, marginTop: '16px', marginBottom: 0, fontSize: '13px', position: 'relative' }}>
                         ${lang === 'ar' ? 'قاعدة البيانات الموثوقة للمنصة الأكاديمية' : 'Trusted Academic Platform Database'}
                     </p>
                 </div>
@@ -507,7 +508,8 @@
                         <div style=${{ display: 'flex', justifyContent: 'center', marginTop: '40px' }}>
                             <button
                                 onClick=${() => setLimit(l => l + 5)}
-                                style=${{ background: 'var(--color-brand,#3b82f6)', color: '#fff', fontWeight: 800, fontSize: '17px', padding: '16px 40px', borderRadius: '16px', border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(59,130,246,0.3)', transition: 'opacity 0.15s' }}>
+                                style=${{ background: 'linear-gradient(135deg, #fb7185, #818cf8)', color: '#fff', fontWeight: 900, fontSize: '17px', padding: '16px 40px', borderRadius: '16px', border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(244,63,94,0.3)', transition: 'all 0.3s' }}
+                                className="hover:scale-105 active:scale-95">
                                 ${lang === 'ar' ? 'عرض المزيد' : 'Load More'}
                             </button>
                         </div>

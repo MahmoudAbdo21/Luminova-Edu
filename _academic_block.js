@@ -11,7 +11,6 @@ Luminova.Pages.AcademicHierarchyPage = ({ data, lang, setView, setActiveQuiz, se
         const quizzes   = data.quizzes.filter(q => q.subjectId === selectedSub?.id);
 
         // ── LEVEL 3: Attachments Sub-View ──────────────────────────────────────
-        // Back button returns to Level 2 (Subject Dashboard), NOT Level 1
         if (activeAttachmentItem) {
             return html`<${Luminova.Components.SummaryCard}
                 item=${activeAttachmentItem}
@@ -32,28 +31,28 @@ Luminova.Pages.AcademicHierarchyPage = ({ data, lang, setView, setActiveQuiz, se
                 <div className="flex items-center gap-3 flex-wrap">
                     <button
                         onClick=${() => setSelectedSub(null)}
-                        className="flex items-center gap-2 text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 font-bold bg-white dark:bg-gray-800 px-4 py-2.5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all duration-200"
+                        className="flex items-center gap-2 text-zinc-400 hover:text-white font-bold bg-white/2 backdrop-blur-xl px-4 py-2.5 rounded-xl border border-white/10 shadow-lg transition-all duration-300"
                     >
-                        <span>${lang === 'ar' ? '\u2192 \u0631\u062c\u0648\u0639 \u0644\u0644\u0645\u0648\u0627\u062f' : '\u2190 Back to Subjects'}</span>
+                        <span>${lang === 'ar' ? '→ رجوع للمواد' : '← Back to Subjects'}</span>
                     </button>
-                    <div className="flex items-center gap-2 text-sm text-slate-400 font-semibold flex-wrap">
+                    <div className="flex items-center gap-2 text-sm text-zinc-400 font-bold flex-wrap">
                         ${semName && html`<span className="opacity-60">${semName}</span>`}
-                        ${semName && html`<span className="opacity-40 text-lg leading-none">\u203a</span>`}
-                        <span className="text-blue-600 dark:text-blue-400 font-black">${subjectName}</span>
+                        ${semName && html`<span className="opacity-40 text-lg leading-none">›</span>`}
+                        <span className="text-rose-400 font-black">${subjectName}</span>
                     </div>
                 </div>
 
                 <!-- Subject title -->
-                <h2 className="text-3xl sm:text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-brand-DEFAULT to-brand-gold pb-1" style="word-break:normal;overflow-wrap:anywhere">${subjectName}</h2>
+                <h2 className="text-3xl sm:text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-fuchsia-500 pb-1" style="word-break:normal;overflow-wrap:anywhere">${subjectName}</h2>
 
                 <!-- Premium pill tabs -->
-                <div className="flex gap-2 p-1.5 bg-slate-100 dark:bg-gray-800/60 rounded-2xl w-fit shadow-inner">
+                <div className="flex gap-2 p-1.5 bg-white/2 backdrop-blur-xl rounded-2xl w-fit border border-white/5">
                     <button onClick=${() => setActiveTab('summaries')}
-                        className=${`px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 ${activeTab === 'summaries' ? 'bg-blue-600 text-white shadow-md scale-[1.02]' : 'bg-transparent text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-gray-700'}`}>
+                        className=${`px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${activeTab === 'summaries' ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' : 'bg-transparent text-white/40 hover:bg-white/5'}`}>
                         ${Luminova.i18n[lang].summaries} <span className="ms-1 opacity-70 font-normal">(${summaries.length})</span>
                     </button>
                     <button onClick=${() => setActiveTab('quizzes')}
-                        className=${`px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 ${activeTab === 'quizzes' ? 'bg-blue-600 text-white shadow-md scale-[1.02]' : 'bg-transparent text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-gray-700'}`}>
+                        className=${`px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${activeTab === 'quizzes' ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' : 'bg-transparent text-white/40 hover:bg-white/5'}`}>
                         ${Luminova.i18n[lang].quizzes} <span className="ms-1 opacity-70 font-normal">(${quizzes.length})</span>
                     </button>
                 </div>
@@ -75,19 +74,19 @@ Luminova.Pages.AcademicHierarchyPage = ({ data, lang, setView, setActiveQuiz, se
                             ${quizzes.map(q => {
                                 const pub = Luminova.getStudent(q.publisherId, data.students);
                                 return html`
-                                <${Luminova.Components.GlassCard} key=${q.id} className="border-t-4 border-t-brand-gold hover:scale-[1.01] hover:shadow-xl transition-all duration-300 rounded-2xl">
+                                <${Luminova.Components.GlassCard} key=${q.id} className="border-t-2 border-t-rose-500/50 hover:scale-[1.01] hover:shadow-2xl transition-all duration-300 rounded-[2rem]">
                                     ${q.publisherId && html`
-                                        <div className="flex items-center gap-3 mb-4 bg-gray-50 dark:bg-gray-800/80 p-3 rounded-xl border border-gray-100 dark:border-gray-700 w-fit">
+                                        <div className="flex items-center gap-3 mb-4 bg-zinc-900/40 p-3 rounded-xl border border-zinc-800 w-fit">
                                             <${Luminova.Components.Avatar} name=${pub.nameAr || pub.name} image=${pub.image} isVIP=${pub.isVIP} isFounder=${pub.isFounder || q.publisherId === 's_founder_hardcoded'} isVerified=${pub.isVerified} size="w-8 h-8" />
                                             <div>
-                                                <span className="text-xs opacity-50 block leading-tight font-bold">${lang === 'ar' ? '\u0646\u064f\u0634\u0631 \u0628\u0648\u0627\u0633\u0637\u0629:' : 'Published by:'}</span>
+                                                <span className="text-xs opacity-50 block leading-tight font-bold">${lang === 'ar' ? 'نُشر بواسطة:' : 'Published by:'}</span>
                                                 <span className="text-sm font-black">${lang === 'ar' ? (pub.nameAr || pub.name) : (pub.nameEn || pub.name)}</span>
                                             </div>
                                         </div>
                                     `}
-                                    <h3 className="text-xl font-bold mb-3" style="word-break:normal;overflow-wrap:anywhere">${q[`title${lang === 'ar' ? 'Ar' : 'En'}`] || q.titleAr || q.titleEn || q.title || '\u0628\u062f\u0648\u0646 \u0639\u0646\u0648\u0627\u0646'}</h3>
-                                    <p className="text-sm opacity-70 mb-5 bg-black/5 dark:bg-white/5 inline-block px-3 py-1 rounded-full">${(q.questions || []).length} ${Luminova.i18n[lang].questions}</p>
-                                    <${Luminova.Components.Button} onClick=${() => { setActiveQuiz(q); setView('quiz'); }} className="w-full text-base py-3">
+                                    <h3 className="text-xl font-bold mb-3" style="word-break:normal;overflow-wrap:anywhere">${q[`title${lang === 'ar' ? 'Ar' : 'En'}`] || q.titleAr || q.titleEn || q.title || 'بدون عنوان'}</h3>
+                                    <p className="text-sm opacity-70 mb-5 bg-rose-500/10 text-rose-400 inline-block px-3 py-1 rounded-full border border-rose-500/20">${(q.questions || []).length} ${Luminova.i18n[lang].questions}</p>
+                                    <${Luminova.Components.Button} onClick=${() => { setActiveQuiz(q); setView('quiz'); }} className="w-full text-base py-3 bg-rose-500/20 text-rose-400 border border-rose-500/40 hover:bg-rose-500/30">
                                         ${Luminova.i18n[lang].startQuiz}
                                     </${Luminova.Components.Button}>
                                 </${Luminova.Components.GlassCard}>`;
@@ -104,37 +103,37 @@ Luminova.Pages.AcademicHierarchyPage = ({ data, lang, setView, setActiveQuiz, se
         <div className="animate-fade-in space-y-8">
 
             <!-- Filter bar: Years + Semesters -->
-            <div className="glass-card p-5 rounded-2xl shadow-md space-y-5">
+            <${Luminova.Components.GlassCard} className="p-6 rounded-[2rem] shadow-2xl space-y-6">
                 <div>
-                    <p className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3">${Luminova.i18n[lang].years}</p>
-                    <div className="flex flex-wrap gap-2">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-4">${Luminova.i18n[lang].years}</p>
+                    <div className="flex flex-wrap gap-3">
                         ${data.years.map(y => html`
                             <button key=${y.id}
                                 onClick=${() => { setSelectedYear(y); setSelectedSem(null); setSelectedSub(null); }}
-                                className=${`px-4 py-2 rounded-xl font-bold text-sm transition-all duration-200 ${selectedYear?.id === y.id ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-100 dark:bg-gray-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-gray-700'}`}
+                                className=${`px-5 py-2.5 rounded-xl font-black text-xs transition-all duration-300 ${selectedYear?.id === y.id ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
                             >${y[`name${lang === 'ar' ? 'Ar' : 'En'}`] || y.nameAr}</button>
                         `)}
                     </div>
                 </div>
                 ${selectedYear && semesters.length > 0 && html`
-                    <div className="animate-fade-in border-t border-gray-100 dark:border-gray-700 pt-4">
-                        <p className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3">${Luminova.i18n[lang].semesters}</p>
-                        <div className="flex flex-wrap gap-2">
+                    <div className="animate-fade-in border-t border-white/5 pt-6">
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 mb-4">${Luminova.i18n[lang].semesters}</p>
+                        <div className="flex flex-wrap gap-3">
                             ${semesters.map(s => html`
                                 <button key=${s.id}
                                     onClick=${() => { setSelectedSem(s); setSelectedSub(null); }}
-                                    className=${`px-4 py-2 rounded-xl font-bold text-sm transition-all duration-200 ${selectedSem?.id === s.id ? 'bg-brand-DEFAULT text-white shadow-md' : 'bg-slate-100 dark:bg-gray-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-gray-700'}`}
+                                    className=${`px-5 py-2.5 rounded-xl font-black text-xs transition-all duration-300 ${selectedSem?.id === s.id ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
                                 >${s[`name${lang === 'ar' ? 'Ar' : 'En'}`] || s.nameAr}</button>
                             `)}
                         </div>
                     </div>
                 `}
-            </div>
+            </${Luminova.Components.GlassCard}>
 
             <!-- Subject cards grid -->
             ${selectedSem ? html`
                 <div className="animate-fade-in">
-                    <p className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-4">
+                    <p className="text-xs font-black uppercase tracking-widest text-zinc-500 mb-4">
                         ${Luminova.i18n[lang].subjects} <span className="opacity-50">(${subjects.length})</span>
                     </p>
                     ${subjects.length > 0 ? html`
@@ -146,39 +145,38 @@ Luminova.Pages.AcademicHierarchyPage = ({ data, lang, setView, setActiveQuiz, se
                                 return html`
                                 <button key=${sub.id}
                                     onClick=${() => { setSelectedSub(sub); setActiveTab('summaries'); }}
-                                    className="glass-card rounded-2xl p-6 text-start flex flex-col gap-4 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer border border-transparent hover:border-blue-200 dark:hover:border-blue-800 group w-full"
+                                    className="glass-card rounded-[2.5rem] p-8 text-start flex flex-col gap-5 shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer border border-white/10 hover:border-rose-500/40 group w-full"
                                 >
-                                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-brand-DEFAULT flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-200 text-white shrink-0">
-                                        ${Luminova.Icons.Book()}
+                                    <div className="w-14 h-14 rounded-[1.25rem] bg-gradient-to-br from-rose-400 to-indigo-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 text-white shrink-0">
+                                        <${Luminova.Icons.Book} />
                                     </div>
-                                    <h3 className="font-black text-base text-gray-900 dark:text-white leading-snug flex-1" style="word-break:normal;overflow-wrap:anywhere">
+                                    <h3 className="font-black text-base text-white leading-snug flex-1" style="word-break:normal;overflow-wrap:anywhere">
                                         ${subName}
                                     </h3>
                                     <div className="flex gap-2 flex-wrap">
-                                        <span className="text-xs font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2.5 py-1 rounded-full">
-                                            ${subSummaries.length} ${lang === 'ar' ? '\u062a\u0644\u062e\u064a\u0635' : 'Summaries'}
+                                        <span className="text-[10px] font-black uppercase tracking-widest bg-rose-500/10 text-rose-400 px-3 py-1 rounded-full border border-rose-500/20">
+                                            ${subSummaries.length} ${lang === 'ar' ? 'تلخيص' : 'Summaries'}
                                         </span>
-                                        <span className="text-xs font-bold bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 px-2.5 py-1 rounded-full">
-                                            ${subQuizzes.length} ${lang === 'ar' ? '\u0627\u062e\u062a\u0628\u0627\u0631' : 'Quizzes'}
+                                        <span className="text-[10px] font-black uppercase tracking-widest bg-indigo-500/10 text-indigo-400 px-3 py-1 rounded-full border border-indigo-500/20">
+                                            ${subQuizzes.length} ${lang === 'ar' ? 'اختبار' : 'Quizzes'}
                                         </span>
                                     </div>
                                 </button>`;
                             })}
                         </div>
                     ` : html`
-                        <div className="flex flex-col items-center justify-center py-24 opacity-50 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-3xl">
+                        <div className="flex flex-col items-center justify-center py-24 opacity-50 border-2 border-dashed border-zinc-800 rounded-3xl">
                             <${Luminova.Icons.Book} />
-                            <p className="mt-4 text-lg font-bold">${lang === 'ar' ? '\u0644\u0627 \u062a\u0648\u062c\u062f \u0645\u0648\u0627\u062f \u0641\u064a \u0647\u0630\u0627 \u0627\u0644\u062a\u0631\u0645' : 'No subjects in this semester'}</p>
+                            <p className="mt-4 text-lg font-bold">${lang === 'ar' ? 'لا توجد مواد في هذا الترم' : 'No subjects in this semester'}</p>
                         </div>
                     `}
                 </div>
             ` : html`
-                <div className="flex flex-col items-center justify-center min-h-[45vh] opacity-40 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-3xl bg-gray-50/50 dark:bg-gray-900/20">
+                <div className="flex flex-col items-center justify-center min-h-[45vh] opacity-40 border-2 border-dashed border-zinc-800 rounded-3xl bg-zinc-900/20">
                     <${Luminova.Icons.Book} />
-                    <p className="mt-4 text-xl font-bold text-center px-6">${lang === 'ar' ? '\u0627\u062e\u062a\u0631 \u0641\u0631\u0642\u0629 \u0648\u062a\u0631\u0645 \u0644\u0639\u0631\u0636 \u0627\u0644\u0645\u0648\u0627\u062f \u0627\u0644\u062f\u0631\u0627\u0633\u064a\u0629' : 'Select a Year & Semester to browse subjects'}</p>
+                    <p className="mt-4 text-xl font-bold text-center px-6">${lang === 'ar' ? 'اختر فرقة وترم لعرض المواد الدراسية' : 'Select a Year & Semester to browse subjects'}</p>
                 </div>
             `}
         </div>
         `;
     };
-

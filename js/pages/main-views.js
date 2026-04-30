@@ -16,14 +16,14 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
         const hasMore = visibleCount < items.length;
 
         return html`
-        <div className="space-y-6 relative border-s border-gray-200 dark:border-gray-700 ml-3 mr-3 px-4">
+        <div className="space-y-6 relative border-s border-zinc-200 dark:border-zinc-800 ml-3 mr-3 px-4">
             ${visibleItems.map(item => {
             const student = Luminova.getStudent(item.studentId, students);
             const subject = subjects.find(s => s.id === item.subjectId) || {};
             const isQuizItem = item.isSingleQuestion;
             return html`
                     <div key=${item.id} className="relative">
-                        <span className="absolute flex items-center justify-center w-6 h-6 bg-brand-DEFAULT rounded-full -start-3 ring-8 ring-white dark:ring-gray-900 mt-2 text-white">
+                        <span className="absolute flex items-center justify-center w-9 h-9 bg-fuchsia-500/10 text-fuchsia-400 border border-fuchsia-500/20 rounded-full -start-[18px] ring-8 ring-[#0A0514] mt-2 shadow-[0_0_15px_rgba(217,70,239,0.2)] z-10 transition-transform hover:scale-110">
                             ${isQuizItem ? Luminova.Icons.CheckCircle() : Luminova.Icons.Book()}
                         </span>
                         <${Luminova.Components.GlassCard} className="ms-6">
@@ -43,9 +43,9 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                             <${Luminova.Components.SmartText} text=${item[`content${lang === 'ar' ? 'Ar' : 'En'}`] || item.contentAr || item.contentEn} lang=${lang} />
                             ${((item.mediaUrls && item.mediaUrls.length > 0) || item.mediaUrl) ? html`
                                 <div className="mt-4">
-                                    <button onClick=${() => onSummaryClick && onSummaryClick(item.id)} className="w-full py-3 bg-indigo-500/10 hover:bg-indigo-500 text-indigo-600 dark:text-indigo-400 hover:text-white transition-all rounded-xl font-bold flex items-center justify-center gap-2 border border-indigo-500/20 shadow-sm">
+                                    <button onClick=${() => onSummaryClick && onSummaryClick(item.id)} className="w-full py-4 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 hover:text-white transition-all duration-300 rounded-2xl font-black flex items-center justify-center gap-3 border border-cyan-500/30 shadow-sm group/btn">
                                         <span className="text-xl">📎</span>
-                                        <span>${lang === 'ar' ? 'عرض المرفقات والشرح' : 'View Attachments'}</span>
+                                        <span className="tracking-widest uppercase text-xs">${lang === 'ar' ? 'عرض المرفقات والشرح' : 'View Attachments'}</span>
                                     </button>
                                 </div>
                             ` : null}
@@ -80,7 +80,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
         if (!data || !data.summaries || !data.quizzes || !data.news || !data.students) {
             return html`
                 <div className="flex items-center justify-center min-h-[60vh] p-4">
-                    <div className="bg-white/5 backdrop-blur-2xl p-12 text-center max-w-md animate-fade-in border border-white/10 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+                    <div className="bg-white/5 backdrop-blur-2xl p-12 text-center max-w-md animate-fade-in border border-white/10 rounded-[2.5rem] shadow-sm">
                         <div className="text-7xl mb-8 animate-bounce">⚠️</div>
                         <h2 className="text-3xl font-black text-white mb-6 tracking-tight">
                             ${lang === 'ar' ? 'خطأ في تحميل البيانات' : 'Data Load Error'}
@@ -91,7 +91,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                                 : 'An unexpected error occurred while loading system files. Please reload the application.'}
                         </p>
                         <button onClick=${() => window.location.reload()} 
-                            className="w-full py-4 bg-gradient-to-r from-brand-DEFAULT to-brand-gold text-slate-900 rounded-2xl font-black shadow-[0_10px_20px_rgba(250,204,21,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all text-lg">
+                            className="w-full py-4 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-2xl font-black shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all text-lg">
                             ${lang === 'ar' ? 'تحديث النظام الآن ↻' : 'Reload System Now ↻'}
                         </button>
                     </div>
@@ -199,14 +199,14 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
             <!-- Section 1: Honor Roll -->
             ${topContributors.length > 0 && html`
                 <div className="mb-10">
-                    <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-brand-gold">${Luminova.i18n[lang].topContributors}</h2>
+                    <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-zinc-900 dark:text-white">${Luminova.i18n[lang].topContributors}</h2>
                     <div className="flex gap-4 overflow-x-auto pb-4 snap-x">
                         ${topContributors.map((c, i) => html`
-                            <${Luminova.Components.GlassCard} key=${c.student.id} className="min-w-[200px] flex-shrink-0 text-center flex flex-col items-center snap-center bg-gradient-to-b from-transparent to-brand-gold/5 border-b-4 border-b-brand-gold">
-                                <div className="absolute top-2 right-2 text-xl font-black opacity-30">#${i + 1}</div>
-                                <${Luminova.Components.Avatar} name=${c.student.nameAr || c.student.name} image=${c.student.image} isVIP=${c.student.isVIP} isFounder=${c.student.isFounder || c.student.id === 's_founder'} isVerified=${c.student.isVerified} size="w-16 h-16 mb-2" />
-                                <h3 className="font-bold text-sm">${lang === 'ar' ? (c.student.nameAr || c.student.name) : (c.student.nameEn || c.student.name)}</h3>
-                                <div className="text-xs opacity-70 mt-1">${c.score} ${lang === 'ar' ? 'مساهمة' : 'Contributions'}</div>
+                            <${Luminova.Components.GlassCard} key=${c.student.id} className="min-w-[220px] flex-shrink-0 text-center flex flex-col items-center snap-center border-b-4 border-b-fuchsia-500/50 hover:border-b-cyan-400 transition-all duration-500 p-8">
+                                <div className="absolute top-3 right-3 text-2xl font-black opacity-10 italic">#${i + 1}</div>
+                                <${Luminova.Components.Avatar} name=${c.student.nameAr || c.student.name} image=${c.student.image} isVIP=${c.student.isVIP} isFounder=${c.student.isFounder || c.student.id === 's_founder'} isVerified=${c.student.isVerified} size="w-20 h-20 mb-4 shadow-xl shadow-fuchsia-500/10" />
+                                <h3 className="font-black text-base text-white">${lang === 'ar' ? (c.student.nameAr || c.student.name) : (c.student.nameEn || c.student.name)}</h3>
+                                <div className="text-xs font-bold text-fuchsia-400 mt-2 uppercase tracking-widest">${c.score} ${lang === 'ar' ? 'مساهمة' : 'Contributions'}</div>
                             </${Luminova.Components.GlassCard}>
                         `)}
                     </div>
@@ -216,26 +216,26 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
             <!-- Section 2: Honor Roll Spotlight (Certificates) -->
             ${latestCert && Luminova.Components.CertificateImage && html`
                 <div className="mb-10 w-full animate-fade-in">
-                    <div className="relative overflow-hidden bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0f172a] rounded-3xl shadow-2xl border border-slate-800 p-8 pt-10">
+                    <div className="relative overflow-hidden bg-white/[0.03] backdrop-blur-2xl rounded-[3rem] shadow-2xl border border-white/10 p-10 pt-12">
                         <!-- Decorative bg -->
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-gold opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-                        <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500 opacity-10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+                        <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
+                        <div className="absolute bottom-0 left-0 w-80 h-80 bg-fuchsia-500/10 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2"></div>
 
                         <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
                             
                             <!-- Content Side (RTL native: right on Desktop) -->
                             <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-start space-y-6">
-                                <h2 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-gold to-yellow-200">
+                                <h2 className="text-3xl md:text-4xl font-black text-white">
                                     ${lang === 'ar' ? 'نتوج التميز الأكاديمي' : 'Crowning Academic Excellence'}
                                 </h2>
-                                <p className="text-slate-300 text-base md:text-lg font-medium leading-relaxed max-w-lg">
+                                <p className="text-zinc-400 text-base md:text-lg font-medium leading-relaxed max-w-lg">
                                     ${lang === 'ar' 
                                         ? 'نقدر ونوثق جهود طلابنا الاستثنائية. كل شهادة هي قصة نجاح موثقة ومحفوظة في اللوحة الشرفية للمنصة عبر نظام تشفير متقدم يعتمد على الاستجابة السريعة (QR Code).' 
                                         : 'We appreciate and document our students\' exceptional efforts. Each certificate is a success story, permanently archived via advanced QR cryptographic systems.'}
                                 </p>
                                 <button
                                     onClick=${() => setView('certificates')}
-                                    className="inline-flex flex-row items-center justify-center gap-3 bg-gradient-to-r from-brand-DEFAULT to-blue-600 hover:from-brand-hover hover:to-blue-700 text-white font-black py-4 px-8 rounded-2xl shadow-xl shadow-brand-DEFAULT/30 transition-all hover:scale-105 active:scale-95 border-b-4 border-blue-800 text-lg sm:text-xl w-full sm:w-auto">
+                                    className="inline-flex flex-row items-center justify-center gap-3 bg-gradient-to-r from-cyan-400 to-fuchsia-500 text-white font-black py-4 px-8 rounded-2xl shadow-lg transition-all hover:scale-105 active:scale-95 text-lg sm:text-xl w-full sm:w-auto">
                                     <span>🏆</span>
                                     <span>${lang === 'ar' ? 'تصفح لوحة الشرف والشهادات' : 'Browse Honor Roll & Archive'}</span>
                                 </button>
@@ -243,7 +243,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
 
                             <!-- Showcase Side (Image) -->
                             <div className="w-full md:max-w-md">
-                                <div className="bg-white/10 p-2 rounded-[24px] backdrop-blur-md border border-white/20 shadow-2xl rotate-1 hover:rotate-0 transition-transform duration-300">
+                                <div className="bg-white/5 p-2 rounded-[24px] backdrop-blur-md border border-white/10 shadow-sm rotate-1 hover:rotate-0 transition-transform duration-300">
                                     <${Luminova.Components.CertificateImage} 
                                         certificate=${latestCert} 
                                         lang=${lang} 
@@ -272,7 +272,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                                 value=${newsSearchQuery} 
                                 onChange=${(e) => setNewsSearchQuery(e.target.value)} 
                                 placeholder=${lang === 'ar' ? 'بحث في الأخبار...' : 'Search news...'} 
-                                className="w-full px-12 py-3.5 text-sm sm:text-base font-bold text-gray-800 dark:text-gray-100 placeholder-gray-500 bg-slate-900/5 dark:bg-slate-900/40 backdrop-blur-xl rounded-full outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-brand-DEFAULT shadow-inner focus:shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-all duration-300" 
+                                className="w-full px-12 py-3.5 text-sm sm:text-base font-bold text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 bg-zinc-100 dark:bg-zinc-900 backdrop-blur-xl rounded-full outline-none focus:bg-white dark:focus:bg-zinc-800 focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-600 shadow-inner transition-all duration-300" 
                             />
                         </div>
                     </div>
@@ -280,15 +280,15 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                         ${visibleNews.map((n) => {
                             const author = Luminova.getStudent(n.studentId, data.students);
                             return html`
-                                <${Luminova.Components.GlassCard} key=${n.id || n.timestamp || Math.random().toString(36)} className=${`border-l-4 ${n === sortedNews[0] ? 'border-l-brand-gold bg-brand-gold/5' : 'border-l-brand-DEFAULT'}`}>
+                                <${Luminova.Components.GlassCard} key=${n.id || n.timestamp || Math.random().toString(36)} className=${`border-l-4 ${n === sortedNews[0] ? 'border-l-zinc-400 dark:border-l-zinc-600' : 'border-l-zinc-300 dark:border-l-zinc-700'}`}>
                                     ${n.studentId && html`
-                                        <div className="flex items-center gap-3 mb-4 opacity-80 border-b border-gray-200 dark:border-gray-700 pb-3">
+                                        <div className="flex items-center gap-3 mb-4 opacity-80 border-b border-zinc-200 dark:border-zinc-800 pb-3">
                                             <${Luminova.Components.Avatar} name=${author.nameAr || author.name} nameEn=${author.nameEn} image=${author.image} isVerified=${author.isVerified} isFounder=${author.isFounder} size="w-8 h-8" />
                                             <div className="text-sm font-bold flex items-center gap-2 flex-wrap">
                                                 <span>${lang === 'ar' ? 'الناشر:' : 'Publisher:'}</span>
                                                 <span className="whitespace-normal break-words" style=${{ wordBreak: 'normal', overflowWrap: 'anywhere' }}>${lang === 'ar' ? (author.nameAr || author.name) : (author.nameEn || author.name)}</span>
                                                 ${author.isVIP && html`<span className="text-xs text-brand-DEFAULT">✨</span>`}
-                                                ${author.isFounder && html`<span className="text-xs bg-brand-gold text-black px-2 py-0.5 rounded-full">${Luminova.i18n[lang].founder}</span>`}
+                                                ${author.isFounder && html`<span className="text-[10px] bg-gradient-to-r from-cyan-400 to-fuchsia-500 text-white px-2.5 py-0.5 rounded-full font-black tracking-widest shadow-[0_0_10px_rgba(34,211,238,0.3)]">${Luminova.i18n[lang].founder}</span>`}
                                                 ${!author.isFounder && author.role === 'doctor' && html`<span className="text-xs bg-teal-500 text-white px-2 py-0.5 rounded-full font-black">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
                                             </div>
                                         </div>
@@ -297,9 +297,9 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                                     <${Luminova.Components.SmartText} text=${n[`content${lang === 'ar' ? 'Ar' : 'En'}`] || n.contentAr || n.contentEn} lang=${lang} />
                                     ${((n.mediaUrls && n.mediaUrls.length > 0) || n.mediaUrl) ? html`
                                         <div className="mt-4">
-                                            <button onClick=${() => { setActiveSummary(n.id); setView('summaryDetail'); }} className="w-full py-3 bg-indigo-500/10 hover:bg-indigo-500 text-indigo-600 dark:text-indigo-400 hover:text-white transition-all rounded-xl font-bold flex items-center justify-center gap-2 border border-indigo-500/20 shadow-sm">
-                                                <span className="text-xl">📎</span>
-                                                <span>${lang === 'ar' ? 'عرض المرفقات المنشورة' : 'View Attachments'}</span>
+                                            <button onClick=${() => { setActiveSummary(n.id); setView('summaryDetail'); }} className="w-full py-3.5 bg-brand-DEFAULT/10 hover:bg-brand-DEFAULT text-brand-DEFAULT hover:text-white transition-all rounded-2xl font-black flex items-center justify-center gap-3 border border-brand-DEFAULT/20 shadow-sm">
+                                                <span className="text-2xl">📎</span>
+                                                <span className="tracking-wide uppercase text-sm">${lang === 'ar' ? 'عرض المرفقات المنشورة' : 'View Attachments'}</span>
                                             </button>
                                         </div>
                                     ` : null}
@@ -333,7 +333,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
         if (!data || !data.years || !data.semesters || !data.subjects || !data.summaries || !data.quizzes || !data.students) {
             return html`
                 <div className="flex items-center justify-center min-h-[60vh] p-4 text-center">
-                    <div className="bg-white/5 backdrop-blur-2xl p-12 border border-white/10 rounded-[2.5rem] shadow-2xl max-w-md animate-fade-in">
+                    <div className="bg-white/5 backdrop-blur-2xl p-12 border border-white/10 rounded-[2.5rem] shadow-sm max-w-md animate-fade-in">
                         <div className="text-7xl mb-8">📂</div>
                         <h2 className="text-3xl font-black text-white mb-4">
                             ${lang === 'ar' ? 'فشل تحميل المكتبة' : 'Library Load Failed'}
@@ -341,7 +341,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                         <p className="text-white/50 font-bold mb-8">
                             ${lang === 'ar' ? 'ملفات البيانات تالفة أو مفقودة. يرجى العودة للرئيسية.' : 'Data files are corrupted or missing. Please return home.'}
                         </p>
-                        <button onClick=${() => setView('home')} className="w-full py-4 bg-brand-gold text-slate-900 rounded-2xl font-black shadow-lg">
+                        <button onClick=${() => setView('home')} className="w-full py-4 bg-white text-zinc-900 rounded-2xl font-black shadow-sm">
                             ${lang === 'ar' ? 'العودة للرئيسية' : 'Back to Home'}
                         </button>
                     </div>
@@ -425,7 +425,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                 const content = (s[`content${lang === 'ar' ? 'Ar' : 'En'}`] || s.contentAr || s.contentEn || '').toLowerCase();
                 const matchesSearch = title.includes(q) || content.includes(q);
                 return matchesAuthor && matchesSearch;
-            });
+            }).sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
         }, [rawSummaries, selectedAuthor, searchQuery, data.students, lang]);
 
         const filteredQuizzes = useMemo(() => {
@@ -437,7 +437,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                 const title = (q[`title${lang === 'ar' ? 'Ar' : 'En'}`] || q.titleAr || q.titleEn || q.title || '').toLowerCase();
                 const matchesSearch = title.includes(search);
                 return matchesAuthor && matchesSearch;
-            });
+            }).sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
         }, [rawQuizzes, selectedAuthor, searchQuery, data.students, lang]);
 
         // LEVEL 3: ATTACHMENTS SUB-VIEW
@@ -452,7 +452,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                         ✖ ${lang === 'ar' ? 'رجوع للتلخيص' : 'Back to Summary'}
                     </button>
                     <${Luminova.Components.GlassCard} className="!p-8">
-                        <div className="flex items-center gap-4 border-b border-gray-100 dark:border-gray-800 pb-6 mb-6">
+                        <div className="flex items-center gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-6 mb-6">
                             <${Luminova.Components.Avatar} name=${author.nameAr || author.name} image=${author.image} isVIP=${author.isVIP} isFounder=${author.isFounder || author.id === 's_founder'} isVerified=${author.isVerified} size="w-14 h-14" />
                             <div>
                                 <h3 className="font-bold text-lg">${lang === 'ar' ? (author.nameAr || author.name) : (author.nameEn || author.name)}</h3>
@@ -463,7 +463,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                         <div className="text-lg opacity-90 mb-8 whitespace-pre-wrap"><${Luminova.Components.SmartText} text=${targetSummary[`content${lang === 'ar' ? 'Ar' : 'En'}`] || targetSummary.contentAr || targetSummary.contentEn} lang=${lang} /></div>
                         
                         <div className="space-y-4">
-                            <h4 className="text-xl font-bold border-b border-gray-200 dark:border-gray-700 pb-2 mb-4">${lang === 'ar' ? 'المرفقات' : 'Attachments'}</h4>
+                            <h4 className="text-xl font-bold border-b border-zinc-200 dark:border-zinc-800 pb-2 mb-4">${lang === 'ar' ? 'المرفقات' : 'Attachments'}</h4>
                             <${Luminova.Components.SmartMedia} url=${targetSummary.mediaUrls || targetSummary.mediaUrl} lang=${lang} />
                         </div>
                     </${Luminova.Components.GlassCard}>
@@ -481,29 +481,29 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                       100% { box-shadow: 0 0 10px 0 rgba(250, 204, 21, 0.4); border-color: rgba(250, 204, 21, 0.5); }
                     }
                     .nano-banana-tab-active {
-                      animation: tabNeonPulse 2s infinite;
-                      background: linear-gradient(to right, #1e40af, #ca8a04);
+                      animation: none;
+                      background: #18181b;
                       color: white;
                       transform: scale(1.02);
                     }
                 </style>
                 <div className="animate-fade-in space-y-8 max-w-7xl mx-auto">
-                    <div className="flex flex-wrap md:flex-nowrap items-center gap-4 mb-8 border-b border-white/5 pb-8 px-2">
+                    <div className="flex flex-wrap md:flex-nowrap items-center gap-4 mb-8 border-b border-zinc-200 dark:border-zinc-800 pb-8 px-2">
                         <!-- 1. Back Button: First in DOM (Right in RTL) -->
                         <div className="w-full md:w-auto flex items-center justify-between gap-4">
                              <button onClick=${() => window.history.back()} 
-                                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 text-slate-300 rounded-2xl transition-all border border-white/10 font-bold backdrop-blur-xl shadow-lg hover:scale-105 active:scale-95 group">
-                                <span className="group-hover:translate-x-1 transition-transform duration-300">${lang === 'ar' ? '➔' : '➔'}</span>
-                                <span>${lang === 'ar' ? 'الرجوع للمواد' : 'Back to Semester'}</span>
+                                className="inline-flex items-center justify-center gap-3 px-6 py-3 bg-cyan-500/20 text-cyan-400 border border-cyan-500/50 rounded-2xl transition-all font-black backdrop-blur-xl shadow-lg shadow-cyan-500/10 hover:scale-105 active:scale-95 group">
+                                <span className="group-hover:translate-x-1 transition-transform duration-300 text-xl">➔</span>
+                                <span className="tracking-widest uppercase text-xs">${lang === 'ar' ? 'الرجوع للمواد' : 'Back to Semester'}</span>
                             </button>
-                            <h2 className="md:hidden text-xl font-black text-white/90 truncate max-w-[150px]">
+                            <h2 className="md:hidden text-xl font-black text-zinc-900 dark:text-white truncate max-w-[150px]">
                                 ${selectedSub[`name${lang === 'ar' ? 'Ar' : 'En'}`] || selectedSub.nameAr}
                             </h2>
                         </div>
 
                         <!-- 2. Search Bar: Center space filling -->
                         <div className="w-full md:flex-1 relative group">
-                            <span className="absolute inset-y-0 start-4 flex items-center opacity-40 text-lg group-focus-within:text-brand-gold transition-colors">
+                            <span className="absolute inset-y-0 start-4 flex items-center opacity-40 text-lg group-focus-within:text-rose-400 transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                             </span>
                             <input 
@@ -511,7 +511,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                                 value=${searchQuery} 
                                 onChange=${(e) => setSearchQuery(e.target.value)} 
                                 placeholder=${lang === 'ar' ? 'بحث في المحتوى...' : 'Search content...'} 
-                                className="w-full pl-12 pr-6 py-3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl text-white placeholder-white/30 outline-none transition-all focus:border-brand-gold/50 focus:ring-1 focus:ring-brand-gold/50 font-bold shadow-2xl"
+                                className="w-full pl-14 pr-6 py-4 bg-white/[0.02] backdrop-blur-2xl border border-white/10 rounded-2xl text-white placeholder-zinc-500 outline-none transition-all focus:border-rose-500/50 focus:ring-4 focus:ring-rose-500/10 font-black shadow-inner"
                             />
                         </div>
 
@@ -520,7 +520,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                             <button 
                                 onClick=${() => setIsAuthorOpen(!isAuthorOpen)}
                                 onBlur=${() => setTimeout(() => setIsAuthorOpen(false), 200)}
-                                className=${`w-full md:w-auto flex items-center justify-between gap-4 px-6 py-3 rounded-2xl border transition-all duration-300 backdrop-blur-2xl shadow-xl font-bold ${isAuthorOpen ? 'bg-brand-gold/20 border-brand-gold/50 text-brand-gold' : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'}`}
+                                className=${`w-full md:w-auto flex items-center justify-between gap-4 px-6 py-3 rounded-2xl border transition-all duration-300 backdrop-blur-2xl shadow-sm font-bold ${isAuthorOpen ? 'bg-zinc-200 dark:bg-zinc-800 border-zinc-400 dark:border-zinc-600 text-zinc-900 dark:text-white' : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
                             >
                                 <div className="flex items-center gap-2">
                                     <span className="text-lg">👤</span>
@@ -532,23 +532,23 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                             </button>
 
                             ${isAuthorOpen && html`
-                                <div className="absolute top-full left-0 right-0 mt-3 z-[100] animate-fade-in backdrop-blur-3xl bg-slate-900/90 border border-white/10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden min-w-[200px]">
+                                <div className="absolute top-full left-0 right-0 mt-3 z-[100] animate-fade-in backdrop-blur-3xl bg-zinc-950/95 border border-zinc-800 rounded-3xl shadow-2xl overflow-hidden min-w-[200px]">
                                     <ul className="py-2 max-h-[300px] overflow-y-auto m-0 p-0">
                                         <li 
                                             onClick=${() => { setSelectedAuthor(null); setIsAuthorOpen(false); }}
-                                            className=${`px-6 py-4 cursor-pointer transition-all flex items-center justify-between font-bold ${!selectedAuthor ? 'text-brand-gold bg-brand-gold/10' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}
+                                            className=${`px-6 py-4 cursor-pointer transition-all flex items-center justify-between font-bold ${!selectedAuthor ? 'text-white bg-white/10' : 'text-zinc-500 hover:bg-white/5 hover:text-white'}`}
                                         >
                                             <span>${lang === 'ar' ? 'الجميع' : 'All Authors'}</span>
-                                            ${!selectedAuthor && html`<span className="text-brand-gold">✓</span>`}
+                                            ${!selectedAuthor && html`<span className="text-rose-400">✓</span>`}
                                         </li>
                                         ${authors.map(author => html`
                                             <li 
                                                 key=${author}
                                                 onClick=${() => { setSelectedAuthor(author); setIsAuthorOpen(false); }}
-                                                className=${`px-6 py-4 cursor-pointer transition-all flex items-center justify-between font-bold ${selectedAuthor === author ? 'text-brand-gold bg-brand-gold/10' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}
+                                                className=${`px-6 py-4 cursor-pointer transition-all flex items-center justify-between font-bold ${selectedAuthor === author ? 'text-white bg-white/10' : 'text-zinc-500 hover:bg-white/5 hover:text-white'}`}
                                             >
                                                 <span className="truncate">${author}</span>
-                                                ${selectedAuthor === author && html`<span className="text-brand-gold">✓</span>`}
+                                                ${selectedAuthor === author && html`<span className="text-rose-400">✓</span>`}
                                             </li>
                                         `)}
                                     </ul>
@@ -558,10 +558,10 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                     </div>
 
                     <!-- Full-Width Tab Navigation -->
-                    <div className="w-full flex gap-3 p-2 bg-white/50 dark:bg-slate-900/60 backdrop-blur-xl rounded-2xl mb-8 border border-gray-200 dark:border-gray-800 shadow-sm">
+                    <div className="w-full flex gap-3 p-2 bg-zinc-50 dark:bg-zinc-900/60 backdrop-blur-xl rounded-2xl mb-8 border border-zinc-200 dark:border-zinc-800 shadow-sm">
                         <button 
                             onClick=${() => setActiveTab('summaries')}
-                            className=${`flex-1 py-4 px-2 text-center text-lg sm:text-xl font-black rounded-xl transition-all duration-300 flex items-center justify-center gap-3 ${activeTab === 'summaries' ? 'nano-banana-tab-active border border-brand-gold/60' : 'bg-transparent text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white border border-transparent'}`}
+                            className=${`flex-1 py-4 px-2 text-center text-lg sm:text-xl font-black rounded-xl transition-all duration-300 flex items-center justify-center gap-3 ${activeTab === 'summaries' ? 'nano-banana-tab-active border border-zinc-700' : 'bg-transparent text-zinc-500 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white border border-transparent'}`}
                         >
                             <span className="text-2xl">📚</span>
                             ${lang === 'ar' ? 'التلخيصات' : 'Summaries'}
@@ -569,7 +569,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                         
                         <button 
                             onClick=${() => setActiveTab('quizzes')}
-                            className=${`flex-1 py-4 px-2 text-center text-lg sm:text-xl font-black rounded-xl transition-all duration-300 flex items-center justify-center gap-3 ${activeTab === 'quizzes' ? 'nano-banana-tab-active border border-brand-gold/60' : 'bg-transparent text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white border border-transparent'}`}
+                            className=${`flex-1 py-4 px-2 text-center text-lg sm:text-xl font-black rounded-xl transition-all duration-300 flex items-center justify-center gap-3 ${activeTab === 'quizzes' ? 'nano-banana-tab-active border border-zinc-700' : 'bg-transparent text-zinc-500 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white border border-transparent'}`}
                         >
                             <span className="text-2xl">📝</span>
                             ${lang === 'ar' ? 'الاختبارات' : 'Exams'}
@@ -579,16 +579,16 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                     <!-- Full-Width Content Area -->
                     <div className="w-full animate-fade-in">
                         ${activeTab === 'summaries' ? html`
-                            <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl rounded-3xl p-6 border border-gray-200 dark:border-gray-800 shadow-lg">
+                            <div className="bg-zinc-900/40 backdrop-blur-xl rounded-3xl p-6 border border-zinc-800 shadow-sm">
                                 <${Luminova.Components.TimelineFeed} items=${filteredSummaries} students=${data.students} subjects=${data.subjects} lang=${lang} onQuizClick=${() => { }} onSummaryClick=${(itemId) => setSelectedSummaryId(itemId)} />
                             </div>
                         ` : html`
-                            <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl rounded-3xl p-6 border border-gray-200 dark:border-gray-800 shadow-lg">
+                            <div className="bg-zinc-900/40 backdrop-blur-xl rounded-3xl p-6 border border-zinc-800 shadow-sm">
                                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                                     ${filteredQuizzes.map(q => html`
-                                        <${Luminova.Components.GlassCard} key=${q.id} className="border-t-4 border-t-brand-gold hover:scale-[1.02] transition-transform shadow-md hover:shadow-xl flex flex-col h-full">
+                                        <${Luminova.Components.GlassCard} key=${q.id} className="border-t-2 border-t-rose-500/50 hover:scale-[1.02] transition-transform shadow-md hover:shadow-xl flex flex-col h-full">
                                             ${q.publisherId && html`
-                                                <div className="flex items-center gap-3 mb-4 bg-gray-50 dark:bg-gray-800/80 p-3 rounded-xl border border-gray-100 dark:border-gray-700 w-fit shrink-0">
+                                                <div className="flex items-center gap-3 mb-4 bg-zinc-50 dark:bg-zinc-800/80 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 w-fit shrink-0">
                                                     <${Luminova.Components.Avatar} name=${Luminova.getStudent(q.publisherId, data.students).nameAr || Luminova.getStudent(q.publisherId, data.students).name} image=${Luminova.getStudent(q.publisherId, data.students).image} isVIP=${Luminova.getStudent(q.publisherId, data.students).isVIP} isFounder=${Luminova.getStudent(q.publisherId, data.students).isFounder || q.publisherId === 's_founder_hardcoded'} isVerified=${Luminova.getStudent(q.publisherId, data.students).isVerified} size="w-8 h-8" />
                                                     <div>
                                                         <span className="text-xs opacity-50 block leading-tight font-bold">نُشر بواسطة:</span>
@@ -606,7 +606,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                                         </${Luminova.Components.GlassCard}>
                                     `)}
                                     ${filteredQuizzes.length === 0 ? html`
-                                        <div className="col-span-full text-center py-20 opacity-50 border-2 border-dashed rounded-2xl dark:border-gray-700 font-bold text-xl">${Luminova.i18n[lang].emptyState}</div>
+                                        <div className="col-span-full text-center py-20 opacity-50 border-2 border-dashed rounded-2xl dark:border-zinc-700 font-bold text-xl">${Luminova.i18n[lang].emptyState}</div>
                                     ` : null}
                                 </div>
                             </div>
@@ -651,29 +651,29 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-2">
                         ${subjects.map(s => html`
                             <button key=${s.id} onClick=${() => setSelectedSub(s)} 
-                                className="group relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 text-start flex flex-col justify-between min-h-[160px] shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden">
-                                <div className="absolute top-0 left-0 w-1.5 h-full bg-brand-DEFAULT opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                className="group relative bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-3xl p-8 text-start flex flex-col justify-between min-h-[200px] shadow-sm hover:shadow-[0_0_30px_rgba(217,70,239,0.15)] transition-all duration-500 hover:-translate-y-2 overflow-hidden">
+                                <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-cyan-400 to-fuchsia-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 
-                                <div>
-                                    <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 text-brand-DEFAULT flex items-center justify-center rounded-xl mb-4 group-hover:scale-110 transition-transform">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                <div className="relative z-10">
+                                     <div className="w-14 h-14 bg-fuchsia-500/10 text-fuchsia-400 border border-fuchsia-500/20 flex items-center justify-center rounded-2xl mb-6 group-hover:scale-110 group-hover:bg-fuchsia-500/20 transition-all duration-500 shadow-lg shadow-fuchsia-500/10">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                                           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                                         </svg>
                                     </div>
-                                    <h3 className="text-xl font-black text-slate-800 dark:text-white leading-tight mb-2 group-hover:text-brand-DEFAULT transition-colors">
+                                    <h3 className="text-2xl font-black text-zinc-900 dark:text-white leading-tight mb-2 group-hover:text-cyan-500 dark:group-hover:text-cyan-400 transition-colors duration-300">
                                         ${s[`name${lang === 'ar' ? 'Ar' : 'En'}`] || s.nameAr || s.nameEn}
                                     </h3>
                                 </div>
                                 
-                                <div className="mt-4 flex items-center justify-between text-sm font-bold text-slate-500 dark:text-slate-400">
-                                    <span>${lang === 'ar' ? 'عرض المحتوى' : 'View Content'}</span>
-                                    <span className="transform group-hover:translate-x-2 transition-transform">➔</span>
+                                <div className="mt-6 flex items-center justify-between text-sm font-black text-zinc-500 dark:text-cyan-500/80 group-hover:text-cyan-500 transition-colors">
+                                    <span className="uppercase tracking-widest">${lang === 'ar' ? 'عرض المحتوى' : 'View Content'}</span>
+                                    <span className="transform group-hover:translate-x-3 transition-transform duration-500 text-xl">➔</span>
                                 </div>
                             </button>
                         `)}
                     </div>
                 ` : html`
-                    <div className="flex flex-col items-center justify-center py-20 opacity-50 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl bg-slate-50/50 dark:bg-slate-900/20">
+                    <div className="flex flex-col items-center justify-center py-20 opacity-50 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-3xl bg-zinc-50/50 dark:bg-zinc-950/20">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                         </svg>
@@ -823,21 +823,24 @@ Luminova.Pages.StudentCommunityPage = ({ data, lang, setView, setActiveSummary }
 
             return html`
                 <div className="animate-fade-in space-y-6">
-                    <div className="flex justify-between items-center mb-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
-                        <div className="flex items-center gap-4 flex-wrap">
-                            <${Luminova.Components.Avatar} name=${selectedStudent.nameAr || selectedStudent.name} image=${selectedStudent.image} isVIP=${selectedStudent.isVIP} isFounder=${selectedStudent.isFounder || selectedStudent.id === 's_founder_hardcoded'} isVerified=${selectedStudent.isVerified} size="w-12 h-12" />
-                            <h2 className="text-2xl font-bold flex items-center gap-2 flex-wrap whitespace-normal break-words" style=${{ wordBreak: 'normal', overflowWrap: 'anywhere' }}>
+                    <div className="flex justify-between items-center mb-8 bg-slate-100/50 dark:bg-slate-900/60 backdrop-blur-2xl p-6 rounded-[2rem] shadow-xl border border-white/5">
+                        <div className="flex items-center gap-5 flex-wrap">
+                            <${Luminova.Components.Avatar} name=${selectedStudent.nameAr || selectedStudent.name} image=${selectedStudent.image} isVIP=${selectedStudent.isVIP} isFounder=${selectedStudent.isFounder || selectedStudent.id === 's_founder_hardcoded'} isVerified=${selectedStudent.isVerified} size="w-16 h-16 shadow-lg shadow-cyan-500/20" />
+                            <h2 className="text-3xl font-black flex items-center gap-3 flex-wrap whitespace-normal break-words text-zinc-900 dark:text-white" style=${{ wordBreak: 'normal', overflowWrap: 'anywhere' }}>
                                 ${lang === 'ar' ? (selectedStudent.nameAr || selectedStudent.name) : (selectedStudent.nameEn || selectedStudent.name)}
-                                ${selectedStudent.isFounder && html`<span className="text-xs bg-brand-gold text-black px-3 py-1 rounded-full font-black shadow-lg">${lang === 'ar' ? 'المؤسس' : 'Founder'}</span>`}
-                                ${!selectedStudent.isFounder && selectedStudent.role === 'doctor' && html`<span className="text-xs bg-teal-500 text-white px-3 py-1 rounded-full font-black shadow-lg">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
+                                ${selectedStudent.isFounder && html`<span className="text-[10px] bg-gradient-to-r from-rose-400 via-fuchsia-400 to-indigo-400 text-white px-3 py-1 rounded-full font-black uppercase tracking-widest shadow-[0_0_15px_rgba(244,63,94,0.3)]">${lang === 'ar' ? 'المؤسس' : 'Founder'}</span>`}
+                                ${!selectedStudent.isFounder && selectedStudent.role === 'doctor' && html`<span className="text-[10px] bg-teal-500 text-white px-3 py-1 rounded-full font-black uppercase tracking-widest shadow-lg">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
                             </h2>
                         </div>
-                        <button onClick=${() => window.history.back()} className="font-bold text-red-500 hover:text-red-700 transition-colors flex items-center gap-2 bg-red-500/10 px-4 py-2 rounded-lg hover:bg-red-500/20">✖ ${lang === 'ar' ? 'رجوع للطلاب' : 'Back to Students'}</button>
+                        <button onClick=${() => window.history.back()} className="font-black text-white bg-red-500 hover:bg-red-600 transition-all px-6 py-3 rounded-2xl shadow-xl shadow-red-500/20 hover:scale-105 active:scale-95 flex items-center gap-3 text-xs tracking-widest uppercase">
+                            <span className="text-lg">✖</span>
+                            <span>${lang === 'ar' ? 'الرجوع للطلاب' : 'Back to Students'}</span>
+                        </button>
                     </div>
 
-                    <div className="bg-white/50 dark:bg-gray-900/50 rounded-2xl p-6 mb-6 border border-gray-200 dark:border-gray-700">
+                    <div className="bg-white/50 dark:bg-zinc-900/50 rounded-2xl p-6 mb-6 border border-zinc-200 dark:border-zinc-800">
                         <p className="opacity-90 font-bold text-brand-DEFAULT text-lg">${selectedStudent[`major${lang === 'ar' ? 'Ar' : 'En'}`] || selectedStudent.majorAr}</p>
-                        <div className="mt-2 text-gray-600 dark:text-gray-400">
+                        <div className="mt-2 text-zinc-600 dark:text-zinc-400">
                             <${Luminova.Components.SmartText} text=${selectedStudent[`bio${lang === 'ar' ? 'Ar' : 'En'}`] || selectedStudent.bioAr} lang=${lang} />
                         </div>
                     </div>
@@ -864,7 +867,7 @@ Luminova.Pages.StudentCommunityPage = ({ data, lang, setView, setActiveSummary }
         <div className="animate-fade-in">
              <h2 className="text-3xl font-bold mb-8 text-center">${Luminova.i18n[lang].community}</h2>
              <div className="max-w-2xl mx-auto mb-10">
-                 <input type="text" placeholder=${lang === 'ar' ? 'البحث عن زميل (بالاسم العربي أو الإنجليزي)...' : 'Search for a peer...'} value=${searchQuery} onChange=${e => setSearchQuery(e.target.value)} className="w-full p-5 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur border-2 dark:border-gray-700 focus:border-brand-DEFAULT shadow-xl outline-none font-bold text-lg text-center transition-all" />
+                 <input type="text" placeholder=${lang === 'ar' ? 'البحث عن زميل (بالاسم العربي أو الإنجليزي)...' : 'Search for a peer...'} value=${searchQuery} onChange=${e => setSearchQuery(e.target.value)} className="w-full p-5 rounded-full bg-white/80 dark:bg-zinc-900/80 backdrop-blur border-2 border-zinc-200 dark:border-zinc-800 focus:border-zinc-400 dark:focus:border-zinc-600 shadow-sm outline-none font-bold text-lg text-center transition-all" />
              </div>
              
              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -872,20 +875,20 @@ Luminova.Pages.StudentCommunityPage = ({ data, lang, setView, setActiveSummary }
                     <${Luminova.Components.GlassCard} 
                         key=${student.id} 
                         onClick=${() => { setSelectedStudent(student); setVisibleCount(5); }} 
-                        className=${`text-center flex flex-col items-center ${student.isFounder || student.id === 's_founder_hardcoded' ? 'scale-105 relative z-10 bg-gradient-to-br from-yellow-50 to-white dark:from-gray-900 dark:to-black border-4 border-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.4)] text-gray-900 dark:text-gray-100' : student.isVIP ? 'bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-blue-900/40 border-2 border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.3)]' : ''}`}
+                        className=${`text-center flex flex-col items-center ${student.isFounder || student.id === 's_founder_hardcoded' ? 'scale-105 relative z-10 bg-zinc-50 dark:bg-zinc-950 border-2 border-zinc-300 dark:border-zinc-700 shadow-md text-zinc-900 dark:text-zinc-100' : student.isVIP ? 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm' : ''}`}
                     >
                         <div className="mb-4">
                             <${Luminova.Components.Avatar} name=${student.nameAr || student.name} nameEn=${student.nameEn} image=${student.image} isVIP=${student.isVIP} isFounder=${student.isFounder || student.id === 's_founder_hardcoded'} isVerified=${student.isVerified} size="w-24 h-24" />
                         </div>
-                        <h3 className="text-xl font-bold flex flex-wrap items-center justify-center gap-2 whitespace-normal break-words" style=${{ wordBreak: 'normal', overflowWrap: 'anywhere' }}>
+                        <h3 className="text-xl font-black flex flex-wrap items-center justify-center gap-2 whitespace-normal break-words text-zinc-900 dark:text-white" style=${{ wordBreak: 'normal', overflowWrap: 'anywhere' }}>
                             ${lang === 'ar' ? (student.nameAr || student.name) : (student.nameEn || student.name)}
                         </h3>
-                        ${(student.isFounder || student.id === 's_founder_hardcoded') && html`<span className="text-xs bg-brand-gold text-black font-black px-3 py-1 rounded-full shadow-lg mt-2 mb-1 border border-yellow-500 block w-max mx-auto">${Luminova.i18n[lang].founder}</span>`}
-                        ${(!student.isFounder && student.id !== 's_founder_hardcoded') && student.role === 'doctor' && html`<span className="text-xs bg-teal-500 text-white font-black px-3 py-1 rounded-full shadow-lg mt-2 mb-1 block w-max mx-auto">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
-                        <p className="text-sm opacity-90 mt-2 font-semibold ${(student.isFounder || student.id === 's_founder_hardcoded') ? 'text-brand-gold drop-shadow-sm' : ''}">${student[`major${lang === 'ar' ? 'Ar' : 'En'}`] || student.majorAr}</p>
-                        <p className="text-xs bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full mt-2 font-bold opacity-80">${getContributionsCount[normalizeId(student.id)] || 0} ${lang === 'ar' ? 'مساهمة' : 'Contributions'}</p>
+                        ${(student.isFounder || student.id === 's_founder_hardcoded') && html`<span className="text-[10px] bg-gradient-to-r from-rose-400 via-fuchsia-400 to-indigo-400 text-white font-black px-4 py-1.5 rounded-full shadow-[0_0_15px_rgba(244,63,94,0.3)] mt-3 mb-1 uppercase tracking-widest block w-max mx-auto border-none">${Luminova.i18n[lang].founder}</span>`}
+                        ${(!student.isFounder && student.id !== 's_founder_hardcoded') && student.role === 'doctor' && html`<span className="text-[10px] bg-teal-500 text-white font-black px-4 py-1.5 rounded-full shadow-lg mt-3 mb-1 block w-max mx-auto uppercase tracking-widest">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
+                        <p className="text-sm font-black mt-3 ${(student.isFounder || student.id === 's_founder_hardcoded') ? 'text-rose-400 drop-shadow-sm' : 'text-zinc-500'} tracking-tight">${student[`major${lang === 'ar' ? 'Ar' : 'En'}`] || student.majorAr}</p>
+                        <p className="text-[10px] bg-rose-500/10 text-rose-400 px-3 py-1 rounded-full mt-3 font-black uppercase tracking-widest border border-rose-500/20">${getContributionsCount[normalizeId(student.id)] || 0} ${lang === 'ar' ? 'مساهمة' : 'Contributions'}</p>
                         
-                        <div className="mt-4 flex justify-center gap-4 border-t border-gray-200 dark:border-gray-700 w-full pt-4">
+                        <div className="mt-4 flex justify-center gap-4 border-t border-zinc-200 dark:border-zinc-700 w-full pt-4">
                             ${student.socialLinks?.facebook && html`<a href=${student.socialLinks.facebook} target="_blank" onClick=${e => e.stopPropagation()} className="hover:scale-125 transition-transform"><${Luminova.Icons.Facebook} /></a>`}
                             ${student.socialLinks?.instagram && html`<a href=${student.socialLinks.instagram} target="_blank" onClick=${e => e.stopPropagation()} className="hover:scale-125 transition-transform"><${Luminova.Icons.Instagram} /></a>`}
                             ${student.socialLinks?.linkedin && html`<a href=${student.socialLinks.linkedin} target="_blank" onClick=${e => e.stopPropagation()} className="hover:scale-125 transition-transform"><${Luminova.Icons.LinkedIn} /></a>`}

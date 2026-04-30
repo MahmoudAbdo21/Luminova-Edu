@@ -53,7 +53,7 @@
             position:   'fixed',
             inset:      0,
             zIndex:     999999,
-            background: 'rgba(2,6,23,0.92)',
+            background: 'rgba(9,9,11,0.95)',
             backdropFilter:         'blur(14px)',
             WebkitBackdropFilter:   'blur(14px)',
             display:        'flex',
@@ -71,8 +71,9 @@
             maxHeight:      'min(92dvh, 92vh)',   // dvh with vh fallback
             borderRadius:   '16px',
             overflow:       'hidden',
-            boxShadow:      '0 40px 100px rgba(0,0,0,0.75)',
-            background:     '#0f172a',
+            boxShadow:      '0 40px 100px rgba(0,0,0,0.85)',
+            background:     'rgba(24,24,27,0.8)',
+            border:         '1px solid rgba(255,255,255,0.1)',
         };
 
         const headerStyle = {
@@ -81,8 +82,8 @@
             justifyContent: 'space-between',
             height:         '52px',
             padding:        '0 18px',
-            background:     '#0f172a',
-            borderBottom:   '1px solid rgba(148,163,184,0.12)',
+            background:     'transparent',
+            borderBottom:   '1px solid rgba(255,255,255,0.08)',
             flexShrink:     0,
             gap:            '10px',
         };
@@ -131,7 +132,7 @@
             gap:            '20px',
             padding:        '32px',
             textAlign:      'center',
-            background:     'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)',
+            background:     'linear-gradient(135deg, rgba(244,63,94,0.1) 0%, rgba(79,70,229,0.1) 100%)',
         };
 
         return html`
@@ -171,10 +172,10 @@
                         <a href=${url} target="_blank" rel="noopener noreferrer"
                            style=${{
                                display: 'inline-flex', alignItems: 'center', gap: '8px',
-                               background: 'linear-gradient(135deg, #06b6d4, #0891b2)',
+                               background: 'linear-gradient(135deg, #fb7185, #818cf8)',
                                color: '#fff', padding: '12px 28px', borderRadius: '12px',
                                fontWeight: 900, fontSize: '0.95rem', textDecoration: 'none',
-                               boxShadow: '0 6px 20px rgba(6,182,212,0.35)',
+                               boxShadow: '0 6px 20px rgba(244,63,94,0.3)',
                            }}>
                             <span>↗</span>
                             <span>${lang === 'ar' ? 'فتح في المتصفح' : 'Open in Browser'}</span>

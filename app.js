@@ -79,13 +79,12 @@
         const [expanded, setExpanded] = useState(false);
         if (!text) return null;
         const isLong = text.length > maxLength;
-        return html`
-        <div className="mt-2 text-sm text-gray-700 dark:text-gray-300">
+        return html`<div className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
             <p className=${`whitespace-pre-line smart-text ${expanded ? 'expanded' : 'collapsed'}`}>
                 ${expanded ? text : text.substring(0, maxLength) + (isLong ? '...' : '')}
             </p>
             ${isLong && html`
-                <button onClick=${(e) => { e.stopPropagation(); setExpanded(!expanded); }} className="inline-flex items-center mt-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/30 px-2 py-0.5 rounded-full font-bold text-xs transition-all border border-blue-200 dark:border-blue-700 cursor-pointer">
+                <button onClick=${(e) => { e.stopPropagation(); setExpanded(!expanded); }} className="inline-flex items-center mt-2 text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 px-2 py-0.5 rounded-full font-bold text-xs transition-all border border-zinc-300 dark:border-zinc-700 cursor-pointer">
                     ${expanded ? Luminova.i18n[lang].readLess : Luminova.i18n[lang].readMore}
                 </button>
             `}
@@ -107,7 +106,7 @@
 
         return html`
         <div className="mt-6 w-full relative group space-y-10">
-            <div className="absolute -inset-1 bg-gradient-to-r from-brand-DEFAULT to-brand-gold opacity-10 rounded-2xl blur transition duration-1000 group-hover:opacity-30 -z-10"></div>
+            <div className="absolute -inset-1 bg-zinc-500/5 rounded-2xl blur transition duration-1000 group-hover:bg-zinc-500/10 -z-10"></div>
             ${sortedItems.map((item, idx) => {
                 if (!item || !item.url) return null;
                 let embedContent = null;
@@ -134,7 +133,7 @@
                     const driveId = urlStr.match(/[-\w]{25,}/);
                     embedContent = html`
                         <div className="w-full">
-                            <iframe loading="lazy" src=${(driveId ? `https://drive.google.com/file/d/${driveId}/preview` : 'about:blank')} width="100%" height="500" allow="autoplay" className="rounded-xl shadow-lg border-2 border-brand-DEFAULT/20 bg-white" allowFullScreen></iframe>
+                            <iframe loading="lazy" src=${(driveId ? `https://drive.google.com/file/d/${driveId}/preview` : 'about:blank')} width="100%" height="500" allow="autoplay" className="rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-800 bg-white" allowFullScreen></iframe>
                             <a href=${urlStr} target="_blank" rel="noopener noreferrer" className="mt-3 block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-sm transition-all">${lang === 'ar' ? 'فتح الرابط بالخارج ↗' : 'Open Link Externally ↗'}</a>
                         </div>`;
                 } else if (urlStr.includes('docs.google.com/forms')) {
@@ -148,11 +147,11 @@
                         <img loading="lazy" src=${urlStr} alt="Smart Media" className="shadow-lg mx-auto rounded-xl cursor-pointer" onClick=${() => window.dispatchEvent(new CustomEvent('openFullscreen', { detail: urlStr }))} style=${{ maxHeight: '400px', maxWidth: '100%', width: 'auto', objectFit: 'contain' }} />
                     </div>`;
                 } else if (urlStr.match(/\.(mp3|wav|ogg)(\?.*)?$/i) || (isBase64 && mimeType.startsWith('audio/'))) {
-                    embedContent = html`<audio controls className="w-full shadow-lg rounded-xl mb-4 bg-gray-100 dark:bg-gray-800 p-2"><source src=${urlStr} type=${isBase64 ? mimeType : `audio/${urlStr.split('.').pop().split('?')[0]}`} />متصفحك لا يدعم تشغيل الصوت.</audio>`;
+                    embedContent = html`<audio controls className="w-full shadow-sm rounded-xl mb-4 bg-zinc-50 dark:bg-zinc-900 p-2"><source src=${urlStr} type=${isBase64 ? mimeType : `audio/${urlStr.split('.').pop().split('?')[0]}`} />متصفحك لا يدعم تشغيل الصوت.</audio>`;
                 } else if (urlStr.match(/\.(mp4|webm)(\?.*)?$/i) || (isBase64 && mimeType.startsWith('video/'))) {
                     embedContent = html`<video controls className="w-full max-h-[500px] rounded-xl bg-black shadow-lg mb-4"><source src=${urlStr} type=${isBase64 ? mimeType : `video/${urlStr.split('.').pop().split('?')[0]}`} />متصفحك لا يدعم تشغيل الفيديو.</video>`;
                 } else if (urlStr.match(/\.pdf(\?.*)?$/i) || (isBase64 && mimeType === 'application/pdf')) {
-                    embedContent = html`<iframe src=${urlStr} width="100%" height="800px" style=${{ minHeight: '80vh' }} className="rounded-xl shadow-lg bg-white border-2 border-brand-DEFAULT/20" frameBorder="0" title="PDF Viewer"></iframe>`;
+                    embedContent = html`<iframe src=${urlStr} width="100%" height="800px" style=${{ minHeight: '80vh' }} className="rounded-xl shadow-sm bg-white border border-zinc-200 dark:border-zinc-800" frameBorder="0" title="PDF Viewer"></iframe>`;
                 } else {
                     // Handle HTML and generic unknown links
                     const isLocalHtml = urlStr.toLowerCase().endsWith('.html') || (isBase64 && mimeType === 'text/html');
@@ -160,16 +159,16 @@
 
                     if (isLocalHtml) {
                         embedContent = html`
-                        <div className="flex flex-col bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700 mb-4 relative z-10 w-full hover:shadow-2xl transition-all">
+                        <div className="flex flex-col bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden shadow-sm border border-zinc-200 dark:border-zinc-800 mb-4 relative z-10 w-full hover:shadow-md transition-all">
                             <iframe
                                 src=${urlStr}
                                 className="w-full h-[400px] border-none bg-white"
                                 sandbox="allow-scripts allow-popups allow-same-origin allow-forms"
                             ></iframe>
-                            <div className="flex w-full divide-x divide-gray-700 rtl:divide-x-reverse border-t border-gray-200 dark:border-gray-700">
+                            <div className="flex w-full divide-x divide-zinc-700 rtl:divide-x-reverse border-t border-zinc-200 dark:border-zinc-800">
                                 <button
                                     onClick=${() => window.dispatchEvent(new CustomEvent('openFullscreen', { detail: urlStr }))}
-                                    className="flex-1 py-4 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-black transition-all flex items-center justify-center gap-2 border-none"
+                                    className="flex-1 py-4 bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 font-black transition-all flex items-center justify-center gap-2 border-none"
                                 >
                                     <span className="text-xl leading-none">⛶</span>
                                     <span>${lang === 'ar' ? 'تكبير' : 'Enlarge'}</span>
@@ -177,7 +176,7 @@
                                 <a
                                     href=${urlStr}
                                     target="_blank"
-                                    className="flex-1 py-4 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-black transition-all flex items-center justify-center gap-2 no-underline"
+                                    className="flex-1 py-4 bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 font-black transition-all flex items-center justify-center gap-2 no-underline"
                                 >
                                     <span>${lang === 'ar' ? 'فتح بصفحة جديدة' : 'New Tab'}</span>
                                     <span className="text-xl leading-none">↗</span>
@@ -188,9 +187,9 @@
                     } else if (isLocalFallback) {
                         embedContent = html`
                         <div className="flex flex-col bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700 mb-4 relative z-10 w-full">
-                            <div className="w-full flex flex-col items-center justify-center gap-2 py-8 px-4 bg-gray-50 dark:bg-gray-800">
+                            <div className="w-full flex flex-col items-center justify-center gap-2 py-8 px-4 bg-zinc-50 dark:bg-zinc-900">
                                 <span style=${{ fontSize:'40px', lineHeight:1 }}>📁</span>
-                                <p className="text-sm font-bold text-gray-500 dark:text-gray-400 text-center">${lang === 'ar' ? 'مرفق محلي' : 'Local Attachment'}</p>
+                                <p className="text-sm font-bold text-zinc-500 dark:text-zinc-400 text-center">${lang === 'ar' ? 'مرفق محلي' : 'Local Attachment'}</p>
                                 <a href=${urlStr} target="_blank" className="mt-4 px-6 py-2 bg-brand-DEFAULT text-white rounded-full font-bold shadow-md hover:bg-brand-hover transition-colors">
                                     ${lang === 'ar' ? 'تنزيل / عرض الملف' : 'Download / View File'}
                                 </a>
@@ -200,13 +199,13 @@
                     } else {
                         // General fallback for unknown web URLs
                         embedContent = html`
-                        <div className="flex flex-col bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700 mb-4 relative z-10 w-full">
+                        <div className="flex flex-col bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden shadow-sm border border-zinc-200 dark:border-zinc-800 mb-4 relative z-10 w-full">
                             <iframe
                                 src=${urlStr}
                                 className="w-full h-[400px] border-none bg-white"
                                 sandbox="allow-scripts allow-popups allow-same-origin allow-forms"
                             ></iframe>
-                            <div className="w-full p-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-700">
+                            <div className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800">
                                 <a href=${urlStr} target="_blank" rel="noopener noreferrer" className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-sm transition-all">
                                     ${lang === 'ar' ? 'فتح الرابط بالخارج ↗' : 'Open Link Externally ↗'}
                                 </a>
@@ -228,8 +227,8 @@
                     // Luxurious Nano Banana Pill Badge Overlay
                     titleBadge = html`
                     <div className=${`${positionClass} z-20 pointer-events-none`} dir=${dirAttr}>
-                        <div className="backdrop-blur-md bg-gray-900/80 dark:bg-black/80 border border-white/10 dark:border-white/5 shadow-xl shadow-black/20 rounded-xl px-4 py-2 flex items-center gap-3">
-                            <span className="text-brand-gold text-lg drop-shadow-md">✨</span>
+                        <div className="backdrop-blur-md bg-zinc-900/80 dark:bg-black/80 border border-white/10 dark:border-white/5 shadow-sm rounded-xl px-4 py-2 flex items-center gap-3">
+                            <span className="text-zinc-400 text-lg">✨</span>
                             <span className="text-white font-bold text-sm tracking-wide truncate max-w-[200px] sm:max-w-md drop-shadow-sm flex-1" style=${{ direction: 'auto' }} title=${customTitle}>${customTitle}</span>
                         </div>
                     </div>`;
@@ -252,42 +251,42 @@
 
         return html`
         <div className="animate-fade-in relative max-w-4xl mx-auto pb-20 mt-4 xl:mt-8 px-2 sm:px-4">
-            <button onClick=${onClose} className="mb-6 flex items-center gap-2 text-brand-DEFAULT hover:text-brand-hover font-bold transition-colors bg-white dark:bg-gray-800 px-4 py-2 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+            <button onClick=${onClose} className="mb-6 flex items-center gap-2 text-fuchsia-100/60 hover:text-white font-bold transition-colors bg-white/[0.03] backdrop-blur-xl px-4 py-2 rounded-xl border border-white/10 shadow-lg">
                 <span className="text-xl">${lang === 'ar' ? '←' : '→'}</span>
                 <span>${lang === 'ar' ? 'الرجوع للقائمة' : 'Back to Feed'}</span>
             </button>
             
             ${author && author.id !== 'unknown' && html`
-                <div className="bg-white dark:bg-gray-800 rounded-3xl p-4 sm:p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex items-center gap-4 mb-8">
-                    <${Luminova.Components.Avatar} name=${author.nameAr || author.name} image=${author.image} isVIP=${author.isVIP} isVerified=${author.isVerified} isFounder=${author.isFounder} size="w-14 h-14 sm:w-20 sm:h-20 shrink-0 border-4 border-gray-50 dark:border-gray-900" />
+                <div className="bg-white/[0.03] backdrop-blur-xl rounded-[2rem] p-4 sm:p-6 border border-white/10 flex items-center gap-4 mb-8 shadow-2xl">
+                    <${Luminova.Components.Avatar} name=${author.nameAr || author.name} image=${author.image} isVIP=${author.isVIP} isVerified=${author.isVerified} isFounder=${author.isFounder} size="w-14 h-14 sm:w-20 sm:h-20 shrink-0 border-4 border-white/5 shadow-xl" />
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
-                            <h3 className="font-black text-lg sm:text-2xl text-brand-DEFAULT drop-shadow-sm truncate max-w-full">${lang === 'ar' ? (author.nameAr || author.name) : (author.nameEn || author.name)}</h3>
-                            ${author.isVIP && html`<span className="text-xs text-brand-DEFAULT bg-brand-DEFAULT/10 px-2.5 py-0.5 rounded-full font-bold shadow-sm shrink-0">VIP ✨</span>`}
-                            ${author.isFounder && html`<span className="text-xs bg-brand-gold text-black shadow-lg px-2.5 py-0.5 rounded-full font-black tracking-widest shrink-0">${Luminova.i18n[lang].founder}</span>`}
-                            ${!author.isFounder && author.role === 'doctor' && html`<span className="text-xs bg-teal-500 text-white shadow-lg px-2.5 py-0.5 rounded-full font-black tracking-widest shrink-0">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
+                            <h3 className="font-black text-lg sm:text-2xl text-white drop-shadow-sm truncate max-w-full">${lang === 'ar' ? (author.nameAr || author.name) : (author.nameEn || author.name)}</h3>
+                            ${author.isVIP && html`<span className="text-xs text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-full font-bold shadow-[0_0_10px_rgba(6,182,212,0.2)] shrink-0">VIP ✨</span>`}
+                            ${author.isFounder && html`<span className="text-[10px] bg-gradient-to-r from-cyan-400 to-fuchsia-500 text-white shadow-lg px-2.5 py-0.5 rounded-full font-black tracking-widest shrink-0 uppercase">${Luminova.i18n[lang].founder}</span>`}
+                            ${!author.isFounder && author.role === 'doctor' && html`<span className="text-xs bg-teal-500/20 text-teal-400 border border-teal-500/30 px-2.5 py-0.5 rounded-full font-black tracking-widest shrink-0">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
                         </div>
-                        <p className="text-sm font-bold opacity-60 text-gray-500 dark:text-gray-400 font-mono">${Luminova.formatDate(item.timestamp, lang)}</p>
+                        <p className="text-sm font-bold text-fuchsia-100/40 font-mono">${Luminova.formatDate(item.timestamp, lang)}</p>
                     </div>
                 </div>
             `}
 
             <div className="mb-12 px-2 sm:px-6">
-                <h1 className="text-3xl sm:text-5xl font-black mb-6 leading-tight text-gray-900 dark:text-white drop-shadow-sm">${item[`title${lang === 'ar' ? 'Ar' : 'En'}`] || item.titleAr || item.titleEn || item.title}</h1>
-                <p className="whitespace-normal break-words text-lg sm:text-xl opacity-80 leading-relaxed font-semibold text-gray-700 dark:text-gray-300" style=${{ overflowWrap: 'anywhere', wordBreak: 'normal' }}>
+                <h1 className="text-3xl sm:text-5xl font-black mb-6 leading-tight text-white drop-shadow-md">${item[`title${lang === 'ar' ? 'Ar' : 'En'}`] || item.titleAr || item.titleEn || item.title}</h1>
+                <p className="whitespace-normal break-words text-lg sm:text-xl opacity-80 leading-relaxed font-semibold text-zinc-600 dark:text-zinc-400" style=${{ overflowWrap: 'anywhere', wordBreak: 'normal' }}>
                     ${item[`content${lang === 'ar' ? 'Ar' : 'En'}`] || item.contentAr || item.contentEn || item.text}
                 </p>
             </div>
 
             ${currentUrls.length > 0 && html`
-                <div className="space-y-12 bg-gray-50/50 dark:bg-gray-800/10 p-2 sm:p-8 rounded-3xl">
+                <div className="space-y-12 bg-zinc-50/50 dark:bg-zinc-900/30 p-2 sm:p-8 rounded-3xl">
                     <div className="flex items-center gap-3 mb-8 px-4 sm:px-0">
                         <span className="text-3xl">📎</span>
-                        <h3 className="text-2xl font-black text-indigo-500 drop-shadow-sm">${lang === 'ar' ? 'المرفقات والشروحات' : 'Attachments & Media'}</h3>
+                        <h3 className="text-2xl font-black text-zinc-700 dark:text-zinc-300">${lang === 'ar' ? 'المرفقات والشروحات' : 'Attachments & Media'}</h3>
                     </div>
                     ${currentUrls.map((mUrl, i) => html`
                         <div key=${mUrl.url || mUrl.id || i} className="relative z-10 w-full hover:scale-[1.01] transition-transform duration-300">
-                            ${currentUrls.length > 1 && html`<div className="absolute -top-4 -start-4 w-10 h-10 bg-indigo-500 text-white font-black rounded-full flex items-center justify-center shadow-lg border-4 border-white dark:border-gray-900 z-20">${i + 1}</div>`}
+                            ${currentUrls.length > 1 && html`<div className="absolute -top-4 -start-4 w-10 h-10 bg-zinc-800 dark:bg-zinc-200 text-white dark:text-zinc-900 font-black rounded-full flex items-center justify-center shadow-sm border-4 border-white dark:border-zinc-900 z-20">${i + 1}</div>`}
                             <${Luminova.Components.SmartMedia} url=${mUrl} lang=${lang} />
                         </div>
                     `)}
@@ -307,7 +306,7 @@
         return html`
         <div className="relative inline-block">
             <div className=${`relative ${size} flex-shrink-0 rounded-full flex items-center justify-center font-bold text-white shadow-lg overflow-hidden
-                ${isFounder ? 'founder-card text-brand-gold bg-black' : isVIP ? 'vip-glow bg-gradient-to-r from-blue-500 to-cyan-500' : 'bg-gradient-to-br from-gray-500 to-gray-700'}`}>
+                ${isFounder ? 'founder-card text-zinc-300 bg-black' : isVIP ? 'bg-zinc-700' : 'bg-zinc-600'}`}>
                 ${image ? html`<img src=${image} alt=${name} className="w-full h-full object-cover rounded-full" />` : getInitials()}
             </div>
             ${isVerified && !isFounder && html`<${Luminova.Icons.VerifiedBlue} />`}
@@ -320,14 +319,14 @@
         <div className="mb-4 w-full">
             <label className="block text-sm font-black mb-2 opacity-80">${label}</label>
             ${type === 'checkbox' ? html`
-                <label className="flex items-center gap-3 cursor-pointer bg-white dark:bg-gray-800 p-3 rounded-xl border dark:border-gray-700 shadow-sm w-max">
+                <label className="flex items-center gap-3 cursor-pointer bg-white dark:bg-zinc-900 p-3 rounded-xl border dark:border-zinc-800 shadow-sm w-max">
                     <input type="checkbox" checked=${val || false} onChange=${(e) => onChange(e.target.checked)} className="w-6 h-6 accent-brand-DEFAULT rounded" />
                     <span className="font-bold">${label}</span>
                 </label>
             ` : type === 'textarea' ? html`
-                <textarea value=${val || ''} onChange=${(e) => onChange(e.target.value)} placeholder=${placeholder} className="w-full p-4 rounded-xl bg-white dark:bg-gray-800 border-2 dark:border-gray-700 focus:border-brand-DEFAULT outline-none shadow-sm min-h-[120px]" />
+                <textarea value=${val || ''} onChange=${(e) => onChange(e.target.value)} placeholder=${placeholder} className="w-full p-4 rounded-xl bg-white dark:bg-zinc-900 border-2 dark:border-zinc-800 focus:border-zinc-400 dark:focus:border-zinc-600 outline-none shadow-sm min-h-[120px]" />
             ` : html`
-                <input type=${type} value=${val || ''} onChange=${(e) => onChange(e.target.value)} placeholder=${placeholder} className="w-full p-4 rounded-xl bg-white dark:bg-gray-800 border-2 dark:border-gray-700 focus:border-brand-DEFAULT outline-none shadow-sm font-bold text-lg" />
+                <input type=${type} value=${val || ''} onChange=${(e) => onChange(e.target.value)} placeholder=${placeholder} className="w-full p-4 rounded-xl bg-white dark:bg-zinc-900 border-2 dark:border-zinc-800 focus:border-zinc-400 dark:focus:border-zinc-600 outline-none shadow-sm font-bold text-lg" />
             `}
         </div>
     `;
@@ -337,7 +336,7 @@
         return html`
         <div className="mb-4 w-full">
             <label className="block text-sm font-black mb-2 opacity-80">${label}</label>
-            <input type="url" value=${val || ''} onChange=${(e) => onChange(e.target.value)} className="w-full p-4 rounded-xl bg-white/50 dark:bg-gray-800 border-2 border-dashed dark:border-gray-700 focus:border-brand-DEFAULT outline-none shadow-sm" placeholder="URL Link" />
+            <input type="url" value=${val || ''} onChange=${(e) => onChange(e.target.value)} className="w-full p-4 rounded-xl bg-white/50 dark:bg-zinc-900 border-2 border-dashed dark:border-zinc-800 focus:border-blue-600 outline-none shadow-sm" placeholder="URL Link" />
         </div>
     `;
     };
@@ -387,18 +386,18 @@
         }
 
         return html`
-        <div className="flex flex-col gap-2 p-4 bg-white/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700/50 rounded-xl w-full hover:border-brand-DEFAULT/30 transition-colors">
+        <div className="flex flex-col gap-2 p-4 bg-white/50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-xl w-full hover:border-zinc-400/30 transition-colors">
             <div className="flex justify-between items-center mb-2 flex-wrap gap-4">
-                <div className="flex gap-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg shadow-inner">
+                <div className="flex gap-2 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg shadow-inner">
                     <button onClick=${() => setInputType('url')} className=${`px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-sm ${inputType === 'url' ? 'bg-brand-DEFAULT text-white' : 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>رابط (URL)</button>
-                    <button onClick=${() => setInputType('base64')} className=${`px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-sm ${inputType === 'base64' ? 'bg-brand-DEFAULT text-white' : 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>ملف (Base64)</button>
-                    <button onClick=${() => setInputType('local')} className=${`px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-sm ${inputType === 'local' ? 'bg-brand-DEFAULT text-white' : 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>مسار محلي</button>
+                    <button onClick=${() => setInputType('base64')} className=${`px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-sm ${inputType === 'base64' ? 'bg-brand-DEFAULT text-white' : 'bg-transparent text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'}`}>ملف (Base64)</button>
+                    <button onClick=${() => setInputType('local')} className=${`px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-sm ${inputType === 'local' ? 'bg-brand-DEFAULT text-white' : 'bg-transparent text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'}`}>مسار محلي</button>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1 shadow-inner">
+                    <div className="flex items-center bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1 shadow-inner">
                         <button onClick=${onMoveUp} disabled=${isFirst} className="px-2 py-1.5 rounded-md hover:bg-white dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-gray-700 dark:text-gray-300 shadow-sm" title="تحريك لأعلى (Move Up)">↑</button>
-                        <div className="w-[1px] h-4 bg-gray-300 dark:bg-gray-600 mx-1"></div>
-                        <button onClick=${onMoveDown} disabled=${isLast} className="px-2 py-1.5 rounded-md hover:bg-white dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-gray-700 dark:text-gray-300 shadow-sm" title="تحريك لأسفل (Move Down)">↓</button>
+                        <div className="w-[1px] h-4 bg-zinc-300 dark:bg-zinc-600 mx-1"></div>
+                        <button onClick=${onMoveDown} disabled=${isLast} className="px-2 py-1.5 rounded-md hover:bg-white dark:hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-zinc-700 dark:text-zinc-300 shadow-sm" title="تحريك لأسفل (Move Down)">↓</button>
                     </div>
                     <button onClick=${onRemove} className="text-red-500 hover:text-white hover:bg-red-500 px-3 py-2 rounded-lg text-sm font-bold flex items-center shadow-sm transition-all border border-red-500/20" title="حذف المرفق">✖</button>
                 </div>
@@ -462,7 +461,7 @@
         });
 
         return html`
-        <div className="bg-gray-50 dark:bg-gray-800/40 p-5 rounded-2xl border border-gray-200 dark:border-gray-700/50 shadow-inner w-full space-y-4">
+        <div className="bg-zinc-50 dark:bg-zinc-900/40 p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-inner w-full space-y-4">
             <h4 className="font-black text-brand-DEFAULT border-b border-brand-DEFAULT/20 dark:border-gray-700 pb-3 flex items-center gap-2"><span>📎</span> ${label} <span className="bg-brand-DEFAULT text-white px-2.5 py-0.5 rounded-full text-xs shadow-sm">${sortedItems.length}</span></h4>
             <div className="flex flex-col gap-4 w-full">
                 ${renderedItems}
@@ -480,7 +479,7 @@
         const variants = {
             primary: "bg-brand-DEFAULT text-white hover:bg-brand-hover",
             danger: "bg-red-500 text-white hover:bg-red-600",
-            glass: "glass-card text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800",
+            glass: "glass-card text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800",
         };
         return html`
         <button disabled=${disabled} onClick=${onClick} className=${`px-4 py-2 rounded-lg font-semibold transition-all shadow hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${variants[variant]} ${className}`}>
@@ -511,7 +510,7 @@
         return html`
         <div className=${`relative ${className}`}>
             <button onClick=${() => setIsOpen(!isOpen)} onBlur=${() => setTimeout(() => setIsOpen(false), 200)}
-                className="w-full appearance-none bg-slate-800/50 hover:bg-slate-800/80 border border-slate-700 text-white rounded-2xl px-4 py-3.5 outline-none transition-all cursor-pointer shadow-sm font-bold flex justify-between items-center z-10 relative"
+                className="w-full appearance-none bg-white/[0.03] hover:bg-white/[0.06] backdrop-blur-xl border border-white/10 text-white rounded-2xl px-5 py-4 outline-none transition-all cursor-pointer shadow-sm font-bold flex justify-between items-center z-10 relative"
             >
                 <span className=${selectedOption ? 'opacity-100' : 'opacity-70'}>
                     ${selectedOption ? selectedOption.label : placeholder}
@@ -519,12 +518,12 @@
                 <span className=${`transition-transform duration-300 transform opacity-50 ${isOpen ? 'rotate-180' : ''}`}>▼</span>
             </button>
             ${isOpen && html`
-                <div className="absolute top-full left-0 right-0 mt-2 z-[999] animate-fade-in backdrop-blur-xl bg-slate-900/90 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden max-h-[250px] overflow-y-auto">
+                <div className="absolute top-full left-0 right-0 mt-3 z-[999] animate-fade-in backdrop-blur-3xl bg-[#0A0514]/95 border border-white/10 rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.6)] overflow-hidden max-h-[300px] overflow-y-auto">
                     <ul className="py-2 flex flex-col m-0 p-0">
                         ${options.map(opt => html`
                             <li key=${opt.value} 
                                 onClick=${() => { onChange(opt.value); setIsOpen(false); }}
-                                className=${`px-5 py-3 cursor-pointer transition-colors font-bold ${String(value) === String(opt.value) ? 'bg-brand-DEFAULT/20 text-brand-gold' : 'text-slate-300 hover:bg-brand-DEFAULT/20 hover:text-white'}`}
+                                className=${`px-5 py-4 cursor-pointer transition-colors font-bold border-b border-white/5 last:border-none ${String(value) === String(opt.value) ? 'bg-rose-500/20 text-rose-400' : 'text-zinc-400 hover:bg-white/[0.05] hover:text-white'}`}
                             >
                                 ${opt.label}
                             </li>
@@ -559,7 +558,7 @@
         if (!showOverlay || ignoreOrientation) return null;
 
         return html`
-        <div className="fixed inset-0 z-[11000] flex flex-col items-center justify-center p-6 backdrop-blur-xl bg-slate-900/95 text-white animate-fade-in" dir=${lang === 'ar' ? 'rtl' : 'ltr'}>
+            <div className="fixed inset-0 z-[11000] flex flex-col items-center justify-center p-6 backdrop-blur-xl bg-black/95 text-white animate-fade-in" dir=${lang === 'ar' ? 'rtl' : 'ltr'}>
             <div className="flex flex-col items-center text-center max-w-lg w-full">
                 <!-- Rotating Tablet Icon CSS Animation -->
                 <style>
@@ -586,7 +585,7 @@
                     <div style=${{ width: '8px', height: '8px', backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: '50%', position: 'absolute', top: '10px' }}></div>
                 </div>
                 
-                <h2 className="text-3xl lg:text-4xl font-black mb-6 leading-tight bg-gradient-to-r from-brand-gold to-yellow-200 bg-clip-text text-transparent drop-shadow-md">
+                <h2 className="text-3xl lg:text-4xl font-black mb-6 leading-tight text-white">
                     ${lang === 'ar' ? 'للحصول على أفضل تجربة تصفح، يرجى تدوير التابلت أو الآيباد إلى الوضع العرضي' : 'For the best browsing experience, please rotate your tablet/iPad to landscape mode'}
                 </h2>
                 <button onClick=${() => setIgnoreOrientation(true)} className="mt-8 px-8 py-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-sm font-bold transition-all shadow-xl hover:shadow-2xl active:scale-95 text-xl">
@@ -766,38 +765,30 @@
 
         return html`
         <div className="min-h-screen lmv-page-wrapper">
+            <div className="ambient-glow"></div>
 
             <!-- Splash Screen Intro -->
             <div style=${{
                 position: 'fixed', inset: 0, zIndex: 10000,
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                background: 'linear-gradient(135deg, #0a0f1e 0%, #0f172a 60%, #1a0a2e 100%)',
+                background: '#020617',
                 pointerEvents: showSplash ? 'all' : 'none',
                 opacity: showSplash ? 1 : 0,
                 transition: 'opacity 0.85s cubic-bezier(0.4, 0, 0.2, 1)',
             }}>
-                <div style=${{ textAlign: 'center', animation: 'lmv-splash-in 1s cubic-bezier(0.22, 1, 0.36, 1) forwards' }}>
-                    <div style=${{
-                        width: '72px', height: '72px',
-                        background: 'linear-gradient(135deg, #06b6d4, #f59e0b)',
-                        borderRadius: '20px',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: 'white', fontWeight: 900, fontSize: '38px',
-                        boxShadow: '0 0 60px rgba(6,182,212,0.5), 0 0 120px rgba(245,158,11,0.2)',
-                        margin: '0 auto 24px',
-                    }}>L</div>
-                    <p style=${{
-                        fontFamily: "'Inter', 'Segoe UI', sans-serif",
-                        fontSize: 'clamp(2.5rem, 8vw, 5rem)',
-                        fontWeight: 900,
-                        letterSpacing: '0.18em',
-                        textTransform: 'uppercase',
-                        background: 'linear-gradient(135deg, #ffffff 0%, #06b6d4 40%, #f59e0b 100%)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
+                <div id="lmv-splash-content" style=${{
+                    textAlign: 'center',
+                    animation: 'lmv-splash-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+                }}>
+                    <p className="font-black tracking-tighter" style=${{
+                        fontSize: '4.5rem',
+                        background: 'linear-gradient(to bottom right, #fb7185, #e879f9, #818cf8)',
+                        webkitBackgroundClip: 'text',
+                        webkitTextFillColor: 'transparent',
                         backgroundClip: 'text',
-                        margin: 0, lineHeight: 1.1,
-                        filter: 'drop-shadow(0 0 30px rgba(6,182,212,0.4))',
+                        margin: 0,
+                        lineHeight: 0.9,
+                        filter: 'drop-shadow(0 0 20px rgba(244, 63, 94, 0.3))',
                     }}>LUMINOVA</p>
                     <p style=${{
                         fontFamily: "'Inter', 'Segoe UI', sans-serif",
@@ -809,7 +800,7 @@
                         fontWeight: 600,
                     }}>Educational Platform</p>
                 </div>
-                <style>{'@keyframes lmv-splash-in { from { opacity: 0; transform: scale(0.88) translateY(16px); } to { opacity: 1; transform: scale(1) translateY(0); } }'}</style>
+                <style>@keyframes lmv-splash-in { from { opacity: 0; transform: scale(0.88) translateY(16px); } to { opacity: 1; transform: scale(1) translateY(0); } }</style>
             </div>
 
             <!-- Task 4: Tablet Portrait Overlay -->
@@ -821,13 +812,13 @@
                 <!-- Slim loading bar at top (shown during page transitions) -->
                 ${isNavigating ? html`<div key="loading-bar" className="lmv-loading-bar"></div>` : null}
 
-                <nav key="top-nav" style=${{ position: 'sticky', top: 0, zIndex: 40 }} className="glass-card px-3 sm:px-8 py-3 sm:py-4 mb-10 flex items-center gap-2 rounded-none border-t-0 border-r-0 border-l-0 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)]">
+                <nav key="top-nav" style=${{ position: 'sticky', top: 0, zIndex: 40 }} className="glass-card px-3 sm:px-8 py-3 sm:py-4 mb-10 flex items-center gap-2 rounded-none border-t-0 border-r-0 border-l-0 shadow-sm">
 
                 <!-- Logo (シ) icon only — always visible on all screens -->
-                <div style=${{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0, cursor: 'pointer', zIndex: 10 }} className="group hover:opacity-90" onClick=${handleLogoClick}>
-                    <div style=${{ width: '40px', height: '40px', background: 'linear-gradient(135deg, #06b6d4, #f59e0b)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '900', fontSize: '22px', boxShadow: '0 4px 15px rgba(6,182,212,0.4)', flexShrink: 0 }} className="group-hover:scale-110 transition-transform">L</div>
+                <div style=${{ display: 'flex', alignItems: 'center', gap: '14px', flexShrink: 0, cursor: 'pointer', zIndex: 10 }} className="group" onClick=${handleLogoClick}>
+                    <div className="bg-gradient-to-br from-rose-400 to-indigo-500 shadow-[0_0_15px_rgba(244,63,94,0.4)] group-hover:shadow-[0_0_25px_rgba(244,63,94,0.6)] transition-all duration-500" style=${{ width: '44px', height: '44px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '900', fontSize: '24px', flexShrink: 0 }}>L</div>
                     <!-- Platform name: hidden on mobile (shown in center), visible on desktop -->
-                    <span className="hidden sm:inline font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-DEFAULT to-brand-gold" style=${{ fontSize: '1.2rem', whiteSpace: 'nowrap', fontWeight: '900' }}>
+                    <span className="hidden sm:inline font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-fuchsia-400 to-indigo-400" style=${{ fontSize: '1.35rem', whiteSpace: 'nowrap', fontWeight: '900', letterSpacing: '0.05em' }}>
                         ${lang === 'ar' ? 'لومينوفا التعليمية' : 'Luminova Edu'}
                     </span>
                 </div>
@@ -836,26 +827,26 @@
                 <!-- On desktop this is replaced by the nav links -->
                 ${view !== 'quiz' ? html`
                     <!-- Desktop nav links (hidden on mobile) -->
-                    <div key="dt-nav" className="lmv-top-nav-links hidden md:flex items-center gap-1 mx-auto">
+                    <div key="dt-nav" className="lmv-top-nav-links hidden md:flex items-center gap-2 mx-auto">
                         <button onClick=${() => changeView('home')} title=${lang === 'ar' ? Luminova.i18n.ar.home : Luminova.i18n.en.home}
-                            className=${`px-4 py-2.5 rounded-2xl transition-all duration-200 flex gap-2 items-center font-bold text-base flex-shrink-0 ${view === 'home' ? 'text-brand-DEFAULT bg-brand-DEFAULT/15 shadow-inner' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
+                            className=${`px-5 py-2.5 rounded-2xl transition-all duration-500 flex gap-2 items-center font-black text-base flex-shrink-0 ${view === 'home' ? 'text-rose-400 bg-rose-500/20 border border-rose-500/40 shadow-[0_0_15px_rgba(244,63,94,0.1)]' : 'text-zinc-400 hover:bg-white/5 hover:text-white'}`}>
                             <${Luminova.Icons.Home} />
                             <span>${lang === 'ar' ? Luminova.i18n.ar.home : Luminova.i18n.en.home}</span>
                         </button>
                         <button onClick=${() => changeView('community')} title=${lang === 'ar' ? Luminova.i18n.ar.community : Luminova.i18n.en.community}
-                            className=${`px-4 py-2.5 rounded-2xl transition-all duration-200 flex gap-2 items-center font-bold text-base flex-shrink-0 ${view === 'community' ? 'text-brand-DEFAULT bg-brand-DEFAULT/15 shadow-inner' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
+                            className=${`px-5 py-2.5 rounded-2xl transition-all duration-500 flex gap-2 items-center font-black text-base flex-shrink-0 ${view === 'community' ? 'text-rose-400 bg-rose-500/20 border border-rose-500/40 shadow-[0_0_15px_rgba(244,63,94,0.1)]' : 'text-zinc-400 hover:bg-white/5 hover:text-white'}`}>
                             <${Luminova.Icons.User} />
                             <span>${lang === 'ar' ? Luminova.i18n.ar.community : Luminova.i18n.en.community}</span>
                         </button>
                         <button onClick=${() => changeView('academics')} title=${lang === 'ar' ? Luminova.i18n.ar.academic : Luminova.i18n.en.academic}
-                            className=${`px-4 py-2.5 rounded-2xl transition-all duration-200 flex gap-2 items-center font-bold text-base flex-shrink-0 ${view === 'academics' ? 'text-brand-DEFAULT bg-brand-DEFAULT/15 shadow-inner' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}>
+                            className=${`px-5 py-2.5 rounded-2xl transition-all duration-500 flex gap-2 items-center font-black text-base flex-shrink-0 ${view === 'academics' ? 'text-rose-400 bg-rose-500/20 border border-rose-500/40 shadow-[0_0_15px_rgba(244,63,94,0.1)]' : 'text-zinc-400 hover:bg-white/5 hover:text-white'}`}>
                             <${Luminova.Icons.Book} />
                             <span>${lang === 'ar' ? Luminova.i18n.ar.academic : Luminova.i18n.en.academic}</span>
                         </button>
                     </div>
                     <!-- Mobile: Platform name in center (visible only on mobile) -->
                     <div key="mb-nav" className="flex md:hidden flex-1 justify-center">
-                        <span style=${{ fontWeight: '900', fontSize: '1.1rem', whiteSpace: 'nowrap', background: 'linear-gradient(90deg, #06b6d4, #f59e0b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                        <span style=${{ fontWeight: '900', fontSize: '1.1rem', whiteSpace: 'nowrap', color: '#09090b' }} className="dark:!text-white">
                             ${lang === 'ar' ? 'لومينوفا التعليمية' : 'Luminova Edu'}
                         </span>
                     </div>
@@ -864,11 +855,11 @@
                 <!-- Right controls -->
                 <div style=${{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
                     <button onClick=${toggleLang}
-                        className="font-black text-sm border-2 border-brand-DEFAULT text-brand-DEFAULT px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl hover:bg-brand-DEFAULT hover:text-white transition-all shadow-sm flex-shrink-0">
+                        className="font-black text-sm border-2 border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl hover:bg-zinc-900 hover:text-white hover:border-zinc-900 dark:hover:bg-white dark:hover:text-zinc-900 dark:hover:border-white transition-all shadow-sm flex-shrink-0">
                         ${lang === 'ar' ? 'EN' : 'AR'}
                     </button>
                     <button onClick=${toggleTheme}
-                        className="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all text-lg sm:text-xl shadow-inner flex-shrink-0" title="Toggle Theme">
+                        className="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all text-lg sm:text-xl shadow-inner flex-shrink-0" title="Toggle Theme">
                         ${data.settings?.theme === 'dark' ? '☀️' : '🌙'}
                     </button>
                 </div>

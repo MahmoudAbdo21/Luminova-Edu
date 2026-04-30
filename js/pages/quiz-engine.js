@@ -11,17 +11,16 @@
         if (!quiz || !data) {
             return html`
             <div className="min-h-screen flex items-center justify-center p-4">
-                <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-10 text-center animate-fade-in border border-red-200 dark:border-red-900">
+                <div className="max-w-md w-full bg-white/[0.03] backdrop-blur-2xl rounded-[2.5rem] shadow-2xl p-10 text-center animate-fade-in border border-white/10">
                     <div className="text-7xl mb-6">⚠️</div>
-                    <h2 className="text-2xl font-black text-red-600 dark:text-red-400 mb-4">
+                    <h2 className="text-2xl font-black text-white mb-4">
                         ${lang === 'ar' ? 'خطأ في تحميل الامتحان' : 'Exam Load Error'}
                     </h2>
-                    <p className="text-base font-bold text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
+                    <p className="text-base font-bold text-fuchsia-100/60 mb-8 leading-relaxed">
                         ${lang === 'ar' ? 'لم يتم العثور على بيانات الامتحان أو بيانات المنصة. يرجى العودة والمحاولة مرة أخرى.' : 'Exam data or platform data is missing. Please go back and try again.'}
                     </p>
                     <button onClick=${goBack}
-                        className="w-full py-4 rounded-2xl font-black text-lg text-white shadow-xl transition-all hover:scale-[1.02]"
-                        style=${{ background: 'linear-gradient(135deg, #06b6d4, #0891b2)', boxShadow: '0 10px 30px -10px rgba(6,182,212,0.6)' }}>
+                        className="w-full py-4 rounded-2xl font-black text-lg text-white shadow-xl transition-all hover:scale-[1.02] bg-gradient-to-r from-cyan-400 to-fuchsia-500">
                         ${lang === 'ar' ? '🔙 العودة' : '🔙 Go Back'}
                     </button>
                 </div>
@@ -97,12 +96,12 @@
 
         // Task 3: Auto-fullscreen for ALL exam types on start
         useEffect(() => {
-            if (isStarted && !isFinished) {
+            if (isStarted && !isFinished && questions.length > 0) {
                 if (!document.fullscreenElement) {
                     document.documentElement.requestFullscreen().catch(err => console.log('Fullscreen denied:', err));
                 }
             }
-        }, [isStarted]);
+        }, [isStarted, questions.length]);
 
         // Task 3: Helper — safe exit fullscreen
         const safeExitFullscreen = () => {
@@ -309,15 +308,16 @@
                 };
 
                 return html`
-                <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-brand-DEFAULT/20 to-brand-gold/10 backdrop-blur-3xl"></div>
-                    <div className="relative z-10 max-w-lg w-full rounded-3xl shadow-2xl p-10 animate-fade-in" style=${{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: '2px solid rgba(251,191,36,0.3)', boxShadow: '0 8px 40px rgba(251,191,36,0.12), inset 0 0 60px rgba(251,191,36,0.02)' }}>
+                    <div className="absolute inset-0 bg-[#0A0514]"></div>
+                    <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
+                    <div className="absolute bottom-0 left-0 w-80 h-80 bg-fuchsia-500/10 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2"></div>
+                    <div className="relative z-10 max-w-lg w-full bg-white/[0.03] backdrop-blur-2xl rounded-[2.5rem] shadow-2xl p-10 animate-fade-in border border-white/10">
                         <div className="text-center mb-8">
-                            <div className="text-7xl mb-4" style=${{ filter: 'drop-shadow(0 0 15px rgba(251,191,36,0.5))' }}>📋</div>
-                            <h2 className="text-3xl font-black mb-2" style=${{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                            <div className="text-7xl mb-4">📋</div>
+                            <h2 className="text-3xl font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-500">
                                 ${lang === 'ar' ? 'تعليمات الامتحان' : 'Exam Instructions'}
                             </h2>
-                            <p className="text-sm font-bold text-gray-500 dark:text-gray-400">
+                            <p className="text-sm font-bold text-fuchsia-100/40">
                                 ${lang === 'ar' ? 'يرجى قراءة التعليمات بعناية قبل البدء' : 'Please read the instructions carefully before starting'}
                             </p>
                         </div>
@@ -354,8 +354,7 @@
                         </div>
 
                         <button onClick=${startExamNow}
-                            className="w-full py-4 rounded-2xl font-black text-xl text-white shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
-                            style=${{ background: 'linear-gradient(135deg, #06b6d4, #0891b2)', boxShadow: '0 10px 30px -10px rgba(6,182,212,0.6)' }}>
+                            className="w-full py-4 rounded-2xl font-black text-xl text-white shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] bg-gradient-to-r from-cyan-400 to-fuchsia-500">
                             ${lang === 'ar' ? '🚀 ابدأ الامتحان الآن' : '🚀 Start Exam Now'}
                         </button>
                     </div>
@@ -414,21 +413,22 @@
             }
 
             return html`
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4 relative overflow-hidden">
-                <button onClick=${goBack} className="absolute top-6 left-6 sm:left-10 z-50 bg-white/50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800 backdrop-blur-md px-6 py-3 rounded-2xl font-black shadow-sm transition-all flex items-center gap-2 border border-brand-gold/30 hover:scale-105">
+            <div className="min-h-screen flex items-center justify-center bg-[#0A0514] p-4 relative overflow-hidden">
+                <button onClick=${goBack} className="absolute top-6 left-6 sm:left-10 z-50 bg-white/[0.03] backdrop-blur-2xl hover:bg-white/[0.06] text-white px-6 py-3 rounded-2xl font-black shadow-lg transition-all flex items-center gap-2 border border-white/10 hover:scale-105">
                     <span className="text-xl">🔙</span> ${lang === 'ar' ? 'الخروج' : 'Back'}
                 </button>
-                <div className="absolute inset-0 bg-gradient-to-br from-brand-gold/20 to-amber-500/10 backdrop-blur-3xl"></div>
-                <div className="relative z-10 max-w-lg w-full bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl border border-brand-gold/30 p-8 rounded-3xl shadow-2xl">
+                <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
+                <div className="absolute bottom-0 left-0 w-80 h-80 bg-fuchsia-500/10 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2"></div>
+                <div className="relative z-10 max-w-lg w-full bg-white/[0.03] backdrop-blur-2xl border border-white/10 p-8 rounded-[2.5rem] shadow-2xl">
                     <div className="text-center mb-8">
                         <div className="text-6xl mb-4">🎓</div>
-                        <h2 className="text-3xl font-black text-brand-gold drop-shadow-sm mb-2">${quiz.titleAr || quiz.title || quiz.titleEn}</h2>
-                        <p className="text-gray-600 dark:text-gray-300 font-bold opacity-80">${lang === 'ar' ? 'بوابة الدخول للاختبار التقييمي' : 'Evaluation Exam Gateway'}</p>
+                        <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-500 mb-2">${quiz.titleAr || quiz.title || quiz.titleEn}</h2>
+                        <p className="text-fuchsia-100/60 font-bold opacity-80">${lang === 'ar' ? 'بوابة الدخول للاختبار التقييمي' : 'Evaluation Exam Gateway'}</p>
                     </div>
 
                     ${timeStatus === 'early' ? html`
-                        <div className="text-center p-6 bg-brand-gold/10 rounded-2xl border border-brand-gold/30 mb-6">
-                            <div className="text-4xl font-black text-brand-gold mb-2 tabular-nums">${timeMsg}</div>
+                        <div className="text-center p-6 bg-cyan-500/10 rounded-2xl border border-cyan-500/30 mb-6">
+                            <div className="text-4xl font-black text-cyan-400 mb-2 tabular-nums">${timeMsg}</div>
                             <p className="text-sm opacity-70 font-bold">يرجى الانتظار، سيتم التفعيل تلقائياً</p>
                         </div>
                     ` : timeStatus === 'late' ? html`
@@ -491,7 +491,7 @@
                             <button 
                                 disabled=${!isFormValid || isVerifying}
                                 onClick=${verifyAndStart}
-                                className="w-full py-4 mt-6 rounded-2xl font-black text-xl text-white bg-gradient-to-r from-brand-gold to-amber-600 shadow-[0_10px_30px_-10px_rgba(245,158,11,0.8)] hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:cursor-not-allowed">
+                                className="w-full py-4 mt-6 rounded-2xl font-black text-xl text-white bg-gradient-to-r from-cyan-400 to-fuchsia-500 shadow-lg transition-transform disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]">
                                 ${isVerifying ? (lang === 'ar' ? '⏳ جاري التحقق من السجلات...' : '⏳ Verifying records...') : (lang === 'ar' ? 'بدء الاختبار' : 'Start Exam')}
                             </button>
                         </div>
@@ -509,16 +509,16 @@
 
         if (isFinished) {
             const successModal = modalType === 'success' ? html`
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style=${{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
-                    <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-[0_32px_80px_rgba(0,0,0,0.5)] p-10 w-full max-w-md border-2 border-green-500/30 animate-fade-in text-center">
-                        <div className="text-7xl mb-6 text-green-500">✅</div>
-                        <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-4">
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style=${{ background: 'rgba(10,5,20,0.6)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}>
+                    <div className="bg-white/[0.03] backdrop-blur-2xl rounded-[2.5rem] shadow-2xl p-10 w-full max-w-md border border-white/10 animate-fade-in text-center">
+                        <div className="text-7xl mb-6">✅</div>
+                        <h2 className="text-3xl font-black text-white mb-4">
                             ${lang === 'ar' ? 'نجاح التسليم' : 'Success'}
                         </h2>
-                        <p className="text-lg font-bold text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
+                        <p className="text-lg font-bold text-fuchsia-100/60 mb-8 leading-relaxed">
                             ${lang === 'ar' ? 'تم تسليم امتحانك بنجاح بطريقة طبيعية، وتم تسجيل نتيجتك وحالة التسليم في النظام.' : 'Exam submitted normally and status recorded.'}
                         </p>
-                        <button onClick=${() => setModalType(null)} className="w-full py-4 rounded-2xl font-black bg-green-600 hover:bg-green-700 text-white shadow-xl shadow-green-600/30 transition-all text-xl">
+                        <button onClick=${() => setModalType(null)} className="w-full py-4 rounded-2xl font-black bg-gradient-to-r from-rose-400 via-fuchsia-400 to-indigo-500 text-white shadow-xl transition-all text-xl">
                             ${lang === 'ar' ? 'متابعة' : 'Continue'}
                         </button>
                     </div>
@@ -528,31 +528,33 @@
             if (isEvaluation && String(quiz.showResultsAfter) !== 'true') {
                 return html`
                 ${successModal}
-                <div className="min-h-screen flex items-center justify-center p-4">
-                    <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-3xl shadow-[0_32px_80px_rgba(0,0,0,0.35)] p-10 border border-green-200/40 dark:border-green-900/40 animate-fade-in text-center">
+                <div className="min-h-screen flex items-center justify-center p-4 bg-zinc-950 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-96 h-96 bg-rose-500/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
+                    <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2"></div>
+                    <div className="relative z-10 max-w-md w-full bg-white/2 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl p-10 border border-white/10 animate-fade-in text-center">
                         ${isLateSubmission && html`
-                            <div className="mb-6 px-4 py-2 bg-yellow-500/20 text-yellow-600 dark:text-yellow-500 border border-yellow-500/50 rounded-xl font-bold text-sm">
+                            <div className="mb-6 px-4 py-2 bg-fuchsia-500/10 text-fuchsia-400 border border-fuchsia-500/20 rounded-xl font-bold text-sm">
                                 ⚠️ ${lang === 'ar' ? 'تم التسليم بنجاح، ولكن تم تسجيل تأخيرك عن الموعد المحدد.' : 'Successfully submitted, but marked as late.'}
                             </div>
                         `}
-                        <div className="text-7xl mb-6 ${terminationReason === 'completed' ? 'text-green-500 animate-bounce' : 'text-red-500'}">
+                        <div className="text-7xl mb-6 ${terminationReason === 'completed' ? 'animate-bounce' : ''}">
                             ${terminationReason === 'completed' ? '✅' : '⛔'}
                         </div>
-                        <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-4">
+                        <h2 className="text-3xl font-black text-white mb-4">
                             ${terminationReason === 'completed'
                         ? (lang === 'ar' ? 'تم تسليم امتحانك بنجاح!' : 'Your exam has been submitted successfully!')
                         : terminationReason === 'time_expired'
                             ? (lang === 'ar' ? 'انتهى الوقت!' : 'Time Expired!')
                             : (lang === 'ar' ? 'تم سحب الامتحان' : 'Exam Terminated')}
                         </h2>
-                        <p className="text-lg font-bold text-gray-500 dark:text-gray-400 mb-10 leading-relaxed">
+                        <p className="text-lg font-bold text-fuchsia-100/60 mb-10 leading-relaxed">
                             ${terminationReason === 'completed'
                         ? (lang === 'ar' ? 'شكراً لك، تم حفظ جميع إجاباتك.' : 'Thank you, all your answers have been saved.')
                         : terminationReason === 'time_expired'
                             ? (lang === 'ar' ? 'انتهى الوقت المسموح به، تم حفظ وتسليم إجاباتك تلقائياً.' : 'Time is up. Your answers have been automatically saved and submitted.')
                             : (lang === 'ar' ? 'تم سحب الامتحان وإرساله للإدارة نظراً لمخالفة قواعد المراقبة والخروج من الشاشة أكثر من مرة.' : 'Exam force-submitted and sent to administration due to repeated proctoring violations.')}
                         </p>
-                        <${Luminova.Components.Button} onClick=${goBack} className="w-full py-4 text-xl rounded-2xl font-black bg-gradient-to-r from-brand-DEFAULT to-green-500 text-white shadow-xl shadow-green-500/30 transition-all hover:scale-[1.02]">
+                        <${Luminova.Components.Button} onClick=${goBack} className="w-full py-4 text-xl rounded-2xl font-black bg-gradient-to-r from-rose-400 via-fuchsia-400 to-indigo-500 text-white shadow-xl transition-all hover:scale-[1.02]">
                             ${lang === 'ar' ? 'الخروج للمواد' : 'Return to Subjects'}
                         </${Luminova.Components.Button}>
                     </div>
@@ -586,10 +588,10 @@
                         ⚠️ ${lang === 'ar' ? 'تم التسليم بنجاح، ولكن تم تسجيل تأخيرك عن الموعد المحدد.' : 'Successfully submitted, but marked as late.'}
                     </div>
                 `}
-                <${Luminova.Components.GlassCard} className="text-center py-16 bg-gradient-to-b from-brand-DEFAULT/10 to-transparent border-t-8 border-t-brand-DEFAULT">
-                    <h2 className="text-5xl font-black mb-6 uppercase tracking-wider">${Luminova.i18n[lang].results}</h2>
-                    <div className="text-8xl font-black text-brand-DEFAULT drop-shadow-2xl mb-8">${score} <span className="text-4xl opacity-50">/ ${maxScore}</span></div>
-                    <${Luminova.Components.Button} onClick=${goBack} className="px-10 py-4 text-xl rounded-full shadow-2xl hover:scale-105">${lang === 'ar' ? 'العودة لصفحة الاختبارات' : 'Return to Subjects'}</${Luminova.Components.Button}>
+                <${Luminova.Components.GlassCard} className="text-center py-16 bg-gradient-to-b from-rose-500/5 to-transparent border-t-8 border-t-rose-500 rounded-[3rem] shadow-2xl">
+                    <h2 className="text-5xl font-black mb-6 uppercase tracking-wider text-white">${Luminova.i18n[lang].results}</h2>
+                    <div className="text-8xl font-black text-rose-400 drop-shadow-2xl mb-8">${score} <span className="text-4xl opacity-30 text-white">/ ${maxScore}</span></div>
+                    <${Luminova.Components.Button} onClick=${goBack} className="px-10 py-4 text-xl rounded-full shadow-2xl hover:scale-105 bg-gradient-to-r from-rose-400 via-fuchsia-400 to-indigo-500 text-white">${lang === 'ar' ? 'العودة لصفحة الاختبارات' : 'Return to Subjects'}</${Luminova.Components.Button}>
                 </${Luminova.Components.GlassCard}>
                 
                 ${questions.map((que, idx) => {
@@ -599,7 +601,7 @@
                             const studentProv = safeStudents.find(s => s.id === que?.studentId) || (que?.studentId === 's_founder' || que?.studentId === Luminova.FOUNDER.id ? Luminova.FOUNDER : null);
 
                             return html`
-                        <${Luminova.Components.GlassCard} key=${que?.id || `result-q-${idx}`} className=${`border-r-4 ${que.type !== 'essay' ? (isCorrect ? 'border-r-green-500' : 'border-r-red-500') : 'border-r-brand-gold'} relative`}>
+                        <${Luminova.Components.GlassCard} key=${que?.id || `result-q-${idx}`} className=${`border-r-4 ${que.type !== 'essay' ? (isCorrect ? 'border-r-green-500' : 'border-r-red-500') : 'border-r-rose-500'} relative`}>
                             <div className="absolute top-0 right-0 px-4 py-1 rounded-bl-xl bg-black/10 dark:bg-white/10 font-bold text-sm">
                                 ${que.score} ${Luminova.i18n[lang].score}
                             </div>
@@ -626,8 +628,8 @@
                             ${que.type === 'essay' && html`
                                 <div className="mt-6 p-5 rounded-xl bg-gray-50/80 dark:bg-gray-800/80 shadow-inner space-y-4">
                                     <div>
-                                        <p className="font-black text-brand-gold mb-2">${Luminova.i18n[lang].modelAnswer}</p>
-                                        <p className="text-md leading-relaxed p-4 bg-white dark:bg-gray-900 rounded border-l-4 border-l-brand-gold font-medium">${que.modelAnswer || que.modelAnswerAr}</p>
+                                        <p className="font-black text-rose-400 mb-2">${Luminova.i18n[lang].modelAnswer}</p>
+                                        <p className="text-md leading-relaxed p-4 bg-white/2 backdrop-blur-xl rounded border-l-4 border-l-rose-500 font-medium">${que.modelAnswer || que.modelAnswerAr}</p>
                                     </div>
                                     <div>
                                         <p className="font-bold border-t pt-4 dark:border-gray-700 mb-2">${lang === 'ar' ? 'إجابتك' : 'Your Answer'}:</p>
@@ -653,12 +655,12 @@
         // ── UX FIX: Graceful Empty State (Coming Soon) ──
         if (!q) {
             return html`
-            <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-slate-950">
-                <div className="absolute inset-0 bg-gradient-to-br from-brand-DEFAULT/10 to-brand-gold/10 pointer-events-none"></div>
-                <div className="max-w-md w-full backdrop-blur-3xl bg-white/5 border border-white/10 rounded-[2.5rem] p-12 text-center animate-fade-in shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] relative z-10">
+            <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-zinc-950">
+                <div className="absolute inset-0 bg-gradient-to-br from-rose-500/10 to-indigo-500/10 pointer-events-none"></div>
+                <div className="max-w-md w-full backdrop-blur-3xl bg-white/2 border border-white/10 rounded-[2.5rem] p-12 text-center animate-fade-in shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] relative z-10">
                     <div className="relative mb-8">
-                        <div className="text-7xl animate-pulse drop-shadow-[0_0_15px_rgba(251,191,36,0.5)]">⏳</div>
-                        <div className="absolute -inset-4 bg-brand-gold/20 rounded-full blur-2xl animate-pulse -z-10"></div>
+                        <div className="text-7xl animate-pulse drop-shadow-[0_0_15px_rgba(244,63,94,0.5)]">⏳</div>
+                        <div className="absolute -inset-4 bg-rose-500/20 rounded-full blur-2xl animate-pulse -z-10"></div>
                     </div>
                     
                     <h2 className="text-3xl font-black text-white mb-4 tracking-tight">
@@ -685,8 +687,8 @@
 
             ${isSubmitting && html`
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style=${{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(18px)' }}>
-                    <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 flex flex-col items-center">
-                        <div className="animate-spin text-5xl mb-4">⏳</div>
+                    <div className="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 flex flex-col items-center">
+                        <div className="animate-spin text-5xl mb-4 text-rose-400">⏳</div>
                         <h2 className="text-xl font-black text-white">${lang === 'ar' ? 'جاري تسليم وإرسال إجاباتك...' : 'Submitting your answers...'}</h2>
                     </div>
                 </div>
@@ -752,44 +754,41 @@
             ${modalType === 'cheat_warning' && html`
                 <div
                     className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-                    style=${{ background: 'rgba(127,29,29,0.5)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
+                    style=${{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(24px)' }}
                 >
-                    <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-[0_32px_80px_rgba(0,0,0,0.5)] p-10 w-full max-w-md border-2 border-red-500/50 animate-fade-in text-center">
-                        <div className="text-7xl mb-6 animate-pulse">🚫</div>
-                        <h2 className="text-3xl font-black text-red-600 dark:text-red-500 mb-4">
+                    <div className="bg-white/5 backdrop-blur-3xl rounded-3xl p-10 w-full max-w-md border border-rose-500/50 animate-fade-in text-center">
+                        <div className="text-7xl mb-6 animate-pulse text-rose-500">🚫</div>
+                        <h2 className="text-3xl font-black text-white mb-4">
                             ${lang === 'ar' ? 'إنذار: مخالفة قواعد المراقبة' : 'Warning: Proctored Rule Violation'}
                         </h2>
-                        <p className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
+                        <p className="text-lg font-bold text-zinc-400 mb-8 leading-relaxed">
                             ${lang === 'ar'
                     ? 'لقد قمت بمغادرة شاشة الاختبار. تكرار هذا الإجراء سيؤدي إلى سحب ورقتك وتسليم الامتحان تلقائياً.'
                     : 'You left the exam screen. Repeating this action will force submit your exam automatically.'}
                         </p>
                         <button onClick=${() => setModalType(null)}
-                            className="w-full py-4 rounded-2xl font-black bg-red-600 hover:bg-red-700 text-white shadow-xl shadow-red-600/30 transition-all text-xl"
+                            className="w-full py-4 rounded-2xl font-black bg-rose-500 hover:bg-rose-600 text-white shadow-xl shadow-rose-500/30 transition-all text-xl"
                         >${lang === 'ar' ? 'موافق / أوافق على الاستمرار' : 'Understood'}</button>
                     </div>
                 </div>
             `}
 
-            <!-- Network Error Modal (Gatekeeper & Verification) -->
+            <!-- Network Error Modal -->
             ${modalType === 'network_error' && html`
-                <div
-                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-                    style=${{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
-                >
-                    <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-3xl rounded-3xl shadow-[0_32px_80px_rgba(250,204,21,0.2)] p-10 w-full max-w-md border border-brand-gold/50 animate-fade-in text-center">
-                        <div className="text-7xl mb-6 text-brand-gold drop-shadow-lg">📡</div>
-                        <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-4">
-                            ${lang === 'ar' ? 'Network Error' : 'Network Error'}
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style=${{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(12px)' }}>
+                    <div className="bg-white/5 backdrop-blur-3xl rounded-[2.5rem] shadow-2xl p-10 w-full max-w-md border border-white/10 animate-fade-in text-center">
+                        <div className="text-7xl mb-6 text-rose-400 drop-shadow-lg">📡</div>
+                        <h2 className="text-3xl font-black text-white mb-4">
+                            ${lang === 'ar' ? 'خطأ في الاتصال' : 'Network Error'}
                         </h2>
-                        <p className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
-                            ${lang === 'ar'
-                    ? 'حدث خطأ في الاتصال، يرجى المحاولة مرة أخرى.'
-                    : 'A network error occurred. Please try again.'}
+                        <p className="text-zinc-400 font-bold mb-8 leading-relaxed">
+                            ${lang === 'ar' 
+                            ? 'عذراً، حدث خطأ أثناء الاتصال بالخادم. تأكد من جودة الإنترنت وحاول لاحقاً.' 
+                            : 'Sorry, there was an error connecting to the server. Please check your internet and try again.'}
                         </p>
-                        ${debugError && html`<div className="p-3 mb-6 bg-red-100 text-red-800 rounded-xl text-xs font-mono text-left break-words border border-red-300">${debugError}</div>`}
+                        ${debugError && html`<div className="p-3 mb-6 bg-red-500/10 text-red-400 rounded-xl text-xs font-mono text-left break-words border border-red-500/20">${debugError}</div>`}
                         <button onClick=${() => setModalType(null)}
-                            className="w-full py-4 rounded-2xl font-black bg-gradient-to-r from-brand-DEFAULT to-brand-gold hover:opacity-90 text-white shadow-xl shadow-brand-gold/30 transition-all text-xl"
+                            className="w-full py-4 rounded-2xl font-black bg-gradient-to-r from-rose-400 via-fuchsia-400 to-indigo-500 hover:opacity-90 text-white shadow-xl transition-all text-xl"
                         >${lang === 'ar' ? 'إغلاق والمحاولة لاحقاً' : 'Close and Retry'}</button>
                     </div>
                 </div>
@@ -812,7 +811,7 @@
                     : 'You have already submitted this exam.'}
                         </p>
                         <button onClick=${() => setModalType(null)}
-                            className="w-full py-4 rounded-2xl font-black bg-gradient-to-r from-brand-DEFAULT to-brand-gold hover:opacity-90 text-white shadow-xl shadow-brand-gold/30 transition-all text-xl"
+                            className="w-full py-4 rounded-2xl font-black bg-gradient-to-r from-cyan-400 to-fuchsia-500 hover:opacity-90 text-white shadow-xl transition-all text-xl"
                         >${lang === 'ar' ? 'رجوع لتعديل البيانات' : 'Back to Edit Info'}</button>
                     </div>
                 </div>
@@ -870,11 +869,11 @@
 
             ${showDrawer && html`
                 <div className="fixed inset-0 z-[8000] flex animate-fade-in">
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick=${() => setShowDrawer(false)}></div>
-                    <div className="quiz-side-drawer fixed top-0 bottom-0 end-0 w-[300px] sm:w-[340px] flex flex-col overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.6)]" style=${{ background: 'rgba(2,6,23,0.88)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', borderInlineStart: '1px solid rgba(255,255,255,0.1)' }}>
+                    <div className="absolute inset-0 bg-[#0A0514]/60 backdrop-blur-sm" onClick=${() => setShowDrawer(false)}></div>
+                    <div className="quiz-side-drawer fixed top-0 bottom-0 end-0 w-[300px] sm:w-[340px] flex flex-col overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.6)]" style=${{ background: 'rgba(9,9,11,0.95)', backdropFilter: 'blur(40px)', borderInlineStart: '1px solid rgba(255,255,255,0.1)' }}>
                         <!-- Close button -->
                         <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-white/10">
-                            <h3 className="font-black text-lg text-brand-gold flex items-center gap-2">
+                            <h3 className="font-black text-lg text-rose-400 flex items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
                                 ${lang === 'ar' ? 'خريطة الأسئلة' : 'Questions Map'}
                             </h3>
@@ -883,7 +882,7 @@
                         <!-- Progress summary -->
                         <div className="px-5 py-3 flex items-center justify-between text-xs font-bold text-white/50 border-b border-white/5">
                             <span>${lang === 'ar' ? 'تمت الإجابة' : 'Answered'}: <span className="text-green-400">${Object.keys(answers).filter(k => { const v = answers[k]; return v !== undefined && v !== '' && (!Array.isArray(v) || v.length > 0); }).length}</span> / ${questions.length}</span>
-                            <span className="text-brand-gold">${lang === 'ar' ? 'الحالي' : 'Current'}: ${currentIndex + 1}</span>
+                            <span className="text-rose-400">${lang === 'ar' ? 'الحالي' : 'Current'}: ${currentIndex + 1}</span>
                         </div>
                         <!-- Question list -->
                         <div className="flex-1 overflow-y-auto px-4 py-3">
@@ -907,14 +906,14 @@
                                 }
                             }}
                                         disabled=${isLocked}
-                                        className=${`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-start transition-all duration-200 ${isCurrent ? 'bg-brand-DEFAULT/20 border border-brand-DEFAULT shadow-[0_0_12px_rgba(6,182,212,0.25)] text-white' : isAnswered ? 'bg-white/5 hover:bg-white/10 border border-white/5 text-white/80' : 'bg-white/[0.03] hover:bg-white/10 border border-transparent text-white/50'} ${isLocked ? 'opacity-30 cursor-not-allowed' : 'active:scale-[0.98]'}`}>
+                                        className=${`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-start transition-all duration-300 ${isCurrent ? 'bg-rose-500/20 border border-rose-500/40 shadow-[0_0_15px_rgba(244,63,94,0.1)] text-white' : isAnswered ? 'bg-white/5 hover:bg-white/10 border border-white/5 text-white/80' : 'bg-white/2 hover:bg-white/10 border border-transparent text-white/50'} ${isLocked ? 'opacity-30 cursor-not-allowed' : 'active:scale-[0.98]'}`}>
                                         <!-- Number circle -->
-                                        <span className=${`w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm shrink-0 ${isCurrent ? 'bg-brand-DEFAULT text-white shadow-md' : isAnswered ? 'bg-green-500/80 text-white' : 'bg-white/10 text-white/40'}`}>${i + 1}</span>
+                                        <span className=${`w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm shrink-0 ${isCurrent ? 'bg-rose-500 text-white shadow-md' : isAnswered ? 'bg-indigo-500/80 text-white' : 'bg-white/10 text-white/40'}`}>${i + 1}</span>
                                         <!-- Label -->
-                                        <span className="flex-1 font-bold text-sm truncate">${qLabel}</span>
+                                        <span className="flex-1 font-bold text-sm truncate text-white">${qLabel}</span>
                                         <!-- Status indicator -->
-                                        ${isAnswered && !isCurrent ? html`<span className="text-green-400 text-base shrink-0">✓</span>` : null}
-                                        ${isCurrent ? html`<span className="w-2 h-2 rounded-full bg-brand-DEFAULT animate-pulse shrink-0"></span>` : null}
+                                        ${isAnswered && !isCurrent ? html`<span className="text-indigo-400 text-base shrink-0">✓</span>` : null}
+                                        ${isCurrent ? html`<span className="w-2 h-2 rounded-full bg-rose-400 animate-pulse shrink-0"></span>` : null}
                                     </button>
                                 `;
                     })}
@@ -932,41 +931,41 @@
                 const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
                 const isUrgent = diff < 300000;
                 return html`
-                    <div className=${`sticky top-4 z-50 mx-auto w-max px-6 py-3 rounded-full border-2 shadow-2xl backdrop-blur-md mb-6 font-mono text-2xl font-black tracking-widest transition-colors duration-300 ${isUrgent ? 'bg-red-500/20 border-red-500 text-red-600 dark:text-red-400 animate-pulse shadow-[0_0_20px_rgba(239,68,68,0.4)]' : 'bg-gray-900/10 dark:bg-white/10 border-gray-400 dark:border-gray-500 text-gray-800 dark:text-gray-200'}`}>
+                    <div className=${`sticky top-4 z-50 mx-auto w-max px-6 py-3 rounded-full border shadow-2xl backdrop-blur-2xl mb-6 font-mono text-2xl font-black tracking-widest transition-all duration-300 ${isUrgent ? 'bg-red-500/20 border-red-500 text-red-400 animate-pulse shadow-[0_0_20px_rgba(239,68,68,0.3)]' : 'bg-white/[0.03] border-white/10 text-white shadow-[0_0_20px_rgba(0,0,0,0.3)]'}`}>
                         ⏳ ${h}:${m}:${s}
                     </div>
                 `;
             })() : ''}
 
-            <div className="flex justify-between items-center mb-10 bg-white/50 dark:bg-gray-800/50 p-4 rounded-2xl shadow-sm backdrop-blur">
+            <div className="flex justify-between items-center mb-10 bg-white/[0.03] backdrop-blur-2xl p-4 rounded-2xl shadow-lg border border-white/10">
                 <${Luminova.Components.Button} variant="danger" onClick=${() => setModalType('exit')} className="rounded-full shadow-lg hover:-translate-x-1">
                     <${Luminova.Icons.XCircle} /> <span className="hidden sm:inline">${lang === 'ar' ? 'خروج' : 'Quit'}</span>
                 </${Luminova.Components.Button}>
                 <div className="flex-1 mx-4 sm:mx-8 relative">
-                    <div className="bg-gray-300 dark:bg-gray-700 h-3 rounded-full overflow-hidden shadow-inner">
-                        <div className="bg-gradient-to-r from-brand-hover to-brand-DEFAULT h-full transition-all duration-500 ease-out" style=${{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}></div>
+                    <div className="bg-white/10 h-3 rounded-full overflow-hidden shadow-inner">
+                        <div className="bg-gradient-to-r from-rose-400 to-indigo-500 h-full transition-all duration-500 ease-out" style=${{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}></div>
                     </div>
                 </div>
-                <span className="font-black text-xl sm:text-2xl text-brand-DEFAULT drop-shadow-sm shrink-0">${currentIndex + 1} <span className="opacity-40 text-lg">/ ${questions.length}</span></span>
+                <span className="font-black text-xl sm:text-2xl text-rose-400 drop-shadow-sm shrink-0">${currentIndex + 1} <span className="opacity-40 text-lg">/ ${questions.length}</span></span>
                 <!-- Drawer trigger button -->
-                <button onClick=${() => setShowDrawer(true)} className="ms-3 w-10 h-10 rounded-xl bg-brand-gold/15 hover:bg-brand-gold/30 border border-brand-gold/30 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shrink-0 group" title=${lang === 'ar' ? 'خريطة الأسئلة' : 'Questions Map'}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-brand-gold group-hover:text-brand-DEFAULT transition-colors"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                <button onClick=${() => setShowDrawer(true)} className="ms-3 w-10 h-10 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shrink-0 group" title=${lang === 'ar' ? 'خريطة الأسئلة' : 'Questions Map'}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-rose-400 group-hover:text-rose-300 transition-colors"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
                 </button>
             </div>
 
-            <${Luminova.Components.GlassCard} className="relative overflow-visible mb-10 flex-1 flex flex-col border-t-8 border-t-brand-DEFAULT shadow-2xl">
+            <${Luminova.Components.GlassCard} className="relative overflow-visible mb-10 flex-1 flex flex-col shadow-2xl">
                 ${currentQStudent.id && html`
-                    <div className="absolute -top-12 sm:-top-6 start-1/2 -translate-x-1/2 sm:translate-x-0 sm:start-8 flex flex-col sm:flex-row items-center gap-1 sm:gap-3 bg-white dark:bg-gray-800 shadow-xl p-2 sm:p-2 sm:pl-4 rounded-xl sm:rounded-full border border-gray-100 dark:border-gray-700 z-10 animate-fade-in group hover:scale-105 transition-transform max-w-[90vw] sm:max-w-none text-center sm:text-start mx-auto w-max mb-8 sm:mb-0">
+                    <div className="absolute -top-12 sm:-top-6 start-1/2 -translate-x-1/2 sm:translate-x-0 sm:start-8 flex flex-col sm:flex-row items-center gap-1 sm:gap-3 bg-white/[0.03] backdrop-blur-2xl shadow-xl p-2 sm:p-2 sm:pl-4 rounded-xl sm:rounded-full border border-white/10 z-10 animate-fade-in group hover:scale-105 transition-transform max-w-[90vw] sm:max-w-none text-center sm:text-start mx-auto w-max mb-8 sm:mb-0">
                         <${Luminova.Components.Avatar} name=${currentQStudent.nameAr || currentQStudent.name} image=${currentQStudent.image} isVerified=${currentQStudent.isVerified} size="w-8 h-8 shrink-0" />
-                        <span className="text-xs sm:text-sm font-black mx-1 text-brand-DEFAULT group-hover:text-brand-gold break-words whitespace-normal">${lang === 'ar' ? currentQStudent.nameAr || currentQStudent.name : currentQStudent.nameEn || currentQStudent.name}</span>
-                        <span className="text-xs font-bold opacity-50 hidden sm:inline border-r pr-2 dark:border-gray-700 shrink-0">:المساهم بالسؤال</span>
+                        <span className="text-xs sm:text-sm font-black mx-1 text-rose-400 group-hover:text-fuchsia-400 break-words whitespace-normal transition-colors">${lang === 'ar' ? currentQStudent.nameAr || currentQStudent.name : currentQStudent.nameEn || currentQStudent.name}</span>
+                        <span className="text-xs font-bold text-white/40 hidden sm:inline border-r pr-2 border-white/10 shrink-0">:المساهم بالسؤال</span>
                     </div>
                 `}
 
                 <div className="flex-1 mt-6">
-                    <div className="flex justify-between items-start mb-8 ${q.mediaUrl ? '' : 'border-b border-gray-200 dark:border-gray-700 pb-6'}">
-                        <h3 className="text-3xl font-bold leading-relaxed w-[85%]">${q.text || q.textAr}</h3>
-                        <span className="text-xl font-black bg-brand-gold/20 text-brand-gold px-4 py-2 rounded-xl border border-brand-gold/50 shadow-sm shrink-0">${q.score} ${Luminova.i18n[lang].score}</span>
+                    <div className="flex justify-between items-start mb-8 ${q.mediaUrl ? '' : 'border-b border-white/10 pb-6'}">
+                        <h3 className="text-3xl font-bold leading-relaxed w-[85%] text-white">${q.text || q.textAr}</h3>
+                        <span className="text-xl font-black bg-rose-500/10 text-rose-400 px-4 py-2 rounded-xl border border-rose-500/30 shadow-sm shrink-0">${q.score} ${Luminova.i18n[lang].score}</span>
                     </div>
                     ${q.mediaUrl && html`
                         <div className="mb-8 border-b border-gray-200 dark:border-gray-700 pb-6 w-full flex justify-center">
@@ -986,8 +985,8 @@
                         return html`
                                 <button key=${`opt-${q.id}-${i}`} onClick=${handleMCQClick}
                                     disabled=${isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))}
-                                    className=${`w-full text-start p-5 rounded-2xl border-4 transition-all duration-200 text-lg font-bold shadow-sm ${answers[q.id] === i ? 'border-brand-DEFAULT bg-brand-DEFAULT/10 scale-105 shadow-xl' : 'border-transparent bg-gray-100 dark:bg-gray-800/80 hover:border-gray-300 dark:hover:border-gray-600 hover:scale-[1.02]'} ${(isFeedbackRevealed || revealedQuestions.has(q.id)) ? 'opacity-70 cursor-not-allowed object-none' : ''}`}>
-                                    <span className="inline-block w-8 h-8 rounded-full bg-black/5 dark:bg-white/5 text-center leading-8 mr-4 ml-4">${String.fromCharCode(65 + i)}</span>
+                                    className=${`w-full text-start p-5 rounded-2xl border-2 transition-all duration-300 text-lg font-bold shadow-sm ${answers[q.id] === i ? 'border-rose-500 bg-rose-500/10 scale-[1.02] shadow-rose-500/10' : 'border-white/5 bg-white/2 hover:border-rose-400/30 hover:bg-white/4 hover:scale-[1.01] text-white/80 hover:text-white'} ${(isFeedbackRevealed || revealedQuestions.has(q.id)) ? 'opacity-70 cursor-not-allowed' : ''}`}>
+                                    <span className="inline-block w-8 h-8 rounded-full bg-white/5 text-center leading-8 mr-4 ml-4 text-sm">${String.fromCharCode(65 + i)}</span>
                                     ${opt}
                                 </button>
                             `;
@@ -1007,8 +1006,8 @@
                 };
                 return html`
                                     <button key=${`opt-${q.id}-${i}`} disabled=${isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))} onClick=${handleMultiClick}
-                                    className=${`w-full text-start p-5 rounded-2xl border-4 transition-all duration-200 text-lg font-bold shadow-sm flex items-center gap-4 ${isSelected ? 'border-brand-DEFAULT bg-brand-DEFAULT/10 scale-[1.02] shadow-xl' : 'border-transparent bg-gray-100 dark:bg-gray-800/80 hover:border-gray-300 dark:hover:border-gray-600'} ${(isFeedbackRevealed || revealedQuestions.has(q.id)) ? 'opacity-70 cursor-not-allowed' : ''}`}>
-                                        <div className=${`w-8 h-8 rounded-xl flex items-center justify-center border-2 text-xl transition-colors ${isSelected ? 'bg-brand-DEFAULT border-brand-DEFAULT text-white' : 'border-gray-400'}`}>
+                                    className=${`w-full text-start p-5 rounded-2xl border-2 transition-all duration-300 text-lg font-bold shadow-sm flex items-center gap-4 ${isSelected ? 'border-rose-500 bg-rose-500/10 scale-[1.02] shadow-rose-500/10' : 'border-white/5 bg-white/2 hover:border-rose-400/30 hover:bg-white/4 hover:scale-[1.01] text-white/80 hover:text-white'} ${(isFeedbackRevealed || revealedQuestions.has(q.id)) ? 'opacity-70 cursor-not-allowed' : ''}`}>
+                                        <div className=${`w-8 h-8 rounded-xl flex items-center justify-center border-2 text-xl transition-all ${isSelected ? 'bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-500/20' : 'border-white/20'}`}>
                                             ${isSelected && '✓'}
                                         </div>
                                         ${opt}
@@ -1022,7 +1021,7 @@
                         <div className="max-w-3xl mx-auto">
                             <textarea 
                                 disabled=${isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))}
-                                className=${`w-full p-6 rounded-2xl bg-gray-50 dark:bg-gray-900/80 border-4 border-gray-200 dark:border-gray-700 focus:border-brand-DEFAULT focus:bg-white dark:focus:bg-black outline-none min-h-[250px] text-lg transition-all shadow-inner resize-y ${(isFeedbackRevealed || revealedQuestions.has(q.id)) ? 'opacity-70 font-bold' : ''}`}
+                                className=${`w-full p-6 rounded-2xl bg-white/2 backdrop-blur-xl border border-white/10 focus:border-rose-500/50 focus:bg-white/4 outline-none min-h-[250px] text-lg text-white placeholder-white/20 transition-all shadow-inner resize-y ${(isFeedbackRevealed || revealedQuestions.has(q.id)) ? 'opacity-70 font-bold' : ''}`}
                                 placeholder=${lang === 'ar' ? 'اكتب إجابتك بتفصيل هنا...' : 'Type your detailed answer here...'}
                                 value=${answers[q.id] || ''}
                                 onChange=${(e) => {
@@ -1060,7 +1059,7 @@
                 </div>
             </${Luminova.Components.GlassCard}>
 
-            <div className="flex justify-between items-center bg-white/50 dark:bg-gray-800/50 p-4 rounded-2xl shadow-sm backdrop-blur">
+            <div className="flex justify-between items-center bg-white/[0.03] backdrop-blur-2xl p-4 rounded-2xl shadow-lg border border-white/10">
                 <${Luminova.Components.Button} variant="glass" disabled=${currentIndex === 0 || quiz.allowBackNavigation === false} onClick=${() => { setCurrentIndex(i => i - 1); if (quiz.feedbackMode === 'immediate' && questions[currentIndex - 1] && revealedQuestions.has(questions[currentIndex - 1].id)) { setIsFeedbackRevealed(true); } else { setIsFeedbackRevealed(false); } }} className="px-8 py-3 text-lg rounded-full">
                     ${lang === 'ar' ? 'السابق' : 'Previous'}
                 </${Luminova.Components.Button}>
