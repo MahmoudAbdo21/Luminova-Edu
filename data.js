@@ -1509,6 +1509,49 @@ window.LUMINOVA_DATA = {
           "type": "url"
         }
       ]
+    },
+    {
+      "id": "summaries_1777583125867",
+      "timestamp": "2026-04-30T21:05:25.867Z",
+      "titleAr": "ملخص الفصل الرابع من مقرر الاذاعه والتسجيلات الصوتيه",
+      "titleEn": "Summary of the fourth chapter of the radio course and audio recordings",
+      "contentAr": "تلخيص عباره عن فيديو توضيحي وانفوجرافيك وباور بوينت وملف شرح",
+      "contentEn": "Summarize it as an explanatory video, infographic, power point and explanation file",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775125681706",
+      "studentId": "students_1775848220866",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1yhF7c4nh9RE_3bME_FF2Ez7wUdcq25wR/view?usp=drive_link",
+          "titleAr": "فيديو الشرح",
+          "titleEn": "Explanation video",
+          "order": 0,
+          "type": "url"
+        },
+        {
+          "url": "https://drive.google.com/file/d/1OOdYCHYIdxSEccd6eNePrhI53TH6OiuG/view?usp=drive_link",
+          "titleAr": "باوربوينت الشرح",
+          "titleEn": "PowerPoint tutorial",
+          "order": 1,
+          "type": "url"
+        },
+        {
+          "url": "https://drive.google.com/file/d/1IKRpWiwWLYLWJumaxm3q5Puk90Ss4eU6/view?usp=drive_link",
+          "titleAr": "ملف الشرح",
+          "titleEn": "Explanation File",
+          "order": 2,
+          "type": "url"
+        },
+        {
+          "url": "https://drive.google.com/file/d/1NiGhi3Fui92hZo_3OMKXUw5i1NAX4tw6/view?usp=drive_link",
+          "titleAr": "انفوجرافيك",
+          "titleEn": "Infographic:",
+          "order": 3,
+          "type": "url"
+        }
+      ]
     }
   ]
 };
