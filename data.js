@@ -1552,6 +1552,28 @@ window.LUMINOVA_DATA = {
           "type": "url"
         }
       ]
+    },
+    {
+      "id": "summaries_1777596968131",
+      "timestamp": "2026-05-01T00:56:08.131Z",
+      "titleAr": "الفصل الرابع",
+      "titleEn": "CHAPTER 4",
+      "contentAr": "شرح مبسط للفصل الرابع",
+      "contentEn": "A Simplified Commentary on Chapter Four",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775125681706",
+      "studentId": "students_1775125739063",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1RUtEldK2ds4ddop8-WQX0Pbp5t_XL5-7/view?usp=sharing",
+          "titleAr": "pdf",
+          "titleEn": "PDF",
+          "order": 0,
+          "type": "url"
+        }
+      ]
     }
   ]
 };
