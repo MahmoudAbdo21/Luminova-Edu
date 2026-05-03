@@ -468,6 +468,49 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
+      "id": "summaries_1777822682932",
+      "timestamp": "2026-05-03T15:38:02.932Z",
+      "titleAr": "الفصل الخامس ",
+      "titleEn": "Chapter V",
+      "contentAr": "يوجد عرض تقديمي ونلف شرح وصور وفيديو توضيحي",
+      "contentEn": "There is a presentation, an explanation, photos and a demonstration video",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775125681706",
+      "studentId": "students_1775848220866",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/14dfWQebbaEejSV3vDLO3Ro96PNj7RhFS/view?usp=drivesdk",
+          "titleAr": "البوربوينت",
+          "titleEn": "PowerPoint",
+          "order": 0,
+          "type": "url"
+        },
+        {
+          "url": "https://drive.google.com/file/d/1oichn7q2qBGn6YqujBVwFcrNdJTdUuTK/view?usp=drivesdk",
+          "titleAr": "الجدول",
+          "titleEn": "SCHEDULE",
+          "order": 1,
+          "type": "url"
+        },
+        {
+          "url": "https://drive.google.com/file/d/1Yhhq3ZTP0OPnXcu0PO1vd7WH9y0UZx8z/view?usp=drivesdk",
+          "titleAr": "إنفوجرافيك ",
+          "titleEn": "Infographic",
+          "order": 2,
+          "type": "url"
+        },
+        {
+          "url": "https://drive.google.com/file/d/1xah0Jh1m5Y7HM_xwNylsmYQh9Hs0NzYg/view?usp=drivesdk",
+          "titleAr": "ملف الشرح",
+          "titleEn": "Explanation File",
+          "order": 3,
+          "type": "url"
+        }
+      ]
+    },
+    {
       "id": "summaries_1777420613818",
       "timestamp": "2026-04-28T23:56:53.818Z",
       "titleAr": "الفصل الخامس",
