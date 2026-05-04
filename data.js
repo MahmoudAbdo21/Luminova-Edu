@@ -376,6 +376,15 @@ window.LUMINOVA_DATA = {
   ],
   "subjects": [
     {
+      "id": "subjects_1777896562125",
+      "timestamp": "2026-05-04T12:09:22.125Z",
+      "nameAr": "معلومات مصورة",
+      "nameEn": "Illustrated Information",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "subjectId": ""
+    },
+    {
       "id": "subjects_1775908403709",
       "timestamp": "2026-04-11T11:53:23.709Z",
       "nameAr": "نظم ادارة المحتوى",
@@ -467,6 +476,35 @@ window.LUMINOVA_DATA = {
     }
   ],
   "summaries": [
+    {
+      "id": "summaries_1777896585232",
+      "timestamp": "2026-05-04T12:09:45.232Z",
+      "titleAr": "ملخص مقارنات",
+      "titleEn": "Summary of comparisons",
+      "contentAr": "المقارنات المميزة في المنهج",
+      "contentEn": "Distinctive comparisons in the curriculum",
+      "mediaUrl": "",
+      "subjectId": "subjects_1777896562125",
+      "studentId": "students_1775821794374",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://docs.google.com/document/d/1k5Noz55_PKJzLl1UNEJ7RphJOFD98qiEVEniUFZulKM/edit?usp=sharing",
+          "titleAr": "المقارنة الاولى",
+          "titleEn": "First Comparison",
+          "order": 0,
+          "type": "url"
+        },
+        {
+          "url": "https://docs.google.com/document/d/1qxXa9iVAOBxG6r8LpA9GQPWbFfnOzFlxgTjU-mzfcec/edit?usp=sharing",
+          "titleAr": "المقارنة الثانية ",
+          "titleEn": "Comparison 2",
+          "order": 1,
+          "type": "url"
+        }
+      ]
+    },
     {
       "id": "summaries_1777822682932",
       "timestamp": "2026-05-03T15:38:02.932Z",
