@@ -20,19 +20,6 @@ window.LUMINOVA_EXAMS = [
     "semesterId": "semesters_1775125622791"
   },
   {
-    "id": "quizzes_1777072470808",
-    "timestamp": "2026-04-24T23:14:30.808Z",
-    "titleAr": "اختبار على الفصل الاول ",
-    "titleEn": "Quiz on the first semester",
-    "isShuffled": false,
-    "feedbackMode": "end",
-    "subjectId": "subjects_1775125681706",
-    "publisherId": "s_founder_hardcoded",
-    "questions": [],
-    "yearId": "year_1",
-    "semesterId": "semesters_1775125622791"
-  },
-  {
     "id": "quizzes_1775849685012",
     "timestamp": "2026-04-10T19:34:45.012Z",
     "titleAr": "امتحان الميد تيرم",
