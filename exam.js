@@ -8,7 +8,389 @@ window.LUMINOVA_EXAMS = [
     "feedbackMode": "end",
     "subjectId": "subjects_1775125681706",
     "publisherId": "s_founder_hardcoded",
-    "questions": [],
+    "questions": [
+      {
+        "type": "mcq",
+        "text": "يمكن البدء في تسجيل البرنامج الإذاعي قبل الانتهاء من مرحلة الإعداد طالما الفكرة واضحة.",
+        "score": 1,
+        "options": [
+          "صح",
+          "غلط"
+        ],
+        "correctAnswers": [
+          1
+        ],
+        "modelAnswer": "",
+        "explanation": " الإعداد يشمل تفاصيل أساسية (نص – ضيوف – خطة تنفيذ)، وعدم اكتماله يؤدي لضعف الإنتاج.\n📄 الصفحة: 30–31",
+        "studentId": "students_1775848220866",
+        "showExp": true,
+        "id": "q_1777897933206"
+      },
+      {
+        "type": "mcq",
+        "text": "نجاح مرحلة الإنتاج يعتمد بشكل مباشر على جودة مرحلة ما قبل الإنتاج.",
+        "score": 1,
+        "options": [
+          "صح",
+          "غلط"
+        ],
+        "correctAnswers": [
+          0
+        ],
+        "modelAnswer": "",
+        "explanation": "أي ضعف في الإعداد ينعكس مباشرة على التنفيذ والتسجيل.",
+        "studentId": "students_1775848220866",
+        "showExp": true,
+        "id": "q_1777898194768"
+      },
+      {
+        "type": "mcq",
+        "text": "يمكن تعويض ضعف الأداء الصوتي للمذيع بالكامل من خلال المونتاج.",
+        "score": 1,
+        "options": [
+          "صح",
+          "غلط"
+        ],
+        "correctAnswers": [
+          1
+        ],
+        "modelAnswer": "",
+        "explanation": "المونتاج يحسن لكنه لا يعوض ضعف الأداء الأساسي.\n📄 الصفحة: 40–41",
+        "studentId": "students_1775848220866",
+        "showExp": true,
+        "id": "q_1777898241408"
+      },
+      {
+        "type": "mcq",
+        "text": "كلما زاد استخدام المؤثرات الصوتية في البرنامج زادت جودته.",
+        "score": 1,
+        "options": [
+          "صح",
+          "غلط"
+        ],
+        "correctAnswers": [
+          1
+        ],
+        "modelAnswer": "",
+        "explanation": "الإفراط في المؤثرات قد يشتت المستمع ويضعف الرسالة.\n📄 الصفحة: 35",
+        "studentId": "students_1775848220866",
+        "showExp": true,
+        "id": "q_1777898286428"
+      },
+      {
+        "type": "mcq",
+        "text": "مرحلة ما بعد الإنتاج يمكن أن تغير في بناء البرنامج وليس فقط تحسينه.",
+        "score": 1,
+        "options": [
+          "صح",
+          "غلط"
+        ],
+        "correctAnswers": [
+          0
+        ],
+        "modelAnswer": "",
+        "explanation": "من خلال الحذف والإضافة وإعادة ترتيب الأجزاء.\n📄 الصفحة: 41",
+        "studentId": "students_1775848220866",
+        "showExp": true,
+        "id": "q_1777898330691"
+      },
+      {
+        "type": "mcq",
+        "text": "اختيار توقيت البث لا يعتبر من عناصر الإنتاج الإذاعي.",
+        "score": 1,
+        "options": [
+          "صح",
+          "غلط",
+          "",
+          ""
+        ],
+        "correctAnswers": [
+          1
+        ],
+        "modelAnswer": "",
+        "explanation": "توقيت البث جزء من التخطيط ويؤثر على نجاح البرنامج.\n📄 الصفحة: 32",
+        "studentId": "students_1775848220866",
+        "showExp": true,
+        "id": "q_1777898467745"
+      },
+      {
+        "type": "mcq",
+        "text": "يمكن تنفيذ نفس النص الإذاعي بأساليب إخراج مختلفة تعطي نتائج مختلفة.",
+        "score": 1,
+        "options": [
+          "صح",
+          "غلط"
+        ],
+        "correctAnswers": [
+          0
+        ],
+        "modelAnswer": "",
+        "explanation": "الإخراج عنصر إبداعي يغير شكل العمل رغم ثبات النص.\n📄 الصفحة: 33–34",
+        "studentId": "students_1775848220866",
+        "showExp": true,
+        "id": "q_1777898503961"
+      },
+      {
+        "type": "mcq",
+        "text": "التسجيل المباشر (Live) يلغي الحاجة لمرحلة ما بعد الإنتاج.",
+        "score": 1,
+        "options": [
+          "صح",
+          "غلط"
+        ],
+        "correctAnswers": [
+          1
+        ],
+        "modelAnswer": "",
+        "explanation": " قد يحتاج تجهيزات مسبقة وتنظيم حتى بدون مونتاج.\n📄 الصفحة: 34",
+        "studentId": "students_1775848220866",
+        "showExp": true,
+        "id": "q_1777898543139"
+      },
+      {
+        "type": "mcq",
+        "text": "الإعداد الجيد يقلل من الوقت والجهد في مرحلة الإنتاج.",
+        "score": 1,
+        "options": [
+          "صح",
+          "غلط"
+        ],
+        "correctAnswers": [
+          0
+        ],
+        "modelAnswer": "",
+        "explanation": "لأنه يمنع الأخطاء ويوفر تنظيم واضح للتنفيذ.\n📄 الصفحة: 33",
+        "studentId": "students_1775848220866",
+        "showExp": true,
+        "id": "q_1777898578319"
+      },
+      {
+        "type": "mcq",
+        "text": "الهدف الأساسي من المونتاج هو تقليل مدة البرنامج فقط.",
+        "score": 1,
+        "options": [
+          "صح",
+          "غلط"
+        ],
+        "correctAnswers": [
+          1
+        ],
+        "modelAnswer": "",
+        "explanation": "الهدف تحسين الجودة الفنية وليس فقط تقليل الزمن.\n📄 الصفحة: 40",
+        "studentId": "students_1775848220866",
+        "showExp": true,
+        "id": "q_1777898627862"
+      },
+      {
+        "type": "mcq",
+        "text": "أي من التالي يُعد مثالًا على قرار إنتاجي استراتيجي؟",
+        "score": 1,
+        "options": [
+          "رفع الصوت",
+          "اختيار فكرة البرنامج",
+          "حذف خطأ صوتي",
+          "ضبط الميكروفون"
+        ],
+        "correctAnswers": [
+          1
+        ],
+        "modelAnswer": "",
+        "explanation": "لأنه أساس بناء البرنامج كله.\n📄 الصفحة: 30",
+        "studentId": "students_1775848220866",
+        "showExp": true,
+        "id": "q_1777898691436"
+      },
+      {
+        "type": "mcq",
+        "text": "في حالة وجود ضعف في ترابط البرنامج، المشكلة غالبًا في:",
+        "score": 1,
+        "options": [
+          "المونتاج",
+          "الإعداد",
+          "التسجيل",
+          "الأجهزة"
+        ],
+        "correctAnswers": [
+          1
+        ],
+        "modelAnswer": "",
+        "explanation": " الصفحة: 31",
+        "studentId": "students_1775848220866",
+        "showExp": true,
+        "id": "q_1777899195969"
+      },
+      {
+        "type": "mcq",
+        "text": "أي من التالي يمثل دور المخرج أثناء الإنتاج؟",
+        "score": 1,
+        "options": [
+          "كتابة النص",
+          "تنفيذ الرؤية الفنية",
+          "اختيار الفكرة",
+          "تحديد الجمهور"
+        ],
+        "correctAnswers": [
+          1
+        ],
+        "modelAnswer": "",
+        "explanation": "الصفحة: 33",
+        "studentId": "students_1775848220866",
+        "showExp": true,
+        "id": "q_1777899262115"
+      },
+      {
+        "type": "mcq",
+        "text": "عند استخدام مؤثرات صوتية بشكل غير مناسب، فإن ذلك يؤدي إلى:",
+        "score": 1,
+        "options": [
+          "زيادة الواقعية",
+          "تشتيت المستمع",
+          "تحسين الصوت",
+          "تقليل الزمن"
+        ],
+        "correctAnswers": [
+          1
+        ],
+        "modelAnswer": "",
+        "explanation": "الصفحة: 35",
+        "studentId": "students_1775848220866",
+        "showExp": true,
+        "id": "q_1777899323869"
+      },
+      {
+        "type": "mcq",
+        "text": "إذا تم تسجيل برنامج بدون تخطيط زمني مسبق، فإن النتيجة غالبًا:",
+        "score": 1,
+        "options": [
+          "جودة أعلى",
+          "تنظيم أفضل",
+          "عشوائية في المحتوى",
+          "تقليل الأخطاء"
+        ],
+        "correctAnswers": [
+          2
+        ],
+        "modelAnswer": "",
+        "explanation": "الصفحة: 32",
+        "studentId": "students_1775848220866",
+        "showExp": true,
+        "id": "q_1777899459880"
+      },
+      {
+        "type": "mcq",
+        "text": "أي من التالي يعبر عن وظيفة المونتاج المتقدمة؟",
+        "score": 1,
+        "options": [
+          "حذف الأخطاء فقط",
+          "إعادة بناء العمل صوتيًا",
+          "تسجيل الصوت",
+          "اختيار الضيوف"
+        ],
+        "correctAnswers": [
+          1
+        ],
+        "modelAnswer": "",
+        "explanation": "الصفحة: 41",
+        "studentId": "students_1775848220866",
+        "showExp": true,
+        "id": "q_1777899526798"
+      },
+      {
+        "type": "mcq",
+        "text": "العلاقة بين النص والأداء الصوتي هي:",
+        "score": 1,
+        "options": [
+          "منفصلة تمامًا",
+          "النص أهم فقط",
+          "الأداء أهم فقط",
+          "تكاملية"
+        ],
+        "correctAnswers": [
+          3
+        ],
+        "modelAnswer": "",
+        "explanation": "الصفحة: 34",
+        "studentId": "s_founder_hardcoded",
+        "showExp": true,
+        "id": "q_1777899577465"
+      },
+      {
+        "type": "mcq",
+        "text": "أفضل وقت لاكتشاف أخطاء المحتوى هو:",
+        "score": 1,
+        "options": [
+          "بعد البث",
+          "أثناء المونتاج",
+          "أثناء الإعداد",
+          "أثناء التسجيل"
+        ],
+        "correctAnswers": [
+          2
+        ],
+        "modelAnswer": "",
+        "explanation": "📄 الصفحة: 31",
+        "studentId": "students_1775848220866",
+        "showExp": true,
+        "id": "q_1777899654201"
+      },
+      {
+        "type": "mcq",
+        "text": "في البرامج الحوارية، العنصر الأكثر تأثيرًا في نجاح الحلقة هو:",
+        "score": 1,
+        "options": [
+          "الموسيقى",
+          "جودة الطباعة",
+          "اختيار الضيوف",
+          "حجم الاستوديو"
+        ],
+        "correctAnswers": [
+          2
+        ],
+        "modelAnswer": "",
+        "explanation": "📄 الصفحة: 32",
+        "studentId": "students_1775848220866",
+        "showExp": true,
+        "id": "q_1777899793003"
+      },
+      {
+        "type": "mcq",
+        "text": "إذا كان الهدف هو خلق إحساس درامي قوي، فإن أفضل مرحلة لتحقيق ذلك هي:",
+        "score": 1,
+        "options": [
+          "الإعداد فقط",
+          "الإنتاج فقط",
+          "ما بعد الإنتاج فقط",
+          "جميع المراحل معًا"
+        ],
+        "correctAnswers": [
+          3
+        ],
+        "modelAnswer": "",
+        "explanation": "📄 الصفحة: 30–41",
+        "studentId": "students_1775848220866",
+        "showExp": true,
+        "id": "q_1777899968882"
+      },
+      {
+        "type": "essay",
+        "text": "قارن بين مراحل الإنتاج الإذاعي من حيث (الأهداف – العناصر – النتائج)، موضحًا كيف يؤثر إهمال أي مرحلة على جودة العمل الإذاعي.",
+        "score": 3,
+        "options": [
+          "",
+          "",
+          "",
+          ""
+        ],
+        "correctAnswers": [
+          0
+        ],
+        "modelAnswer": "",
+        "explanation": "",
+        "studentId": "students_1775848220866",
+        "showExp": false,
+        "id": "q_1777900057199"
+      }
+    ],
     "examMode": "evaluation",
     "emailPolicy": "answers_only",
     "adminEmails": "mahmoud21abdalrhman@gmail.com",
