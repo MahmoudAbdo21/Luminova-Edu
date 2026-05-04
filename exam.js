@@ -1,5 +1,25 @@
 window.LUMINOVA_EXAMS = [
   {
+    "id": "quizzes_1777896902081",
+    "timestamp": "2026-05-04T12:15:02.081Z",
+    "titleAr": "اختبار شامل",
+    "titleEn": "Comprehensive Test",
+    "isShuffled": true,
+    "feedbackMode": "end",
+    "subjectId": "subjects_1775125681706",
+    "publisherId": "s_founder_hardcoded",
+    "questions": [],
+    "examMode": "evaluation",
+    "emailPolicy": "answers_only",
+    "adminEmails": "mahmoud21abdalrhman@gmail.com",
+    "startTime": "2026-05-04T21:00",
+    "endTime": "2026-05-04T22:30",
+    "latePolicy": "grace_period",
+    "allowBackNavigation": true,
+    "yearId": "year_1",
+    "semesterId": "semesters_1775125622791"
+  },
+  {
     "id": "quizzes_1777072470808",
     "timestamp": "2026-04-24T23:14:30.808Z",
     "titleAr": "اختبار على الفصل الاول ",
