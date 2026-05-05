@@ -357,34 +357,12 @@
                 </div>`;
             }
 
-            if (modalType === 'invalid_data') {
-                return html`
-                <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-zinc-950">
-                    <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-                    <div className="absolute bottom-0 left-0 w-80 h-80 bg-red-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
-                    <div className="relative z-10 max-w-lg w-full bg-zinc-900/50 backdrop-blur-2xl rounded-3xl shadow-2xl p-10 animate-fade-in border border-amber-500/20">
-                        <div className="text-center">
-                            <div className="text-7xl mb-4 text-white">⚠️</div>
-                            <h2 className="text-3xl font-black mb-4 text-amber-500">
-                                ${lang === 'ar' ? 'بيانات غير صحيحة' : 'Information Mismatch'}
-                            </h2>
-                            <p className="text-sm font-bold text-gray-400 leading-relaxed mb-8">
-                                ${lang === 'ar' ? 'الاسم أو رقم الجلوس أو البريد الإلكتروني الذي أدخلته لا يتطابق مع السجلات الموجودة في قاعدة البيانات. يرجى التحقق من البيانات والمحاولة مرة أخرى.' : 'The Name, Seat Number, or Email you entered does not match the database records. Please verify your information and try again.'}
-                            </p>
-                            <button onClick=${() => { setModalType(null); setGatewayError(null); setDebugError(null); }} className="w-full py-4 rounded-2xl font-black text-xl text-white bg-amber-600 hover:bg-amber-700 shadow-xl transition-all hover:scale-[1.02]">
-                                ${lang === 'ar' ? '🔄 العودة والتعديل' : '🔄 Go Back and Edit'}
-                            </button>
-                        </div>
-                    </div>
-                </div>`;
-            }
-
             const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(studentInfo.email);
             const isFormValid = studentInfo.name && studentInfo.seatNumber && studentInfo.department && isEmailValid;
             const verifyAndStart = async () => {
                 if (!quiz.webhookUrl || !quiz.webhookUrl.includes('/macros/s/') || !quiz.webhookUrl.endsWith('/exec')) {
                     setDebugError("INVALID WEBHOOK URL: The URL must be a Web App URL ending in '/exec', not a library or script ID URL.");
-                    setModalType('network_error');
+                    setGatewayError('network_error');
                     return;
                 }
                 setIsVerifying(true);
@@ -402,16 +380,16 @@
                     if (response && response.status === 'clear') {
                         setModalType('exam_rules');
                     } else if (response && response.status === 'exists') {
-                        setModalType('already_submitted');
+                        setGatewayError('exists');
                     } else if (response && (response.status === 'not_found' || response.status === 'invalid')) {
-                        setModalType('invalid_data');
+                        setGatewayError('invalid_data');
                     } else {
                         throw new Error('Invalid response from server');
                     }
                 } catch (error) {
                     console.error('Verification failed:', error);
                     setDebugError(error.message || 'Unknown Error');
-                    setModalType('network_error');
+                    setGatewayError('network_error');
                 } finally {
                     setIsVerifying(false);
                 }
@@ -463,6 +441,28 @@
                             <button onClick=${goBack} className="w-full py-3 rounded-xl font-bold bg-gray-700 text-white">
                                 ${lang === 'ar' ? 'العودة' : 'Go Back'}
                             </button>
+                        </div>
+                    </div>`;
+            } else if (gatewayError === 'invalid_data') {
+                gatewayContent = html`
+                    <div className="w-full">
+                        <div className="text-center p-8 rounded-3xl mb-6 bg-amber-500/5 border border-amber-500/20">
+                            <div className="text-7xl mb-4 text-white">⚠️</div>
+                            <h2 className="text-2xl font-black text-amber-500 mb-3">${lang === 'ar' ? 'بيانات غير صحيحة' : 'Information Mismatch'}</h2>
+                            <p className="text-sm font-bold text-gray-400 mb-2 leading-relaxed">
+                                ${lang === 'ar' ? 'لم يتم العثور على بياناتك في السجلات.' : 'Your information was not found in the records.'}
+                            </p>
+                            <p className="text-sm font-bold text-gray-500 mb-6 leading-relaxed">
+                                ${lang === 'ar' ? 'الاسم أو رقم الجلوس أو البريد الإلكتروني الذي أدخلته لا يتطابق مع قاعدة البيانات. يرجى التحقق والمحاولة مرة أخرى.' : 'The Name, Seat Number, or Email you entered does not match the database. Please verify and try again.'}
+                            </p>
+                            <div className="space-y-3">
+                                <button onClick=${() => { setGatewayError(null); setDebugError(null); }} className="w-full py-3 rounded-xl font-bold bg-amber-600 text-white">
+                                    ${lang === 'ar' ? '🔄 العودة وتعديل البيانات' : '🔄 Go Back and Edit'}
+                                </button>
+                                <button onClick=${goBack} className="w-full py-3 rounded-xl font-bold bg-gray-700 text-white">
+                                    ${lang === 'ar' ? 'العودة' : 'Go Back'}
+                                </button>
+                            </div>
                         </div>
                     </div>`;
             } else if (gatewayError === 'network_error') {
