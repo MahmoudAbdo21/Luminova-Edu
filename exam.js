@@ -181,7 +181,15 @@ window.LUMINOVA_EXAMS = [
       }
     ],
     "yearId": "year_1",
-    "semesterId": "semesters_1775125622791"
+    "semesterId": "semesters_1775125622791",
+    "webhookUrl": "https://script.google.com/macros/s/AKfycbxA_nIwtphh0VcxzzZ9RRVQDzQpo3fVYBsSrOYsSv9469nYJdLVuW9P2Sb1IL8Y21QQBA/exec",
+    "examMode": "evaluation",
+    "showResultsAfter": true,
+    "emailPolicy": "full_report",
+    "latePolicy": "grace_period",
+    "startTime": "",
+    "endTime": "2026-05-04T23:00",
+    "adminEmails": "mahmoud21abdalrhman@gmail.com"
   },
   {
     "id": "quizzes_1777298325651",
