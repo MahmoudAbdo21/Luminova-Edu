@@ -5,7 +5,7 @@ window.LUMINOVA_EXAMS = [
     "titleAr": "اختبار شامل",
     "titleEn": "Comprehensive Test",
     "isShuffled": true,
-    "feedbackMode": "end",
+    "feedbackMode": "immediate",
     "subjectId": "subjects_1775125681706",
     "publisherId": "s_founder_hardcoded",
     "questions": [
@@ -1832,7 +1832,7 @@ window.LUMINOVA_EXAMS = [
         "id": "q_1777981401613"
       }
     ],
-    "examMode": "evaluation",
+    "examMode": "practice",
     "emailPolicy": "full_report",
     "adminEmails": "mahmoud21abdalrhman@gmail.com,salmazahran167@gmail.com",
     "startTime": "2026-05-05T19:00",
@@ -1841,7 +1841,7 @@ window.LUMINOVA_EXAMS = [
     "allowBackNavigation": true,
     "yearId": "year_1",
     "semesterId": "semesters_1775125622791",
-    "webhookUrl": "https://script.google.com/macros/s/AKfycbxA_nIwtphh0VcxzzZ9RRVQDzQpo3fVYBsSrOYsSv9469nYJdLVuW9P2Sb1IL8Y21QQBA/exec",
+    "webhookUrl": "",
     "showResultsAfter": true
   },
   {
