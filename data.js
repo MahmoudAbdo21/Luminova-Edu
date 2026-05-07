@@ -376,6 +376,15 @@ window.LUMINOVA_DATA = {
   ],
   "subjects": [
     {
+      "id": "subjects_1778154846161",
+      "timestamp": "2026-05-07T11:54:06.161Z",
+      "nameAr": "مكتبات رقمية",
+      "nameEn": "digital libraries",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "subjectId": ""
+    },
+    {
       "id": "subjects_1777896562125",
       "timestamp": "2026-05-04T12:09:22.125Z",
       "nameAr": "معلومات مصورة",
@@ -476,6 +485,28 @@ window.LUMINOVA_DATA = {
     }
   ],
   "summaries": [
+    {
+      "id": "summaries_1778154906085",
+      "timestamp": "2026-05-07T11:55:06.085Z",
+      "titleAr": "مجمع تلخيص لجميع الفصول",
+      "titleEn": "Summarizing Complex for All Chapters",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "subjectId": "subjects_1778154846161",
+      "studentId": "students_1775379443604",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/16nA3uAsvZW2OvVirX14CY2i4W8FD0RPy/view?usp=sharing",
+          "titleAr": "",
+          "titleEn": "",
+          "order": 0,
+          "type": "url"
+        }
+      ]
+    },
     {
       "id": "summaries_1777896585232",
       "timestamp": "2026-05-04T12:09:45.232Z",
