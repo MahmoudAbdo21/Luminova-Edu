@@ -98,7 +98,7 @@
         useEffect(() => {
             if (isStarted && !isFinished && questions.length > 0) {
                 if (!document.fullscreenElement) {
-                    document.documentElement.requestFullscreen().catch(err => console.log('Fullscreen denied:', err));
+                    document.documentElement.requestFullscreen().catch(() => {});
                 }
             }
         }, [isStarted, questions.length]);
@@ -107,7 +107,7 @@
         const safeExitFullscreen = () => {
             try {
                 if (document.fullscreenElement) {
-                    document.exitFullscreen().catch(err => console.log('Exit fullscreen error:', err));
+                    document.exitFullscreen().catch(() => {});
                 }
             } catch (e) { /* ignore */ }
         };
@@ -303,7 +303,7 @@
                     // Force fullscreen for proctored environment
                     // Force fullscreen for proctored environment (already handled by useEffect, but ensure)
                     if (!document.fullscreenElement) {
-                        document.documentElement.requestFullscreen().catch(err => console.log('Fullscreen denied:', err));
+                        document.documentElement.requestFullscreen().catch(() => {});
                     }
                     loginTimeRef.current = new Date().toISOString();
                     setModalType(null);

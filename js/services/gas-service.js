@@ -167,7 +167,4 @@
             return await _gasFetch(webhookUrl, payload);
         }
     };
-
-    console.log('✅ Luminova GAS Service Layer loaded.');
-
 })();

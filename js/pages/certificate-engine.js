@@ -12,7 +12,7 @@
         return new Promise(resolve => {
             if (window.LUMINOVA_CERTIFICATES) return resolve(window.LUMINOVA_CERTIFICATES);
             const script = document.createElement('script');
-            script.src = 'certificates.js?v=' + Date.now();
+            script.src = 'certificates.js?t=' + new Date().getTime();
             script.onload = () => resolve(window.LUMINOVA_CERTIFICATES || []);
             script.onerror = () => { console.error("Failed to load certificates.js"); resolve([]); };
             document.body.appendChild(script);
@@ -45,7 +45,7 @@
     };
 
     Luminova.generateCertificateImage = async (certificate, lang = 'ar') => {
-        const cacheKey = `${certificate.id}_${lang}`;
+        const cacheKey = `${certificate.id}_${lang}_v14`;
         window.__LUMINOVA_IMG_CACHE = window.__LUMINOVA_IMG_CACHE || {};
         if (window.__LUMINOVA_IMG_CACHE[cacheKey]) return window.__LUMINOVA_IMG_CACHE[cacheKey];
         
@@ -80,8 +80,11 @@
                 if (snapShotted) return;
                 snapShotted = true;
                 await document.fonts.ready;
-                // Tiny frame delay to ensure paint
-                await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+                // Stage 1: Wait for a full frame to ensure React has committed to DOM
+                await new Promise(r => requestAnimationFrame(r));
+                // Stage 2: Deliberate 450ms delay to guarantee browser has painted
+                // gradients, text, and all styled elements before html2canvas clones
+                await new Promise(r => setTimeout(r, 450));
                 
                 const targetNode = container.querySelector('[id^="cert-"]') || container;
                 try {
@@ -163,6 +166,61 @@
     };
 
     // ================================================================
+    // Premium Luxury Seal Component
+    // ================================================================
+    Luminova.Components.PremiumSeal = ({ type, size = 130 }) => {
+        const isGold = type === 'gold';
+        
+        // Background Gradients (The Coin Edge)
+        const gradOuter = isGold 
+            ? 'linear-gradient(135deg, #D4AF37, #FFF8D6, #C0A062, #8B6914)'
+            : 'linear-gradient(135deg, #B0B7C3, #FFFFFF, #8C949E, #4A5568)';
+
+        // Inner Core Fill
+        const innerFill = isGold ? '#1E3A57' : '#2C3E50';
+            
+        // Ribbon Fill and Border
+        const ribbonFill = isGold ? '#1E3A57' : '#2C3E50';
+        const ribbonBorder = isGold ? '#D4AF37' : '#B0B7C3';
+        
+        // Typography, Star, and Inner Dashed Border
+        const accentColor = isGold ? '#D4AF37' : '#E6E9EE';
+        const dashedBorderColor = isGold ? '#D4AF37' : '#B0B7C3';
+        
+        const scale = size / 120;
+        
+        // Ribbon dimensions
+        const ribW = 30 * scale;
+        const ribH = 75 * scale;
+        
+        return html`
+            <div style=${{ position: 'relative', width: `${size}px`, height: `${size + ribH * 0.8}px`, display: 'flex', justifyContent: 'center' }}>
+                
+                <!-- The Trailing Ribbons (V-Cut via clip-path) -->
+                <!-- Left Ribbon (Rotated 20deg) -->
+                <div style=${{ position: 'absolute', top: '50%', left: '50%', width: `${ribW}px`, height: `${ribH}px`, background: ribbonFill, border: `2px solid ${ribbonBorder}`, clipPath: 'polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%)', transform: 'translateX(-120%) rotate(20deg)', transformOrigin: 'top right', zIndex: -1 }}></div>
+                
+                <!-- Right Ribbon (Rotated -20deg) -->
+                <div style=${{ position: 'absolute', top: '50%', left: '50%', width: `${ribW}px`, height: `${ribH}px`, background: ribbonFill, border: `2px solid ${ribbonBorder}`, clipPath: 'polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%)', transform: 'translateX(20%) rotate(-20deg)', transformOrigin: 'top left', zIndex: -1 }}></div>
+
+                <!-- The Main Medal (Perfect Coin) -->
+                <div style=${{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: `${size}px`, height: `${size}px`, zIndex: 2, background: gradOuter, borderRadius: '50%', boxShadow: '0 8px 25px rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    
+                    <!-- Inner Core -->
+                    <div style=${{ width: '83%', height: '83%', borderRadius: '50%', background: innerFill, border: `2px dashed ${dashedBorderColor}`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxShadow: 'inset 0 4px 15px rgba(0,0,0,0.5)' }}>
+                        
+                        <!-- Typography & Star -->
+                        <div style=${{ fontSize: `${9 * scale}px`, fontFamily: 'serif', fontWeight: 900, color: accentColor, marginTop: `${8 * scale}px`, whiteSpace: 'nowrap' }}>LUMINOVA EDU</div>
+                        <div style=${{ fontSize: `${36 * scale}px`, lineHeight: 1, color: accentColor }}>★</div>
+                        <div style=${{ fontSize: `${11 * scale}px`, fontFamily: 'serif', fontWeight: 900, color: accentColor, letterSpacing: '2px', marginBottom: `${8 * scale}px` }}>${isGold ? 'GOLD' : 'SILVER'}</div>
+                        
+                    </div>
+                </div>
+            </div>
+        `;
+    };
+
+    // ================================================================
     // MiniCertificateCard — compact card for grids and the HomePage
     // ================================================================
     Luminova.Components.MiniCertificateCard = ({ certificate, lang, onView }) => {
@@ -171,9 +229,9 @@
         const certTitle   = lang === 'ar' ? certificate.title       : (certificate.titleEn || certificate.title);
 
         return html`
-            <div style=${{ display: 'flex', flexDirection: 'column', background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', overflow: 'hidden', transition: 'all 0.3s', width: '100%', height: '100%' }} className="hover:-translate-y-1 hover:border-rose-400/30 hover:shadow-[0_8px_30px_rgba(244,63,94,0.1)] group">
+            <div style=${{ display: 'flex', flexDirection: 'column', background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', transition: 'all 0.3s', width: '100%', height: '100%', position: 'relative' }} className="hover:-translate-y-1 hover:border-rose-400/30 hover:shadow-[0_8px_30px_rgba(244,63,94,0.1)] group">
                 <!-- Top: The Generated Image Thumbnail -->
-                <div style=${{ width: '100%', position: 'relative', background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                <div style=${{ width: '100%', position: 'relative', background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.05)', borderRadius: '24px 24px 0 0', overflow: 'hidden' }}>
                     <${Luminova.Components.CertificateImage} certificate=${certificate} lang=${lang} mode="thumb" />
                 </div>
                 
@@ -196,7 +254,7 @@
                         </button>
                         <button
                             onClick=${() => {
-                                const cacheKey = `${certificate.id}_${lang}`;
+                                const cacheKey = `${certificate.id}_${lang}_v14`;
                                 const cached = window.__LUMINOVA_IMG_CACHE?.[cacheKey] || sessionStorage.getItem('lmv_cert_' + cacheKey);
                                 if (cached) Luminova.downloadCertificateImage(cached, certificate.id);
                                 else alert(lang === 'ar' ? 'انتظر اكتمال التحميل أولاً' : 'Please wait for generation to finish');
@@ -207,6 +265,7 @@
                         </button>
                     </div>
                 </div>
+                
             </div>
         `;
     };
@@ -236,15 +295,15 @@
             displayRoleEn = 'Platform Moderator';
         }
 
-        const isGoldSeal = certificate.sealType === 'gold' || (!certificate.sealType && certificate.senderRole === 'doctor');
-        const isSilverTheme = certificate.sealType === 'silver';
+        const isGoldSeal = certificate.level === 'gold' || certificate.sealType === 'gold' || (!certificate.sealType && !certificate.level && certificate.senderRole === 'doctor');
+        const isSilverTheme = certificate.level === 'silver' || certificate.sealType === 'silver';
 
-        const outerBorderColor = isSilverTheme ? '#334155' : '#0f172a';
-        const innerRingColor = isSilverTheme ? '#94a3b8' : '#B8860B';
-        const brandAccentColor = isSilverTheme ? '#64748b' : '#B8860B';
-        const dividerColor = isSilverTheme ? '#94a3b8' : '#ca8a04';
-        const nameColor = isSilverTheme ? '#334155' : '#92660a';
-        const signatureLineColor = isSilverTheme ? '#94a3b8' : '#eab308';
+        const outerBorderColor = '#0f172a';
+        const innerRingColor = '#B8860B';
+        const brandAccentColor = '#B8860B';
+        const dividerColor = '#ca8a04';
+        const nameColor = '#92660a';
+        const signatureLineColor = '#eab308';
 
         const studentName = lang === 'ar' ? certificate.studentName : (certificate.studentNameEn || certificate.studentName);
         const senderName  = lang === 'ar' ? certificate.senderName  : (certificate.senderNameEn  || certificate.senderName);
@@ -264,7 +323,7 @@
 
                 <!-- Scrollable wrapper -->
                 <div style=${{ width: '100%', overflowX: 'auto' }}>
-                    <div style=${{ width: '1000px', margin: '0 auto' }}>
+                    <div style=${{ width: '1000px', margin: '0 auto', overflow: 'visible', position: 'relative' }}>
                         <div
                             id=${'cert-' + certificate.id}
                             style=${{
@@ -331,21 +390,12 @@
                                 </span>
                             </div>
 
-                            <!-- Role Seal (bottom-right) -->
-                            <div style=${{
-                                position: 'absolute', bottom: '40px', right: '40px', zIndex: 20,
-                                width: '88px', height: '88px', borderRadius: '50%',
-                                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                                transform: 'rotate(-12deg)',
-                                border: '4px solid ' + (isGoldSeal ? '#fde68a' : '#cbd5e1'),
-                                background: isGoldSeal ? 'linear-gradient(135deg,#fde68a,#f59e0b,#d97706)' : 'linear-gradient(135deg,#e2e8f0,#94a3b8,#64748b)',
-                                boxShadow: '0 8px 24px rgba(0,0,0,0.18)'
-                            }}>
-                                <span style=${{ fontSize: '28px', lineHeight: 1 }}>🏅</span>
-                                <span style=${{ fontSize: '9px', fontWeight: 900, marginTop: '3px', textAlign: 'center', textTransform: 'uppercase', color: isGoldSeal ? '#fff' : '#1e293b', letterSpacing: 'normal' }}>
-                                    ${isGoldSeal ? 'Official' : 'Peer'}
-                                </span>
-                            </div>
+                            <!-- Exquisite Luxury Rosette Ribbon Seal -->
+                            ${(isGoldSeal || isSilverTheme) ? html`
+                                <div style=${{ position: 'absolute', top: '75%', left: '80%', zIndex: 50 }}>
+                                    <${Luminova.Components.PremiumSeal} type=${isGoldSeal ? 'gold' : 'silver'} size=${150} />
+                                </div>
+                            ` : ''}
 
                             <!-- Signature (bottom-center) -->
                             <div style=${{ position: 'absolute', bottom: '40px', left: '50%', transform: 'translateX(-50%)', textAlign: 'center', zIndex: 20 }}>
@@ -391,7 +441,7 @@
         const [loading, setLoading]           = useState(true);
         const [searchQuery, setSearchQuery]   = useState('');
         const [selectedCert, setSelectedCert] = useState(null);
-        const [limit, setLimit]               = useState(5);
+        const [limit, setLimit]               = useState(6);
 
         const verifyId = new URLSearchParams(window.location.search).get('verify');
 
@@ -495,19 +545,20 @@
                 ${paged.length > 0 ? html`
                     <div style=${{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', padding: '0 8px' }}>
                         ${paged.map(cert => html`
-                            <${Luminova.Components.MiniCertificateCard}
-                                key=${cert.id}
-                                certificate=${cert}
-                                lang=${lang}
-                                onView=${(c) => setSelectedCert(c)}
-                            />
+                            <div key="${cert.id}" style=${{ height: '100%' }}>
+                                <${Luminova.Components.MiniCertificateCard}
+                                    certificate=${cert}
+                                    lang=${lang}
+                                    onView=${(c) => setSelectedCert(c)}
+                                />
+                            </div>
                         `)}
                     </div>
 
                     ${hasMore && html`
                         <div style=${{ display: 'flex', justifyContent: 'center', marginTop: '40px' }}>
                             <button
-                                onClick=${() => setLimit(l => l + 5)}
+                                onClick=${() => setLimit(l => l + 6)}
                                 style=${{ background: 'linear-gradient(135deg, #fb7185, #818cf8)', color: '#fff', fontWeight: 900, fontSize: '17px', padding: '16px 40px', borderRadius: '16px', border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(244,63,94,0.3)', transition: 'all 0.3s' }}
                                 className="hover:scale-105 active:scale-95">
                                 ${lang === 'ar' ? 'عرض المزيد' : 'Load More'}

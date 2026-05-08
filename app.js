@@ -33,7 +33,9 @@
             save: "حفظ", delete: "حذف", cancel: "إلغاء", exportData: "سحب الكود (Export initialData)",
             major: "التخصص", correct: "إجابة صحيحة", wrong: "إجابة خاطئة", results: "النتائج",
             topContributors: "شرف المساهمين 🏆", news: "أحدث الأخبار 📢", feed: "الخلاصة 🔥",
-            certificates: "الشهادات والتوثيق"
+            certificates: "الشهادات والتوثيق",
+            startInteractiveLesson: "🚀 ابدأ الدرس التفاعلي", rotateLandscape: "يرجى تدوير جهازك للوضع الأفقي لبدء الدرس",
+            exitLesson: "الخروج من الدرس", archiveTab: "الأرشيف 📂", interactiveTag: "درس تفاعلي"
         },
         en: {
             appName: "Luminova Edu", home: "Home", community: "Community", academic: "Academic Library",
@@ -47,7 +49,9 @@
             save: "Save", delete: "Delete", cancel: "Cancel", exportData: "Export initialData Code",
             major: "Major", correct: "Correct", wrong: "Wrong", results: "Results",
             topContributors: "Top Contributors 🏆", news: "Latest News 📢", feed: "The Feed 🔥",
-            certificates: "Certificates Archive"
+            certificates: "Certificates Archive",
+            startInteractiveLesson: "🚀 Start Interactive Lesson", rotateLandscape: "Please rotate your device to landscape mode to begin",
+            exitLesson: "Exit Lesson", archiveTab: "Archive 📂", interactiveTag: "Interactive Lesson"
         }
     };
 
@@ -520,8 +524,8 @@
             ${isOpen && html`
                 <div className="absolute top-full left-0 right-0 mt-3 z-[999] animate-fade-in backdrop-blur-3xl bg-[#0A0514]/95 border border-white/10 rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.6)] overflow-hidden max-h-[300px] overflow-y-auto">
                     <ul className="py-2 flex flex-col m-0 p-0">
-                        ${options.map((opt, idx) => html`
-                            <li key=${opt.value || `opt-${idx}`} 
+                        ${options.map(opt => html`
+                            <li key=${opt.value} 
                                 onClick=${() => { onChange(opt.value); setIsOpen(false); }}
                                 className=${`px-5 py-4 cursor-pointer transition-colors font-bold border-b border-white/5 last:border-none ${String(value) === String(opt.value) ? 'bg-rose-500/20 text-rose-400' : 'text-zinc-400 hover:bg-white/[0.05] hover:text-white'}`}
                             >
@@ -596,6 +600,197 @@
         `;
     };
 
+    // ==========================================
+    // Interactive Lesson: Orientation Gate
+    // ==========================================
+    Luminova.Components.OrientationGate = ({ lang, onLandscapeReady }) => {
+        const [isLandscape, setIsLandscape] = useState(false);
+
+        useEffect(() => {
+            const check = () => {
+                const landscape = window.innerWidth > window.innerHeight;
+                setIsLandscape(landscape);
+                if (landscape && onLandscapeReady) onLandscapeReady();
+            };
+            check();
+            window.addEventListener('resize', check);
+            const mql = window.matchMedia('(orientation: landscape)');
+            const mqlHandler = (e) => { if (e.matches && onLandscapeReady) onLandscapeReady(); setIsLandscape(e.matches); };
+            mql.addEventListener('change', mqlHandler);
+            return () => { window.removeEventListener('resize', check); mql.removeEventListener('change', mqlHandler); };
+        }, []);
+
+        if (isLandscape) return null;
+
+        return html`
+            <div className="fixed inset-0 z-[12000] flex flex-col items-center justify-center p-6 backdrop-blur-2xl bg-black/95 text-white" dir=${lang === 'ar' ? 'rtl' : 'ltr'}>
+                <style>${`
+                    @keyframes lmv-rotate-phone { 0%,100%{transform:rotate(0deg) scale(1)} 30%,70%{transform:rotate(90deg) scale(1.1)} }
+                `}</style>
+                <div style=${{ width:'90px',height:'140px',border:'5px solid white',borderRadius:'18px',display:'flex',alignItems:'center',justifyContent:'center',background:'linear-gradient(135deg,rgba(255,255,255,0.08),rgba(0,0,0,0.4))',boxShadow:'0 10px 40px rgba(0,0,0,0.5)',animation:'lmv-rotate-phone 3s cubic-bezier(0.4,0,0.2,1) infinite' }} className="mb-8">
+                    <div style=${{ width:'30px',height:'3px',backgroundColor:'rgba(255,255,255,0.7)',borderRadius:'2px',position:'absolute',bottom:'8px' }}></div>
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-black mb-4 text-center leading-tight">
+                    ${Luminova.i18n[lang].rotateLandscape} 📱➡️
+                </h2>
+                <p className="text-white/50 text-sm">${lang === 'ar' ? 'سيبدأ الدرس تلقائياً عند التدوير' : 'The lesson will start automatically when rotated'}</p>
+            </div>
+        `;
+    };
+
+    // ==========================================
+    // Interactive Lesson: Invisible SmartWrapper
+    // ==========================================
+    Luminova.Components.InteractiveLessonWrapper = ({ lang }) => {
+        const [isActive, setIsActive] = useState(false);
+        const [lessonUrl, setLessonUrl] = useState(null);
+        const [lessonLoaded, setLessonLoaded] = useState(false);
+        const [showOrientationGate, setShowOrientationGate] = useState(false);
+        const wrapperRef = window.React.useRef(null);
+
+        const isMobile = () => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 1024;
+
+        const cleanup = useCallback(() => {
+            if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+            window.__LUMINOVA_ACTIVE_LESSON = null;
+            setIsActive(false);
+            setLessonUrl(null);
+            setLessonLoaded(false);
+            setShowOrientationGate(false);
+        }, []);
+
+        const startLesson = useCallback((url) => {
+            window.__LUMINOVA_ACTIVE_LESSON = null;
+
+            fetch(url + '?t=' + Date.now())
+                .then(res => {
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res.text();
+                })
+                .then(rawJsx => {
+                    // 1. Strip all import/export statements (single-line AND multi-line)
+                    let code = rawJsx;
+                    // Multi-line: import { ... \n ... } from '...';
+                    code = code.replace(/import\s*\{[\s\S]*?\}\s*from\s*['"][^'"]*['"];?/g, '');
+                    // Single-line: import X from '...';  import '...';
+                    code = code.replace(/import\s+.*?\s+from\s*['"][^'"]*['"];?/g, '');
+                    code = code.replace(/import\s*['"][^'"]*['"];?/g, '');
+                    // export default X;
+                    code = code.replace(/export\s+default\s+\w+;?/g, '');
+                    // export { ... };
+                    code = code.replace(/export\s*\{[\s\S]*?\};?/g, '');
+
+                    // 2. Icon stubs (lucide-react replacements)
+                    const iconStubs = [
+                        'const _LI=(p,d)=>React.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",width:24,height:24,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:"2",strokeLinecap:"round",strokeLinejoin:"round",className:p.className||""},...d.map(c=>React.createElement(c[0],c[1])));',
+                        'const CheckCircle2=(p={})=>_LI(p,[["path",{d:"M22 11.08V12a10 10 0 1 1-5.93-9.14"}],["polyline",{points:"22 4 12 14.01 9 11.01"}]]);',
+                        'const XCircle=(p={})=>_LI(p,[["circle",{cx:"12",cy:"12",r:"10"}],["line",{x1:"15",y1:"9",x2:"9",y2:"15"}],["line",{x1:"9",y1:"9",x2:"15",y2:"15"}]]);',
+                        'const ChevronRight=(p={})=>_LI(p,[["polyline",{points:"9 18 15 12 9 6"}]]);',
+                        'const ChevronLeft=(p={})=>_LI(p,[["polyline",{points:"15 18 9 12 15 6"}]]);',
+                        'const LogOut=(p={})=>_LI(p,[["path",{d:"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"}],["polyline",{points:"16 17 21 12 16 7"}],["line",{x1:"21",y1:"12",x2:"9",y2:"12"}]]);',
+                        'const Lightbulb=(p={})=>_LI(p,[["path",{d:"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"}],["path",{d:"M9 18h6"}],["path",{d:"M10 22h4"}]]);',
+                        'const PieChart=(p={})=>_LI(p,[["path",{d:"M21.21 15.89A10 10 0 1 1 8 2.83"}],["path",{d:"M22 12A10 10 0 0 0 12 2v10z"}]]);',
+                        'const Target=(p={})=>_LI(p,[["circle",{cx:"12",cy:"12",r:"10"}],["circle",{cx:"12",cy:"12",r:"6"}],["circle",{cx:"12",cy:"12",r:"2"}]]);',
+                        'const Layers=(p={})=>_LI(p,[["polygon",{points:"12 2 2 7 12 12 22 7 12 2"}],["polyline",{points:"2 17 12 22 22 17"}],["polyline",{points:"2 12 12 17 22 12"}]]);',
+                        'const Eye=(p={})=>_LI(p,[["path",{d:"M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"}],["circle",{cx:"12",cy:"12",r:"3"}]]);',
+                        'const Layout=(p={})=>_LI(p,[["rect",{x:"3",y:"3",width:"18",height:"18",rx:"2",ry:"2"}],["line",{x1:"3",y1:"9",x2:"21",y2:"9"}],["line",{x1:"9",y1:"21",x2:"9",y2:"9"}]]);',
+                        'const Activity=(p={})=>_LI(p,[["polyline",{points:"22 12 18 12 15 21 9 3 6 12 2 12"}]]);',
+                        'const Palette=(p={})=>_LI(p,[["circle",{cx:"13.5",cy:"6.5",r:".5"}],["circle",{cx:"17.5",cy:"10.5",r:".5"}],["circle",{cx:"8.5",cy:"7.5",r:".5"}],["circle",{cx:"6.5",cy:"12.5",r:".5"}],["path",{d:"M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.7-.7 1.7-1.5 0-.4-.1-.7-.4-1-.3-.3-.4-.7-.4-1.1 0-.9.7-1.7 1.7-1.7H16c3.3 0 6-2.7 6-6 0-5.5-4.5-10-10-10z"}]]);',
+                        'const Scale=(p={})=>_LI(p,[["line",{x1:"12",y1:"3",x2:"12",y2:"21"}],["polyline",{points:"8 8 4 12 8 16"}],["polyline",{points:"16 8 20 12 16 16"}]]);',
+                        'const ListChecks=(p={})=>_LI(p,[["path",{d:"m3 17 2 2 4-4"}],["path",{d:"m3 7 2 2 4-4"}],["path",{d:"M13 6h8"}],["path",{d:"M13 12h8"}],["path",{d:"M13 18h8"}]]);',
+                    ].join('\n');
+
+                    // 3. Wrap: inject React globals + icons + lesson code + registration
+                    const wrappedCode = '(function(){' +
+                        'var React=window.React;' +
+                        'var useState=React.useState,useEffect=React.useEffect,useCallback=React.useCallback,useRef=React.useRef;' +
+                        iconStubs +
+                        code +
+                        '\nwindow.__LUMINOVA_ACTIVE_LESSON=typeof ChapterOneLesson!=="undefined"?ChapterOneLesson:null;' +
+                    '})();';
+
+                    // 4. Babel transform JSX→JS
+                    if (!window.Babel) throw new Error('Babel Standalone not loaded');
+                    var compiled = window.Babel.transform(wrappedCode, { presets: ['react'], sourceType: 'script' }).code;
+
+                    // 5. Execute
+                    new Function(compiled)();
+
+                    if (!window.__LUMINOVA_ACTIVE_LESSON) throw new Error('Lesson component not registered after compilation');
+
+                    setLessonLoaded(true);
+                    var el = wrapperRef.current || document.documentElement;
+                    if (el.requestFullscreen) el.requestFullscreen().catch(function(){});
+                })
+                .catch(function(err) {
+                    console.error('Luminova: Failed to load/compile lesson:', err);
+                    cleanup();
+                });
+        }, [cleanup]);
+
+        // Listen for startInteractiveLesson event
+        useEffect(() => {
+            const handler = (e) => {
+                const { url } = e.detail || {};
+                if (!url) return;
+                setIsActive(true);
+                setLessonUrl(url);
+                setLessonLoaded(false);
+                if (isMobile() && window.innerHeight > window.innerWidth) {
+                    setShowOrientationGate(true);
+                } else {
+                    startLesson(url);
+                }
+            };
+            window.addEventListener('startInteractiveLesson', handler);
+            return () => window.removeEventListener('startInteractiveLesson', handler);
+        }, [startLesson]);
+
+        // Listen for luminova:exit event
+        useEffect(() => {
+            const handler = () => { if (isActive) cleanup(); };
+            window.addEventListener('luminova:exit', handler);
+            return () => window.removeEventListener('luminova:exit', handler);
+        }, [isActive, cleanup]);
+
+        // Handle fullscreen exit via Escape key
+        useEffect(() => {
+            const handler = () => { if (!document.fullscreenElement && isActive) cleanup(); };
+            document.addEventListener('fullscreenchange', handler);
+            return () => document.removeEventListener('fullscreenchange', handler);
+        }, [isActive, cleanup]);
+
+        if (!isActive) return null;
+
+        // Mobile portrait — show orientation gate
+        if (showOrientationGate && !lessonLoaded) {
+            return html`<${Luminova.Components.OrientationGate} lang=${lang} onLandscapeReady=${() => {
+                setShowOrientationGate(false);
+                startLesson(lessonUrl);
+            }} />`;
+        }
+
+        // Lesson loading spinner
+        if (!lessonLoaded || !window.__LUMINOVA_ACTIVE_LESSON) {
+            return html`
+                <div className="fixed inset-0 z-[12000] bg-[#0a0f1c] flex items-center justify-center">
+                    <div className="text-center">
+                        <div className="w-12 h-12 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                        <p className="text-white/60 text-sm font-bold">${lang === 'ar' ? 'جاري تحميل الدرس...' : 'Loading lesson...'}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render lesson component (invisible wrapper — no header/exit button)
+        const LessonComponent = window.__LUMINOVA_ACTIVE_LESSON;
+        return html`
+            <div ref=${wrapperRef} className="fixed inset-0 z-[12000] bg-[#0a0f1c]" style=${{ overflow: 'auto' }}>
+                <${LessonComponent} onExit=${cleanup} />
+            </div>
+        `;
+    };
+
     // END OF PART 1
 
     // ==========================================
@@ -642,7 +837,7 @@
                         const existing = document.querySelector(`script[data-lmv-page="${newView}"]`);
                         if (existing) return resolve();
                         const script = document.createElement('script');
-                        script.src = routeMap[newView] + '?v=2';
+                        script.src = routeMap[newView] + '?t=' + new Date().getTime();
                         script.setAttribute('data-lmv-page', newView);
                         script.onload = resolve;
                         script.onerror = () => { console.error('Failed to load:', newView); resolve(); };
@@ -741,7 +936,7 @@
                     return;
                 }
                 const script = document.createElement('script');
-                script.src = 'exam.js?v=2';
+                script.src = 'exam.js?t=' + new Date().getTime();
                 script.setAttribute('data-lmv-page', 'exam');
                 script.onload = () => {
                     setData(prev => ({ ...prev, quizzes: window.LUMINOVA_EXAMS || [] }));
@@ -805,6 +1000,7 @@
 
             <!-- Task 4: Tablet Portrait Overlay -->
             <${Luminova.Components.TabletPortraitOverlay} lang=${lang} />
+            <${Luminova.Components.InteractiveLessonWrapper} lang=${lang} />
 
 
 
@@ -873,15 +1069,15 @@
             <!-- Mobile Bottom Navigation Bar (hidden on desktop via CSS) -->
             ${view !== 'quiz' && html`
                 <nav key="bottom-nav-container" className="lmv-bottom-nav" aria-label=${lang === 'ar' ? 'التنقل الرئيسي' : 'Main navigation'}>
-                    <button className=${`lmv-bottom-nav-btn ${view === 'home' ? 'active' : ''}`} onClick=${() => changeView('home')} title=${lang === 'ar' ? Luminova.i18n.ar.home : Luminova.i18n.en.home}>
+                    <button className=${`lmv-bottom-nav-btn [-webkit-tap-highlight-color:transparent] ${view === 'home' ? 'active' : ''}`} onClick=${() => changeView('home')} title=${lang === 'ar' ? Luminova.i18n.ar.home : Luminova.i18n.en.home}>
                         <${Luminova.Icons.Home} />
                         <span className="lmv-nav-label">${lang === 'ar' ? Luminova.i18n.ar.home : Luminova.i18n.en.home}</span>
                     </button>
-                    <button className=${`lmv-bottom-nav-btn ${view === 'academics' ? 'active' : ''}`} onClick=${() => changeView('academics')} title=${lang === 'ar' ? Luminova.i18n.ar.academic : Luminova.i18n.en.academic}>
+                    <button className=${`lmv-bottom-nav-btn [-webkit-tap-highlight-color:transparent] ${view === 'academics' ? 'active' : ''}`} onClick=${() => changeView('academics')} title=${lang === 'ar' ? Luminova.i18n.ar.academic : Luminova.i18n.en.academic}>
                         <${Luminova.Icons.Book} />
                         <span className="lmv-nav-label">${lang === 'ar' ? Luminova.i18n.ar.academic : Luminova.i18n.en.academic}</span>
                     </button>
-                    <button className=${`lmv-bottom-nav-btn ${view === 'community' ? 'active' : ''}`} onClick=${() => changeView('community')} title=${lang === 'ar' ? Luminova.i18n.ar.community : Luminova.i18n.en.community}>
+                    <button className=${`lmv-bottom-nav-btn [-webkit-tap-highlight-color:transparent] ${view === 'community' ? 'active' : ''}`} onClick=${() => changeView('community')} title=${lang === 'ar' ? Luminova.i18n.ar.community : Luminova.i18n.en.community}>
                         <${Luminova.Icons.User} />
                         <span className="lmv-nav-label">${lang === 'ar' ? Luminova.i18n.ar.community : Luminova.i18n.en.community}</span>
                     </button>

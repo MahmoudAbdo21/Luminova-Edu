@@ -529,6 +529,10 @@ video:not(.media-container video) {
         color: #09090b; /* true black active */
     }
 
+    html.dark .lmv-bottom-nav-btn.active {
+        color: #fb7185; /* rose-400 */
+    }
+
     .lmv-bottom-nav-btn .lmv-nav-label {
         font-family: 'Cairo', sans-serif;
         font-size: 0.62rem;
@@ -631,3 +635,7 @@ video:not(.media-container video) {
         max-width: 340px !important;
     }
 }
+
+/* Scrollbar hiding utilities */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

@@ -47,6 +47,9 @@
     <!-- Native replacement for Babel/JSX to prevent CORS errors -->
     <script src="js/libs/htm.umd.js"></script>
 
+    <!-- Babel Standalone (Runtime JSX transpiler for Interactive Lessons) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
     <!-- Data (Loaded natively as window.LUMINOVA_DATA / window.initialData) -->
     <!-- كسر الكاش الخارجي (External Cache Busting) -->
     <script>
@@ -67,9 +70,11 @@
     <div id="root"></div>
 
     <!-- Application Logic -->
-    <script src="app.js?v=999"></script>
-    <script src="js/services/gas-service.js?v=999"></script>
-    <script src="js/pages/html-viewer.js?v=999"></script>
+    <script>
+        document.write('<script src="app.js?t=' + new Date().getTime() + '"><\/script>');
+        document.write('<script src="js/services/gas-service.js?t=' + new Date().getTime() + '"><\/script>');
+        document.write('<script src="js/pages/html-viewer.js?t=' + new Date().getTime() + '"><\/script>');
+    </script>
 
 </body>
 
