@@ -486,22 +486,6 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
-      "id": "summaries_1778246124366",
-      "timestamp": "2026-05-08T13:15:24.366Z",
-      "titleAr": "الفصل للثاني",
-      "titleEn": "Second Semester",
-      "contentAr": "الفصل الثاني في درس تفاعلي ",
-      "contentEn": "Chapter Two in an Interactive Lesson",
-      "mediaUrl": "",
-      "subjectId": "subjects_1777896562125",
-      "studentId": "s_founder_hardcoded",
-      "mediaType": "interactive",
-      "chapterTag": "الفصل الثاني",
-      "lessonUrl": "Interactive-lessons/Chapter2Lesson.jsx",
-      "yearId": "year_1",
-      "semesterId": "semesters_1775125622791"
-    },
-    {
       "id": "summaries_interactive_ch1_infographic",
       "timestamp": "2026-05-08T00:00:00.000Z",
       "titleAr": "الفصل الأول: المعلومات المصورة ومعايير تصميمها",
