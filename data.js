@@ -486,6 +486,22 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
+      "id": "summaries_1778283472985",
+      "timestamp": "2026-05-08T23:37:52.985Z",
+      "titleAr": "الفرق بين الانفوجرافك الثابت والمتحرك والتفاعلي",
+      "titleEn": "Difference Between Fixed, Moving and Reactive Infographics",
+      "contentAr": "شرح كامل للفرقه بين الثلاثة انواع وشرح نقاط من المنهج وخارجه تكتب للتفرقه بينهم",
+      "contentEn": "A full explanation of the difference between the three types and an explanation of the points of the curriculum and outside it written to differentiate between them",
+      "mediaUrl": "",
+      "subjectId": "subjects_1777896562125",
+      "studentId": "s_founder_hardcoded",
+      "mediaType": "interactive",
+      "chapterTag": "الفصل السادس",
+      "lessonUrl": "Interactive-lessons/Chapter7Lesson.jsx",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791"
+    },
+    {
       "id": "summaries_1778281577096",
       "timestamp": "2026-05-08T23:06:17.096Z",
       "titleAr": "الفصل السادس : الفرق بين الانفوجرافك وبعض المفاهيم الاخرى ",

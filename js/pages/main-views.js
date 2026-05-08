@@ -798,26 +798,27 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                                 </button>
                                 
                                 ${selectedCategory === 'capsule' ? html`
-                                    <div className="flex-1 overflow-x-auto relative z-20" style=${{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
-                                        <div className="flex items-center gap-2 pb-1" style=${{ minWidth: 'max-content' }}>
-                                            <!-- All tab -->
-                                            <button onClick=${() => setSelectedChapter('all')}
-                                                className=${`px-4 py-2 rounded-full text-sm font-black transition-all whitespace-nowrap border ${selectedChapter === 'all' ? 'bg-fuchsia-500/20 text-fuchsia-400 border-fuchsia-500/50 shadow-[0_0_12px_rgba(217,70,239,0.2)]' : 'bg-white/5 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 border-zinc-300 dark:border-zinc-700 hover:border-fuchsia-500/30 hover:bg-fuchsia-500/10'}`}>
-                                                ${lang === 'ar' ? 'الكل' : 'All'}
+                                    <div className="flex-1 relative z-20 items-center gap-2 pb-2" style=${{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', overflowX: 'auto', overflowY: 'hidden', WebkitOverflowScrolling: 'touch', maxWidth: '100%', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                                        <!-- All tab -->
+                                        <button onClick=${() => setSelectedChapter('all')}
+                                            className=${`px-4 py-2 rounded-full text-sm font-black transition-all whitespace-nowrap border ${selectedChapter === 'all' ? 'bg-fuchsia-500/20 text-fuchsia-400 border-fuchsia-500/50 shadow-[0_0_12px_rgba(217,70,239,0.2)]' : 'bg-white/5 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 border-zinc-300 dark:border-zinc-700 hover:border-fuchsia-500/30 hover:bg-fuchsia-500/10'}`}
+                                            style=${{ flexShrink: 0, whiteSpace: 'nowrap' }}>
+                                            ${lang === 'ar' ? 'الكل' : 'All'}
+                                        </button>
+                                        <!-- Chapter tabs -->
+                                        ${availableChapters.map(tag => html`
+                                            <button key=${tag} onClick=${() => setSelectedChapter(tag)}
+                                                className=${`px-4 py-2 rounded-full text-sm font-black transition-all whitespace-nowrap border ${selectedChapter === tag ? 'bg-fuchsia-500/20 text-fuchsia-400 border-fuchsia-500/50 shadow-[0_0_12px_rgba(217,70,239,0.2)]' : 'bg-white/5 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 border-zinc-300 dark:border-zinc-700 hover:border-fuchsia-500/30 hover:bg-fuchsia-500/10'}`}
+                                                style=${{ flexShrink: 0, whiteSpace: 'nowrap' }}>
+                                                ${tag}
                                             </button>
-                                            <!-- Chapter tabs -->
-                                            ${availableChapters.map(tag => html`
-                                                <button key=${tag} onClick=${() => setSelectedChapter(tag)}
-                                                    className=${`px-4 py-2 rounded-full text-sm font-black transition-all whitespace-nowrap border ${selectedChapter === tag ? 'bg-fuchsia-500/20 text-fuchsia-400 border-fuchsia-500/50 shadow-[0_0_12px_rgba(217,70,239,0.2)]' : 'bg-white/5 dark:bg-zinc-800/50 text-zinc-600 dark:text-zinc-400 border-zinc-300 dark:border-zinc-700 hover:border-fuchsia-500/30 hover:bg-fuchsia-500/10'}`}>
-                                                    ${tag}
-                                                </button>
-                                            `)}
-                                            <!-- Archive button -->
-                                            <button onClick=${() => setSelectedChapter('__archive__')}
-                                                className=${`px-4 py-2 rounded-full text-sm font-black transition-all whitespace-nowrap border ${selectedChapter === '__archive__' ? 'bg-zinc-500/20 text-zinc-300 border-zinc-500/50 shadow-[0_0_12px_rgba(161,161,170,0.15)]' : 'bg-white/5 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-500 border-zinc-300 dark:border-zinc-700 hover:border-zinc-500/40 hover:bg-zinc-500/10'}`}>
-                                                ${Luminova.i18n[lang].archiveTab}
-                                            </button>
-                                        </div>
+                                        `)}
+                                        <!-- Archive button -->
+                                        <button onClick=${() => setSelectedChapter('__archive__')}
+                                            className=${`px-4 py-2 rounded-full text-sm font-black transition-all whitespace-nowrap border ${selectedChapter === '__archive__' ? 'bg-zinc-500/20 text-zinc-300 border-zinc-500/50 shadow-[0_0_12px_rgba(161,161,170,0.15)]' : 'bg-white/5 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-500 border-zinc-300 dark:border-zinc-700 hover:border-zinc-500/40 hover:bg-zinc-500/10'}`}
+                                            style=${{ flexShrink: 0, whiteSpace: 'nowrap' }}>
+                                            ${Luminova.i18n[lang].archiveTab}
+                                        </button>
                                     </div>
                                 ` : null}
                             </div>
