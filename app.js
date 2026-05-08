@@ -646,6 +646,8 @@
         const [lessonUrl, setLessonUrl] = useState(null);
         const [lessonLoaded, setLessonLoaded] = useState(false);
         const [showOrientationGate, setShowOrientationGate] = useState(false);
+        const [hasError, setHasError] = useState(false);
+        const [errorMsg, setErrorMsg] = useState('');
         const wrapperRef = window.React.useRef(null);
 
         const isMobile = () => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 1024;
@@ -657,76 +659,81 @@
             setLessonUrl(null);
             setLessonLoaded(false);
             setShowOrientationGate(false);
+            setHasError(false);
+            setErrorMsg('');
         }, []);
 
         const startLesson = useCallback((url) => {
             window.__LUMINOVA_ACTIVE_LESSON = null;
 
-            fetch(url + '?t=' + Date.now())
-                .then(res => {
-                    if (!res.ok) throw new Error('HTTP ' + res.status);
-                    return res.text();
-                })
-                .then(rawJsx => {
-                    // 1. Strip all import/export statements (single-line AND multi-line)
-                    let code = rawJsx;
-                    // Multi-line: import { ... \n ... } from '...';
-                    code = code.replace(/import\s*\{[\s\S]*?\}\s*from\s*['"][^'"]*['"];?/g, '');
-                    // Single-line: import X from '...';  import '...';
-                    code = code.replace(/import\s+.*?\s+from\s*['"][^'"]*['"];?/g, '');
-                    code = code.replace(/import\s*['"][^'"]*['"];?/g, '');
-                    // export default X;
-                    code = code.replace(/export\s+default\s+\w+;?/g, '');
-                    // export { ... };
-                    code = code.replace(/export\s*\{[\s\S]*?\};?/g, '');
+            try {
+                fetch(url + '?t=' + Date.now())
+                    .then(res => {
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        return res.text();
+                    })
+                    .then(rawJsx => {
+                        // 1. Strip all import/export statements (single-line AND multi-line)
+                        let code = rawJsx;
+                        code = code.replace(/import\s*\{[\s\S]*?\}\s*from\s*['"][^'"]*['"];?/g, '');
+                        code = code.replace(/import\s+.*?\s+from\s*['"][^'"]*['"];?/g, '');
+                        code = code.replace(/import\s*['"][^'"]*['"];?/g, '');
+                        code = code.replace(/export\s+default\s+\w+;?/g, '');
+                        code = code.replace(/export\s*\{[\s\S]*?\};?/g, '');
 
-                    // 2. Icon stubs (lucide-react replacements)
-                    const iconStubs = [
-                        'const _LI=(p,d)=>React.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",width:24,height:24,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:"2",strokeLinecap:"round",strokeLinejoin:"round",className:p.className||""},...d.map(c=>React.createElement(c[0],c[1])));',
-                        'const CheckCircle2=(p={})=>_LI(p,[["path",{d:"M22 11.08V12a10 10 0 1 1-5.93-9.14"}],["polyline",{points:"22 4 12 14.01 9 11.01"}]]);',
-                        'const XCircle=(p={})=>_LI(p,[["circle",{cx:"12",cy:"12",r:"10"}],["line",{x1:"15",y1:"9",x2:"9",y2:"15"}],["line",{x1:"9",y1:"9",x2:"15",y2:"15"}]]);',
-                        'const ChevronRight=(p={})=>_LI(p,[["polyline",{points:"9 18 15 12 9 6"}]]);',
-                        'const ChevronLeft=(p={})=>_LI(p,[["polyline",{points:"15 18 9 12 15 6"}]]);',
-                        'const LogOut=(p={})=>_LI(p,[["path",{d:"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"}],["polyline",{points:"16 17 21 12 16 7"}],["line",{x1:"21",y1:"12",x2:"9",y2:"12"}]]);',
-                        'const Lightbulb=(p={})=>_LI(p,[["path",{d:"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"}],["path",{d:"M9 18h6"}],["path",{d:"M10 22h4"}]]);',
-                        'const PieChart=(p={})=>_LI(p,[["path",{d:"M21.21 15.89A10 10 0 1 1 8 2.83"}],["path",{d:"M22 12A10 10 0 0 0 12 2v10z"}]]);',
-                        'const Target=(p={})=>_LI(p,[["circle",{cx:"12",cy:"12",r:"10"}],["circle",{cx:"12",cy:"12",r:"6"}],["circle",{cx:"12",cy:"12",r:"2"}]]);',
-                        'const Layers=(p={})=>_LI(p,[["polygon",{points:"12 2 2 7 12 12 22 7 12 2"}],["polyline",{points:"2 17 12 22 22 17"}],["polyline",{points:"2 12 12 17 22 12"}]]);',
-                        'const Eye=(p={})=>_LI(p,[["path",{d:"M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"}],["circle",{cx:"12",cy:"12",r:"3"}]]);',
-                        'const Layout=(p={})=>_LI(p,[["rect",{x:"3",y:"3",width:"18",height:"18",rx:"2",ry:"2"}],["line",{x1:"3",y1:"9",x2:"21",y2:"9"}],["line",{x1:"9",y1:"21",x2:"9",y2:"9"}]]);',
-                        'const Activity=(p={})=>_LI(p,[["polyline",{points:"22 12 18 12 15 21 9 3 6 12 2 12"}]]);',
-                        'const Palette=(p={})=>_LI(p,[["circle",{cx:"13.5",cy:"6.5",r:".5"}],["circle",{cx:"17.5",cy:"10.5",r:".5"}],["circle",{cx:"8.5",cy:"7.5",r:".5"}],["circle",{cx:"6.5",cy:"12.5",r:".5"}],["path",{d:"M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.7-.7 1.7-1.5 0-.4-.1-.7-.4-1-.3-.3-.4-.7-.4-1.1 0-.9.7-1.7 1.7-1.7H16c3.3 0 6-2.7 6-6 0-5.5-4.5-10-10-10z"}]]);',
-                        'const Scale=(p={})=>_LI(p,[["line",{x1:"12",y1:"3",x2:"12",y2:"21"}],["polyline",{points:"8 8 4 12 8 16"}],["polyline",{points:"16 8 20 12 16 16"}]]);',
-                        'const ListChecks=(p={})=>_LI(p,[["path",{d:"m3 17 2 2 4-4"}],["path",{d:"m3 7 2 2 4-4"}],["path",{d:"M13 6h8"}],["path",{d:"M13 12h8"}],["path",{d:"M13 18h8"}]]);',
-                    ].join('\n');
+                        // 2. Icon stubs (lucide-react replacements)
+                        const iconStubs = [
+                            'const _LI=(p,d)=>React.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",width:24,height:24,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:"2",strokeLinecap:"round",strokeLinejoin:"round",className:p.className||""},...d.map(c=>React.createElement(c[0],c[1])));',
+                            'const CheckCircle2=(p={})=>_LI(p,[["path",{d:"M22 11.08V12a10 10 0 1 1-5.93-9.14"}],["polyline",{points:"22 4 12 14.01 9 11.01"}]]);',
+                            'const XCircle=(p={})=>_LI(p,[["circle",{cx:"12",cy:"12",r:"10"}],["line",{x1:"15",y1:"9",x2:"9",y2:"15"}],["line",{x1:"9",y1:"9",x2:"15",y2:"15"}]]);',
+                            'const ChevronRight=(p={})=>_LI(p,[["polyline",{points:"9 18 15 12 9 6"}]]);',
+                            'const ChevronLeft=(p={})=>_LI(p,[["polyline",{points:"15 18 9 12 15 6"}]]);',
+                            'const LogOut=(p={})=>_LI(p,[["path",{d:"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"}],["polyline",{points:"16 17 21 12 16 7"}],["line",{x1:"21",y1:"12",x2:"9",y2:"12"}]]);',
+                            'const Lightbulb=(p={})=>_LI(p,[["path",{d:"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"}],["path",{d:"M9 18h6"}],["path",{d:"M10 22h4"}]]);',
+                            'const PieChart=(p={})=>_LI(p,[["path",{d:"M21.21 15.89A10 10 0 1 1 8 2.83"}],["path",{d:"M22 12A10 10 0 0 0 12 2v10z"}]]);',
+                            'const Target=(p={})=>_LI(p,[["circle",{cx:"12",cy:"12",r:"10"}],["circle",{cx:"12",cy:"12",r:"6"}],["circle",{cx:"12",cy:"12",r:"2"}]]);',
+                            'const Layers=(p={})=>_LI(p,[["polygon",{points:"12 2 2 7 12 12 22 7 12 2"}],["polyline",{points:"2 17 12 22 22 17"}],["polyline",{points:"2 12 12 17 22 12"}]]);',
+                            'const Eye=(p={})=>_LI(p,[["path",{d:"M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"}],["circle",{cx:"12",cy:"12",r:"3"}]]);',
+                            'const Layout=(p={})=>_LI(p,[["rect",{x:"3",y:"3",width:"18",height:"18",rx:"2",ry:"2"}],["line",{x1:"3",y1:"9",x2:"21",y2:"9"}],["line",{x1:"9",y1:"21",x2:"9",y2:"9"}]]);',
+                            'const Activity=(p={})=>_LI(p,[["polyline",{points:"22 12 18 12 15 21 9 3 6 12 2 12"}]]);',
+                            'const Palette=(p={})=>_LI(p,[["circle",{cx:"13.5",cy:"6.5",r:".5"}],["circle",{cx:"17.5",cy:"10.5",r:".5"}],["circle",{cx:"8.5",cy:"7.5",r:".5"}],["circle",{cx:"6.5",cy:"12.5",r:".5"}],["path",{d:"M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.7-.7 1.7-1.5 0-.4-.1-.7-.4-1-.3-.3-.4-.7-.4-1.1 0-.9.7-1.7 1.7-1.7H16c3.3 0 6-2.7 6-6 0-5.5-4.5-10-10-10z"}]]);',
+                            'const Scale=(p={})=>_LI(p,[["line",{x1:"12",y1:"3",x2:"12",y2:"21"}],["polyline",{points:"8 8 4 12 8 16"}],["polyline",{points:"16 8 20 12 16 16"}]]);',
+                            'const ListChecks=(p={})=>_LI(p,[["path",{d:"m3 17 2 2 4-4"}],["path",{d:"m3 7 2 2 4-4"}],["path",{d:"M13 6h8"}],["path",{d:"M13 12h8"}],["path",{d:"M13 18h8"}]]);',
+                        ].join('\n');
 
-                    // 3. Wrap: inject React globals + icons + lesson code + registration
-                    const wrappedCode = '(function(){' +
-                        'var React=window.React;' +
-                        'var useState=React.useState,useEffect=React.useEffect,useCallback=React.useCallback,useRef=React.useRef;' +
-                        iconStubs +
-                        code +
-                        '\nwindow.__LUMINOVA_ACTIVE_LESSON=typeof ChapterOneLesson!=="undefined"?ChapterOneLesson:null;' +
-                    '})();';
+                        // 3. Wrap: inject React globals + icons + lesson code + registration
+                        const wrappedCode = '(function(){' +
+                            'var React=window.React;' +
+                            'var useState=React.useState,useEffect=React.useEffect,useCallback=React.useCallback,useRef=React.useRef;' +
+                            iconStubs +
+                            code +
+                            '\nwindow.__LUMINOVA_ACTIVE_LESSON=typeof ChapterOneLesson!=="undefined"?ChapterOneLesson:null;' +
+                        '})();';
 
-                    // 4. Babel transform JSX→JS
-                    if (!window.Babel) throw new Error('Babel Standalone not loaded');
-                    var compiled = window.Babel.transform(wrappedCode, { presets: ['react'], sourceType: 'script' }).code;
+                        // 4. Babel transform JSX→JS
+                        if (!window.Babel) throw new Error('Babel Standalone not loaded');
+                        var compiled = window.Babel.transform(wrappedCode, { presets: ['react'], sourceType: 'script' }).code;
 
-                    // 5. Execute
-                    new Function(compiled)();
+                        // 5. Execute
+                        new Function(compiled)();
 
-                    if (!window.__LUMINOVA_ACTIVE_LESSON) throw new Error('Lesson component not registered after compilation');
+                        if (!window.__LUMINOVA_ACTIVE_LESSON) throw new Error('Lesson component not registered after compilation');
 
-                    setLessonLoaded(true);
-                    var el = wrapperRef.current || document.documentElement;
-                    if (el.requestFullscreen) el.requestFullscreen().catch(function(){});
-                })
-                .catch(function(err) {
-                    console.error('Luminova: Failed to load/compile lesson:', err);
-                    cleanup();
-                });
-        }, [cleanup]);
+                        setLessonLoaded(true);
+                        var el = wrapperRef.current || document.documentElement;
+                        if (el.requestFullscreen) el.requestFullscreen().catch(function(){});
+                    })
+                    .catch(function(err) {
+                        console.error('Luminova: Failed to load/compile lesson:', err);
+                        setErrorMsg(err.message || String(err));
+                        setHasError(true);
+                    });
+            } catch (syncErr) {
+                console.error('Luminova: Sync error in startLesson:', syncErr);
+                setErrorMsg(syncErr.message || String(syncErr));
+                setHasError(true);
+            }
+        }, []);
 
         // Listen for startInteractiveLesson event
         useEffect(() => {
@@ -736,6 +743,8 @@
                 setIsActive(true);
                 setLessonUrl(url);
                 setLessonLoaded(false);
+                setHasError(false);
+                setErrorMsg('');
                 if (isMobile() && window.innerHeight > window.innerWidth) {
                     setShowOrientationGate(true);
                 } else {
@@ -762,6 +771,29 @@
 
         if (!isActive) return null;
 
+        // CORS / Fetch error — elegant glassmorphism error screen
+        if (hasError) {
+            return html`
+                <div style=${{ position:'fixed',inset:0,width:'100vw',height:'100vh',zIndex:99999,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'linear-gradient(135deg,#0a0f1c 0%,#1a0a2e 50%,#0a0f1c 100%)',padding:'24px' }}>
+                    <div style=${{ background:'rgba(255,255,255,0.06)',backdropFilter:'blur(40px)',WebkitBackdropFilter:'blur(40px)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'28px',padding:'48px 40px',maxWidth:'520px',width:'100%',textAlign:'center',boxShadow:'0 32px 64px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)' }}>
+                        <div style=${{ fontSize:'56px',marginBottom:'20px',filter:'drop-shadow(0 0 20px rgba(244,63,94,0.4))' }}>⚠️</div>
+                        <h2 style=${{ color:'#fb7185',fontSize:'1.5rem',fontWeight:900,marginBottom:'16px',lineHeight:1.4,direction:'rtl' }}>عذراً! لا يمكن قراءة ملف الدرس مباشرة من الجهاز.</h2>
+                        <p style=${{ color:'rgba(255,255,255,0.7)',fontSize:'1rem',fontWeight:700,marginBottom:'12px' }}>Error: Cannot load local files directly via file://.</p>
+                        <div style=${{ background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'16px',padding:'16px 20px',marginBottom:'28px' }}>
+                            <p style=${{ color:'rgba(255,255,255,0.5)',fontSize:'0.85rem',fontWeight:600,margin:0,lineHeight:1.6 }}>
+                                💡 Please run the platform using a <span style=${{ color:'#38bdf8',fontWeight:900 }}>Local Web Server</span> (e.g., VS Code Live Server).
+                            </p>
+                        </div>
+                        ${errorMsg ? html`<p style=${{ color:'rgba(255,255,255,0.25)',fontSize:'0.75rem',fontFamily:'monospace',marginBottom:'20px',wordBreak:'break-all' }}>${errorMsg}</p>` : null}
+                        <button onClick=${cleanup} style=${{ background:'linear-gradient(135deg,#fb7185,#e879f9)',color:'white',border:'none',borderRadius:'16px',padding:'14px 40px',fontSize:'1rem',fontWeight:900,cursor:'pointer',transition:'all 0.3s ease',boxShadow:'0 8px 24px rgba(244,63,94,0.3)' }}
+                            onMouseOver=${(e) => { e.target.style.transform='scale(1.05)'; e.target.style.boxShadow='0 12px 32px rgba(244,63,94,0.5)'; }}
+                            onMouseOut=${(e) => { e.target.style.transform='scale(1)'; e.target.style.boxShadow='0 8px 24px rgba(244,63,94,0.3)'; }}
+                        >${lang === 'ar' ? 'خروج' : 'Exit'}</button>
+                    </div>
+                </div>
+            `;
+        }
+
         // Mobile portrait — show orientation gate
         if (showOrientationGate && !lessonLoaded) {
             return html`<${Luminova.Components.OrientationGate} lang=${lang} onLandscapeReady=${() => {
@@ -773,7 +805,7 @@
         // Lesson loading spinner
         if (!lessonLoaded || !window.__LUMINOVA_ACTIVE_LESSON) {
             return html`
-                <div className="fixed inset-0 z-[12000] bg-[#0a0f1c] flex items-center justify-center">
+                <div style=${{ position:'fixed',inset:0,width:'100vw',height:'100vh',zIndex:99999,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'#0a0f1c' }}>
                     <div className="text-center">
                         <div className="w-12 h-12 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                         <p className="text-white/60 text-sm font-bold">${lang === 'ar' ? 'جاري تحميل الدرس...' : 'Loading lesson...'}</p>
@@ -782,11 +814,13 @@
             `;
         }
 
-        // Render lesson component (invisible wrapper — no header/exit button)
+        // Render lesson component — full-screen fixed wrapper with flex child
         const LessonComponent = window.__LUMINOVA_ACTIVE_LESSON;
         return html`
-            <div ref=${wrapperRef} className="fixed inset-0 z-[12000] bg-[#0a0f1c]" style=${{ overflow: 'auto' }}>
-                <${LessonComponent} onExit=${cleanup} />
+            <div ref=${wrapperRef} style=${{ position:'fixed',inset:0,width:'100vw',height:'100vh',zIndex:99999,display:'flex',flexDirection:'column',background:'#0a0f1c' }}>
+                <div style=${{ flex:1,width:'100%',height:'100%',overflow:'hidden',position:'relative' }}>
+                    <${LessonComponent} onExit=${cleanup} />
+                </div>
             </div>
         `;
     };
