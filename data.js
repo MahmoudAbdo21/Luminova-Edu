@@ -486,6 +486,22 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
+      "id": "summaries_1778278517528",
+      "timestamp": "2026-05-08T22:15:17.528Z",
+      "titleAr": "الفصل الثالث : الإنفوجرافيك في التعليم",
+      "titleEn": "",
+      "contentAr": "شرح الفصل الثالث كامل وبه كل معلومات الفصل تقريبا من الارقام والمعلومات ",
+      "contentEn": "",
+      "mediaUrl": "",
+      "subjectId": "subjects_1777896562125",
+      "studentId": "s_founder_hardcoded",
+      "mediaType": "interactive",
+      "chapterTag": "الفصل الثالث",
+      "lessonUrl": "Interactive-lessons/Chapter3Lesson.jsx",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791"
+    },
+    {
       "id": "summaries_1778268255484",
       "timestamp": "2026-05-08T19:24:15.484Z",
       "titleAr": "الفصل الثاني",

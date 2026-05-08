@@ -40,11 +40,37 @@
     'var ListOrdered=function(p){return _LI(p||{},[["line",{x1:"10",y1:"6",x2:"21",y2:"6"}],["line",{x1:"10",y1:"12",x2:"21",y2:"12"}],["line",{x1:"10",y1:"18",x2:"21",y2:"18"}],["path",{d:"M4 6h1v4"}],["path",{d:"M4 10h2"}],["path",{d:"M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"}]])};',
   ].join('\n');
 
-  // ─── Universal Fallback: Proxy catch-all for unknown components ───
-  // Injected into the IIFE scope so any capitalized undefined variable
-  // returns a placeholder SVG instead of throwing ReferenceError
-  var UNIVERSAL_FALLBACK_CODE =
-    'var _PLACEHOLDER=function(p){return React.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",width:24,height:24,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:"1.5",strokeLinecap:"round",strokeLinejoin:"round",className:p&&p.className||"",style:{opacity:0.5}},React.createElement("rect",{key:"r",x:"3",y:"3",width:"18",height:"18",rx:"3",ry:"3"}),React.createElement("line",{key:"l1",x1:"9",y1:"9",x2:"15",y2:"15"}),React.createElement("line",{key:"l2",x1:"15",y1:"9",x2:"9",y2:"15"}))};';
+  // ─── Universal Fallback: Dynamic Lucide Icon Fetcher ───
+  // Replaces the static placeholder with a stateful component that dynamically
+  // fetches missing Lucide SVGs from the unpkg CDN on the fly.
+  var UNIVERSAL_FALLBACK_CODE = 
+    'var _DynamicIconFallback=function(props){' +
+      'var name=props.__iconName;' +
+      'var kebab=name.replace(/([a-z0-9])([A-Z])/g,"$1-$2").toLowerCase();' +
+      'var s1=useState(null),svgContent=s1[0],setSvgContent=s1[1];' +
+      'var s2=useState(false),failed=s2[0],setFailed=s2[1];' +
+      'useEffect(function(){' +
+        'fetch("https://unpkg.com/lucide-static@latest/icons/"+kebab+".svg")' +
+        '.then(function(res){if(!res.ok)throw new Error();return res.text();})' +
+        '.then(function(text){' +
+          'var doc=new DOMParser().parseFromString(text,"image/svg+xml");' +
+          'var svgNode=doc.querySelector("svg");' +
+          'if(!svgNode)throw new Error();' +
+          'var children=Array.from(svgNode.children).map(function(child,i){' +
+            'var attrs={key:"d_"+i};' +
+            'Array.from(child.attributes).forEach(function(attr){' +
+              'var n=attr.name;if(n==="stroke-width")n="strokeWidth";if(n==="stroke-linecap")n="strokeLinecap";if(n==="stroke-linejoin")n="strokeLinejoin";if(n==="class")n="className";attrs[n]=attr.value;' +
+            '});' +
+            'return React.createElement(child.tagName,attrs);' +
+          '});' +
+          'setSvgContent(children);' +
+        '}).catch(function(){setFailed(true);});' +
+      '},[kebab]);' +
+      'var cn=props.className||"";' +
+      'if(failed)return React.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",width:24,height:24,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:"1.5",strokeLinecap:"round",strokeLinejoin:"round",className:cn,style:{opacity:0.5}},React.createElement("rect",{key:"r",x:"3",y:"3",width:"18",height:"18",rx:"3",ry:"3"}),React.createElement("line",{key:"l1",x1:"9",y1:"9",x2:"15",y2:"15"}),React.createElement("line",{key:"l2",x1:"15",y1:"9",x2:"9",y2:"15"}));' +
+      'if(svgContent)return React.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",width:24,height:24,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:"2",strokeLinecap:"round",strokeLinejoin:"round",className:cn},svgContent);' +
+      'return React.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",width:24,height:24,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:"1.5",strokeLinecap:"round",strokeLinejoin:"round",className:cn,style:{opacity:0.5,animation:"pulse 1.5s infinite"}},React.createElement("rect",{key:"p",x:"3",y:"3",width:"18",height:"18",rx:"3",ry:"3"}));' +
+    '};';
 
   // ─── React Error Boundary for runtime crashes ───
   var LessonErrorBoundary = (function (_super) {
@@ -151,9 +177,9 @@
     while ((match = jsxTagRegex.exec(processed)) !== null) {
       if (knownComponents.indexOf(match[1]) === -1) unknownTags[match[1]] = true;
     }
-    // Generate fallback stubs for unknown tags
+    // Generate fallback stubs for unknown tags to use the DynamicIconFallback
     var dynamicFallbacks = Object.keys(unknownTags).map(function (name) {
-      return 'var ' + name + '=_PLACEHOLDER;';
+      return 'var ' + name + '=function(p){return React.createElement(_DynamicIconFallback,Object.assign({__iconName:"' + name + '"},p))};';
     }).join('\n');
 
     var wrapped = '(function(){' +
