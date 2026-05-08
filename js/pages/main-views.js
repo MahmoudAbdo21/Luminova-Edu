@@ -509,8 +509,17 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
             const renderItemCard = (item) => {
                 const isQuiz = item.itemType === 'quiz';
                 const isInteractive = item.mediaType === 'interactive';
-                const iconMap = { 'reel': '📱', 'pdf': '📄', 'video': '🎥', 'image': '🖼️', 'quiz': '📝', 'interactive': '🚀' };
-                const icon = iconMap[item.mediaType] || (isQuiz ? '📝' : '📎');
+                const iconMap = {
+                    'reel': html`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>`,
+                    'pdf': html`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`,
+                    'video': html`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>`,
+                    'image': html`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`,
+                    'quiz': html`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M9 15h6"></path><path d="M9 11h6"></path><path d="M9 19h6"></path><path d="M14 2v6h6"></path></svg>`,
+                    'interactive': html`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg>`,
+                    'exam': html`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M9 15h6"></path><path d="M9 11h6"></path><path d="M9 19h6"></path><path d="M14 2v6h6"></path></svg>`
+                };
+                const defaultIcon = html`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>`;
+                const icon = iconMap[item.mediaType] || (isQuiz ? iconMap['quiz'] : defaultIcon);
                 
                 return html`
                     <${Luminova.Components.GlassCard} key=${item.id} className=${`relative group hover:scale-[1.02] transition-transform flex flex-col h-full border-t-4 ${isInteractive ? 'border-t-cyan-400/70 shadow-[0_0_25px_rgba(34,211,238,0.15)]' : 'border-t-fuchsia-500/50'} hover:shadow-[0_0_20px_rgba(217,70,239,0.2)]`}>
@@ -548,10 +557,19 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
             const renderTimelineNode = (item, idx) => {
                 const isInteractive = item.mediaType === 'interactive';
                 const isQuiz = item.itemType === 'quiz';
-                const iconMap = { 'reel': '📱', 'pdf': '📄', 'video': '🎥', 'image': '🖼️', 'quiz': '📝', 'interactive': '🚀' };
-                const icon = iconMap[item.mediaType] || (isQuiz ? '📝' : '📎');
+                const iconMap = {
+                    'reel': html`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>`,
+                    'pdf': html`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`,
+                    'video': html`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>`,
+                    'image': html`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`,
+                    'quiz': html`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M9 15h6"></path><path d="M9 11h6"></path><path d="M9 19h6"></path><path d="M14 2v6h6"></path></svg>`,
+                    'interactive': html`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg>`,
+                    'exam': html`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M9 15h6"></path><path d="M9 11h6"></path><path d="M9 19h6"></path><path d="M14 2v6h6"></path></svg>`
+                };
+                const defaultIcon = html`<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>`;
+                const icon = iconMap[item.mediaType] || (isQuiz ? iconMap['quiz'] : defaultIcon);
                 const student = Luminova.getStudent(item.studentId, data.students);
-                const date = item.displayDate ? new Date(item.displayDate).toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric' }) : '';
+                const date = item.displayDate ? new Date(item.displayDate).toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
 
                 return html`
                     <div key=${item.id} className="relative flex gap-4 sm:gap-6 group" style=${{ paddingBottom: '2rem' }}>
@@ -573,7 +591,12 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                             </div>
                             ${item.displayDesc && html`<p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4 line-clamp-2">${item.displayDesc}</p>`}
                             <div className="flex items-center justify-between gap-3 flex-wrap">
-                                <span className="text-xs text-zinc-500 dark:text-zinc-400 font-bold">${lang === 'ar' ? (student.nameAr || student.name || '') : (student.nameEn || student.name || '')}</span>
+                                <span className="text-xs text-zinc-500 dark:text-zinc-400 font-bold flex items-center gap-1.5 flex-wrap">
+                                    ${lang === 'ar' ? (student.nameAr || student.name || '') : (student.nameEn || student.name || '')}
+                                    ${student.isFounder ? html`<span className="text-[10px] bg-gradient-to-r from-cyan-400 to-fuchsia-500 text-white px-2 py-0.5 rounded-sm font-black shadow-sm">${Luminova.i18n[lang].founder}</span>` : 
+                                      student.role === 'doctor' ? html`<span className="text-[10px] bg-teal-500 text-white px-2 py-0.5 rounded-sm font-black">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>` : 
+                                      html`<span className="text-[10px] bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 px-2 py-0.5 rounded-sm font-black">🎒 ${lang === 'ar' ? 'طالب' : 'Student'}</span>`}
+                                </span>
                                 ${isInteractive ? html`
                                     <button onClick=${() => {
                                         window.dispatchEvent(new CustomEvent('startInteractiveLesson', { detail: { url: item.lessonUrl || item.mediaUrls?.[0]?.url || item.mediaUrls?.[0], title: item.displayTitle } }));
