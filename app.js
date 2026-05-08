@@ -645,7 +645,8 @@
         const [isActive, setIsActive] = useState(false);
         const [lessonUrl, setLessonUrl] = useState(null);
         const [lessonLoaded, setLessonLoaded] = useState(false);
-        const [showOrientationGate, setShowOrientationGate] = useState(false);
+        const [isPortrait, setIsPortrait] = useState(false);
+        const [landscapeReady, setLandscapeReady] = useState(false);
         const [hasError, setHasError] = useState(false);
         const [errorMsg, setErrorMsg] = useState('');
         const wrapperRef = window.React.useRef(null);
@@ -658,7 +659,8 @@
             setIsActive(false);
             setLessonUrl(null);
             setLessonLoaded(false);
-            setShowOrientationGate(false);
+            setIsPortrait(false);
+            setLandscapeReady(false);
             setHasError(false);
             setErrorMsg('');
         }, []);
@@ -718,10 +720,7 @@
                         new Function(compiled)();
 
                         if (!window.__LUMINOVA_ACTIVE_LESSON) throw new Error('Lesson component not registered after compilation');
-
                         setLessonLoaded(true);
-                        var el = wrapperRef.current || document.documentElement;
-                        if (el.requestFullscreen) el.requestFullscreen().catch(function(){});
                     })
                     .catch(function(err) {
                         console.error('Luminova: Failed to load/compile lesson:', err);
@@ -745,10 +744,15 @@
                 setLessonLoaded(false);
                 setHasError(false);
                 setErrorMsg('');
+                setLandscapeReady(false);
                 if (isMobile() && window.innerHeight > window.innerWidth) {
-                    setShowOrientationGate(true);
+                    // Mobile portrait: show orientation gate first (State A)
+                    setIsPortrait(true);
                 } else {
-                    startLesson(url);
+                    // Desktop OR mobile-already-landscape: show gesture-gated ready screen (State B)
+                    // This ensures requestFullscreen() fires from a direct user click
+                    setIsPortrait(false);
+                    setLandscapeReady(true);
                 }
             };
             window.addEventListener('startInteractiveLesson', handler);
@@ -764,10 +768,30 @@
 
         // Handle fullscreen exit via Escape key
         useEffect(() => {
-            const handler = () => { if (!document.fullscreenElement && isActive) cleanup(); };
+            const handler = () => { if (!document.fullscreenElement && isActive && lessonLoaded) cleanup(); };
             document.addEventListener('fullscreenchange', handler);
             return () => document.removeEventListener('fullscreenchange', handler);
-        }, [isActive, cleanup]);
+        }, [isActive, lessonLoaded, cleanup]);
+
+        // Track orientation changes while active (for portrait gate)
+        useEffect(() => {
+            if (!isActive || lessonLoaded) return;
+            const check = () => {
+                const portrait = window.innerHeight > window.innerWidth;
+                setIsPortrait(portrait);
+                if (!portrait && !landscapeReady) setLandscapeReady(true);
+            };
+            window.addEventListener('resize', check);
+            return () => window.removeEventListener('resize', check);
+        }, [isActive, lessonLoaded, landscapeReady]);
+
+        // Gesture-gated start: user taps button in landscape ready screen
+        const handleGestureStart = useCallback(() => {
+            setLandscapeReady(false);
+            var el = wrapperRef.current || document.documentElement;
+            if (el.requestFullscreen) el.requestFullscreen().catch(function(){});
+            startLesson(lessonUrl);
+        }, [lessonUrl, startLesson]);
 
         if (!isActive) return null;
 
@@ -794,18 +818,38 @@
             `;
         }
 
-        // Mobile portrait — show orientation gate
-        if (showOrientationGate && !lessonLoaded) {
+        // State A: Mobile portrait — show orientation gate
+        if (isPortrait && !lessonLoaded) {
             return html`<${Luminova.Components.OrientationGate} lang=${lang} onLandscapeReady=${() => {
-                setShowOrientationGate(false);
-                startLesson(lessonUrl);
+                setIsPortrait(false);
+                setLandscapeReady(true);
             }} />`;
+        }
+
+        // State B: Landscape ready — gesture-gated start screen
+        if (landscapeReady && !lessonLoaded) {
+            return html`
+                <div ref=${wrapperRef} style=${{ position:'fixed',inset:0,zIndex:99999,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'linear-gradient(135deg,#0a0f1c 0%,#0f172a 50%,#0a0f1c 100%)',padding:'24px' }}>
+                    <div style=${{ background:'rgba(255,255,255,0.05)',backdropFilter:'blur(40px)',WebkitBackdropFilter:'blur(40px)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'28px',padding:'44px 36px',maxWidth:'480px',width:'100%',textAlign:'center',boxShadow:'0 32px 64px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)' }}>
+                        <div style=${{ fontSize:'52px',marginBottom:'16px' }}>🚀</div>
+                        <h2 style=${{ color:'white',fontSize:'1.4rem',fontWeight:900,marginBottom:'10px',lineHeight:1.4 }}>${lang === 'ar' ? 'الدرس جاهز!' : 'Lesson Ready!'}</h2>
+                        <p style=${{ color:'rgba(255,255,255,0.5)',fontSize:'0.85rem',fontWeight:600,marginBottom:'28px' }}>${lang === 'ar' ? 'اضغط للدخول في وضع ملء الشاشة وبدء الدرس' : 'Tap to enter fullscreen and start the lesson'}</p>
+                        <button onClick=${handleGestureStart} style=${{ background:'linear-gradient(135deg,#38bdf8,#818cf8)',color:'white',border:'none',borderRadius:'18px',padding:'16px 44px',fontSize:'1.1rem',fontWeight:900,cursor:'pointer',transition:'all 0.3s ease',boxShadow:'0 8px 28px rgba(56,189,248,0.35)',display:'inline-flex',alignItems:'center',gap:'10px' }}
+                            onMouseOver=${(e) => { e.target.style.transform='scale(1.05)'; }}
+                            onMouseOut=${(e) => { e.target.style.transform='scale(1)'; }}
+                        >▶️ ${lang === 'ar' ? 'ابدأ الدرس' : 'Start Lesson'}</button>
+                        <div style=${{ marginTop:'16px' }}>
+                            <button onClick=${cleanup} style=${{ background:'transparent',color:'rgba(255,255,255,0.35)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'12px',padding:'10px 28px',fontSize:'0.85rem',fontWeight:700,cursor:'pointer',transition:'all 0.3s ease' }}>${lang === 'ar' ? 'إلغاء' : 'Cancel'}</button>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
 
         // Lesson loading spinner
         if (!lessonLoaded || !window.__LUMINOVA_ACTIVE_LESSON) {
             return html`
-                <div style=${{ position:'fixed',inset:0,width:'100vw',height:'100vh',zIndex:99999,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'#0a0f1c' }}>
+                <div style=${{ position:'fixed',inset:0,zIndex:99999,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'#0a0f1c' }}>
                     <div className="text-center">
                         <div className="w-12 h-12 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                         <p className="text-white/60 text-sm font-bold">${lang === 'ar' ? 'جاري تحميل الدرس...' : 'Loading lesson...'}</p>
@@ -814,11 +858,11 @@
             `;
         }
 
-        // Render lesson component — full-screen fixed wrapper with flex child
+        // State C: Active lesson — full-screen with scroll-safe overflow
         const LessonComponent = window.__LUMINOVA_ACTIVE_LESSON;
         return html`
-            <div ref=${wrapperRef} style=${{ position:'fixed',inset:0,width:'100vw',height:'100vh',zIndex:99999,display:'flex',flexDirection:'column',background:'#0a0f1c' }}>
-                <div style=${{ flex:1,width:'100%',height:'100%',overflow:'hidden',position:'relative' }}>
+            <div ref=${wrapperRef} style=${{ position:'fixed',inset:0,zIndex:99999,display:'flex',flexDirection:'column',background:'#0a0f1c' }}>
+                <div style=${{ flex:1,width:'100%',position:'relative',overflowY:'auto',overflowX:'hidden',WebkitOverflowScrolling:'touch' }}>
                     <${LessonComponent} onExit=${cleanup} />
                 </div>
             </div>
