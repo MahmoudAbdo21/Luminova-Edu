@@ -1703,6 +1703,116 @@ window.LUMINOVA_DATA = {
           "type": "url"
         }
       ]
+    },
+    {
+      "id": "summaries_1778194027192",
+      "timestamp": "2026-05-07T22:47:07.192Z",
+      "titleAr": "رسم كروكي الانفوجرافيك الثابت والمتحرك والتفاعلي",
+      "titleEn": "Fixed and animated infographic sketch",
+      "contentAr": "انفوجرافيك",
+      "contentEn": "Infographic:",
+      "mediaUrl": "",
+      "subjectId": "subjects_1777896562125",
+      "studentId": "students_1775848220866",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1Uww8q1qqKrkHngv-TV5zGv6LTUf1CBat/view?usp=sharing",
+          "titleAr": "انفوجرافيك",
+          "titleEn": "Infographic:",
+          "order": 0,
+          "type": "url"
+        }
+      ]
+    },
+    {
+      "id": "summaries_1778193726437",
+      "timestamp": "2026-05-07T22:42:06.437Z",
+      "titleAr": "التفرقة بين الانفوجرافيك والخرائط الذهنية وخرائط المفاهيم ",
+      "titleEn": "",
+      "contentAr": "انفوجرافيك",
+      "contentEn": "",
+      "mediaUrl": "",
+      "subjectId": "subjects_1777896562125",
+      "studentId": "students_1775848220866",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1O4wrMTlr8MojnZKYd9IVAIR9bXyZctM4/view?usp=sharing",
+          "titleAr": "انفوجرافيك",
+          "titleEn": "",
+          "order": 0,
+          "type": "url"
+        }
+      ]
+    },
+    {
+      "id": "summaries_1778193530116",
+      "timestamp": "2026-05-07T22:38:50.116Z",
+      "titleAr": "الفرق بين الانفوجرافيك والخرائط الذهنية وخرائط المفاهيم مع رسم كروكي لكل منهم",
+      "titleEn": "The difference between infographics, mind maps and concept maps with a sketch of each",
+      "contentAr": "انفوجرافيك",
+      "contentEn": "Infographic:",
+      "mediaUrl": "",
+      "subjectId": "subjects_1777896562125",
+      "studentId": "students_1775848220866",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/14jfN8zinoLhaQhtuOItDGxytwpiEHY-5/view?usp=drive_link",
+          "titleAr": "انفوجرافيك",
+          "titleEn": "Infographic:",
+          "order": 0,
+          "type": "url"
+        }
+      ]
+    },
+    {
+      "id": "summaries_1778193377838",
+      "timestamp": "2026-05-07T22:36:17.838Z",
+      "titleAr": "انواع الانفوجرافيك من حيث الحركة والغرض والشكل ",
+      "titleEn": "Types of infographics in terms of movement, purpose and shape",
+      "contentAr": "انفوجرافيك",
+      "contentEn": "Infographic:",
+      "mediaUrl": "",
+      "subjectId": "subjects_1777896562125",
+      "studentId": "students_1775848220866",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1-1TpLUO8j6YT4OQ2YR9CM0wI-A_JVC3j/view?usp=sharing",
+          "titleAr": "انفوجرافيك",
+          "titleEn": "Infographic:",
+          "order": 0,
+          "type": "url"
+        }
+      ],
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791"
+    },
+    {
+      "id": "summaries_1778192294382",
+      "timestamp": "2026-05-07T22:18:14.382Z",
+      "titleAr": "ملخص المعلومات المصوره",
+      "titleEn": "من الفصل الاول للسادس",
+      "contentAr": "ملخص مبسط وشامل جميع الفصول ",
+      "contentEn": "Simplified and comprehensive summary of all chapters",
+      "mediaUrl": "",
+      "subjectId": "subjects_1777896562125",
+      "studentId": "students_1775125739063",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1Prf3H6zf5Q2YgLHp4avH_xWyD36UbaWy/view?usp=sharing",
+          "titleAr": "",
+          "titleEn": "",
+          "order": 0,
+          "type": "url"
+        }
+      ]
     }
   ]
 };
