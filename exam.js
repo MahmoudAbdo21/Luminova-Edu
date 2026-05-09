@@ -1,5 +1,26 @@
 window.LUMINOVA_EXAMS = [
   {
+    "id": "quizzes_1778324229730",
+    "timestamp": "2026-05-09T10:57:09.730Z",
+    "titleAr": "اختبار مادة معلومات مصورة 🏆",
+    "titleEn": "Illustrated Information Material Test 🏆",
+    "isShuffled": true,
+    "feedbackMode": "end",
+    "subjectId": "subjects_1777896562125",
+    "publisherId": "s_founder_hardcoded",
+    "questions": [],
+    "examMode": "evaluation",
+    "emailPolicy": "full_report",
+    "adminEmails": "mahmoud21abdalrhman@gmail.com",
+    "startTime": "2026-05-09T21:00",
+    "endTime": "2026-05-09T22:30",
+    "latePolicy": "hard_stop",
+    "allowBackNavigation": true,
+    "yearId": "year_1",
+    "semesterId": "semesters_1775125622791",
+    "webhookUrl": "https://script.google.com/macros/s/AKfycbxMj-1we6-44uVUNfBqdcH0yoyNZG4wxC_Yd8txuzrPtudDwJjPO3bTK5cVUfGc9whI/exec"
+  },
+  {
     "id": "quizzes_1775849685012",
     "timestamp": "2026-04-10T19:34:45.012Z",
     "titleAr": "امتحان الميد تيرم",
