@@ -5,7 +5,7 @@ window.LUMINOVA_EXAMS = [
     "titleAr": "اختبار مادة معلومات مصورة 🏆",
     "titleEn": "Illustrated Information Material Test 🏆",
     "isShuffled": true,
-    "feedbackMode": "end",
+    "feedbackMode": "immediate",
     "subjectId": "subjects_1777896562125",
     "publisherId": "s_founder_hardcoded",
     "questions": [
@@ -1438,37 +1438,18 @@ window.LUMINOVA_EXAMS = [
         "studentId": "students_1775125739063",
         "showExp": true,
         "id": "q_1778337809910"
-      },
-      {
-        "type": "essay",
-        "text": "الفرق بين الانفوجرافك الثابت والمتحرك والتفاعلي",
-        "score": 5,
-        "options": [
-          "",
-          "",
-          "",
-          ""
-        ],
-        "correctAnswers": [
-          0
-        ],
-        "modelAnswer": "",
-        "explanation": "",
-        "studentId": "s_founder_hardcoded",
-        "showExp": false,
-        "id": "q_1778338322652"
       }
     ],
-    "examMode": "evaluation",
+    "examMode": "practice",
     "emailPolicy": "full_report",
     "adminEmails": "mahmoud21abdalrhman@gmail.com,salmazahran167@gmail.com",
     "startTime": "2026-05-09T21:30",
     "endTime": "2026-05-09T23:00",
     "latePolicy": "hard_stop",
-    "allowBackNavigation": true,
+    "allowBackNavigation": false,
     "yearId": "year_1",
     "semesterId": "semesters_1775125622791",
-    "webhookUrl": "https://script.google.com/macros/s/AKfycbxMj-1we6-44uVUNfBqdcH0yoyNZG4wxC_Yd8txuzrPtudDwJjPO3bTK5cVUfGc9whI/exec"
+    "webhookUrl": ""
   },
   {
     "id": "quizzes_1775849685012",
@@ -2563,7 +2544,7 @@ window.LUMINOVA_EXAMS = [
     "titleAr": "اختبار شامل علي الماده",
     "titleEn": "A comprehensive test on the material",
     "isShuffled": true,
-    "feedbackMode": "end",
+    "feedbackMode": "immediate",
     "subjectId": "subjects_1778154846161",
     "publisherId": "students_1775379443604",
     "questions": [
@@ -3268,15 +3249,15 @@ window.LUMINOVA_EXAMS = [
         "id": "q_1778335473438"
       }
     ],
-    "examMode": "evaluation",
+    "examMode": "practice",
     "emailPolicy": "none",
     "adminEmails": "mahmoud21abdalrhman@gmail.com,andrewmegala@gmail.com",
     "startTime": "2026-05-09T21:30",
     "endTime": "2026-05-09T22:30",
     "latePolicy": "hard_stop",
-    "allowBackNavigation": true,
+    "allowBackNavigation": false,
     "semesterId": "semesters_1775125622791",
     "yearId": "year_1",
-    "webhookUrl": "https://script.google.com/macros/s/AKfycbxMj-1we6-44uVUNfBqdcH0yoyNZG4wxC_Yd8txuzrPtudDwJjPO3bTK5cVUfGc9whI/exec"
+    "webhookUrl": ""
   }
 ];
