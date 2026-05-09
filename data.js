@@ -486,6 +486,22 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
+      "id": "summaries_1778334851005",
+      "timestamp": "2026-05-09T13:54:11.005Z",
+      "titleAr": "اسئلة المقالي من الكتاب ",
+      "titleEn": "Questions of Pans from the Book",
+      "contentAr": "شرح كيفية الاجابة على كل سؤال وتنظبم الاجابة ايه اللاول وايه الاخر وكدا ويمكنك زيادة الكتابة من عندك ولاكن قمنا بالتنظبم لتسهيل الاجابة",
+      "contentEn": "Explain how to answer each question and organize the answer, what is the first and what is the other, and you can increase the writing from your side, but we have organized to facilitate the answer",
+      "mediaUrl": "",
+      "subjectId": "subjects_1777896562125",
+      "studentId": "s_founder_hardcoded",
+      "mediaType": "interactive",
+      "chapterTag": "الفصل السادس",
+      "lessonUrl": "Interactive-lessons/Chapter8Lesson.jsx",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791"
+    },
+    {
       "id": "summaries_1778283472985",
       "timestamp": "2026-05-08T23:37:52.985Z",
       "titleAr": "الفرق بين الانفوجرافك الثابت والمتحرك والتفاعلي",
