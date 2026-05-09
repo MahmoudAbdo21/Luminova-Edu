@@ -6,6 +6,33 @@
     const html = window.htm.bind(window.React.createElement);
     const Luminova = window.__LUMINOVA;
 
+    // ── DST-SAFE TIME HELPERS (Cairo timezone) ──────────────────────
+    // These helpers decouple exam timing from the device's local OS
+    // timezone, which may carry a stale DST offset on unpatched phones.
+    const getCairoNow = () => {
+        const cairoStr = new Date().toLocaleString('en-US', { timeZone: 'Africa/Cairo' });
+        return new Date(cairoStr);
+    };
+    const parseCairoDeadline = (dateStr) => {
+        if (!dateStr) return null;
+        // CMS stores deadlines as local Cairo times (e.g. "2026-05-09T22:30").
+        // We interpret them in Cairo regardless of the browser's timezone.
+        // Step 1: Parse the raw string as-is to extract date/time components.
+        const raw = new Date(dateStr);
+        if (isNaN(raw)) return null;
+        const y = raw.getFullYear(), mo = raw.getMonth(), d = raw.getDate(),
+              h = raw.getHours(), mi = raw.getMinutes(), sec = raw.getSeconds();
+        // Step 2: Build a reference point in Cairo to discover the current UTC offset.
+        const probe = new Date();
+        const cairoRefStr = probe.toLocaleString('en-US', { timeZone: 'Africa/Cairo' });
+        const cairoRef = new Date(cairoRefStr);
+        const cairoOffsetMs = cairoRef.getTime() - probe.getTime();
+        // Step 3: Construct a UTC timestamp that represents this date/time in Cairo.
+        const utcEquivalent = new Date(y, mo, d, h, mi, sec).getTime() - cairoOffsetMs;
+        return new Date(utcEquivalent);
+    };
+    // ─────────────────────────────────────────────────────────────────
+
     Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
         // ── GUARDRAIL: Redirect to gateway if critical data is missing ──
         if (!quiz || !data) {
@@ -48,7 +75,7 @@
         const isEvaluation = quiz?.examMode === 'evaluation';
         const [isStarted, setIsStarted] = useState(!isEvaluation);
         const [studentInfo, setStudentInfo] = useState({ name: '', seatNumber: '', department: '', email: '' });
-        const [now, setNow] = useState(new Date());
+        const [now, setNow] = useState(getCairoNow());
         const [isSubmitting, setIsSubmitting] = useState(false);
         const [showDrawer, setShowDrawer] = useState(false);
 
@@ -70,7 +97,7 @@
 
         useEffect(() => {
             if (isEvaluation && (!isStarted || !isFinished)) {
-                const timer = setInterval(() => setNow(new Date()), 1000);
+                const timer = setInterval(() => setNow(getCairoNow()), 1000);
                 return () => clearInterval(timer);
             }
         }, [isEvaluation, isStarted, isFinished]);
@@ -120,7 +147,7 @@
             setModalType(null);
             setTerminationReason(reason);
 
-            if (quiz.endTime && new Date() > new Date(quiz.endTime)) {
+            if (quiz.endTime && getCairoNow() > parseCairoDeadline(quiz.endTime)) {
                 setIsLateSubmission(true);
             }
 
@@ -235,7 +262,7 @@
 
         useEffect(() => {
             if (isStarted && !isFinished && isEvaluation && quiz.endTime) {
-                if (now >= new Date(quiz.endTime)) {
+                if (now >= parseCairoDeadline(quiz.endTime)) {
                     const allowLate = quiz.allowLateSubmission || quiz.settings?.allowLateSubmission;
                     if (!allowLate) {
                         submitExam('time_expired');
@@ -398,13 +425,13 @@
             let timeStatus = 'open';
             let timeMsg = '';
 
-            if (quiz.startTime && now < new Date(quiz.startTime)) {
+            if (quiz.startTime && now < parseCairoDeadline(quiz.startTime)) {
                 timeStatus = 'early';
-                const diff = new Date(quiz.startTime) - now;
+                const diff = parseCairoDeadline(quiz.startTime) - now;
                 const m = Math.floor(diff / 60000);
                 const s = Math.floor((diff % 60000) / 1000);
                 timeMsg = lang === 'ar' ? `يبدأ الاختبار بعد ${m} دقيقة و ${s} ثانية` : `Starts in ${m}m ${s}s`;
-            } else if (quiz.endTime && now > new Date(quiz.endTime)) {
+            } else if (quiz.endTime && now > parseCairoDeadline(quiz.endTime)) {
                 timeStatus = 'late';
                 timeMsg = lang === 'ar' ? 'عذراً، لقد انتهى موعد الاختبار' : 'Sorry, the exam has ended';
             }
@@ -933,7 +960,7 @@
 
             ${(isEvaluation && isStarted && !isFinished && quiz.endTime) ? (() => {
                 const allowLate = quiz.allowLateSubmission || quiz.settings?.allowLateSubmission;
-                const rawDiff = new Date(quiz.endTime) - now;
+                const rawDiff = parseCairoDeadline(quiz.endTime) - now;
                 const isOvertime = rawDiff < 0;
                 let diff = isOvertime ? Math.abs(rawDiff) : rawDiff;
                 if (!isOvertime && diff < 0) diff = 0;
