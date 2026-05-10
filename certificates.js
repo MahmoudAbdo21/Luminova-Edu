@@ -1,5 +1,23 @@
 window.LUMINOVA_CERTIFICATES = [
   {
+    "id": "certificates_1778427702542",
+    "timestamp": "2026-05-10T15:41:42.542Z",
+    "studentName": "نادية عزت فاروق",
+    "studentNameEn": "Nadia Izzat Farouk",
+    "senderName": "فريق Level Up",
+    "senderNameEn": "Level up Team",
+    "senderRole": "Level Up",
+    "title": "شهادة تقدير تميز أكاديمي",
+    "titleEn": "Certificate of Academic Excellence",
+    "description": "لتفوقه الملحوظ وحصوله على أعلى الدرجات في التقييمات الأكاديمية.",
+    "descriptionEn": "For his remarkable excellence and highest scores in academic assessments.",
+    "isFeatured": true,
+    "badges": [],
+    "date": "2026-05-10T15:41:42.542Z",
+    "level": "standard",
+    "senderRoleEn": "Level up"
+  },
+  {
     "id": "certificates_1778098133067",
     "timestamp": "2026-05-06T20:08:53.067Z",
     "studentName": "اندرو وجدي كامل",
@@ -83,7 +101,7 @@ window.LUMINOVA_CERTIFICATES = [
     "titleEn": "Certificate of Academic Excellence",
     "description": "لتفوقه الملحوظ وحصوله على أعلى الدرجات في التقييمات الأكاديمية.",
     "descriptionEn": "For his remarkable excellence and highest scores in academic assessments.",
-    "isFeatured": true,
+    "isFeatured": false,
     "badges": [],
     "date": "2026-05-06T13:08:50.957Z",
     "sealType": "silver",
@@ -105,6 +123,7 @@ window.LUMINOVA_CERTIFICATES = [
     "badges": [],
     "date": "2026-04-15T18:20:29.935Z",
     "sealType": "silver",
-    "senderRoleEn": "Level up"
+    "senderRoleEn": "Level up",
+    "level": "silver"
   }
 ];
