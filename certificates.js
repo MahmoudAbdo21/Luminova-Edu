@@ -14,7 +14,7 @@ window.LUMINOVA_CERTIFICATES = [
     "isFeatured": true,
     "badges": [],
     "date": "2026-05-10T15:41:42.542Z",
-    "level": "standard",
+    "level": "silver",
     "senderRoleEn": "Level up"
   },
   {
@@ -124,6 +124,6 @@ window.LUMINOVA_CERTIFICATES = [
     "date": "2026-04-15T18:20:29.935Z",
     "sealType": "silver",
     "senderRoleEn": "Level up",
-    "level": "silver"
+    "level": "gold"
   }
 ];
