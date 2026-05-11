@@ -7,27 +7,17 @@
     const Luminova = window.__LUMINOVA;
 
     // ── DST-SAFE TIME HELPERS (Cairo timezone) ──────────────────────
-    // These helpers decouple exam timing from the device's local OS
-    // timezone, which may carry a stale DST offset on unpatched phones.
-    const getCairoNow = () => {
-        const cairoStr = new Date().toLocaleString('en-US', { timeZone: 'Africa/Cairo' });
-        return new Date(cairoStr);
-    };
     const parseCairoDeadline = (dateStr) => {
         if (!dateStr) return null;
         // CMS stores deadlines as local Cairo times (e.g. "2026-05-09T22:30").
-        // We interpret them in Cairo regardless of the browser's timezone.
-        // Step 1: Parse the raw string as-is to extract date/time components.
         const raw = new Date(dateStr);
         if (isNaN(raw)) return null;
         const y = raw.getFullYear(), mo = raw.getMonth(), d = raw.getDate(),
               h = raw.getHours(), mi = raw.getMinutes(), sec = raw.getSeconds();
-        // Step 2: Build a reference point in Cairo to discover the current UTC offset.
         const probe = new Date();
         const cairoRefStr = probe.toLocaleString('en-US', { timeZone: 'Africa/Cairo' });
         const cairoRef = new Date(cairoRefStr);
         const cairoOffsetMs = cairoRef.getTime() - probe.getTime();
-        // Step 3: Construct a UTC timestamp that represents this date/time in Cairo.
         const utcEquivalent = new Date(y, mo, d, h, mi, sec).getTime() - cairoOffsetMs;
         return new Date(utcEquivalent);
     };
@@ -75,7 +65,31 @@
         const isEvaluation = quiz?.examMode === 'evaluation';
         const [isStarted, setIsStarted] = useState(!isEvaluation);
         const [studentInfo, setStudentInfo] = useState({ name: '', seatNumber: '', department: '', email: '' });
-        const [now, setNow] = useState(getCairoNow());
+        const [now, setNow] = useState(new Date());
+        
+        // True Cairo Time Synchronization
+        const [cairoOffsetMs, setCairoOffsetMs] = useState(null);
+        const [isTimeSynced, setIsTimeSynced] = useState(false);
+        const [entryTime, setEntryTime] = useState(null);
+
+        useEffect(() => {
+            const fetchTrueTime = async () => {
+                const offset = await Luminova.Services.GAS.getTrueTimeOffsetMs();
+                setCairoOffsetMs(offset);
+                setIsTimeSynced(true);
+            };
+            fetchTrueTime();
+        }, []);
+
+        const getTrueCairoNow = useCallback(() => {
+            if (cairoOffsetMs === null) return new Date();
+            return new Date(Date.now() + cairoOffsetMs);
+        }, [cairoOffsetMs]);
+
+        useEffect(() => {
+            if (isTimeSynced) setNow(getTrueCairoNow());
+        }, [isTimeSynced, getTrueCairoNow]);
+
         const [isSubmitting, setIsSubmitting] = useState(false);
         const [showDrawer, setShowDrawer] = useState(false);
 
@@ -96,11 +110,11 @@
         const loginTimeRef = useRef(null);
 
         useEffect(() => {
-            if (isEvaluation && (!isStarted || !isFinished)) {
-                const timer = setInterval(() => setNow(getCairoNow()), 1000);
+            if (isEvaluation && (!isStarted || !isFinished) && isTimeSynced) {
+                const timer = setInterval(() => setNow(getTrueCairoNow()), 1000);
                 return () => clearInterval(timer);
             }
-        }, [isEvaluation, isStarted, isFinished]);
+        }, [isEvaluation, isStarted, isFinished, isTimeSynced, getTrueCairoNow]);
 
         useEffect(() => {
             if (isStarted && !isFinished) {
@@ -147,16 +161,23 @@
             setModalType(null);
             setTerminationReason(reason);
 
-            if (quiz.endTime && getCairoNow() > parseCairoDeadline(quiz.endTime)) {
+            if (quiz.endTime && getTrueCairoNow() > parseCairoDeadline(quiz.endTime)) {
                 setIsLateSubmission(true);
             }
 
+            const getScoreCorrectAnswers = (que) => {
+                if (Array.isArray(que.correctAnswers)) return que.correctAnswers;
+                if (que.correctAnswer !== null && que.correctAnswer !== undefined) return [que.correctAnswer];
+                return [];
+            };
+
             let score = 0;
             questions.forEach(que => {
+                const correctAnswers = getScoreCorrectAnswers(que);
                 if (que.type === 'mcq') {
-                    if (answers[que.id] === que.correctAnswers?.[0]) score += Number(que.score);
+                    if (answers[que.id] === correctAnswers[0]) score += Number(que.score);
                 } else if (que.type === 'multi_select') {
-                    const correctStr = [...(que.correctAnswers || [])].sort().join(',');
+                    const correctStr = [...correctAnswers].sort().join(',');
                     const ansStr = [...(answers[que.id] || [])].sort().join(',');
                     if (correctStr === ansStr) score += Number(que.score);
                 }
@@ -164,6 +185,9 @@
             });
 
             if (isEvaluation) {
+                // ── SILENT IP TRACKING ───────────────────────────────
+                const ipAddress = await Luminova.Services.GAS.getIPAddress();
+
                 // ── IRON-CLAD SANITIZER ──────────────────────────────
                 // Aggressively strips DOM nodes, React fibers, events,
                 // and any non-primitive object to guarantee clean JSON.
@@ -175,11 +199,63 @@
                     return 'Invalid Format';
                 };
 
+                const getQuestionOptions = (que) => {
+                    if (Array.isArray(que.options)) return que.options;
+                    if (Array.isArray(que.optionsAr)) return que.optionsAr;
+                    if (Array.isArray(que.optionsEn)) return que.optionsEn;
+                    return [];
+                };
+
+                const getCorrectAnswers = (que) => {
+                    if (Array.isArray(que.correctAnswers)) return que.correctAnswers;
+                    if (que.correctAnswer !== null && que.correctAnswer !== undefined) return [que.correctAnswer];
+                    return [];
+                };
+
+                const normalizeEmailList = (value) => {
+                    if (Array.isArray(value)) return value.filter(Boolean);
+                    if (typeof value === 'string') {
+                        return value.split(',').map(email => email.trim()).filter(Boolean);
+                    }
+                    return [];
+                };
+
+                const shouldSendStudentReport = () => {
+                    const settings = quiz.settings || {};
+                    const emailPolicy = String(quiz.emailPolicy || settings.emailPolicy || '').toLowerCase();
+                    if (['none', 'off', 'disabled', 'no_report'].includes(emailPolicy)) return false;
+
+                    return settings.studentReport === true
+                        || settings.showResultEmail === true
+                        || settings.sendDetailedReport === true
+                        || quiz.showResultEmail === true
+                        || quiz.sendDetailedReport === true
+                        || ['full_report', 'student_report', 'detailed_report', 'report'].includes(emailPolicy);
+                };
+
+                const resolveCorrectAnswerText = (que) => {
+                    if (que.type === 'essay') {
+                        return String(que.modelAnswer || que.modelAnswerAr || que.modelAnswerEn || 'Manual Grading');
+                    }
+
+                    const opts = getQuestionOptions(que);
+                    const correctValues = getCorrectAnswers(que);
+                    if (correctValues.length) {
+                        return correctValues.map(value => {
+                            if (typeof value === 'number' && opts[value] !== undefined) return String(opts[value]);
+                            if (typeof value === 'string' && opts[value] !== undefined) return String(opts[value]);
+                            return String(value);
+                        }).filter(Boolean).join(' | ');
+                    }
+
+                    return String(que.modelAnswer || que.modelAnswerAr || que.correctAnswerText || '');
+                };
+
                 // ── HUMAN-READABLE ANSWER RESOLVER ──────────────────
                 const resolveAnswerText = (que) => {
                     const raw = answers[que.id];
                     if (raw === null || raw === undefined) return 'لم يتم الإجابة';
-                    const opts = que.options || que.optionsAr || [];
+                    const opts = getQuestionOptions(que);
                     if (que.type === 'mcq') {
                         return typeof raw === 'number' && opts[raw] ? String(opts[raw]) : sanitizeValue(raw);
                     }
@@ -194,42 +270,62 @@
                 // ── BINARY SCORE (1/0) ───────────────────────────────
                 const resolveQuestionScore = (que) => {
                     if (que.type === 'essay') return 0; // Manual grading
-                    if (que.type === 'mcq') return answers[que.id] === que.correctAnswers?.[0] ? 1 : 0;
+                    const correctAnswers = getCorrectAnswers(que);
+                    if (que.type === 'mcq') return answers[que.id] === correctAnswers[0] ? 1 : 0;
                     if (que.type === 'multi_select') {
-                        const correctStr = [...(que.correctAnswers || [])].sort().join(',');
+                        const correctStr = [...correctAnswers].sort().join(',');
                         const ansStr = [...(answers[que.id] || [])].sort().join(',');
                         return correctStr === ansStr ? 1 : 0;
                     }
                     return 0;
                 };
 
-                const payload = {
-                    studentName: studentInfo.name || studentInfo.nameAr || "غير مسجل",
-                    seatNumber: studentInfo.seatNumber || studentInfo.seat || "غير مسجل",
-                    department: String(studentInfo.department || ''),
-                    email: String(studentInfo.email || ''),
-                    examTitle: String(quiz.titleEn || quiz.titleAr || quiz.title || ''),
-                    score,
-                    maxScore,
-                    timeTaken: 'N/A',
-                    loginTime: loginTimeRef.current || new Date().toISOString(),
-                    submitTime: new Date().toISOString(),
-                    terminationReason: String(reason),
-                    adminEmails: String(quiz.adminEmails || ''),
+                const atomicPayload = {
+                    // Redundant Root-Level Data (Flattening V2 for GAS compatibility)
+                    name: studentInfo?.name || "غير مسجل",
+                    email: studentInfo?.email || "غير مسجل",
+                    seatNumber: studentInfo?.seatNumber || "غير مسجل",
+                    department: studentInfo?.department || "غير مسجل",
+                    score: score,
+                    maxScore: maxScore,
+
+                    student: {
+                        name: studentInfo.name || "غير مسجل",
+                        department: studentInfo.department || "غير مسجل",
+                        email: studentInfo.email || "غير مسجل",
+                        seatNumber: studentInfo.seatNumber || "غير مسجل"
+                    },
+                    timestamps: {
+                        entryTime: entryTime ? entryTime.toISOString() : null,
+                        exitTime: getTrueCairoNow().toISOString(),
+                        ipAddress: ipAddress
+                    },
+                    scoreData: {
+                        score: score,
+                        maxScore: maxScore
+                    },
+                    examDetails: {
+                        title: String(quiz.titleAr || quiz.title || quiz.titleEn || ''),
+                        terminationReason: String(reason)
+                    },
                     settings: {
-                        sendToStudent: Boolean(quiz.settings && quiz.settings.showResultEmail) && !isEvaluation
+                        // Strictly mapping the CMS flag for V4 Email Engine compatibility
+                        studentReport: shouldSendStudentReport(),
+                        adminEmails: normalizeEmailList(quiz.settings?.adminEmails || quiz.adminEmails)
                     },
                     responses: questions.map(que => ({
-                        question: String(que.text || que.textAr || ''),
+                        question: String(que.text || que.textAr || que.textEn || ''),
                         studentAnswer: resolveAnswerText(que),
-                        questionScore: resolveQuestionScore(que),
-                        isCorrect: que.type === 'essay' ? null : (resolveQuestionScore(que) === 1)
+                        isCorrect: que.type === 'essay' ? null : (resolveQuestionScore(que) === 1),
+                        // Forcefully inject reference data for Matrix Initialization (Row 2 & 3)
+                        correctAnswer: resolveCorrectAnswerText(que),
+                        explanation: String(que.explanation || que.explanationAr || que.explanationEn || que.rationale || "")
                     }))
                 };
 
                 try {
                     const url = quiz.webhookUrl || '';
-                    const response = await Luminova.Services.GAS.submitExam(url, payload);
+                    const response = await Luminova.Services.GAS.submitExam(url, atomicPayload);
                     
                     if (response && response.status === 'ok') {
                         safeExitFullscreen();
@@ -248,7 +344,7 @@
                     }
                 } catch (e) {
                     console.error('Submission failed:', e);
-                    setDebugError(e.message || 'Unknown Error');
+                    setDebugError(e?.message || 'Unknown Error');
                     setIsSubmitting(false);
                     setModalType('submission_failed');
                     return; // Prevent exam from finishing so user can retry
@@ -328,11 +424,11 @@
             if (modalType === 'exam_rules') {
                 const startExamNow = () => {
                     // Force fullscreen for proctored environment
-                    // Force fullscreen for proctored environment (already handled by useEffect, but ensure)
                     if (!document.fullscreenElement) {
                         document.documentElement.requestFullscreen().catch(() => {});
                     }
                     loginTimeRef.current = new Date().toISOString();
+                    setEntryTime(getTrueCairoNow());
                     setModalType(null);
                     setIsStarted(true);
                 };
@@ -343,7 +439,7 @@
                     <div className="absolute bottom-0 left-0 w-80 h-80 bg-fuchsia-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
                     <div className="relative z-10 max-w-lg w-full bg-zinc-900/50 backdrop-blur-2xl rounded-3xl shadow-2xl p-10 animate-fade-in border border-white/10">
                         <div className="text-center mb-8">
-                            <div className="text-7xl mb-4 text-white">📋</div>
+                            <svg className="w-20 h-20 mx-auto mb-4 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                             <h2 className="text-3xl font-black mb-2 text-white">
                                 ${lang === 'ar' ? 'تعليمات الامتحان' : 'Exam Instructions'}
                             </h2>
@@ -396,13 +492,7 @@
                 setGatewayError(null);
                 setDebugError(null);
                 try {
-                    const examTitle = quiz.titleEn || quiz.titleAr || quiz.title;
-                    const response = await Luminova.Services.GAS.verifyStudent(quiz.webhookUrl, {
-                        exam: examTitle,
-                        name: studentInfo.name,
-                        email: studentInfo.email,
-                        seat: studentInfo.seatNumber
-                    });
+                    const response = await Luminova.Services.GAS.verifyStudent(quiz.webhookUrl, studentInfo.email);
 
                     if (response && response.status === 'clear') {
                         setModalType('exam_rules');
@@ -415,7 +505,7 @@
                     }
                 } catch (error) {
                     console.error('Verification failed:', error);
-                    setDebugError(error.message || 'Unknown Error');
+                    setDebugError(error?.message || 'Unknown Error');
                     setGatewayError('network_error');
                 } finally {
                     setIsVerifying(false);
@@ -424,13 +514,27 @@
 
             let timeStatus = 'open';
             let timeMsg = '';
+            let dateMsg = '';
 
             if (quiz.startTime && now < parseCairoDeadline(quiz.startTime)) {
                 timeStatus = 'early';
                 const diff = parseCairoDeadline(quiz.startTime) - now;
-                const m = Math.floor(diff / 60000);
+                const d = Math.floor(diff / 86400000);
+                const h = Math.floor((diff % 86400000) / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
                 const s = Math.floor((diff % 60000) / 1000);
-                timeMsg = lang === 'ar' ? `يبدأ الاختبار بعد ${m} دقيقة و ${s} ثانية` : `Starts in ${m}m ${s}s`;
+                
+                if (d > 0) {
+                    timeMsg = `${d} يوم : ${h} ساعة : ${m} دقيقة`;
+                } else {
+                    timeMsg = `${h.toString().padStart(2, '0')} ساعة : ${m.toString().padStart(2, '0')} دقيقة : ${s.toString().padStart(2, '0')} ثانية`;
+                }
+
+                const startDate = parseCairoDeadline(quiz.startTime);
+                try {
+                    dateMsg = new Intl.DateTimeFormat('ar-EG', { weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: 'numeric', hour12: true }).format(startDate);
+                } catch(e) { dateMsg = startDate.toLocaleString('ar-EG'); }
+                
             } else if (quiz.endTime && now > parseCairoDeadline(quiz.endTime)) {
                 timeStatus = 'late';
                 timeMsg = lang === 'ar' ? 'عذراً، لقد انتهى موعد الاختبار' : 'Sorry, the exam has ended';
@@ -439,15 +543,17 @@
             let gatewayContent;
             if (timeStatus === 'early') {
                 gatewayContent = html`
-                    <div className="text-center p-6 bg-cyan-500/10 rounded-2xl border border-cyan-500/30 mb-6">
-                        <div className="text-4xl font-black text-cyan-400 mb-2 tabular-nums">${timeMsg}</div>
-                        <p className="text-sm opacity-70 font-bold text-white">يرجى الانتظار، سيتم التفعيل تلقائياً</p>
+                    <div className="text-center p-8 bg-cyan-500/10 rounded-3xl border border-cyan-500/30 mb-6 backdrop-blur-xl">
+                        <div className="text-4xl font-black text-cyan-400 mb-4 tabular-nums shadow-[0_0_15px_rgba(34,211,238,0.3)] px-6 py-4 rounded-2xl bg-black/20">${timeMsg}</div>
+                        <p className="text-sm opacity-90 font-bold text-white mb-2">${lang === 'ar' ? 'يرجى الانتظار، سيتم التفعيل تلقائياً' : 'Please wait, will auto-start'}</p>
+                        <p className="text-xs opacity-60 font-medium text-cyan-100">${dateMsg}</p>
                     </div>`;
             } else if (timeStatus === 'late') {
                 gatewayContent = html`
                     <div className="w-full space-y-4">
-                        <div className="text-center p-6 bg-red-500/10 rounded-2xl border border-red-500/30">
-                            <div className="text-2xl font-black text-red-500 mb-2">🚫 ${timeMsg}</div>
+                        <div className="text-center p-8 bg-red-500/10 rounded-3xl border border-red-500/30">
+                            <svg className="w-16 h-16 mx-auto mb-4 text-red-500 drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <div className="text-2xl font-black text-red-500 mb-2">${timeMsg}</div>
                         </div>
                         <div className="text-center">
                             <button onClick=${goBack} className="w-full py-4 bg-zinc-800 text-white rounded-xl font-bold">${lang === 'ar' ? 'العودة' : 'Go Back'}</button>
@@ -456,10 +562,10 @@
             } else if (gatewayError === 'exists') {
                 gatewayContent = html`
                     <div className="w-full text-center p-8 rounded-3xl mb-6 bg-red-500/5 border border-red-500/20">
-                        <div className="text-7xl mb-4 text-white">🔒</div>
+                        <svg className="w-20 h-20 mx-auto mb-4 text-white drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                         <h2 className="text-2xl font-black text-red-500 mb-3">${lang === 'ar' ? 'عفواً، لا يمكنك الدخول' : 'Access Denied'}</h2>
                         <p className="text-sm font-bold text-gray-400 mb-6 leading-relaxed">
-                            ${lang === 'ar' ? 'بياناتك مسجلة مسبقاً في هذا الامتحان.' : 'You have already submitted this exam.'}
+                            ${lang === 'ar' ? 'عذراً، هذا البريد الإلكتروني مسجل بالفعل. لا يمكن أداء الاختبار أكثر من مرة.' : 'This email is already registered. You cannot retake the exam.'}
                         </p>
                         <div className="space-y-3">
                             <button onClick=${() => { setGatewayError(null); setDebugError(null); }} className="w-full py-3 rounded-xl font-bold bg-amber-600 text-white">
@@ -509,11 +615,11 @@
                 gatewayContent = html`
                     <div className="space-y-4">
                         <${Luminova.Components.Input} label=${lang === 'ar' ? 'الاسم الرباعي' : 'Full Name'} val=${studentInfo.name} onChange=${v => setStudentInfo({ ...studentInfo, name: v })} />
-                        <${Luminova.Components.Input} label=${lang === 'ar' ? 'رقم الجلوس' : 'Seat Number'} val=${studentInfo.seatNumber} onChange=${v => setStudentInfo({ ...studentInfo, seatNumber: v })} />
+                        <${Luminova.Components.Input} label=${lang === 'ar' ? 'رقم الجلوس (اختياري)' : 'Seat Number (Optional)'} val=${studentInfo.seatNumber} onChange=${v => setStudentInfo({ ...studentInfo, seatNumber: v })} />
                         <${Luminova.Components.Input} label=${lang === 'ar' ? 'الشعبة / القسم' : 'Department'} val=${studentInfo.department} onChange=${v => setStudentInfo({ ...studentInfo, department: v })} />
                         <${Luminova.Components.Input} label=${lang === 'ar' ? 'البريد الإلكتروني' : 'Email'} val=${studentInfo.email} onChange=${v => setStudentInfo({ ...studentInfo, email: v })} />
-                        <button disabled=${!isFormValid || isVerifying} onClick=${verifyAndStart} className="w-full py-4 mt-6 rounded-2xl font-black text-xl text-white bg-blue-600 shadow-lg transition-transform disabled:opacity-50 hover:scale-[1.02]">
-                            ${isVerifying ? (lang === 'ar' ? '⏳ جاري التحقق...' : '⏳ Verifying...') : (lang === 'ar' ? 'بدء الاختبار' : 'Start Exam')}
+                        <button disabled=${!(studentInfo.name && studentInfo.department && isEmailValid) || isVerifying || !isTimeSynced} onClick=${verifyAndStart} className="w-full py-4 mt-6 rounded-2xl font-black text-xl text-white bg-blue-600 shadow-lg transition-transform disabled:opacity-50 hover:scale-[1.02]">
+                            ${!isTimeSynced ? (lang === 'ar' ? '⏳ جاري مزامنة الوقت...' : '⏳ Syncing Time...') : isVerifying ? (lang === 'ar' ? '⏳ جاري التحقق...' : '⏳ Verifying...') : (lang === 'ar' ? 'دخول الاختبار' : 'Enter Exam')}
                         </button>
                     </div>`;
             }
@@ -1066,7 +1172,7 @@
                         <div className="max-w-3xl mx-auto">
                             <textarea 
                                 disabled=${isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))}
-                                className=${`w-full p-6 rounded-2xl bg-white/2 backdrop-blur-xl border border-white/10 focus:border-rose-500/50 focus:bg-white/4 outline-none min-h-[250px] text-lg text-white placeholder-white/20 transition-all shadow-inner resize-y ${(isFeedbackRevealed || revealedQuestions.has(q.id)) ? 'opacity-70 font-bold' : ''}`}
+                                className=${`w-full p-5 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 min-h-[250px] text-lg text-white placeholder-white/30 transition-all shadow-inner resize-y ${(isFeedbackRevealed || revealedQuestions.has(q.id)) ? 'opacity-70 font-bold' : ''}`}
                                 placeholder=${lang === 'ar' ? 'اكتب إجابتك بتفصيل هنا...' : 'Type your detailed answer here...'}
                                 value=${answers[q.id] || ''}
                                 onChange=${(e) => {

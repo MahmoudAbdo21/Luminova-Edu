@@ -81,11 +81,11 @@
     Boundary.prototype = Object.create(_super.prototype);
     Boundary.prototype.constructor = Boundary;
     Boundary.getDerivedStateFromError = function (error) {
-      return { hasError: true, errorMsg: error.message || String(error) };
+      return { hasError: true, errorMsg: error?.message || String(error) };
     };
     Boundary.prototype.componentDidCatch = function (error, info) {
       console.error('[Luminova Engine] Runtime error in lesson component:', error, info);
-      this.setState({ hasError: true, errorMsg: error.message || String(error) });
+      this.setState({ hasError: true, errorMsg: error?.message || String(error) });
     };
     Boundary.prototype.render = function () {
       if (this.state.hasError) {
@@ -313,12 +313,12 @@
             setLoaded(true);
           } catch (e) {
             console.error('Luminova Engine: Babel compile error:', e);
-            setErrMsg(e.message || String(e)); setHasErr(true);
+            setErrMsg(e?.message || String(e)); setHasErr(true);
           }
         })
         .catch(function (e) {
           console.error('Luminova Engine: Fetch error:', e);
-          var errorText = e.message || String(e);
+          var errorText = e?.message || String(e);
           if (errorText.includes('Failed to fetch') && window.location.protocol === 'file:') {
             errorText = 'يرجى تشغيل المنصة باستخدام خادم محلي (Local Web Server) لتعمل الدروس التفاعلية. عذراً! لا يمكن قراءة ملف الدرس مباشرة من الجهاز.';
           }

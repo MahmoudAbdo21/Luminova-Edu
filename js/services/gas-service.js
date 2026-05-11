@@ -4,15 +4,12 @@
  * ============================================================
  * Enterprise-grade API service for all Google Apps Script
  * communication. Decouples network logic from UI components.
- *
- * CORS STRATEGY:
- *   All requests use method POST with Content-Type 'text/plain;charset=utf-8'.
- *   This forces the browser to treat every request as a "Simple Request",
- *   completely bypassing the OPTIONS preflight that Google Apps Script rejects.
- *
- * USAGE:
- *   await Luminova.Services.GAS.verifyStudent(webhookUrl, payload);
- *   await Luminova.Services.GAS.submitExam(webhookUrl, payload);
+ * 
+ * CORE FEATURES:
+ * - text/plain CORS Bypass & strict mode:'cors' fetching
+ * - Response Normalizer to shield UI from backend inconsistencies
+ * - Multi-tiered Time API Fallback
+ * - Silent IP Tracking for submissions
  * ============================================================
  */
 (function () {
@@ -26,31 +23,23 @@
 
     // ─── Internal fetch wrapper ───────────────────────────────
     // Single point of truth for ALL outbound requests to GAS.
-    // Enforces POST + text/plain on every call.
     async function _gasFetch(url, payload) {
-        // 0. Protocol Safety: Detect file:// execution environment
         if (window.location.protocol === 'file:') {
-            throw new Error(
-                "PROTOCOL ERROR: This application is running from a local file (file://). " +
-                "API calls require an HTTP server. Please host the application on a web server " +
-                "(e.g., Live Server, localhost, or a deployed URL) to enable exam submission."
-            );
+            throw new Error("لا يمكن إجراء الاتصال. التطبيق يعمل محلياً بدون خادم (file://).");
         }
 
-        // 1. URL Sanity Check
         if (!url || !url.includes('/macros/s/') || !url.endsWith('/exec')) {
-            throw new Error(
-                "INVALID WEBHOOK URL: The URL must be a deployed Web App URL ending in '/exec', not a library or script editor URL."
-            );
+            throw new Error("رابط Webhook غير صالح (يجب أن ينتهي بـ /exec).");
         }
 
-        // 2. Strict Simple-Request Fetch (with timeout & error handling)
         let response;
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+            const timeoutId = setTimeout(() => controller.abort(), 30000); 
             response = await fetch(url, {
                 method: 'POST',
+                mode: 'cors',
+                credentials: 'omit',
                 headers: {
                     'Content-Type': 'text/plain;charset=utf-8'
                 },
@@ -59,30 +48,54 @@
             });
             clearTimeout(timeoutId);
         } catch (fetchError) {
-            if (fetchError.name === 'AbortError') {
-                throw new Error('REQUEST TIMEOUT: The server did not respond within 30 seconds. Please check your internet connection and try again.');
+            // Strategy #2: Volatile Exception Normalization
+            // Treat fetchError as a hostile, potentially undefined object.
+            const errName = fetchError?.name ?? 'Network_Drop';
+            const errMsg = fetchError?.message ?? 'فشل الاتصال بالخادم';
+
+            if (errName === 'AbortError') {
+                throw new Error('انتهى وقت الطلب (Timeout). يرجى التحقق من جودة الإنترنت والمحاولة مرة أخرى.');
             }
-            // Network errors (offline, CORS, DNS failure)
+            
             throw new Error(
-                'NETWORK ERROR: Could not reach the server. ' +
-                'Please check your internet connection. ' +
-                '(Detail: ' + (fetchError.message || 'Unknown network error') + ')'
+                'خطأ في الاتصال: لم نتمكن من الوصول لقاعدة البيانات. ' +
+                'يرجى التأكد من اتصالك بالإنترنت والمحاولة مجدداً. ' +
+                '(تفاصيل: ' + errMsg + ')'
             );
         }
 
-        // 3. HTTP Status Guard
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            throw new Error(`خطأ في الخادم! الرمز: ${response.status}`);
         }
 
-        // 4. Parse JSON response from GAS
+        // The Smart Response Normalizer: Intercept HTML Workspace Security Block
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            console.error("Workspace Security Block Detected. Response is not JSON.");
+            throw new Error("فشل الاتصال بقاعدة البيانات. (يرجى نشر السكربت عبر حساب Gmail شخصي وليس مؤسسي).");
+        }
+
         let data;
         try {
             data = await response.json();
         } catch (parseError) {
-            throw new Error('PARSE ERROR: The server returned an invalid response. Expected JSON. (Detail: ' + (parseError.message || 'Unknown parse error') + ')');
+            throw new Error("حدث خطأ أثناء معالجة بيانات الخادم.");
         }
-        return data;
+
+        // Catch backend-thrown errors gracefully (Tagged to isolate source)
+        if (data && data.status === "error") {
+            throw new Error("[Backend Error] " + (data.message || "حدث خطأ غير معروف في الخادم."));
+        }
+
+        // Normalizing legacy vs modern Duplicate Check responses
+        if (payload.action === 'check_duplicate') {
+            if (data.status === 'exists' || data.isDuplicate === true) {
+                return { status: 'exists' };
+            }
+            return { status: 'clear' };
+        }
+
+        return data; // Return clean data for submit_exam
     }
 
     // ─── Public API ───────────────────────────────────────────
@@ -91,80 +104,61 @@
 
         /**
          * PRE-EXAM GATEKEEPER — Verify if a student has already submitted.
-         *
-         * @param {string} webhookUrl - The per-exam Web App URL from CMS.
-         * @param {object} studentData - { exam, name, email, seat }
-         * @returns {Promise<object>} - Resolves with { status: 'exists' | 'clear' }
-         * @throws {Error} on network failure or invalid URL.
-         *
-         * PAYLOAD SCHEMA (what the backend receives):
-         * {
-         *   "action":  "verify",        // String — routing key for doPost
-         *   "exam":    "Exam Title",     // String — exam identifier
-         *   "name":    "Student Name",   // String — student full name
-         *   "email":   "a@b.com",        // String — student email
-         *   "seat":    "42"              // String — seat number
-         * }
          */
-        verifyStudent: async function (webhookUrl, { exam, name, email, seat }) {
-            const payload = {
-                action: 'verify',
-                exam: exam,
-                name: name,
-                email: email,
-                seat: seat
-            };
-
+        verifyStudent: async function (webhookUrl, email) {
+            const payload = { action: 'check_duplicate', email: email };
             return await _gasFetch(webhookUrl, payload);
         },
 
         /**
          * EXAM SUBMISSION — Send the student's completed exam to the backend.
-         *
-         * @param {string} webhookUrl - The per-exam Web App URL from CMS.
-         * @param {object} examData - Full submission payload.
-         * @returns {Promise<object>} - Resolves with backend confirmation.
-         * @throws {Error} on network failure or invalid URL.
-         *
-         * PAYLOAD SCHEMA (what the backend receives):
-         * {
-         *   "action":            "submit",           // String — routing key for doPost
-         *   "studentName":       "Student Name",     // String
-         *   "seatNumber":        "42",               // String
-         *   "department":        "CS",               // String
-         *   "email":             "a@b.com",          // String
-         *   "examTitle":         "Exam Title",       // String
-         *   "score":             18,                 // Number
-         *   "maxScore":          20,                 // Number
-         *   "timeTaken":         "N/A",              // String
-         *   "terminationReason": "completed",        // String — "completed" | "time_expired" | "anti_cheat_violation"
-         *   "adminEmails":       "a@b.com,c@d.com", // String (comma-separated)
-         *   "responses": [                           // Array of Objects
-         *     {
-         *       "question":      "Question text",    // String
-         *       "studentAnswer": "Option B",         // String | Array | null
-         *       "isCorrect":     true                // Boolean
-         *     }
-         *   ]
-         * }
          */
-        submitExam: async function (webhookUrl, examData) {
-            const payload = {
-                action: 'submit',
-                studentName: examData.studentName,
-                seatNumber: examData.seatNumber,
-                department: examData.department,
-                email: examData.email,
-                examTitle: examData.examTitle,
-                score: examData.score,
-                maxScore: examData.maxScore,
-                timeTaken: examData.timeTaken,
-                terminationReason: examData.terminationReason,
-                adminEmails: examData.adminEmails,
-                responses: examData.responses
-            };
-
+        submitExam: async function (webhookUrl, atomicPayload) {
+            const payload = { action: 'submit_exam', ...atomicPayload };
             return await _gasFetch(webhookUrl, payload);
+        },
+
+        /**
+         * SILENT IP TRACKER — Fetches user IP autonomously.
+         */
+        getIPAddress: async function() {
+            try {
+                const res = await fetch('https://api.ipify.org?format=json');
+                if (res.ok) {
+                    const data = await res.json();
+                    return data.ip;
+                }
+            } catch (e) {
+                console.warn('IP tracking failed silently');
+            }
+            return 'unknown';
+        },
+
+        /**
+         * MULTI-TIERED TIME SYNC — Resilient True Cairo Time offset.
+         */
+        getTrueTimeOffsetMs: async function() {
+            // Attempt 1: timeapi.io
+            try {
+                const res1 = await fetch('https://timeapi.io/api/Time/current/zone?timeZone=Africa/Cairo');
+                if (res1.ok) {
+                    const data1 = await res1.json();
+                    return new Date(data1.dateTime).getTime() - Date.now();
+                }
+            } catch (e) {}
+
+            // Attempt 2: timeapi.world
+            try {
+                const res2 = await fetch('https://timeapi.world/api/timezone/Africa/Cairo');
+                if (res2.ok) {
+                    const data2 = await res2.json();
+                    return new Date(data2.datetime || data2.dateTime).getTime() - Date.now();
+                }
+            } catch (e) {}
+            
+            // Ultimate Fallback
+            console.warn("[Luminova] Network Time APIs failed, falling back to local device time.");
+            return 0; 
         }
     };
 })();
