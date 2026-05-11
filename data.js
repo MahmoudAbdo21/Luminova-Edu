@@ -1925,6 +1925,31 @@ window.LUMINOVA_DATA = {
           "type": "url"
         }
       ]
+    },
+    {
+      "id": "summaries_1778507696914",
+      "timestamp": "2026-05-11T13:54:56.914Z",
+      "titleAr": "شرح مقرر التعلم الرقمي كاملا",
+      "titleEn": "Explanation of the full digital learning course",
+      "contentAr": "شرح مبسط لجميع المحاضرات ",
+      "contentEn": "Simplified explanation of all lectures",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775504450774",
+      "studentId": "students_1775125739063",
+      "mediaType": "pdf",
+      "chapterTag": "الفصل الأول",
+      "lessonUrl": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1WxzIcCQgPdaqngZf5-gm2_qW-TccSAtu/view?usp=sharing",
+          "titleAr": "pdf",
+          "titleEn": "PDF",
+          "order": 0,
+          "type": "url"
+        }
+      ]
     }
   ]
 };
