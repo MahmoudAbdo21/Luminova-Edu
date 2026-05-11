@@ -1,5 +1,25 @@
 window.LUMINOVA_EXAMS = [
   {
+    "id": "quizzes_1778511441538",
+    "timestamp": "2026-05-11T14:57:21.538Z",
+    "titleAr": "اختبار شامل 🏆",
+    "titleEn": "",
+    "isShuffled": true,
+    "feedbackMode": "end",
+    "subjectId": "subjects_1775504450774",
+    "publisherId": "s_founder_hardcoded",
+    "questions": [],
+    "examMode": "evaluation",
+    "emailPolicy": "none",
+    "adminEmails": "mahmoud21abdalrhman@gmail.com,salmazahran167@gmail.com",
+    "startTime": "2026-05-12T21:30",
+    "endTime": "2026-05-12T23:00",
+    "latePolicy": "hard_stop",
+    "allowBackNavigation": true,
+    "yearId": "year_1",
+    "semesterId": "semesters_1775125622791"
+  },
+  {
     "id": "quizzes_1778324229730",
     "timestamp": "2026-05-09T10:57:09.730Z",
     "titleAr": "اختبار مادة معلومات مصورة 🏆",
