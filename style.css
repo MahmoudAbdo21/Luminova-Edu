@@ -639,3 +639,28 @@ video:not(.media-container video) {
 /* Scrollbar hiding utilities */
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+@media (max-width: 768px) {
+    .honor-roll-container {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        gap: 1rem !important;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .honor-roll-container::-webkit-scrollbar {
+        display: none;
+    }
+
+    .honor-roll-card {
+        flex: 0 0 85% !important;
+        min-width: 80vw !important;
+        max-width: 85% !important;
+        scroll-snap-align: center;
+    }
+}

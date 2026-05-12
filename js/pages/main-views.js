@@ -198,9 +198,9 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
             ${topContributors.length > 0 && html`
                 <div className="mb-10">
                     <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-zinc-900 dark:text-white">${Luminova.i18n[lang].topContributors}</h2>
-                    <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-4 pb-6 w-full px-4">
+                    <div className="honor-roll-container flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-4 pb-6 w-full px-4">
                         ${topContributors.map((c, i) => html`
-                            <${Luminova.Components.GlassCard} key=${c.student.id} className="min-w-[140px] sm:min-w-[180px] flex-shrink-0 snap-center text-center flex flex-col items-center border-b-4 border-b-fuchsia-500/50 hover:border-b-cyan-400 transition-all duration-500 p-3 sm:p-5">
+                            <${Luminova.Components.GlassCard} key=${c.student.id} className="honor-roll-card min-w-[140px] sm:min-w-[180px] flex-shrink-0 snap-center text-center flex flex-col items-center border-b-4 border-b-fuchsia-500/50 hover:border-b-cyan-400 transition-all duration-500 p-3 sm:p-5">
                                 <div className="absolute top-2 right-2 text-xl font-black opacity-10 italic">#${i + 1}</div>
                                 <${Luminova.Components.Avatar} name=${c.student.nameAr || c.student.name} image=${c.student.image} isVIP=${c.student.isVIP} isFounder=${c.student.isFounder || c.student.id === 's_founder'} isVerified=${c.student.isVerified} size="w-12 h-12 sm:w-20 sm:h-20 mb-2 sm:mb-4 shadow-xl shadow-fuchsia-500/10" />
                                 <h3 className="font-black text-sm sm:text-base text-white">${lang === 'ar' ? (c.student.nameAr || c.student.name) : (c.student.nameEn || c.student.name)}</h3>
