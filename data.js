@@ -486,6 +486,22 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
+      "id": "summaries_1778575235567",
+      "timestamp": "2026-05-12T08:40:35.567Z",
+      "titleAr": "مراجعة تعلم رقمي",
+      "titleEn": "Digital Learning Review",
+      "contentAr": "تلخيص جميع محاضرات التعلم الرقمي وسمات المتعلمين في 37 شريحه تفاعليه ",
+      "contentEn": "Summarize all digital learning lectures and learners' characteristics in 37 interactive slides",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775504450774",
+      "studentId": "s_founder_hardcoded",
+      "mediaType": "interactive",
+      "chapterTag": "ملخص",
+      "lessonUrl": "Interactive-lessons/Digital-learning1.jsx",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791"
+    },
+    {
       "id": "summaries_1778334851005",
       "timestamp": "2026-05-09T13:54:11.005Z",
       "titleAr": "اسئلة المقالي من الكتاب ",
