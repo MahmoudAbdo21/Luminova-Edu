@@ -3266,7 +3266,7 @@ window.LUMINOVA_EXAMS = [
     "titleAr": "الاختبار الشامل للتعلم الرقمي 🏆",
     "titleEn": "Digital Learning Comprehensive Test 🏆",
     "isShuffled": true,
-    "feedbackMode": "end",
+    "feedbackMode": "immediate",
     "subjectId": "subjects_1775504450774",
     "publisherId": "students_1775125739063",
     "questions": [
