@@ -5063,7 +5063,7 @@ window.LUMINOVA_EXAMS = [
       }
     ],
     "examMode": "evaluation",
-    "emailPolicy": "none",
+    "emailPolicy": "full_report",
     "adminEmails": "mahmoud21abdalrhman@gmail.com,salmazahran167@gmail.com",
     "startTime": "2026-05-12T21:30",
     "endTime": "2026-05-12T23:00",
