@@ -658,9 +658,21 @@ video:not(.media-container video) {
     }
 
     .honor-roll-card {
-        flex: 0 0 85% !important;
-        min-width: 80vw !important;
-        max-width: 85% !important;
+        flex: 0 0 min(60vw, 260px) !important;
+        flex-shrink: 0 !important;
+        width: min(60vw, 260px) !important;
+        min-width: min(60vw, 260px) !important;
+        max-width: 260px !important;
+        align-items: center !important;
         scroll-snap-align: center;
+    }
+
+    .honor-roll-card h3,
+    .honor-roll-card h3 + div {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap !important;
     }
 }
