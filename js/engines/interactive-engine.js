@@ -400,6 +400,31 @@
       // Capture-phase click delegation on the lesson mount node.
       // Detects exit-intent clicks by matching button/anchor text against
       // Arabic + English exit keywords — no modifications needed in .jsx files.
+      var isIconOnlyExitControl = function (el) {
+        if (!el || !el.querySelector) return false;
+        var text = (el.textContent || '').trim();
+        if (text) return false;
+
+        var svg = el.querySelector('svg');
+        if (!svg) return false;
+
+        var classText = '';
+        if (typeof el.className === 'string') {
+          classText = el.className;
+        } else if (el.className && typeof el.className.baseVal === 'string') {
+          classText = el.className.baseVal;
+        }
+
+        var hasCloseTone = /(red|rose|danger|close|exit)/i.test(classText);
+        var hasXLineIcon = svg.querySelector('line[x1="18"][y1="6"][x2="6"][y2="18"], line[x1="6"][y1="6"][x2="18"][y2="18"]');
+        var paths = Array.prototype.slice.call(svg.querySelectorAll('path')).map(function (path) {
+          return (path.getAttribute('d') || '').replace(/\s+/g, ' ').trim().toLowerCase();
+        }).join(' ');
+        var hasXPathIcon = paths.indexOf('m18 6 6 18') !== -1 || paths.indexOf('m6 6 12 12') !== -1;
+
+        return hasCloseTone || hasXLineIcon || hasXPathIcon;
+      };
+
       var smartExitHandler = function (evt) {
         var target = evt.target;
         // Walk up to find the nearest interactive element
@@ -407,9 +432,10 @@
         if (!el) return;
         // Gather all possible text signals
         var text = (el.textContent || '') + ' ' + (el.getAttribute('aria-label') || '') + ' ' + (el.getAttribute('title') || '');
-        if (EXIT_REGEX.test(text)) {
+        if (EXIT_REGEX.test(text) || isIconOnlyExitControl(el)) {
           evt.preventDefault();
           evt.stopPropagation();
+          if (evt.stopImmediatePropagation) evt.stopImmediatePropagation();
           // Also call the lesson's own onExit if it was passed via props
           // (for lessons that DO wire it — harmless double-call is guarded by cleanup idempotency)
           window.dispatchEvent(new CustomEvent('luminova:exit'));
