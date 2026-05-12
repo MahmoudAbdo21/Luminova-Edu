@@ -5062,7 +5062,7 @@ window.LUMINOVA_EXAMS = [
         "id": "q_1778525085523"
       }
     ],
-    "examMode": "evaluation",
+    "examMode": "practice",
     "emailPolicy": "full_report",
     "adminEmails": "mahmoud21abdalrhman@gmail.com,salmazahran167@gmail.com",
     "startTime": "2026-05-12T21:30",
