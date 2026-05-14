@@ -486,6 +486,22 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
+      "id": "summaries_1778769656396",
+      "timestamp": "2026-05-14T14:40:56.396Z",
+      "titleAr": "شرح الفصل الاول",
+      "titleEn": "",
+      "contentAr": "28 شرحه لشرخ الفصل الاول كامل بطريقة تفاعلية",
+      "contentEn": "",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775908403709",
+      "studentId": "s_founder_hardcoded",
+      "mediaType": "interactive",
+      "chapterTag": "الفصل الأول",
+      "lessonUrl": "Interactive-lessons/management-systems-ch1.jsx",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791"
+    },
+    {
       "id": "summaries_1778575235567",
       "timestamp": "2026-05-12T08:40:35.567Z",
       "titleAr": "مراجعة تعلم رقمي",
