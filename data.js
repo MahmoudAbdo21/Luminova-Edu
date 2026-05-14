@@ -486,22 +486,6 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
-      "id": "summaries_1778765490374",
-      "timestamp": "2026-05-14T13:31:30.374Z",
-      "titleAr": "شرح الفصل الاول",
-      "titleEn": "Chapter 1",
-      "contentAr": "28 شرحه تفاعليه تشرح الفصل الول",
-      "contentEn": "28 An interactive commentary explaining the first chapter",
-      "mediaUrl": "",
-      "subjectId": "subjects_1775908403709",
-      "studentId": "s_founder_hardcoded",
-      "mediaType": "interactive",
-      "chapterTag": "الفصل الأول",
-      "lessonUrl": "Interactive-lessons/management-systems-ch1.jsx",
-      "yearId": "year_1",
-      "semesterId": "semesters_1775125622791"
-    },
-    {
       "id": "summaries_1778575235567",
       "timestamp": "2026-05-12T08:40:35.567Z",
       "titleAr": "مراجعة تعلم رقمي",
