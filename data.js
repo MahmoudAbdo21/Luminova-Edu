@@ -486,6 +486,22 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
+      "id": "summaries_1778773981229",
+      "timestamp": "2026-05-14T15:53:01.229Z",
+      "titleAr": "شرح الفصل الثالث",
+      "titleEn": "Section Three",
+      "contentAr": "شرح الفصل الثالث في 26 شريحة تفاعلية وشرح كامل",
+      "contentEn": "Explanation of Chapter 3 on 26 interactive slides and full explanation",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775908403709",
+      "studentId": "s_founder_hardcoded",
+      "mediaType": "interactive",
+      "chapterTag": "الفصل الثالث",
+      "lessonUrl": "Interactive-lessons/management-systems-ch3.jsx",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791"
+    },
+    {
       "id": "summaries_1778770778480",
       "timestamp": "2026-05-14T14:59:38.480Z",
       "titleAr": "شرح الفصل الثاني ",
