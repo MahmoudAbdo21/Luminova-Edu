@@ -486,6 +486,22 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
+      "id": "summaries_1778770778480",
+      "timestamp": "2026-05-14T14:59:38.480Z",
+      "titleAr": "شرح الفصل الثاني ",
+      "titleEn": "Chapter 2",
+      "contentAr": "شرح الفصل الثاني في 32 شرحه تفاعلية تشرح الفصل كامل",
+      "contentEn": "Explanation of Chapter Two in 32 An Interactive Commentary Explaining the Full Chapter",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775908403709",
+      "studentId": "s_founder_hardcoded",
+      "mediaType": "interactive",
+      "chapterTag": "الفصل الثاني",
+      "lessonUrl": "Interactive-lessons/management-systems-ch2.jsx",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791"
+    },
+    {
       "id": "summaries_1778769656396",
       "timestamp": "2026-05-14T14:40:56.396Z",
       "titleAr": "شرح الفصل الاول",

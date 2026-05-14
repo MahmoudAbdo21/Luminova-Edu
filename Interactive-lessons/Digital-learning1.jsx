@@ -54,7 +54,7 @@ export default function MasterclassApp() {
           </p>
           <div className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 inline-block">
             <p className="text-lg text-emerald-300 font-bold flex items-center gap-3">
-              <Zap className="w-6 h-6" /> ركز معايا في الـ 37 شريحة دول، وهتطلع فاهم اللعبة كلها!
+              <Zap className="w-6 h-6" /> ركز معايا في الـ 40 شريحة دول، وهتطلع فاهم اللعبة كلها!
             </p>
           </div>
         </div>
