@@ -1966,6 +1966,56 @@ window.LUMINOVA_DATA = {
           "type": "url"
         }
       ]
+    },
+    {
+      "id": "summaries_1778721397247",
+      "timestamp": "2026-05-14T01:16:37.247Z",
+      "titleAr": "تلخيص الفصل الثاني",
+      "titleEn": "Chapter 2 Recap",
+      "contentAr": "شرح مبسط للفصل الثاني لنظم ادارة المحتوى",
+      "contentEn": "A Simplified Explanation of Chapter 2 Content Management Systems",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775908403709",
+      "studentId": "students_1775125739063",
+      "mediaType": "pdf",
+      "chapterTag": "الفصل الثاني",
+      "lessonUrl": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1XcfHQwsBVcD1PEOPwb5te5lpBEF0BRLB/view?usp=sharing",
+          "titleAr": "pdf",
+          "titleEn": "PDF",
+          "order": 0,
+          "type": "url"
+        }
+      ]
+    },
+    {
+      "id": "summaries_1778721254624",
+      "timestamp": "2026-05-14T01:14:14.624Z",
+      "titleAr": "تلخيص الفصل الاول ",
+      "titleEn": "Chapter 1 Recap",
+      "contentAr": "شرح مبسط للفصل الاول من نظم ادارة المحتوى",
+      "contentEn": "A Simplified Explanation of the First Chapter of Content Management Systems",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775908403709",
+      "studentId": "students_1775125739063",
+      "mediaType": "pdf",
+      "chapterTag": "الفصل الأول",
+      "lessonUrl": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1wZi9UtIgcodhhvbKK_lUOHk-O12tvtfE/view?usp=sharing",
+          "titleAr": "pdf",
+          "titleEn": "PDF",
+          "order": 0,
+          "type": "url"
+        }
+      ]
     }
   ]
 };
