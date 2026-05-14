@@ -1,4 +1,3 @@
-```react
 import React, { useState, useEffect } from 'react';
 
 export default function LuminovaLesson() {
@@ -838,6 +837,3 @@ export default function LuminovaLesson() {
     </div>
   );
 }
-
-
-```
