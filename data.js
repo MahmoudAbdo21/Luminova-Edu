@@ -486,6 +486,22 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
+      "id": "summaries_1778775570842",
+      "timestamp": "2026-05-14T16:19:30.842Z",
+      "titleAr": "شرح الفصل الرابع",
+      "titleEn": "Chapter 4",
+      "contentAr": "شرح الفصل الرابع كامل في 26 سلايد تفاعلي ",
+      "contentEn": "Explanation of Chapter Four in 26 Interactive Slides",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775908403709",
+      "studentId": "s_founder_hardcoded",
+      "mediaType": "interactive",
+      "chapterTag": "الفصل الرابع",
+      "lessonUrl": "Interactive-lessons/management-systems-ch4.jsx",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791"
+    },
+    {
       "id": "summaries_1778773981229",
       "timestamp": "2026-05-14T15:53:01.229Z",
       "titleAr": "شرح الفصل الثالث",
