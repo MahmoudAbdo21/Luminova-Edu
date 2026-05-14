@@ -21,6 +21,74 @@
     // Initialize Services namespace
     if (!Luminova.Services) Luminova.Services = {};
 
+    function _networkError(message, cause) {
+        const err = new Error(message);
+        err.isNetworkError = true;
+        err.luminovaNetworkError = true;
+        if (cause) err.cause = cause;
+        return err;
+    }
+
+    function _getTimeZoneOffsetMs(timeZone, utcMs) {
+        const formatter = new Intl.DateTimeFormat('en-US', {
+            timeZone,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+        const parts = formatter.formatToParts(new Date(utcMs)).reduce((acc, part) => {
+            if (part.type !== 'literal') acc[part.type] = Number(part.value);
+            return acc;
+        }, {});
+        const hour = parts.hour === 24 ? 0 : parts.hour;
+        return Date.UTC(parts.year, parts.month - 1, parts.day, hour, parts.minute, parts.second) - utcMs;
+    }
+
+    function _cairoWallClockToUtcMs(value) {
+        const text = String(value || '').trim();
+        const match = text.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}):(\d{2})(?::(\d{2}))?)?/);
+        if (!match) return NaN;
+        const wallAsUtc = Date.UTC(
+            Number(match[1]),
+            Number(match[2]) - 1,
+            Number(match[3]),
+            Number(match[4] || 0),
+            Number(match[5] || 0),
+            Number(match[6] || 0)
+        );
+        const firstOffset = _getTimeZoneOffsetMs('Africa/Cairo', wallAsUtc);
+        const correctedUtc = wallAsUtc - firstOffset;
+        const secondOffset = _getTimeZoneOffsetMs('Africa/Cairo', correctedUtc);
+        return wallAsUtc - secondOffset;
+    }
+
+    async function _fetchDateHeaderOffset(url) {
+        const before = Date.now();
+        const res = await fetch(url, { method: 'HEAD', mode: 'cors', cache: 'no-store', credentials: 'omit' });
+        const after = Date.now();
+        if (!res.ok) throw new Error('Time HEAD failed: ' + res.status);
+        const dateHeader = res.headers.get('date');
+        if (!dateHeader) throw new Error('Missing Date header');
+        const serverMs = Date.parse(dateHeader);
+        if (!Number.isFinite(serverMs)) throw new Error('Invalid Date header');
+        return serverMs - Math.round((before + after) / 2);
+    }
+
+    async function _fetchJsonTimeOffset(url, resolver) {
+        const before = Date.now();
+        const res = await fetch(url, { method: 'GET', mode: 'cors', cache: 'no-store', credentials: 'omit' });
+        const after = Date.now();
+        if (!res.ok) throw new Error('Time API failed: ' + res.status);
+        const data = await res.json();
+        const serverMs = resolver(data);
+        if (!Number.isFinite(serverMs)) throw new Error('Invalid Time API response');
+        return serverMs - Math.round((before + after) / 2);
+    }
+
     // ─── Internal fetch wrapper ───────────────────────────────
     // Single point of truth for ALL outbound requests to GAS.
     async function _gasFetch(url, payload) {
@@ -51,6 +119,11 @@
             // Strategy #2: Volatile Exception Normalization
             // Treat fetchError as a hostile, potentially undefined object.
             const errName = fetchError?.name ?? 'Network_Drop';
+            const networkMessage = fetchError?.message ?? 'Network request failed';
+            if (errName === 'AbortError') {
+                throw _networkError('Request timed out. Please check the internet connection and try again.', fetchError);
+            }
+            throw _networkError('Connection error: the exam could not reach the database. Details: ' + networkMessage, fetchError);
             const errMsg = fetchError?.message ?? 'فشل الاتصال بالخادم';
 
             if (errName === 'AbortError') {
@@ -138,27 +211,32 @@
          * MULTI-TIERED TIME SYNC — Resilient True Cairo Time offset.
          */
         getTrueTimeOffsetMs: async function() {
-            // Attempt 1: timeapi.io
-            try {
-                const res1 = await fetch('https://timeapi.io/api/Time/current/zone?timeZone=Africa/Cairo');
-                if (res1.ok) {
-                    const data1 = await res1.json();
-                    return new Date(data1.dateTime).getTime() - Date.now();
-                }
-            } catch (e) {}
+            const attempts = [
+                () => _fetchDateHeaderOffset('https://www.google.com/generate_204'),
+                () => _fetchDateHeaderOffset('https://www.cloudflare.com/cdn-cgi/trace'),
+                () => _fetchJsonTimeOffset('https://worldtimeapi.org/api/timezone/Africa/Cairo', data => Date.parse(data.utc_datetime || data.datetime)),
+                () => _fetchJsonTimeOffset('https://timeapi.io/api/Time/current/zone?timeZone=Africa/Cairo', data => {
+                    if (data.dateTime) return _cairoWallClockToUtcMs(data.dateTime);
+                    if (data.year && data.month && data.day) {
+                        const stamp = `${data.year}-${String(data.month).padStart(2, '0')}-${String(data.day).padStart(2, '0')}T${String(data.hour || 0).padStart(2, '0')}:${String(data.minute || 0).padStart(2, '0')}:${String(data.seconds || data.second || 0).padStart(2, '0')}`;
+                        return _cairoWallClockToUtcMs(stamp);
+                    }
+                    return NaN;
+                })
+            ];
 
-            // Attempt 2: timeapi.world
-            try {
-                const res2 = await fetch('https://timeapi.world/api/timezone/Africa/Cairo');
-                if (res2.ok) {
-                    const data2 = await res2.json();
-                    return new Date(data2.datetime || data2.dateTime).getTime() - Date.now();
+            const errors = [];
+            for (const attempt of attempts) {
+                try {
+                    const offset = await attempt();
+                    if (Number.isFinite(offset)) return offset;
+                } catch (error) {
+                    errors.push(error?.message || String(error));
                 }
-            } catch (e) {}
-            
-            // Ultimate Fallback
-            console.warn("[Luminova] Network Time APIs failed, falling back to local device time.");
-            return 0; 
+            }
+
+            console.error("[Luminova] Trusted time sync failed:", errors);
+            throw _networkError("Trusted server time could not be synchronized. The exam is blocked until the connection stabilizes.");
         }
     };
 })();

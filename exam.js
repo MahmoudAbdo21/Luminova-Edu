@@ -34,7 +34,7 @@ window.LUMINOVA_EXAMS = [
     "titleAr": "اختبار مادة معلومات مصورة 🏆",
     "titleEn": "Illustrated Information Material Test 🏆",
     "isShuffled": true,
-    "feedbackMode": "immediate",
+    "feedbackMode": "end",
     "subjectId": "subjects_1777896562125",
     "publisherId": "s_founder_hardcoded",
     "questions": [
@@ -1469,16 +1469,24 @@ window.LUMINOVA_EXAMS = [
         "id": "q_1778337809910"
       }
     ],
-    "examMode": "practice",
+    "examMode": "evaluation",
     "emailPolicy": "full_report",
-    "adminEmails": "mahmoud21abdalrhman@gmail.com,salmazahran167@gmail.com",
-    "startTime": "2026-05-09T21:30",
-    "endTime": "2026-05-09T23:00",
+    "adminEmails": "mahmoud21abdalrhman@gmail.com",
+    "startTime": "",
+    "endTime": "",
     "latePolicy": "hard_stop",
-    "allowBackNavigation": false,
+    "allowBackNavigation": true,
     "yearId": "year_1",
     "semesterId": "semesters_1775125622791",
-    "webhookUrl": ""
+    "webhookUrl": "https://script.google.com/macros/s/AKfycbwGBa9MhcfSgj4OeJn6i3Mj5N-F_B-ERC9PQKkdQKFBfh7YbDr7bMlHVvg8saaUCZvdnw/exec",
+    "sendDetailedReport": true,
+    "examCode": "LUM-MP609GWD37OX8",
+    "sheetName": "Sheet1",
+    "entryGate": {
+      "name": true,
+      "department": true,
+      "email": true
+    }
   },
   {
     "id": "quizzes_1775849685012",
