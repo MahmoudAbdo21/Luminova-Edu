@@ -1,5 +1,34 @@
 window.LUMINOVA_EXAMS = [
   {
+    "id": "quizzes_1778764269450",
+    "timestamp": "2026-05-14T13:11:09.450Z",
+    "titleAr": "اختبار نظم إدارة التعلم 🏆",
+    "titleEn": "Testing of Learning Management Systems 🏆",
+    "examCode": "EXM_mp5ibibu8wlz9",
+    "isShuffled": false,
+    "feedbackMode": "end",
+    "subjectId": "subjects_1775908403709",
+    "publisherId": "",
+    "questions": [],
+    "examMode": "evaluation",
+    "emailPolicy": "none",
+    "adminEmails": "mahmoud21abdalrhman@gmail.com,salmazahran167@gmail.com",
+    "sheetName": "Sheet1",
+    "startTime": "2026-05-16T21:30",
+    "endTime": "2026-05-16T23:00",
+    "latePolicy": "hard_stop",
+    "allowBackNavigation": true,
+    "webhookUrl": "",
+    "sendDetailedReport": true,
+    "entryGate": {
+      "name": true,
+      "department": true,
+      "email": true
+    },
+    "yearId": "year_1",
+    "semesterId": "semesters_1775125622791"
+  },
+  {
     "id": "quizzes_1778324229730",
     "timestamp": "2026-05-09T10:57:09.730Z",
     "titleAr": "اختبار مادة معلومات مصورة 🏆",
