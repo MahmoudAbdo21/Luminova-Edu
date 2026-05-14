@@ -2171,6 +2171,31 @@ window.LUMINOVA_DATA = {
           "type": "url"
         }
       ]
+    },
+    {
+      "id": "summaries_1778775858165",
+      "timestamp": "2026-05-14T16:24:18.165Z",
+      "titleAr": "الأسئلة المقالي المتوقعة ",
+      "titleEn": "Anticipated Pans Questions",
+      "contentAr": "اسئلة مجمعة من الامتحانات السابقه ومحاكاة متوقعه لباقي الأسئلة",
+      "contentEn": "Combined questions from previous exams and expected simulation of the rest of the questions",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775908403709",
+      "studentId": "students_1775125739063",
+      "mediaType": "pdf",
+      "chapterTag": "الفصل الأول",
+      "lessonUrl": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/17jhU7b5QIOCg78RMgoL8T6r7d8fQ1fsV/view?usp=sharing",
+          "titleAr": "pdf",
+          "titleEn": "PDF",
+          "order": 0,
+          "type": "url"
+        }
+      ]
     }
   ]
 };
