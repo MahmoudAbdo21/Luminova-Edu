@@ -486,6 +486,22 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
+      "id": "summaries_1778776552095",
+      "timestamp": "2026-05-14T16:35:52.095Z",
+      "titleAr": "شرح الفصل الخامس",
+      "titleEn": "Chapter 5",
+      "contentAr": "شرح الفصل الخامس كامل تفاعلي",
+      "contentEn": "Explanation of Chapter Five: Full Interactive",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775908403709",
+      "studentId": "s_founder_hardcoded",
+      "mediaType": "interactive",
+      "chapterTag": "الفصل الخامس",
+      "lessonUrl": "Interactive-lessons/management-systems-ch5.jsx",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791"
+    },
+    {
       "id": "summaries_1778775570842",
       "timestamp": "2026-05-14T16:19:30.842Z",
       "titleAr": "شرح الفصل الرابع",
