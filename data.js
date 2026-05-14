@@ -2048,6 +2048,81 @@ window.LUMINOVA_DATA = {
           "type": "url"
         }
       ]
+    },
+    {
+      "id": "summaries_1778771382173",
+      "timestamp": "2026-05-14T15:09:42.174Z",
+      "titleAr": "تلخيص الفصل الخامس كاملا",
+      "titleEn": "Summarize the entire Chapter 5",
+      "contentAr": "شرح مبسط للفصل الخامس لمقرر نظم ادارة المحتوى الرقمي",
+      "contentEn": "A Simplified Explanation of Chapter Five of the Digital Content Management Systems Course",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775908403709",
+      "studentId": "students_1775125739063",
+      "mediaType": "pdf",
+      "chapterTag": "الفصل الخامس",
+      "lessonUrl": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1qgUCMfpao2Wbn3ThvwxLTjQYAee3dzpm/view?usp=drive_link",
+          "titleAr": "pdf",
+          "titleEn": "PDF",
+          "order": 0,
+          "type": "url"
+        }
+      ]
+    },
+    {
+      "id": "summaries_1778771282903",
+      "timestamp": "2026-05-14T15:08:02.903Z",
+      "titleAr": "تلخيص الفصل الرابع كاملا",
+      "titleEn": "Summarize Chapter 4 in full",
+      "contentAr": "شرح مبسط للفصل الرابع لمقرر نظم ادارة المحتوى الرقمي",
+      "contentEn": "A Simplified Explanation of Chapter 4 of the Digital Content Management Systems Course",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775908403709",
+      "studentId": "students_1775125739063",
+      "mediaType": "pdf",
+      "chapterTag": "الفصل الرابع",
+      "lessonUrl": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1iPrC96rScYDc4DTpohvkMZ-_BKCwTQX3/view?usp=drive_link",
+          "titleAr": "pdf",
+          "titleEn": "PDF",
+          "order": 0,
+          "type": "url"
+        }
+      ]
+    },
+    {
+      "id": "summaries_1778771082553",
+      "timestamp": "2026-05-14T15:04:42.553Z",
+      "titleAr": "تلخيص الفصل الثالث كاملا ",
+      "titleEn": "Summarize the entire third chapter",
+      "contentAr": "شرح مبسط للفصل الثالث لنظم ادارة المحتوى",
+      "contentEn": "A Simplified Explanation of Chapter Three Content Management Systems",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775908403709",
+      "studentId": "students_1775125739063",
+      "mediaType": "pdf",
+      "chapterTag": "الفصل الثالث",
+      "lessonUrl": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1yM4xYHXfbwdj2dFmTndumS6DRlLOsmB_/view?usp=drive_link",
+          "titleAr": "pdf",
+          "titleEn": "PDF",
+          "order": 0,
+          "type": "url"
+        }
+      ]
     }
   ]
 };
