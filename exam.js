@@ -5,7 +5,7 @@ window.LUMINOVA_EXAMS = [
     "titleAr": "اختبار نظم إدارة التعلم 🏆",
     "titleEn": "Testing of Learning Management Systems 🏆",
     "examCode": "EXM_mp5ibibu8wlz9",
-    "isShuffled": false,
+    "isShuffled": true,
     "feedbackMode": "end",
     "subjectId": "subjects_1775908403709",
     "publisherId": "",
@@ -190,14 +190,14 @@ window.LUMINOVA_EXAMS = [
       }
     ],
     "examMode": "evaluation",
-    "emailPolicy": "none",
+    "emailPolicy": "full_report",
     "adminEmails": "mahmoud21abdalrhman@gmail.com,salmazahran167@gmail.com",
     "sheetName": "Sheet1",
     "startTime": "2026-05-16T21:30",
     "endTime": "2026-05-16T23:00",
     "latePolicy": "hard_stop",
     "allowBackNavigation": true,
-    "webhookUrl": "",
+    "webhookUrl": "https://script.google.com/macros/s/AKfycbwyHtNkPDVsrr4PaIrjnI9izfSEcasREu1_ca0waFYYQ6plwpInss6DkzOVGouCAuJi/exec",
     "sendDetailedReport": true,
     "entryGate": {
       "name": true,
@@ -205,7 +205,8 @@ window.LUMINOVA_EXAMS = [
       "email": true
     },
     "yearId": "year_1",
-    "semesterId": "semesters_1775125622791"
+    "semesterId": "semesters_1775125622791",
+    "showResultsAfter": true
   },
   {
     "id": "quizzes_1778324229730",
@@ -213,7 +214,7 @@ window.LUMINOVA_EXAMS = [
     "titleAr": "اختبار مادة معلومات مصورة 🏆",
     "titleEn": "Illustrated Information Material Test 🏆",
     "isShuffled": true,
-    "feedbackMode": "end",
+    "feedbackMode": "immediate",
     "subjectId": "subjects_1777896562125",
     "publisherId": "s_founder_hardcoded",
     "questions": [
@@ -1648,7 +1649,7 @@ window.LUMINOVA_EXAMS = [
         "id": "q_1778337809910"
       }
     ],
-    "examMode": "evaluation",
+    "examMode": "practice",
     "emailPolicy": "full_report",
     "adminEmails": "mahmoud21abdalrhman@gmail.com",
     "startTime": "2026-05-15T14:15",
@@ -1658,7 +1659,7 @@ window.LUMINOVA_EXAMS = [
     "yearId": "year_1",
     "semesterId": "semesters_1775125622791",
     "webhookUrl": "https://script.google.com/macros/s/AKfycbxyZ4OV8YnjI8saEqVIwm8-loJRTd7Ww4YTUv02PspS0413yZ4o_MQ9tZcwCef143xTAg/exec",
-    "sendDetailedReport": true,
+    "sendDetailedReport": false,
     "examCode": "LUM-MP609GWD37OX8",
     "sheetName": "Sheet1",
     "entryGate": {
