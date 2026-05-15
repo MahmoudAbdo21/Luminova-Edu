@@ -198,11 +198,28 @@
         /**
          * MULTI-TIERED TIME SYNC — Resilient True Cairo Time offset.
          */
-        getTrueTimeOffsetMs: async function() {
+        getTrueTimeOffsetMs: async function(webhookUrl) {
             const attempts = [
-                () => _fetchDateHeaderOffset('https://www.google.com/generate_204'),
-                () => _fetchDateHeaderOffset('https://www.cloudflare.com/cdn-cgi/trace'),
-                () => _fetchJsonTimeOffset('https://worldtimeapi.org/api/timezone/Africa/Cairo', data => Date.parse(data.utc_datetime || data.datetime)),
+                // Primary: GAS Backend (V5.2) Time Sync
+                async () => {
+                    if (!webhookUrl) throw new Error("No GAS webhookUrl provided for time sync.");
+                    const before = Date.now();
+                    const data = await _gasFetch(webhookUrl, { action: 'get_time' });
+                    const after = Date.now();
+                    
+                    let serverMs = data.timestamp || data.time || data.now;
+                    if (typeof serverMs === 'string') {
+                        const parsed = Date.parse(serverMs);
+                        if (!Number.isNaN(parsed)) serverMs = parsed;
+                    }
+                    
+                    if (!Number.isFinite(serverMs)) {
+                        throw new Error("Invalid GAS backend time response");
+                    }
+                    
+                    return serverMs - Math.round((before + after) / 2);
+                },
+                // Secondary: CORS-compliant enterprise API
                 () => _fetchJsonTimeOffset('https://timeapi.io/api/Time/current/zone?timeZone=Africa/Cairo', data => {
                     if (data.dateTime) return _cairoWallClockToUtcMs(data.dateTime);
                     if (data.year && data.month && data.day) {
@@ -210,7 +227,11 @@
                         return _cairoWallClockToUtcMs(stamp);
                     }
                     return NaN;
-                })
+                }),
+                // Tertiary: NTP-over-HTTP fallback (Microsoft / Cloudflare / Google)
+                () => _fetchDateHeaderOffset('https://www.microsoft.com'),
+                () => _fetchDateHeaderOffset('https://www.cloudflare.com/cdn-cgi/trace'),
+                () => _fetchDateHeaderOffset('https://www.google.com/generate_204')
             ];
 
             const errors = [];

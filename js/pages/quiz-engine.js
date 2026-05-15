@@ -105,6 +105,7 @@
         // used anywhere in the countdown or deadline logic.
         const [cairoOffsetMs, setCairoOffsetMs] = useState(null);
         const [isTimeSynced, setIsTimeSynced] = useState(false);
+        const [timeSyncStatus, setTimeSyncStatus] = useState('PENDING');
         const [timeSyncRetryToken, setTimeSyncRetryToken] = useState(0);
         const [entryTime, setEntryTime] = useState(null);
 
@@ -112,22 +113,24 @@
             let cancelled = false;
             const fetchTrueTime = async () => {
                 try {
-                    const offset = await Luminova.Services.GAS.getTrueTimeOffsetMs();
+                    setTimeSyncStatus('PENDING');
+                    const offset = await Luminova.Services.GAS.getTrueTimeOffsetMs(quiz?.webhookUrl);
                     if (cancelled) return;
                     setCairoOffsetMs(offset);
                     setNow(new Date(Date.now() + offset));
                     setIsTimeSynced(true);
                     setDebugError(null);
+                    setTimeSyncStatus('SUCCESS');
                 } catch (error) {
                     if (cancelled) return;
                     setIsTimeSynced(false);
                     setDebugError(error?.message || 'Unable to synchronize server time.');
-                    if (isEvaluation) setGatewayError('network_error');
+                    setTimeSyncStatus('FAILED');
                 }
             };
             fetchTrueTime();
             return () => { cancelled = true; };
-        }, [isEvaluation, timeSyncRetryToken]);
+        }, [isEvaluation, timeSyncRetryToken, quiz?.webhookUrl]);
 
         const getTrueCairoNow = useCallback(() => {
             if (cairoOffsetMs === null) return null;
@@ -682,17 +685,13 @@
             let timeMsg = '';
             let dateMsg = '';
 
-            if (!isTimeSynced || !now) {
+            if (timeSyncStatus === 'FAILED') {
+                timeStatus = 'failed';
+            } else if (!isTimeSynced || !now) {
                 timeStatus = 'syncing';
                 timeMsg = lang === 'ar' ? 'جاري مزامنة وقت الخادم...' : 'Synchronizing server time...';
             } else if (quiz.startTime && now < parseCairoDeadline(quiz.startTime)) {
                 timeStatus = 'early';
-                const diff = parseCairoDeadline(quiz.startTime) - now;
-                const d = Math.floor(diff / 86400000);
-                const h = Math.floor((diff % 86400000) / 3600000);
-                const m = Math.floor((diff % 3600000) / 60000);
-                const s = Math.floor((diff % 60000) / 1000);
-                
                 const startDate = parseCairoDeadline(quiz.startTime);
                 try {
                     dateMsg = new Intl.DateTimeFormat('ar-EG', { weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: 'numeric', hour12: true }).format(startDate);
@@ -704,7 +703,24 @@
             }
 
             let gatewayContent;
-            if (timeStatus === 'syncing') {
+            if (timeStatus === 'failed') {
+                gatewayContent = html`
+                    <div className="w-full text-center p-8 bg-black/20 rounded-[2.5rem] border border-white/10 mb-6 backdrop-blur-3xl shadow-[0_32px_64px_rgba(0,0,0,0.5)]">
+                        <div className="text-7xl mb-6 text-red-500 animate-pulse drop-shadow-[0_0_20px_rgba(239,68,68,0.5)]">⏳</div>
+                        <h2 className="text-2xl font-black text-white mb-3 tracking-tight">${lang === 'ar' ? 'عفواً، هناك مشكلة في مزامنة التوقيت العالمي الآن.' : 'Global Time Synchronization Failed'}</h2>
+                        <p className="text-sm font-bold text-gray-400 mb-8 leading-relaxed px-4">
+                            ${lang === 'ar' ? 'لا يمكن فتح الامتحان إلا بعد التحقق من الوقت الفعلي لضمان العدالة.' : 'The exam cannot be opened until real time is verified to ensure fairness.'}
+                        </p>
+                        <div className="space-y-4">
+                            <button onClick=${() => { setTimeSyncStatus('PENDING'); setTimeSyncRetryToken(v => v + 1); }} className="w-full py-4 rounded-2xl font-black text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 shadow-xl transition-all hover:scale-[1.02] border border-white/10">
+                                ${lang === 'ar' ? '🔄 إعادة المحاولة' : '🔄 Retry Sync'}
+                            </button>
+                            <button onClick=${goBack} className="w-full py-4 rounded-2xl font-black text-white bg-white/5 hover:bg-white/10 transition-all border border-white/10">
+                                ${lang === 'ar' ? 'الخروج' : 'Exit'}
+                            </button>
+                        </div>
+                    </div>`;
+            } else if (timeStatus === 'syncing') {
                 gatewayContent = html`
                     <div className="text-center p-8 bg-cyan-500/10 rounded-3xl border border-cyan-500/30 mb-6 backdrop-blur-xl">
                         <div className="text-4xl mb-4 text-white">\u23F3</div>
@@ -712,6 +728,12 @@
                         <p className="text-xs opacity-70 font-bold text-cyan-100 mt-3">${lang === 'ar' ? '\u0644\u0646 \u064A\u0628\u062F\u0623 \u0627\u0644\u0627\u062E\u062A\u0628\u0627\u0631 \u0642\u0628\u0644 \u062A\u062B\u0628\u064A\u062A \u0648\u0642\u062A \u0645\u0648\u062B\u0648\u0642 \u0645\u0646 \u0627\u0644\u062E\u0627\u062F\u0645.' : 'The exam will not start until a trusted server clock is available.'}</p>
                     </div>`;
             } else if (timeStatus === 'early') {
+                const diff = parseCairoDeadline(quiz.startTime) - now;
+                const d = Math.floor(diff / 86400000);
+                const h = Math.floor((diff % 86400000) / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
+
                 const countdownDigits = d > 0
                     ? [
                         { value: String(d), label: lang === 'ar' ? '\u064A\u0648\u0645' : 'Days' },
