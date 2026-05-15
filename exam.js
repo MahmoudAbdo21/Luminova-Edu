@@ -9,7 +9,186 @@ window.LUMINOVA_EXAMS = [
     "feedbackMode": "end",
     "subjectId": "subjects_1775908403709",
     "publisherId": "",
-    "questions": [],
+    "questions": [
+      {
+        "type": "mcq",
+        "text": "من هو المسئول عن الافراج عن المحتوى للاستخدام؟ ",
+        "score": 1,
+        "options": [
+          "منشئ المحتوى ",
+          "المحرر",
+          "الناشر",
+          "المسئول "
+        ],
+        "correctAnswers": [
+          2
+        ],
+        "modelAnswer": "",
+        "explanation": "حيث أن الناشر هو المسئول عن نشر المحتوى والإفراج عنه لكي يتم استخدامه",
+        "studentId": "students_1775855642761",
+        "showExp": false,
+        "id": "q_1778781484306"
+      },
+      {
+        "type": "mcq",
+        "text": "تعتبر من انظمة المدونات...؟ ",
+        "score": 1,
+        "options": [
+          "Zen cart ",
+          "Word press ",
+          "Tiki wiki ",
+          "Joomla"
+        ],
+        "correctAnswers": [
+          1
+        ],
+        "modelAnswer": "",
+        "explanation": "تُعتبر ال Word press  من انظمة المدونات بجانب ال Flat Press  ايضًا وغيرها من المدونات",
+        "studentId": "students_1775855642761",
+        "showExp": false,
+        "id": "q_1778781642166"
+      },
+      {
+        "type": "mcq",
+        "text": "من معوقات نظم إدارة المقرر؟ ",
+        "score": 1,
+        "options": [
+          "محدودية القدرة في التعليم التفاعلي ",
+          "تتبع تقدم الطالب ",
+          "توفر احصائيات المقرر "
+        ],
+        "correctAnswers": [
+          0
+        ],
+        "modelAnswer": "",
+        "explanation": "حيث انه من تحديات نظم ادارة المقرر محدود القدرة في التعليم التفاعلي ومحدود القدرة في حفظ السجلات ولا يتمتع بالمرونة الكافية في تصميم المقرر",
+        "studentId": "students_1775855642761",
+        "showExp": false,
+        "id": "q_1778781803558"
+      },
+      {
+        "type": "mcq",
+        "text": "هي قاعدة بيانات مركزية لتخزين كائنات التعلم وادارتها وتستخدم هذه الكائنات بشكل فردي او يُعاد استخدامها ",
+        "score": 1,
+        "options": [
+          "مستودع كائنات التعلم ",
+          "تطبيق التأليف الآلي ",
+          "التطبيق الاداري "
+        ],
+        "correctAnswers": [
+          0
+        ],
+        "modelAnswer": "",
+        "explanation": "حيث تتميز نظم ادارة المحتوى بأنها مستودع لكائنات التعلم وتُعد قاعدة بيانات مركزية للتخزين ",
+        "studentId": "students_1775855642761",
+        "showExp": false,
+        "id": "q_1778781895645"
+      },
+      {
+        "type": "mcq",
+        "text": "تندرج الألعاب ودفتر الدرجات ضمن....؟ ",
+        "score": 1,
+        "options": [
+          "الادوات الادارية ",
+          "ادوات التعليم والتعلم ",
+          "ادوات التواصل",
+          ""
+        ],
+        "correctAnswers": [
+          1
+        ],
+        "modelAnswer": "",
+        "explanation": "تُعد الألعاب ودفتر الدرجات ومجموعات النشاط وتقييم الدورة وغيرهم من ضمن ادوات التعليم والتعلم ",
+        "studentId": "students_1775855642761",
+        "showExp": false,
+        "id": "q_1778781984602"
+      },
+      {
+        "type": "mcq",
+        "text": "من مميزات تخطيط موارد المؤسسات التعليمية (الاخلال ببيانات الطالب) ",
+        "score": 1,
+        "options": [
+          "صح",
+          "خطأ"
+        ],
+        "correctAnswers": [
+          1
+        ],
+        "modelAnswer": "",
+        "explanation": "لابد من إدارة بيانات الطالب والحفاظ عليها",
+        "studentId": "students_1775855642761",
+        "showExp": false,
+        "id": "q_1778782078209"
+      },
+      {
+        "type": "mcq",
+        "text": "يعتبر المسئول هو (المسئول عن صبط رسالة المختوى واسلوب التسليم) ",
+        "score": 1,
+        "options": [
+          "صح",
+          "خطأ"
+        ],
+        "correctAnswers": [
+          1
+        ],
+        "modelAnswer": "",
+        "explanation": "حيث ان المسئول هو المسئول عن اذونات  الوصول للمجلدات  والملفات، اما المحرر فهو المسئول عن ضبط رسالة المحتوى",
+        "studentId": "students_1775855642761",
+        "showExp": false,
+        "id": "q_1778782197954"
+      },
+      {
+        "type": "mcq",
+        "text": "تعتبر  Joomla  ضمن انظمة البوابات الإلكترونية ",
+        "score": 1,
+        "options": [
+          "صح",
+          "خطأ"
+        ],
+        "correctAnswers": [
+          0
+        ],
+        "modelAnswer": "",
+        "explanation": "نعم تعتبر Joomla  و Drupal  من انظمة البوابات ",
+        "studentId": "students_1775855642761",
+        "showExp": false,
+        "id": "q_1778782284283"
+      },
+      {
+        "type": "mcq",
+        "text": "مراعاة خصائص المتعلمين ليست من الاهداف الاساسية لصنع المحتوى وتصميمه",
+        "score": 1,
+        "options": [
+          "صح",
+          "خطأ"
+        ],
+        "correctAnswers": [
+          1
+        ],
+        "modelAnswer": "",
+        "explanation": "تعتبر مراعاة خصائص المتعلمين من الاهداف الاساسية والمهمة  لصنع المحتوى ",
+        "studentId": "students_1775855642761",
+        "showExp": false,
+        "id": "q_1778782404969"
+      },
+      {
+        "type": "mcq",
+        "text": "يعبر  مصطلح LCMS   عن نظم ادارة محتوى التعلم والمصطلح المعبر عنه Learning Course Management system ",
+        "score": 1,
+        "options": [
+          "صح",
+          "خطأ"
+        ],
+        "correctAnswers": [
+          1
+        ],
+        "modelAnswer": "",
+        "explanation": "الاجابة كلها صحيحة لكن الفكرة ف المصطلح نفسه هيبقى Learning Content  managment System ",
+        "studentId": "students_1775855642761",
+        "showExp": false,
+        "id": "q_1778782583187"
+      }
+    ],
     "examMode": "evaluation",
     "emailPolicy": "none",
     "adminEmails": "mahmoud21abdalrhman@gmail.com,salmazahran167@gmail.com",
