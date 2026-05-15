@@ -106,6 +106,25 @@ window.LUMINOVA_DATA = {
   ],
   "students": [
     {
+      "id": "students_1778883480599",
+      "timestamp": "2026-05-15T22:18:00.599Z",
+      "nameAr": "زهراء محمد الباز",
+      "nameEn": "Zahra Mohammed Al-Baz",
+      "majorAr": "تكنولوجيا التعليم",
+      "majorEn": "Educational Technology",
+      "bioAr": "طالبة في قسم تكنولوجيا التعليم، وشغوفة بمواكبة التطور المستمر وكل ما هو جديد في مجالات التعليم الرقمي والتصميم التعليمي. أمتلك مهارات متميزة في الإنتاج الرقمي وتحرير الفيديوهات (Video Editing)، وأسعى دائماً لتوظيف هذه الأدوات التقنية في بناء وتطوير محتوى تعليمي مرئي، مبتكر، وفعّال.\nإلى جانب مجالي الأكاديمي، احب الرياضه جدا وأمتلك خلفية رياضية قوية كلاعبة في رياضة الكاراتيه وحاصلة على الحزام الأسود؛ وهو ما منحني انضباط عالي، وقدرة على التركيز، .",
+      "bioEn": "Educational Technology student, passionate about continuous development and staying up-to-date with the latest trends in digital learning and instructional design. I possess strong skills in digital media production and video editing, and I always strive to leverage these technical tools to build and develop innovative, visual, and effective educational content.\nAlongside my academic field, I am deeply passionate about sports and have a strong athletic background as a Black Belt Karate player. This has instilled in me a high level of discipline, focus, and the ability to handle challenges efficiently across all professional and academic projects.",
+      "image": "",
+      "isVIP": true,
+      "isVerified": true,
+      "role": "student",
+      "socialLinks": {
+        "facebook": "",
+        "instagram": "",
+        "linkedin": ""
+      }
+    },
+    {
       "id": "students_1775855642761",
       "timestamp": "2026-04-10T21:14:02.761Z",
       "nameAr": "حبيبة عاشور",
