@@ -103,7 +103,8 @@
         let response;
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 30000); 
+            // 60s hard abort — UX-facing timeout is 10s (Promise.race in quiz-engine)
+            const timeoutId = setTimeout(() => controller.abort(), 60000); 
             response = await fetch(url, {
                 method: 'POST',
                 mode: 'cors',
@@ -116,25 +117,12 @@
             });
             clearTimeout(timeoutId);
         } catch (fetchError) {
-            // Strategy #2: Volatile Exception Normalization
-            // Treat fetchError as a hostile, potentially undefined object.
             const errName = fetchError?.name ?? 'Network_Drop';
             const networkMessage = fetchError?.message ?? 'Network request failed';
             if (errName === 'AbortError') {
                 throw _networkError('Request timed out. Please check the internet connection and try again.', fetchError);
             }
             throw _networkError('Connection error: the exam could not reach the database. Details: ' + networkMessage, fetchError);
-            const errMsg = fetchError?.message ?? 'فشل الاتصال بالخادم';
-
-            if (errName === 'AbortError') {
-                throw new Error('انتهى وقت الطلب (Timeout). يرجى التحقق من جودة الإنترنت والمحاولة مرة أخرى.');
-            }
-            
-            throw new Error(
-                'خطأ في الاتصال: لم نتمكن من الوصول لقاعدة البيانات. ' +
-                'يرجى التأكد من اتصالك بالإنترنت والمحاولة مجدداً. ' +
-                '(تفاصيل: ' + errMsg + ')'
-            );
         }
 
         if (!response.ok) {

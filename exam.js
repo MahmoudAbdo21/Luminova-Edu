@@ -1478,7 +1478,7 @@ window.LUMINOVA_EXAMS = [
     "allowBackNavigation": true,
     "yearId": "year_1",
     "semesterId": "semesters_1775125622791",
-    "webhookUrl": "https://script.google.com/macros/s/AKfycbwGBa9MhcfSgj4OeJn6i3Mj5N-F_B-ERC9PQKkdQKFBfh7YbDr7bMlHVvg8saaUCZvdnw/exec",
+    "webhookUrl": "https://script.google.com/macros/s/AKfycbxyZ4OV8YnjI8saEqVIwm8-loJRTd7Ww4YTUv02PspS0413yZ4o_MQ9tZcwCef143xTAg/exec",
     "sendDetailedReport": true,
     "examCode": "LUM-MP609GWD37OX8",
     "sheetName": "Sheet1",
@@ -1486,7 +1486,8 @@ window.LUMINOVA_EXAMS = [
       "name": true,
       "department": true,
       "email": true
-    }
+    },
+    "showResultsAfter": true
   },
   {
     "id": "quizzes_1775849685012",

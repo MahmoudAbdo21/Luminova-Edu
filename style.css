@@ -473,6 +473,32 @@ video:not(.media-container video) {
         text-overflow: ellipsis !important;
         max-width: 150px !important;
     }
+
+    /* ── Pre-Exam Countdown (mobile overlap fix) ── */
+    .lmv-countdown-gate {
+        padding: 1.25rem !important;
+    }
+
+    .lmv-countdown-segments {
+        gap: 0.5rem !important;
+    }
+
+    .lmv-countdown-digit {
+        font-size: 1.6rem !important;
+        min-width: 2.5rem !important;
+        padding: 0.4rem 0.6rem !important;
+        border-radius: 0.75rem !important;
+    }
+
+    .lmv-countdown-label {
+        font-size: 0.55rem !important;
+        margin-top: 0.25rem !important;
+    }
+
+    .lmv-countdown-sep {
+        font-size: 1.25rem !important;
+        margin-top: -0.5rem !important;
+    }
 }
 
 /* ============================================================

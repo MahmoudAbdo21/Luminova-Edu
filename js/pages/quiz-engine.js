@@ -98,7 +98,11 @@
         const [studentInfo, setStudentInfo] = useState({ name: '', seatNumber: '', department: '', email: '' });
         const [now, setNow] = useState(null);
         
-        // True Cairo Time Synchronization
+        // ── TRUE CAIRO TIME SYNC ─────────────────────────────────
+        // ARCHITECTURE NOTE: The timer is EXCLUSIVELY driven by
+        // (Date.now() + cairoOffsetMs).  cairoOffsetMs is set once
+        // from a trusted server source.  Bare `new Date()` is NEVER
+        // used anywhere in the countdown or deadline logic.
         const [cairoOffsetMs, setCairoOffsetMs] = useState(null);
         const [isTimeSynced, setIsTimeSynced] = useState(false);
         const [timeSyncRetryToken, setTimeSyncRetryToken] = useState(0);
@@ -138,6 +142,10 @@
         const submitLockRef = useRef(false);
         const timeExpiredSubmitRef = useRef(false);
         const [showDrawer, setShowDrawer] = useState(false);
+
+        // ── SUBMIT-AND-VERIFY WATCHDOG REFS ──────────────────────
+        const verifyPayloadRef = useRef(null);
+        const verifyReasonRef = useRef('completed');
 
         useEffect(() => {
             window.__LUMINOVA_EXAM_IS_SUBMITTING = false;
@@ -357,6 +365,13 @@
                     return 0;
                 };
 
+                // ── DATA INTEGRITY: QUESTION RE-SORTING ─────────────
+                // orderedQuestionsForMatrix uses quiz.questions (the ORIGINAL
+                // un-shuffled array from exam.js).  Each response carries
+                // originalIndex = its position in quiz.questions.  Answers
+                // are keyed by que.id, so lookup is shuffle-invariant.
+                // The GAS backend sortResponses() sorts by originalIndex,
+                // guaranteeing Q1 -> Col L, Q2 -> Col N, etc. in every row.
                 const orderedQuestionsForMatrix = Array.isArray(quiz.questions) ? quiz.questions : questions;
                 const examKey = String(quiz.id || quiz.titleAr || quiz.title || quiz.titleEn || 'exam').trim().toLowerCase();
                 const studentKey = String(studentInfo.email || studentInfo.seatNumber || studentInfo.name || 'student').trim().toLowerCase();
@@ -409,20 +424,40 @@
                     }))
                 };
 
+                // ── 10-SECOND WATCHDOG (Submit & Verify) ─────────────
+                // Cache payload + reason for potential re-submission
+                verifyPayloadRef.current = atomicPayload;
+                verifyReasonRef.current = reason;
+                setModalType('submission_loader');
+
+                const WATCHDOG_TIMEOUT_MS = 10000;
+                const TIMEOUT_SENTINEL = Symbol('TIMEOUT');
+
                 try {
                     const url = quiz.webhookUrl || '';
-                    const response = await Luminova.Services.GAS.submitExam(url, atomicPayload);
-                    
-                    if (response && response.status === 'ok') {
+                    const fetchPromise = Luminova.Services.GAS.submitExam(url, atomicPayload);
+                    const timeoutPromise = new Promise(resolve =>
+                        setTimeout(() => resolve(TIMEOUT_SENTINEL), WATCHDOG_TIMEOUT_MS)
+                    );
+
+                    const result = await Promise.race([fetchPromise, timeoutPromise]);
+
+                    if (result === TIMEOUT_SENTINEL) {
+                        // ── TIMEOUT: No response within 10s ──────────
+                        setSubmissionLock(false);
+                        setModalType('verify_timeout');
+                        // NOTE: The actual fetch is still in flight.
+                        // We do NOT abort it — if the server processes
+                        // it late, the idempotency key prevents duplicates.
+                        return;
+                    }
+
+                    // ── SERVER RESPONDED WITHIN 10s ──────────────────
+                    if (result && result.status === 'ok') {
                         safeExitFullscreen();
-                        
                         setSubmissionLock(false);
                         setIsFinished(true);
-                        if (reason === 'completed') {
-                            setModalType('success');
-                        } else {
-                            setModalType('force_submitted');
-                        }
+                        setModalType('verify_success');
                         setDebugError(null);
                         localStorage.removeItem('quiz_progress_' + quiz.id);
                     } else {
@@ -433,18 +468,51 @@
                     setDebugError(e?.message || 'Unknown Error');
                     const isNetworkFailure = e?.isNetworkError === true
                         || e?.luminovaNetworkError === true
-                        || /network|failed to fetch|timeout|connection|Ø§Ù„Ø§ØªØµØ§Ù„|اتصال/i.test(String(e?.message || ''));
+                        || /network|failed to fetch|timeout|connection|اتصال/i.test(String(e?.message || ''));
                     if (isNetworkFailure) {
                         setSubmissionLock(false);
                         setModalType('submission_failed');
                     }
-                    return; // Prevent exam from finishing so user can retry
+                    return;
                 }
             } else {
                 safeExitFullscreen();
                 setSubmissionLock(false);
                 setIsFinished(true);
                 localStorage.removeItem('quiz_progress_' + quiz.id);
+            }
+        };
+
+        // ── VERIFICATION HANDLER (Step 3 of Watchdog) ────────────
+        const handleVerifyDelivery = async () => {
+            if (!quiz.webhookUrl) return;
+            setModalType('submission_loader');
+            try {
+                const checkResult = await Luminova.Services.GAS.verifyStudent(
+                    quiz.webhookUrl,
+                    studentInfo.email
+                );
+                if (checkResult && checkResult.status === 'exists') {
+                    // Data arrived — student is safe
+                    safeExitFullscreen();
+                    setIsFinished(true);
+                    setSubmissionLock(false);
+                    setModalType('verify_confirmed');
+                    localStorage.removeItem('quiz_progress_' + quiz.id);
+                } else {
+                    // Data NOT found — auto-retry submission
+                    setModalType('verify_retry');
+                    // Small delay so the user sees the retry message
+                    await new Promise(r => setTimeout(r, 2500));
+                    // Re-submit with cached payload
+                    setSubmissionLock(false);
+                    submitExam(verifyReasonRef.current);
+                }
+            } catch (verifyErr) {
+                console.error('Verification check failed:', verifyErr);
+                setDebugError(verifyErr?.message || 'Verification network error');
+                setSubmissionLock(false);
+                setModalType('submission_failed');
             }
         };
 
@@ -625,12 +693,6 @@
                 const m = Math.floor((diff % 3600000) / 60000);
                 const s = Math.floor((diff % 60000) / 1000);
                 
-                if (d > 0) {
-                    timeMsg = `${d} يوم : ${h} ساعة : ${m} دقيقة`;
-                } else {
-                    timeMsg = `${h.toString().padStart(2, '0')} ساعة : ${m.toString().padStart(2, '0')} دقيقة : ${s.toString().padStart(2, '0')} ثانية`;
-                }
-
                 const startDate = parseCairoDeadline(quiz.startTime);
                 try {
                     dateMsg = new Intl.DateTimeFormat('ar-EG', { weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: 'numeric', hour12: true }).format(startDate);
@@ -638,22 +700,43 @@
                 
             } else if (quiz.endTime && now > parseCairoDeadline(quiz.endTime)) {
                 timeStatus = 'late';
-                timeMsg = lang === 'ar' ? 'عذراً، لقد انتهى موعد الاختبار' : 'Sorry, the exam has ended';
+                timeMsg = lang === 'ar' ? '\u0639\u0630\u0631\u0627\u064B\u060C \u0644\u0642\u062F \u0627\u0646\u062A\u0647\u0649 \u0645\u0648\u0639\u062F \u0627\u0644\u0627\u062E\u062A\u0628\u0627\u0631' : 'Sorry, the exam has ended';
             }
 
             let gatewayContent;
             if (timeStatus === 'syncing') {
                 gatewayContent = html`
                     <div className="text-center p-8 bg-cyan-500/10 rounded-3xl border border-cyan-500/30 mb-6 backdrop-blur-xl">
-                        <div className="text-4xl mb-4 text-white">⏳</div>
+                        <div className="text-4xl mb-4 text-white">\u23F3</div>
                         <div className="text-lg font-black text-cyan-300">${timeMsg}</div>
-                        <p className="text-xs opacity-70 font-bold text-cyan-100 mt-3">${lang === 'ar' ? 'لن يبدأ الاختبار قبل تثبيت وقت موثوق من الخادم.' : 'The exam will not start until a trusted server clock is available.'}</p>
+                        <p className="text-xs opacity-70 font-bold text-cyan-100 mt-3">${lang === 'ar' ? '\u0644\u0646 \u064A\u0628\u062F\u0623 \u0627\u0644\u0627\u062E\u062A\u0628\u0627\u0631 \u0642\u0628\u0644 \u062A\u062B\u0628\u064A\u062A \u0648\u0642\u062A \u0645\u0648\u062B\u0648\u0642 \u0645\u0646 \u0627\u0644\u062E\u0627\u062F\u0645.' : 'The exam will not start until a trusted server clock is available.'}</p>
                     </div>`;
             } else if (timeStatus === 'early') {
+                const countdownDigits = d > 0
+                    ? [
+                        { value: String(d), label: lang === 'ar' ? '\u064A\u0648\u0645' : 'Days' },
+                        { value: String(h), label: lang === 'ar' ? '\u0633\u0627\u0639\u0629' : 'Hrs' },
+                        { value: String(m).padStart(2, '0'), label: lang === 'ar' ? '\u062F\u0642\u064A\u0642\u0629' : 'Min' }
+                      ]
+                    : [
+                        { value: String(h).padStart(2, '0'), label: lang === 'ar' ? '\u0633\u0627\u0639\u0629' : 'Hrs' },
+                        { value: String(m).padStart(2, '0'), label: lang === 'ar' ? '\u062F\u0642\u064A\u0642\u0629' : 'Min' },
+                        { value: String(s).padStart(2, '0'), label: lang === 'ar' ? '\u062B\u0627\u0646\u064A\u0629' : 'Sec' }
+                      ];
                 gatewayContent = html`
-                    <div className="text-center p-8 bg-cyan-500/10 rounded-3xl border border-cyan-500/30 mb-6 backdrop-blur-xl">
-                        <div className="text-4xl font-black text-cyan-400 mb-4 tabular-nums shadow-[0_0_15px_rgba(34,211,238,0.3)] px-6 py-4 rounded-2xl bg-black/20">${timeMsg}</div>
-                        <p className="text-sm opacity-90 font-bold text-white mb-2">${lang === 'ar' ? 'يرجى الانتظار، سيتم التفعيل تلقائياً' : 'Please wait, will auto-start'}</p>
+                    <div className="lmv-countdown-gate text-center p-6 sm:p-8 bg-cyan-500/10 rounded-3xl border border-cyan-500/30 mb-6 backdrop-blur-xl">
+                        <div className="lmv-countdown-segments flex items-center justify-center gap-3 sm:gap-5 mb-4">
+                            ${countdownDigits.map((seg, i) => html`
+                                <${React.Fragment} key=${i}>
+                                    <div className="lmv-countdown-segment flex flex-col items-center">
+                                        <span className="lmv-countdown-digit text-3xl sm:text-5xl font-black text-cyan-400 tabular-nums leading-none px-3 sm:px-5 py-2 sm:py-3 rounded-2xl bg-black/20 shadow-[0_0_15px_rgba(34,211,238,0.3)] min-w-[3rem] sm:min-w-[4.5rem] text-center">${seg.value}</span>
+                                        <span className="lmv-countdown-label text-[0.65rem] sm:text-xs font-bold text-cyan-200/70 mt-1.5 uppercase tracking-wider">${seg.label}</span>
+                                    </div>
+                                    ${i < countdownDigits.length - 1 ? html`<span className="lmv-countdown-sep text-2xl sm:text-3xl font-black text-cyan-500/50 mt-[-0.75rem] select-none">:</span>` : ''}
+                                <//>
+                            `)}
+                        </div>
+                        <p className="text-sm opacity-90 font-bold text-white mb-2">${lang === 'ar' ? '\u064A\u0631\u062C\u0649 \u0627\u0644\u0627\u0646\u062A\u0638\u0627\u0631\u060C \u0633\u064A\u062A\u0645 \u0627\u0644\u062A\u0641\u0639\u064A\u0644 \u062A\u0644\u0642\u0627\u0626\u064A\u0627\u064B' : 'Please wait, will auto-start'}</p>
                         <p className="text-xs opacity-60 font-medium text-cyan-100">${dateMsg}</p>
                     </div>`;
             } else if (timeStatus === 'late') {
@@ -758,26 +841,46 @@
         };
 
         if (isFinished) {
-            const successModal = modalType === 'success' ? html`
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style=${{ background: 'rgba(10,5,20,0.6)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}>
-                    <div className="bg-white/[0.03] backdrop-blur-2xl rounded-[2.5rem] shadow-2xl p-10 w-full max-w-md border border-white/10 animate-fade-in text-center">
-                        <div className="text-7xl mb-6">✅</div>
-                        <h2 className="text-3xl font-black text-white mb-4">
-                            ${lang === 'ar' ? 'نجاح التسليم' : 'Success'}
-                        </h2>
-                        <p className="text-lg font-bold text-fuchsia-100/60 mb-8 leading-relaxed">
-                            ${lang === 'ar' ? 'تم تسليم امتحانك بنجاح بطريقة طبيعية، وتم تسجيل نتيجتك وحالة التسليم في النظام.' : 'Exam submitted normally and status recorded.'}
-                        </p>
-                        <button onClick=${() => setModalType(null)} className="w-full py-4 rounded-2xl font-black bg-gradient-to-r from-rose-400 via-fuchsia-400 to-indigo-500 text-white shadow-xl transition-all text-xl">
-                            ${lang === 'ar' ? 'متابعة' : 'Continue'}
-                        </button>
+            // ── VERIFICATION MODAL SYSTEM ─────────────────────────
+            const verifyModal = (() => {
+                if (modalType === 'verify_success') return html`
+                    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style=${{ background: 'rgba(10,5,20,0.6)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}>
+                        <div className="bg-white/[0.03] backdrop-blur-2xl rounded-[2.5rem] shadow-2xl p-10 w-full max-w-md border border-white/10 animate-fade-in text-center">
+                            <div className="text-7xl mb-6">✅</div>
+                            <h2 className="text-3xl font-black text-white mb-4">
+                                ${lang === 'ar' ? 'عاش يا بطل!' : 'Submission Verified!'}
+                            </h2>
+                            <p className="text-lg font-bold text-fuchsia-100/60 mb-8 leading-relaxed">
+                                ${lang === 'ar' ? 'تم التسليم والتحقق من وصول إجاباتك بنجاح ✅' : 'Your answers have been submitted and verified successfully ✅'}
+                            </p>
+                            <button onClick=${() => setModalType(null)} className="w-full py-4 rounded-2xl font-black bg-gradient-to-r from-rose-400 via-fuchsia-400 to-indigo-500 text-white shadow-xl transition-all text-xl">
+                                ${lang === 'ar' ? 'متابعة' : 'Continue'}
+                            </button>
+                        </div>
                     </div>
-                </div>
-            ` : '';
+                `;
+                if (modalType === 'verify_confirmed') return html`
+                    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style=${{ background: 'rgba(10,5,20,0.6)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}>
+                        <div className="bg-white/[0.03] backdrop-blur-2xl rounded-[2.5rem] shadow-2xl p-10 w-full max-w-md border border-emerald-500/20 animate-fade-in text-center">
+                            <div className="text-7xl mb-6">🌟</div>
+                            <h2 className="text-3xl font-black text-white mb-4">
+                                ${lang === 'ar' ? 'اطمن يا هندسة!' : 'You\'re All Good!'}
+                            </h2>
+                            <p className="text-lg font-bold text-emerald-200/70 mb-8 leading-relaxed">
+                                ${lang === 'ar' ? 'نتيجتك وصلت وسجلناها بالفعل! تقدر تخرج دلوقتي وأنت مطمن 🌟' : 'Your result has been received and recorded! You can leave now with full confidence 🌟'}
+                            </p>
+                            <button onClick=${() => setModalType(null)} className="w-full py-4 rounded-2xl font-black bg-gradient-to-r from-emerald-400 to-cyan-500 text-white shadow-xl transition-all text-xl">
+                                ${lang === 'ar' ? 'تمام، خلاص' : 'Got It'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                return '';
+            })();
 
             if (isEvaluation && String(quiz.showResultsAfter) !== 'true') {
                 return html`
-                ${successModal}
+                ${verifyModal}
                 <div className="min-h-screen flex items-center justify-center p-4 bg-zinc-950 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-96 h-96 bg-rose-500/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
                     <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2"></div>
@@ -824,7 +927,7 @@
             });
 
             return html`
-            ${successModal}
+            ${verifyModal}
             <div className="max-w-4xl mx-auto space-y-8 animate-fade-in pb-10">
                 ${terminationReason !== 'completed' && html`
                     <div className="text-center mt-6 px-6 py-4 bg-red-500/20 text-red-600 dark:text-red-500 border border-red-500/50 rounded-2xl font-bold text-lg max-w-xl mx-auto shadow-lg animate-pulse">
@@ -935,11 +1038,74 @@
         return html`
         <div className="max-w-4xl mx-auto min-h-[70vh] flex flex-col pt-10 pb-20">
 
-            ${isSubmitting && html`
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style=${{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(18px)' }}>
-                    <div className="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 flex flex-col items-center">
-                        <div className="animate-spin text-5xl mb-4 text-rose-400">⏳</div>
-                        <h2 className="text-xl font-black text-white">${lang === 'ar' ? 'جاري تسليم وإرسال إجاباتك...' : 'Submitting your answers...'}</h2>
+            ${/* ── SUBMISSION LOADER (Watchdog Phase 1) ── */
+            modalType === 'submission_loader' && html`
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style=${{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(24px)' }}>
+                    <div className="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-3xl p-10 flex flex-col items-center max-w-md w-full animate-fade-in">
+                        <div className="animate-spin text-6xl mb-6 text-cyan-400">⏳</div>
+                        <h2 className="text-2xl font-black text-white mb-3 text-center">${lang === 'ar' ? 'جاري إرسال بياناتك وتأمينها...' : 'Submitting and securing your data...'}</h2>
+                        <p className="text-sm text-zinc-400 font-bold text-center">${lang === 'ar' ? 'لا تغلق الصفحة' : 'Please do not close this page'}</p>
+                    </div>
+                </div>
+            `}
+
+            ${/* ── VERIFY TIMEOUT (Watchdog Phase 2) ── */
+            modalType === 'verify_timeout' && html`
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style=${{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(24px)' }}>
+                    <div className="bg-white/[0.03] backdrop-blur-2xl rounded-[2.5rem] shadow-2xl p-10 w-full max-w-md border border-amber-500/20 animate-fade-in text-center">
+                        <div className="text-7xl mb-6">⏱️</div>
+                        <h2 className="text-2xl font-black text-white mb-4">${lang === 'ar' ? 'الخادم لم يرد بعد' : 'Server has not responded yet'}</h2>
+                        <p className="text-base font-bold text-amber-200/70 mb-8 leading-relaxed">
+                            ${lang === 'ar' ? 'ممكن يكون النت بطيء. اضغط الزر ده عشان نتأكد إن إجاباتك وصلت.' : 'The connection may be slow. Click below to verify your answers were received.'}
+                        </p>
+                        <button onClick=${handleVerifyDelivery} className="w-full py-4 rounded-2xl font-black bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-xl transition-all text-xl hover:scale-[1.02] active:scale-[0.98]">
+                            ${lang === 'ar' ? 'تأكيد حالة التسليم' : 'Verify Submission Status'}
+                        </button>
+                    </div>
+                </div>
+            `}
+
+            ${/* ── VERIFY RETRY (Data not found — auto-resubmitting) ── */
+            modalType === 'verify_retry' && html`
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style=${{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(24px)' }}>
+                    <div className="bg-white/[0.03] backdrop-blur-2xl rounded-[2.5rem] shadow-2xl p-10 w-full max-w-md border border-rose-500/20 animate-fade-in text-center">
+                        <div className="text-7xl mb-6 animate-pulse">🔄</div>
+                        <h2 className="text-2xl font-black text-white mb-4">${lang === 'ar' ? 'إعادة الإرسال تلقائياً' : 'Auto-Resubmitting'}</h2>
+                        <p className="text-base font-bold text-rose-200/70 mb-4 leading-relaxed">
+                            ${lang === 'ar' ? 'تحققنا ولقينا إن الداتا موصلتش بسبب النت، هنحاول نبعتها تاني فوراً..' : 'We checked and the data did not arrive due to network issues. Re-submitting now...'}
+                        </p>
+                    </div>
+                </div>
+            `}
+
+            ${/* ── SUBMISSION FAILED (Network Error — Manual Retry) ── */
+            modalType === 'submission_failed' && html`
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style=${{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(24px)' }}>
+                    <div className="bg-white/[0.03] backdrop-blur-2xl rounded-[2.5rem] shadow-2xl p-10 w-full max-w-md border border-red-500/20 animate-fade-in text-center">
+                        <div className="text-7xl mb-6 text-red-400">📡</div>
+                        <h2 className="text-2xl font-black text-white mb-4">${lang === 'ar' ? 'فشل الإرسال' : 'Submission Failed'}</h2>
+                        <p className="text-base font-bold text-zinc-400 mb-4 leading-relaxed">
+                            ${lang === 'ar' ? 'حدث خطأ أثناء إرسال إجاباتك. لا تقلق، إجاباتك محفوظة. يرجى المحاولة مرة أخرى.' : 'An error occurred while sending your answers. Don\'t worry, your answers are saved. Please try again.'}
+                        </p>
+                        ${debugError && html`<div className="p-3 mb-6 bg-red-500/10 text-red-400 rounded-xl text-xs font-mono text-left break-words border border-red-500/20">${debugError}</div>`}
+                        <button onClick=${() => submitExam(terminationReason)} disabled=${isSubmitting}
+                            className="w-full py-4 rounded-2xl font-black bg-gradient-to-r from-rose-400 via-fuchsia-400 to-indigo-500 text-white shadow-xl transition-all text-xl disabled:opacity-50 hover:scale-[1.02]">
+                            ${isSubmitting ? (lang === 'ar' ? 'جاري إعادة الإرسال...' : 'Retrying...') : (lang === 'ar' ? 'إعادة إرسال النتيجة' : 'Retry Submission')}
+                        </button>
+                    </div>
+                </div>
+            `}
+
+            ${/* ── VERIFY SUCCESS (inline during active exam for force-submit) ── */
+            modalType === 'verify_success' && !isFinished && html`
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style=${{ background: 'rgba(10,5,20,0.6)', backdropFilter: 'blur(24px)' }}>
+                    <div className="bg-white/[0.03] backdrop-blur-2xl rounded-[2.5rem] shadow-2xl p-10 w-full max-w-md border border-white/10 animate-fade-in text-center">
+                        <div className="text-7xl mb-6">✅</div>
+                        <h2 className="text-3xl font-black text-white mb-4">${lang === 'ar' ? 'عاش يا بطل!' : 'Verified!'}</h2>
+                        <p className="text-lg font-bold text-fuchsia-100/60 mb-8 leading-relaxed">${lang === 'ar' ? 'تم التسليم والتحقق من وصول إجاباتك بنجاح ✅' : 'Submitted and verified ✅'}</p>
+                        <button onClick=${() => setModalType(null)} className="w-full py-4 rounded-2xl font-black bg-gradient-to-r from-rose-400 via-fuchsia-400 to-indigo-500 text-white shadow-xl text-xl">
+                            ${lang === 'ar' ? 'متابعة' : 'Continue'}
+                        </button>
                     </div>
                 </div>
             `}
