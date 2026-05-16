@@ -2215,6 +2215,22 @@ window.LUMINOVA_DATA = {
           "type": "url"
         }
       ]
+    },
+    {
+      "id": "summaries_1778942711776",
+      "timestamp": "2026-05-16T14:45:11.776Z",
+      "titleAr": "اسئلة المقالى (مع المقارنات)",
+      "titleEn": "Essay Questions (with Comparisons)",
+      "contentAr": "",
+      "contentEn": "",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775908403709",
+      "studentId": "students_1775848220866",
+      "mediaType": "pdf",
+      "chapterTag": "الفصل الأول",
+      "lessonUrl": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791"
     }
   ]
 };
