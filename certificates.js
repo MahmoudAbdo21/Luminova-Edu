@@ -11,7 +11,7 @@ window.LUMINOVA_CERTIFICATES = [
     "titleEn": "Certificate of Academic Excellence",
     "description": "لتفوقه الملحوظ وحصوله على أعلى الدرجات في التقييمات الأكاديمية.",
     "descriptionEn": "For his remarkable excellence and highest scores in academic assessments.",
-    "isFeatured": true,
+    "isFeatured": false,
     "badges": [],
     "date": "2026-05-13T12:46:29.202Z",
     "level": "standard",
@@ -123,7 +123,8 @@ window.LUMINOVA_CERTIFICATES = [
     "badges": [],
     "date": "2026-05-06T13:08:50.957Z",
     "sealType": "silver",
-    "senderRoleEn": "Level up"
+    "senderRoleEn": "Level up",
+    "level": "gold"
   },
   {
     "id": "certificates_1776277229935",
