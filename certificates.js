@@ -51,7 +51,8 @@ window.LUMINOVA_CERTIFICATES = [
     "badges": [],
     "date": "2026-05-06T20:08:53.067Z",
     "senderRoleEn": "Luminova Educational",
-    "sealType": "silver"
+    "sealType": "silver",
+    "level": "silver"
   },
   {
     "id": "certificates_1778098037923",
@@ -69,7 +70,8 @@ window.LUMINOVA_CERTIFICATES = [
     "badges": [],
     "date": "2026-05-06T20:07:17.923Z",
     "senderRoleEn": "Luminova Educational",
-    "sealType": "silver"
+    "sealType": "silver",
+    "level": "silver"
   },
   {
     "id": "certificates_1778075306165",
@@ -87,7 +89,8 @@ window.LUMINOVA_CERTIFICATES = [
     "badges": [],
     "date": "2026-05-06T13:48:26.165Z",
     "senderRoleEn": "Luminova Educational",
-    "sealType": "silver"
+    "sealType": "silver",
+    "level": "silver"
   },
   {
     "id": "certificates_1778075083816",
@@ -105,7 +108,8 @@ window.LUMINOVA_CERTIFICATES = [
     "badges": [],
     "date": "2026-05-06T13:44:43.816Z",
     "senderRoleEn": "Luminova Educational",
-    "sealType": "silver"
+    "sealType": "silver",
+    "level": "silver"
   },
   {
     "id": "certificates_1778072930957",
