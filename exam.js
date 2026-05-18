@@ -1,5 +1,35 @@
 window.LUMINOVA_EXAMS = [
   {
+    "id": "quizzes_1779118451779",
+    "timestamp": "2026-05-18T15:34:11.779Z",
+    "titleAr": "اختبار شامل تصوير فوتوغرافي 🏆",
+    "titleEn": "Comprehensive Test Photography 🏆",
+    "examCode": "EXM_mpbd6v5w1m0kq",
+    "isShuffled": true,
+    "feedbackMode": "end",
+    "subjectId": "subjects_1775503625271",
+    "publisherId": "s_founder_hardcoded",
+    "questions": [],
+    "examMode": "evaluation",
+    "emailPolicy": "full_report",
+    "adminEmails": "mahmoud21abdalrhman@gmail.com,salmazahran167@gmail.com",
+    "sheetName": "Sheet1",
+    "startTime": "2026-05-30T21:30",
+    "endTime": "2026-05-30T23:00",
+    "latePolicy": "hard_stop",
+    "allowBackNavigation": true,
+    "webhookUrl": "",
+    "sendDetailedReport": true,
+    "entryGate": {
+      "name": true,
+      "department": true,
+      "email": true
+    },
+    "yearId": "year_1",
+    "semesterId": "semesters_1775125622791",
+    "showResultsAfter": true
+  },
+  {
     "id": "quizzes_1778764269450",
     "timestamp": "2026-05-14T13:11:09.450Z",
     "titleAr": "اختبار نظم إدارة التعلم 🏆",
