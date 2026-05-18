@@ -2231,6 +2231,31 @@ window.LUMINOVA_DATA = {
       "lessonUrl": "",
       "yearId": "year_1",
       "semesterId": "semesters_1775125622791"
+    },
+    {
+      "id": "summaries_1779068903356",
+      "timestamp": "2026-05-18T01:48:23.356Z",
+      "titleAr": "ملف الذكاء لوجداني النهائي",
+      "titleEn": "The Ultimate Emotional Intelligence Profile",
+      "contentAr": "ملف د/ايمان عبدالرؤوف مجمع فيه جميع محاضرات الترم الثاني بشكل مبسط",
+      "contentEn": "Dr. Iman Abdul Raouf's file is a complex in which all the lectures of the second semester are simplified",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775848318508",
+      "studentId": "students_1775125739063",
+      "mediaType": "pdf",
+      "chapterTag": "الفصل الأول",
+      "lessonUrl": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1aEJBT9jFwWqBxnK6A85ikeWWiCWbQhVM/view?usp=sharing",
+          "titleAr": "pdf",
+          "titleEn": "",
+          "order": 0,
+          "type": "url"
+        }
+      ]
     }
   ]
 };
