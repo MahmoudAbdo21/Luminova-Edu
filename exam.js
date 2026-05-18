@@ -1,74 +1,5 @@
 window.LUMINOVA_EXAMS = [
   {
-    "id": "quizzes_1779125277784",
-    "timestamp": "2026-05-18T17:27:57.784Z",
-    "titleAr": "تجريبي ",
-    "titleEn": "Demo",
-    "examCode": "EXM_mpbh9655az2sf",
-    "isShuffled": true,
-    "feedbackMode": "end",
-    "subjectId": "subjects_1775848318508",
-    "publisherId": "s_founder_hardcoded",
-    "questions": [
-      {
-        "type": "mcq",
-        "text": "السؤال الاول",
-        "score": 1,
-        "options": [
-          "1",
-          "2",
-          "3",
-          "4"
-        ],
-        "correctAnswers": [
-          0
-        ],
-        "modelAnswer": "",
-        "explanation": "لانه 1 2 3 ",
-        "studentId": "s_founder_hardcoded",
-        "showExp": false,
-        "id": "q_1779125573814"
-      },
-      {
-        "type": "mcq",
-        "text": "السؤال الثاني ",
-        "score": 1,
-        "options": [
-          "1",
-          "2",
-          "3",
-          "4"
-        ],
-        "correctAnswers": [
-          0
-        ],
-        "modelAnswer": "",
-        "explanation": "لانه 1 2 3 ",
-        "studentId": "s_founder_hardcoded",
-        "showExp": false,
-        "id": "q_1779125609512"
-      }
-    ],
-    "examMode": "evaluation",
-    "emailPolicy": "full_report",
-    "adminEmails": "mahmoud21abdalrhman@gmail.com",
-    "sheetName": "Sheet1",
-    "startTime": "2026-05-18T20:34",
-    "endTime": "2026-05-18T20:42",
-    "latePolicy": "hard_stop",
-    "allowBackNavigation": true,
-    "webhookUrl": "https://script.google.com/macros/s/AKfycbwEQu_sr9LuJBO50JdKq91ve3oDpzPDjvwfMi1pUXH-WYJOQ8mdzBIMBGSEkw6DjHkkrQ/exec",
-    "sendDetailedReport": true,
-    "entryGate": {
-      "name": true,
-      "department": true,
-      "email": true
-    },
-    "yearId": "year_1",
-    "semesterId": "semesters_1775125622791",
-    "showResultsAfter": true
-  },
-  {
     "id": "quizzes_1779118451779",
     "timestamp": "2026-05-18T15:34:11.779Z",
     "titleAr": "اختبار شامل تصوير فوتوغرافي 🏆",
@@ -87,7 +18,7 @@ window.LUMINOVA_EXAMS = [
     "endTime": "2026-05-30T23:00",
     "latePolicy": "hard_stop",
     "allowBackNavigation": true,
-    "webhookUrl": "",
+    "webhookUrl": "https://script.google.com/macros/s/AKfycbw5UY1GIY54hReFixMG8K_k4ZWU6-EoP0dAnfTNqe9XDkNBFPiOSRMhPTQyVaikulUw/exec",
     "sendDetailedReport": true,
     "entryGate": {
       "name": true,
@@ -7758,7 +7689,7 @@ window.LUMINOVA_EXAMS = [
     "endTime": "2026-05-23T22:30",
     "latePolicy": "hard_stop",
     "allowBackNavigation": true,
-    "webhookUrl": "",
+    "webhookUrl": "https://script.google.com/macros/s/AKfycbwEQu_sr9LuJBO50JdKq91ve3oDpzPDjvwfMi1pUXH-WYJOQ8mdzBIMBGSEkw6DjHkkrQ/exec",
     "sendDetailedReport": true,
     "entryGate": {
       "name": true,
