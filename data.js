@@ -505,6 +505,22 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
+      "id": "summaries_1779108387626",
+      "timestamp": "2026-05-18T12:46:27.626Z",
+      "titleAr": "الفصل الاول",
+      "titleEn": "First Semester",
+      "contentAr": "شرح الفصل الاول كامل مع مؤثرات واشكال توضيحية للمعلومه",
+      "contentEn": "Explanation of the first chapter complete with effects and illustrations for information",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775503625271",
+      "studentId": "s_founder_hardcoded",
+      "mediaType": "interactive",
+      "chapterTag": "الفصل الأول",
+      "lessonUrl": "Interactive-lessons/Photography.jsx",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791"
+    },
+    {
       "id": "summaries_1778776552095",
       "timestamp": "2026-05-14T16:35:52.095Z",
       "titleAr": "شرح الفصل الخامس",
