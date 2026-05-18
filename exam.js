@@ -1,5 +1,35 @@
 window.LUMINOVA_EXAMS = [
   {
+    "id": "quizzes_1779125277784",
+    "timestamp": "2026-05-18T17:27:57.784Z",
+    "titleAr": "تجريبي ",
+    "titleEn": "Demo",
+    "examCode": "EXM_mpbh9655az2sf",
+    "isShuffled": true,
+    "feedbackMode": "end",
+    "subjectId": "subjects_1775848318508",
+    "publisherId": "s_founder_hardcoded",
+    "questions": [],
+    "examMode": "evaluation",
+    "emailPolicy": "full_report",
+    "adminEmails": "mahmoud21abdalrhman@gmail.com",
+    "sheetName": "Sheet1",
+    "startTime": "2026-05-18T20:32",
+    "endTime": "2026-05-18T20:39",
+    "latePolicy": "hard_stop",
+    "allowBackNavigation": true,
+    "webhookUrl": "https://script.google.com/macros/s/AKfycbwEQu_sr9LuJBO50JdKq91ve3oDpzPDjvwfMi1pUXH-WYJOQ8mdzBIMBGSEkw6DjHkkrQ/exec",
+    "sendDetailedReport": true,
+    "entryGate": {
+      "name": true,
+      "department": true,
+      "email": true
+    },
+    "yearId": "year_1",
+    "semesterId": "semesters_1775125622791",
+    "showResultsAfter": true
+  },
+  {
     "id": "quizzes_1779118451779",
     "timestamp": "2026-05-18T15:34:11.779Z",
     "titleAr": "اختبار شامل تصوير فوتوغرافي 🏆",
