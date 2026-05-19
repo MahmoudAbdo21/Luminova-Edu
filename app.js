@@ -83,7 +83,7 @@
         const [expanded, setExpanded] = useState(false);
         if (!text) return null;
         const isLong = text.length > maxLength;
-        return html`<div className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+        return html`<div className="mt-2 text-sm text-zinc-600 dark:text-zinc-500 dark:text-zinc-400">
             <p className=${`whitespace-pre-line smart-text ${expanded ? 'expanded' : 'collapsed'}`}>
                 ${expanded ? text : text.substring(0, maxLength) + (isLong ? '...' : '')}
             </p>
@@ -232,8 +232,8 @@
                     titleBadge = html`
                     <div className=${`${positionClass} z-20 pointer-events-none`} dir=${dirAttr}>
                         <div className="backdrop-blur-md bg-zinc-900/80 dark:bg-black/80 border border-white/10 dark:border-white/5 shadow-sm rounded-xl px-4 py-2 flex items-center gap-3">
-                            <span className="text-zinc-400 text-lg">✨</span>
-                            <span className="text-white font-bold text-sm tracking-wide truncate max-w-[200px] sm:max-w-md drop-shadow-sm flex-1" style=${{ direction: 'auto' }} title=${customTitle}>${customTitle}</span>
+                            <span className="text-zinc-500 dark:text-zinc-400 text-lg">✨</span>
+                            <span className="text-gray-900 dark:text-white font-bold text-sm tracking-wide truncate max-w-[200px] sm:max-w-md drop-shadow-sm flex-1" style=${{ direction: 'auto' }} title=${customTitle}>${customTitle}</span>
                         </div>
                     </div>`;
                 }
@@ -265,7 +265,7 @@
                     <${Luminova.Components.Avatar} name=${author.nameAr || author.name} image=${author.image} isVIP=${author.isVIP} isVerified=${author.isVerified} isFounder=${author.isFounder} size="w-14 h-14 sm:w-20 sm:h-20 shrink-0 border-4 border-white/5 shadow-xl" />
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
-                            <h3 className="font-black text-lg sm:text-2xl text-white drop-shadow-sm truncate max-w-full">${lang === 'ar' ? (author.nameAr || author.name) : (author.nameEn || author.name)}</h3>
+                            <h3 className="font-black text-lg sm:text-2xl text-zinc-900 dark:text-white drop-shadow-sm truncate max-w-full">${lang === 'ar' ? (author.nameAr || author.name) : (author.nameEn || author.name)}</h3>
                             ${author.isVIP && html`<span className="text-xs text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-full font-bold shadow-[0_0_10px_rgba(6,182,212,0.2)] shrink-0">VIP ✨</span>`}
                             ${author.isFounder && html`<span className="text-[10px] bg-gradient-to-r from-cyan-400 to-fuchsia-500 text-white shadow-lg px-2.5 py-0.5 rounded-full font-black tracking-widest shrink-0 uppercase">${Luminova.i18n[lang].founder}</span>`}
                             ${!author.isFounder && author.role === 'doctor' && html`<span className="text-xs bg-teal-500/20 text-teal-400 border border-teal-500/30 px-2.5 py-0.5 rounded-full font-black tracking-widest shrink-0">🎓 ${lang === 'ar' ? 'دكتور' : 'Doctor'}</span>`}
@@ -276,8 +276,8 @@
             `}
 
             <div className="mb-12 px-2 sm:px-6">
-                <h1 className="text-3xl sm:text-5xl font-black mb-6 leading-tight text-white drop-shadow-md">${item[`title${lang === 'ar' ? 'Ar' : 'En'}`] || item.titleAr || item.titleEn || item.title}</h1>
-                <p className="whitespace-normal break-words text-lg sm:text-xl opacity-80 leading-relaxed font-semibold text-zinc-600 dark:text-zinc-400" style=${{ overflowWrap: 'anywhere', wordBreak: 'normal' }}>
+                <h1 className="text-3xl sm:text-5xl font-black mb-6 leading-tight text-zinc-900 dark:text-white drop-shadow-md">${item[`title${lang === 'ar' ? 'Ar' : 'En'}`] || item.titleAr || item.titleEn || item.title}</h1>
+                <p className="whitespace-normal break-words text-lg sm:text-xl opacity-80 leading-relaxed font-semibold text-zinc-600 dark:text-zinc-500 dark:text-zinc-400" style=${{ overflowWrap: 'anywhere', wordBreak: 'normal' }}>
                     ${item[`content${lang === 'ar' ? 'Ar' : 'En'}`] || item.contentAr || item.contentEn || item.text}
                 </p>
             </div>
@@ -310,7 +310,7 @@
         return html`
         <div className="relative inline-block">
             <div className=${`relative ${size} flex-shrink-0 rounded-full flex items-center justify-center font-bold text-white shadow-lg overflow-hidden
-                ${isFounder ? 'founder-card text-zinc-300 bg-black' : isVIP ? 'bg-zinc-700' : 'bg-zinc-600'}`}>
+                ${isFounder ? 'founder-card text-zinc-700 dark:text-zinc-300 bg-black' : isVIP ? 'bg-zinc-700' : 'bg-zinc-600'}`}>
                 ${image ? html`<img src=${image} alt=${name} className="w-full h-full object-cover rounded-full" />` : getInitials()}
             </div>
             ${isVerified && !isFounder && html`<${Luminova.Icons.VerifiedBlue} />`}
@@ -394,8 +394,8 @@
             <div className="flex justify-between items-center mb-2 flex-wrap gap-4">
                 <div className="flex gap-2 bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg shadow-inner">
                     <button onClick=${() => setInputType('url')} className=${`px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-sm ${inputType === 'url' ? 'bg-brand-DEFAULT text-white' : 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'}`}>رابط (URL)</button>
-                    <button onClick=${() => setInputType('base64')} className=${`px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-sm ${inputType === 'base64' ? 'bg-brand-DEFAULT text-white' : 'bg-transparent text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'}`}>ملف (Base64)</button>
-                    <button onClick=${() => setInputType('local')} className=${`px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-sm ${inputType === 'local' ? 'bg-brand-DEFAULT text-white' : 'bg-transparent text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'}`}>مسار محلي</button>
+                    <button onClick=${() => setInputType('base64')} className=${`px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-sm ${inputType === 'base64' ? 'bg-brand-DEFAULT text-white' : 'bg-transparent text-zinc-600 dark:text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'}`}>ملف (Base64)</button>
+                    <button onClick=${() => setInputType('local')} className=${`px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-sm ${inputType === 'local' ? 'bg-brand-DEFAULT text-white' : 'bg-transparent text-zinc-600 dark:text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'}`}>مسار محلي</button>
                 </div>
                 <div className="flex items-center gap-2">
                     <div className="flex items-center bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1 shadow-inner">
@@ -514,7 +514,7 @@
         return html`
         <div className=${`relative ${className}`}>
             <button onClick=${() => setIsOpen(!isOpen)} onBlur=${() => setTimeout(() => setIsOpen(false), 200)}
-                className="w-full appearance-none bg-white/[0.03] hover:bg-white/[0.06] backdrop-blur-xl border border-white/10 text-white rounded-2xl px-5 py-4 outline-none transition-all cursor-pointer shadow-sm font-bold flex justify-between items-center z-10 relative"
+                className="w-full appearance-none bg-white/80 dark:bg-white/[0.03] hover:bg-white/90 dark:hover:bg-white/[0.06] backdrop-blur-xl border border-zinc-200 dark:border-white/10 text-zinc-900 dark:text-white rounded-2xl px-5 py-4 outline-none transition-all cursor-pointer shadow-sm font-bold flex justify-between items-center z-10 relative"
             >
                 <span className=${selectedOption ? 'opacity-100' : 'opacity-70'}>
                     ${selectedOption ? selectedOption.label : placeholder}
@@ -527,7 +527,7 @@
                         ${options.map(opt => html`
                             <li key=${opt.value} 
                                 onClick=${() => { onChange(opt.value); setIsOpen(false); }}
-                                className=${`px-5 py-4 cursor-pointer transition-colors font-bold border-b border-white/5 last:border-none ${String(value) === String(opt.value) ? 'bg-rose-500/20 text-rose-400' : 'text-zinc-400 hover:bg-white/[0.05] hover:text-white'}`}
+                                className=${`px-5 py-4 cursor-pointer transition-colors font-bold border-b border-white/5 last:border-none ${String(value) === String(opt.value) ? 'bg-rose-500/20 text-rose-400' : 'text-zinc-500 dark:text-zinc-400 hover:bg-white/[0.05] hover:text-white'}`}
                             >
                                 ${opt.label}
                             </li>
@@ -562,7 +562,7 @@
         if (!showOverlay || ignoreOrientation) return null;
 
         return html`
-            <div className="fixed inset-0 z-[11000] flex flex-col items-center justify-center p-6 backdrop-blur-xl bg-black/95 text-white animate-fade-in" dir=${lang === 'ar' ? 'rtl' : 'ltr'}>
+            <div className="fixed inset-0 z-[11000] flex flex-col items-center justify-center p-6 backdrop-blur-xl bg-white/95 dark:bg-black/95 text-zinc-900 dark:text-white animate-fade-in" dir=${lang === 'ar' ? 'rtl' : 'ltr'}>
             <div className="flex flex-col items-center text-center max-w-lg w-full">
                 <!-- Rotating Tablet Icon CSS Animation -->
                 <style>
@@ -589,7 +589,7 @@
                     <div style=${{ width: '8px', height: '8px', backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: '50%', position: 'absolute', top: '10px' }}></div>
                 </div>
                 
-                <h2 className="text-3xl lg:text-4xl font-black mb-6 leading-tight text-white">
+                <h2 className="text-3xl lg:text-4xl font-black mb-6 leading-tight text-zinc-900 dark:text-white">
                     ${lang === 'ar' ? 'للحصول على أفضل تجربة تصفح، يرجى تدوير التابلت أو الآيباد إلى الوضع العرضي' : 'For the best browsing experience, please rotate your tablet/iPad to landscape mode'}
                 </h2>
                 <button onClick=${() => setIgnoreOrientation(true)} className="mt-8 px-8 py-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-sm font-bold transition-all shadow-xl hover:shadow-2xl active:scale-95 text-xl">
@@ -835,17 +835,17 @@
                     <!-- Desktop nav links (hidden on mobile) -->
                     <div key="dt-nav" className="lmv-top-nav-links hidden md:flex items-center gap-2 mx-auto">
                         <button onClick=${() => changeView('home')} title=${lang === 'ar' ? Luminova.i18n.ar.home : Luminova.i18n.en.home}
-                            className=${`px-5 py-2.5 rounded-2xl transition-all duration-500 flex gap-2 items-center font-black text-base flex-shrink-0 ${view === 'home' ? 'text-rose-400 bg-rose-500/20 border border-rose-500/40 shadow-[0_0_15px_rgba(244,63,94,0.1)]' : 'text-zinc-400 hover:bg-white/5 hover:text-white'}`}>
+                            className=${`px-5 py-2.5 rounded-2xl transition-all duration-500 flex gap-2 items-center font-black text-base flex-shrink-0 ${view === 'home' ? 'text-rose-400 bg-rose-500/20 border border-rose-500/40 shadow-[0_0_15px_rgba(244,63,94,0.1)]' : 'text-zinc-500 dark:text-zinc-400 hover:bg-white/5 hover:text-white'}`}>
                             <${Luminova.Icons.Home} />
                             <span>${lang === 'ar' ? Luminova.i18n.ar.home : Luminova.i18n.en.home}</span>
                         </button>
                         <button onClick=${() => changeView('community')} title=${lang === 'ar' ? Luminova.i18n.ar.community : Luminova.i18n.en.community}
-                            className=${`px-5 py-2.5 rounded-2xl transition-all duration-500 flex gap-2 items-center font-black text-base flex-shrink-0 ${view === 'community' ? 'text-rose-400 bg-rose-500/20 border border-rose-500/40 shadow-[0_0_15px_rgba(244,63,94,0.1)]' : 'text-zinc-400 hover:bg-white/5 hover:text-white'}`}>
+                            className=${`px-5 py-2.5 rounded-2xl transition-all duration-500 flex gap-2 items-center font-black text-base flex-shrink-0 ${view === 'community' ? 'text-rose-400 bg-rose-500/20 border border-rose-500/40 shadow-[0_0_15px_rgba(244,63,94,0.1)]' : 'text-zinc-500 dark:text-zinc-400 hover:bg-white/5 hover:text-white'}`}>
                             <${Luminova.Icons.User} />
                             <span>${lang === 'ar' ? Luminova.i18n.ar.community : Luminova.i18n.en.community}</span>
                         </button>
                         <button onClick=${() => changeView('academics')} title=${lang === 'ar' ? Luminova.i18n.ar.academic : Luminova.i18n.en.academic}
-                            className=${`px-5 py-2.5 rounded-2xl transition-all duration-500 flex gap-2 items-center font-black text-base flex-shrink-0 ${view === 'academics' ? 'text-rose-400 bg-rose-500/20 border border-rose-500/40 shadow-[0_0_15px_rgba(244,63,94,0.1)]' : 'text-zinc-400 hover:bg-white/5 hover:text-white'}`}>
+                            className=${`px-5 py-2.5 rounded-2xl transition-all duration-500 flex gap-2 items-center font-black text-base flex-shrink-0 ${view === 'academics' ? 'text-rose-400 bg-rose-500/20 border border-rose-500/40 shadow-[0_0_15px_rgba(244,63,94,0.1)]' : 'text-zinc-500 dark:text-zinc-400 hover:bg-white/5 hover:text-white'}`}>
                             <${Luminova.Icons.Book} />
                             <span>${lang === 'ar' ? Luminova.i18n.ar.academic : Luminova.i18n.en.academic}</span>
                         </button>

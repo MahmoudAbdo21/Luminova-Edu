@@ -82,10 +82,10 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                 <div className="flex items-center justify-center min-h-[60vh] p-4">
                     <div className="bg-white/5 backdrop-blur-2xl p-12 text-center max-w-md animate-fade-in border border-white/10 rounded-[2.5rem] shadow-sm">
                         <div className="text-7xl mb-8 animate-bounce">⚠️</div>
-                        <h2 className="text-3xl font-black text-white mb-6 tracking-tight">
+                        <h2 className="text-3xl font-black text-zinc-900 dark:text-white mb-6 tracking-tight">
                             ${lang === 'ar' ? 'خطأ في تحميل البيانات' : 'Data Load Error'}
                         </h2>
-                        <p className="text-white/50 font-bold mb-10 leading-relaxed text-lg">
+                        <p className="text-zinc-500 dark:text-white/50 font-bold mb-10 leading-relaxed text-lg">
                             ${lang === 'ar' 
                                 ? 'حدث خطأ غير متوقع أثناء تحميل ملفات النظام. يرجى إعادة تحميل التطبيق.' 
                                 : 'An unexpected error occurred while loading system files. Please reload the application.'}
@@ -203,7 +203,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                             <${Luminova.Components.GlassCard} key=${c.student.id} className="honor-roll-card min-w-[140px] sm:min-w-[180px] flex-shrink-0 snap-center text-center flex flex-col items-center border-b-4 border-b-fuchsia-500/50 hover:border-b-cyan-400 transition-all duration-500 p-3 sm:p-5">
                                 <div className="absolute top-2 right-2 text-xl font-black opacity-10 italic">#${i + 1}</div>
                                 <${Luminova.Components.Avatar} name=${c.student.nameAr || c.student.name} image=${c.student.image} isVIP=${c.student.isVIP} isFounder=${c.student.isFounder || c.student.id === 's_founder'} isVerified=${c.student.isVerified} size="w-12 h-12 sm:w-20 sm:h-20 mb-2 sm:mb-4 shadow-xl shadow-fuchsia-500/10" />
-                                <h3 className="font-black text-sm sm:text-base text-white">${lang === 'ar' ? (c.student.nameAr || c.student.name) : (c.student.nameEn || c.student.name)}</h3>
+                                <h3 className="font-black text-sm sm:text-base text-zinc-900 dark:text-white">${lang === 'ar' ? (c.student.nameAr || c.student.name) : (c.student.nameEn || c.student.name)}</h3>
                                 <div className="text-[10px] sm:text-xs font-bold text-fuchsia-400 mt-1 sm:mt-2 uppercase tracking-widest">${c.score} ${lang === 'ar' ? 'مساهمة' : 'Contributions'}</div>
                             </${Luminova.Components.GlassCard}>
                         `)}
@@ -223,7 +223,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                             
                             <!-- Content Side (RTL native: right on Desktop) -->
                             <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-start space-y-6">
-                                <h2 className="text-3xl md:text-4xl font-black text-white">
+                                <h2 className="text-3xl md:text-4xl font-black text-zinc-900 dark:text-white">
                                     ${lang === 'ar' ? 'نتوج التميز الأكاديمي' : 'Crowning Academic Excellence'}
                                 </h2>
                                 <p className="text-zinc-400 text-base md:text-lg font-medium leading-relaxed max-w-lg">
@@ -333,10 +333,10 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                 <div className="flex items-center justify-center min-h-[60vh] p-4 text-center">
                     <div className="bg-white/5 backdrop-blur-2xl p-12 border border-white/10 rounded-[2.5rem] shadow-sm max-w-md animate-fade-in">
                         <div className="text-7xl mb-8">📂</div>
-                        <h2 className="text-3xl font-black text-white mb-4">
+                        <h2 className="text-3xl font-black text-zinc-900 dark:text-white mb-4">
                             ${lang === 'ar' ? 'فشل تحميل المكتبة' : 'Library Load Failed'}
                         </h2>
-                        <p className="text-white/50 font-bold mb-8">
+                        <p className="text-zinc-500 dark:text-white/50 font-bold mb-8">
                             ${lang === 'ar' ? 'ملفات البيانات تالفة أو مفقودة. يرجى العودة للرئيسية.' : 'Data files are corrupted or missing. Please return home.'}
                         </p>
                         <button onClick=${() => setView('home')} className="w-full py-4 bg-white text-zinc-900 rounded-2xl font-black shadow-sm">
@@ -782,7 +782,7 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                                     <div className="text-4xl md:text-5xl mb-2 md:mb-4 transform group-hover:scale-110 transition-transform duration-500 drop-shadow-xl">
                                         ${cat.icon}
                                     </div>
-                                    <h3 className="text-sm md:text-lg font-black text-white group-hover:text-white/90 tracking-wide z-10 text-center">
+                                    <h3 className="text-sm md:text-lg font-black text-zinc-900 dark:text-white group-hover:text-zinc-700 dark:group-hover:text-white/90 tracking-wide z-10 text-center">
                                         ${lang === 'ar' ? cat.titleAr : cat.titleEn}
                                     </h3>
                                 </button>
