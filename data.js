@@ -2272,6 +2272,106 @@ window.LUMINOVA_DATA = {
           "type": "url"
         }
       ]
+    },
+    {
+      "id": "summaries_1779159365003",
+      "timestamp": "2026-05-19T02:56:05.003Z",
+      "titleAr": "أهم التعريفات لماده التصوير الفوتوغرافي",
+      "titleEn": "The most important definitions of photography",
+      "contentAr": "تجميعة اهم التعريفات للسؤال المقالي",
+      "contentEn": "Compilation of the most important definitions of the essay question",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775503625271",
+      "studentId": "students_1775848220866",
+      "mediaType": "pdf",
+      "chapterTag": "الفصل الأول",
+      "lessonUrl": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1bcSNtGOUFLCFebcoh76X1IuoUQtnCNgJ/view?usp=sharing",
+          "titleAr": "pdf",
+          "titleEn": "PDF",
+          "order": 0,
+          "type": "url"
+        }
+      ]
+    },
+    {
+      "id": "summaries_1779159279668",
+      "timestamp": "2026-05-19T02:54:39.668Z",
+      "titleAr": "الفصل الثالث التصوير الفوتوغرافي",
+      "titleEn": "Chapter Three Photography",
+      "contentAr": "شرح مبسط للفصل الثالث",
+      "contentEn": "Simplified explanation of Chapter 3",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775503625271",
+      "studentId": "students_1775125739063",
+      "mediaType": "pdf",
+      "chapterTag": "الفصل الثالث",
+      "lessonUrl": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/15mE5bcis_p-z4vBZEp2J17MWt6DWMF0h/view?usp=sharing",
+          "titleAr": "pdf",
+          "titleEn": "PDF",
+          "order": 0,
+          "type": "url"
+        }
+      ]
+    },
+    {
+      "id": "summaries_1779158842557",
+      "timestamp": "2026-05-19T02:47:22.557Z",
+      "titleAr": "الفصل الثاني التصوير الفوتوغرافي",
+      "titleEn": "Chapter Two Photography",
+      "contentAr": "شرح مبسط للفصل الثاني",
+      "contentEn": "A Simplified Explanation of Chapter Two",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775503625271",
+      "studentId": "students_1775379571542",
+      "mediaType": "pdf",
+      "chapterTag": "الفصل الثاني",
+      "lessonUrl": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1tIsY-AXXNSpjAF_jLZ5pptukqcYM0ywp/view?usp=sharing",
+          "titleAr": "pdf",
+          "titleEn": "PDF",
+          "order": 0,
+          "type": "url"
+        }
+      ]
+    },
+    {
+      "id": "summaries_1779158600107",
+      "timestamp": "2026-05-19T02:43:20.107Z",
+      "titleAr": "الفصل الاول التصوير الفوتوغرافي",
+      "titleEn": "Chapter One Photography",
+      "contentAr": "شرح مبسط للفصل الاول",
+      "contentEn": "A Simplified Commentary on Chapter One",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775503625271",
+      "studentId": "students_1775855642761",
+      "mediaType": "pdf",
+      "chapterTag": "الفصل الأول",
+      "lessonUrl": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1A_meVCqBCqminelBN_hhxeTroBRyL1ow/view?usp=sharing",
+          "titleAr": "pdf",
+          "titleEn": "PDF",
+          "order": 0,
+          "type": "url"
+        }
+      ]
     }
   ]
 };
