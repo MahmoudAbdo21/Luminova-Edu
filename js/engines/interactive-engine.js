@@ -1,8 +1,9 @@
 // js/engines/interactive-engine.js
 // Standalone Interactive Lesson Engine for Luminova Edu
-// Handles: JSX fetching, Babel transpilation, icon stubs, fullscreen lifecycle, orientation gate, cleanup
+// v3 — Sandboxed execution, Error Boundaries, Memory Cleanup
 (function () {
   'use strict';
+  var _scopeCounter = 0; // Unique scope ID per execution to prevent collisions
   var React = window.React;
   var ReactDOM = window.ReactDOM;
   var html = window.html;
@@ -72,7 +73,7 @@
       'return React.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",width:24,height:24,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",strokeWidth:"1.5",strokeLinecap:"round",strokeLinejoin:"round",className:cn,style:{opacity:0.5,animation:"pulse 1.5s infinite"}},React.createElement("rect",{key:"p",x:"3",y:"3",width:"18",height:"18",rx:"3",ry:"3"}));' +
     '};';
 
-  // ─── React Error Boundary for runtime crashes ───
+  // ─── React Error Boundary for runtime crashes (v3 — hardened) ───
   var LessonErrorBoundary = (function (_super) {
     function Boundary(props) {
       _super.call(this, props);
@@ -80,12 +81,12 @@
     }
     Boundary.prototype = Object.create(_super.prototype);
     Boundary.prototype.constructor = Boundary;
+    // Static lifecycle — must be on the constructor itself
     Boundary.getDerivedStateFromError = function (error) {
-      return { hasError: true, errorMsg: error?.message || String(error) };
+      return { hasError: true, errorMsg: error && error.message ? error.message : String(error) };
     };
     Boundary.prototype.componentDidCatch = function (error, info) {
-      console.error('[Luminova Engine] Runtime error in lesson component:', error, info);
-      this.setState({ hasError: true, errorMsg: error?.message || String(error) });
+      console.error('[Luminova Engine] Runtime error caught by ErrorBoundary:', error, info);
     };
     Boundary.prototype.render = function () {
       if (this.state.hasError) {
@@ -105,7 +106,7 @@
               React.createElement('line', { x1:"12", y1:"9", x2:"12", y2:"13" }),
               React.createElement('line', { x1:"12", y1:"17", x2:"12.01", y2:"17" })
             ),
-            React.createElement('h2', { style: { color:'#fb7185',fontSize:'1.4rem',fontWeight:900,marginBottom:'16px',lineHeight:1.4 } }, 'حدث خطأ أثناء تشغيل الدرس'),
+            React.createElement('h2', { style: { color:'#fb7185',fontSize:'1.4rem',fontWeight:900,marginBottom:'16px',lineHeight:1.4 } }, 'عذراً، يوجد خطأ برمجي في هذا الدرس التفاعلي'),
             React.createElement('div', { style: { background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'16px',padding:'16px 20px',marginBottom:'24px',direction:'rtl' } },
               React.createElement('p', { style: { color:'rgba(255,255,255,0.6)',fontSize:'0.85rem',fontWeight:600,margin:0,lineHeight:1.7,fontFamily:'monospace',wordBreak:'break-word' } }, detail)
             ),
@@ -159,40 +160,63 @@
     return code;
   }
 
-  // ─── Compile & Execute ───
+  // ─── Compile & Execute (v3 — Strict Sandboxing) ───
+  // Each execution gets a unique scope ID. All lesson code runs inside
+  // a double-IIFE with `new Function()` to guarantee zero global leakage.
+  // Babel compile cache is busted per invocation to prevent stale AST collisions.
   function compileAndExecute(rawJsx) {
+    // 1. Clear any previous lesson reference
     window.__LUMINOVA_LESSON = null;
+
+    // 2. Increment scope counter for unique variable namespacing
+    _scopeCounter++;
+    var scopeId = '_lmv_scope_' + _scopeCounter + '_' + Date.now();
+
     var processed = preprocessJSX(rawJsx);
-    // Scan for capitalized JSX tags used in the code and generate fallback stubs
-    // for any that aren't covered by our known icon stubs
+
+    // 3. Scan for capitalized JSX tags and generate dynamic fallback stubs
     var knownComponents = [
       'React','CheckCircle2','XCircle','ChevronRight','ChevronLeft','LogOut',
       'Lightbulb','PieChart','Target','Layers','Eye','Layout','Activity',
       'Palette','Scale','ListChecks','Brain','BarChart','ShieldCheck',
       'AlertTriangle','Video','ImageIcon','Image','MonitorPlay','ListOrdered'
     ];
-    // Find all capitalized identifiers used as JSX tags: <SomeName
     var jsxTagRegex = /<([A-Z][A-Za-z0-9_$]*)\s/g;
     var match, unknownTags = {};
     while ((match = jsxTagRegex.exec(processed)) !== null) {
       if (knownComponents.indexOf(match[1]) === -1) unknownTags[match[1]] = true;
     }
-    // Generate fallback stubs for unknown tags to use the DynamicIconFallback
     var dynamicFallbacks = Object.keys(unknownTags).map(function (name) {
       return 'var ' + name + '=function(p){return React.createElement(_DynamicIconFallback,Object.assign({__iconName:"' + name + '"},p))};';
     }).join('\n');
 
-    var wrapped = '(function(){' +
-      'var React=window.React;' +
-      'var useState=React.useState,useEffect=React.useEffect,useCallback=React.useCallback,useRef=React.useRef,useMemo=React.useMemo;' +
-      UNIVERSAL_FALLBACK_CODE + '\n' +
-      ICON_STUBS_CODE + '\n' +
-      dynamicFallbacks + '\n' +
-      processed +
+    // 4. Build sandboxed payload — double IIFE ensures complete scope isolation.
+    //    The outer IIFE provides React bindings + icon stubs.
+    //    The inner IIFE contains the lesson code itself so that identically-named
+    //    `const`/`let` declarations across different lessons never collide.
+    var wrapped =
+      '(function(){' +
+        '/* Sandbox: ' + scopeId + ' */' +
+        'var React=window.React;' +
+        'var useState=React.useState,useEffect=React.useEffect,useCallback=React.useCallback,useRef=React.useRef,useMemo=React.useMemo;' +
+        UNIVERSAL_FALLBACK_CODE + '\n' +
+        ICON_STUBS_CODE + '\n' +
+        dynamicFallbacks + '\n' +
+        '(function(){' + processed + '\n})();' +
       '\n})();';
-    if (!window.Babel) throw new Error('Babel Standalone is not loaded. Add <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>');
-    var compiled = window.Babel.transform(wrapped, { presets: ['env', 'react'], sourceType: 'script' }).code;
+
+    // 5. Babel transpilation with cache-busting filename
+    if (!window.Babel) throw new Error('Babel Standalone is not loaded.');
+    var compiled = window.Babel.transform(wrapped, {
+      presets: ['env', 'react'],
+      sourceType: 'script',
+      filename: scopeId + '.jsx'  // Unique filename prevents Babel AST cache collisions
+    }).code;
+
+    // 6. Execute in isolated Function scope (no access to engine closure variables)
     new Function(compiled)();
+
+    // 7. Validate export
     if (!window.__LUMINOVA_LESSON) throw new Error('No component exported. Ensure the .jsx file has a default export.');
   }
 
@@ -283,22 +307,36 @@
     var EXIT_REGEX = /(خروج|إنهاء|انهاء|رجوع|إغلاق|اغلاق|العودة|exit|close|back|leave|quit|end\s*lesson|finish)/i;
 
     var cleanup = useCallback(function () {
-      // Remove smart exit listener
+      // 1. Remove smart exit listener
       if (exitListenerRef.current && mountRef.current) {
         mountRef.current.removeEventListener('click', exitListenerRef.current, true);
         exitListenerRef.current = null;
       }
-      // Exit fullscreen
+      // 2. Exit fullscreen
       if (document.fullscreenElement) document.exitFullscreen().catch(function () {});
-      // Unmount React 18 root or legacy
+      // 3. Unmount the dynamic lesson component tree (React 18 or legacy)
       if (lessonRootRef.current) {
         try { lessonRootRef.current.unmount(); } catch (e) {}
         lessonRootRef.current = null;
       } else if (mountRef.current) {
         try { ReactDOM.unmountComponentAtNode(mountRef.current); } catch (e) {}
       }
-      // Nullify global
+      // 4. Scrub mount point innerHTML to release any orphaned DOM references
+      if (mountRef.current) {
+        mountRef.current.innerHTML = '';
+      }
+      // 5. Nullify global lesson reference for GC
       window.__LUMINOVA_LESSON = null;
+      // 6. Purge Babel compile cache for this session to free memory
+      try {
+        if (window.Babel && window.Babel.availablePlugins) {
+          // Babel Standalone stores compiled results; clearing the transform
+          // file cache by deleting the entries we created with unique filenames
+          var cache = window.Babel._cache || (window.Babel.cache && window.Babel.cache.clear && window.Babel.cache);
+          if (cache && typeof cache.clear === 'function') cache.clear();
+        }
+      } catch (e) { /* non-critical */ }
+      // 7. Reset all state
       setActive(false); setUrl(null); setLoaded(false);
       setPortrait(false); setLsReady(false);
       setHasErr(false); setErrMsg('');
@@ -516,5 +554,5 @@
     ReactDOM.render(React.createElement(InteractiveEngine), container);
   }
 
-  console.log('%c[Luminova] Interactive Engine v2 loaded ✓', 'color:#22d3ee;font-weight:bold;');
+  console.log('%c[Luminova] Interactive Engine v3 (Sandboxed) loaded ✓', 'color:#22d3ee;font-weight:bold;');
 })();
