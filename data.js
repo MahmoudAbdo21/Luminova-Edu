@@ -505,6 +505,22 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
+      "id": "summaries_1779209402873",
+      "timestamp": "2026-05-19T16:50:02.873Z",
+      "titleAr": "الفصل الثاني",
+      "titleEn": "Chapter 2",
+      "contentAr": "شرح الفصل لثاني كامل بطريقة تفاعلية وشرح مفصل",
+      "contentEn": "Explanation of the chapter for a complete second in an interactive way and a detailed explanation",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775503625271",
+      "studentId": "s_founder_hardcoded",
+      "mediaType": "interactive",
+      "chapterTag": "الفصل الثاني",
+      "lessonUrl": "Interactive-lessons/Photography2.jsx",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791"
+    },
+    {
       "id": "summaries_1779108387626",
       "timestamp": "2026-05-18T12:46:27.626Z",
       "titleAr": "الفصل الاول",
