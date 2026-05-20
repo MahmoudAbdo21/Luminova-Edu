@@ -505,6 +505,22 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
+      "id": "summaries_1779314072357",
+      "timestamp": "2026-05-20T21:54:32.357Z",
+      "titleAr": "الفصل الثالث",
+      "titleEn": "chapter 3",
+      "contentAr": "شرح الفصل الثالث بطريقة متقدمه وبيئة تفاعلية ",
+      "contentEn": "Explain Chapter 3 in an advanced way and interactive environment",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775503625271",
+      "studentId": "s_founder_hardcoded",
+      "mediaType": "interactive",
+      "chapterTag": "الفصل الثالث",
+      "lessonUrl": "Interactive-lessons/Photography3.jsx",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791"
+    },
+    {
       "id": "summaries_1779209402873",
       "timestamp": "2026-05-19T16:50:02.873Z",
       "titleAr": "الفصل الثاني",
