@@ -505,6 +505,22 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
+      "id": "summaries_1779318777355",
+      "timestamp": "2026-05-20T23:12:57.355Z",
+      "titleAr": "شرح وتبسيط المنهج ",
+      "titleEn": "Explain and simplify the curriculum",
+      "contentAr": "تلخيص المنهج بطريقة تفاعلية مميزه",
+      "contentEn": "Summarize the curriculum in an interactive way",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775848318508",
+      "studentId": "s_founder_hardcoded",
+      "mediaType": "interactive",
+      "chapterTag": "ملخص",
+      "lessonUrl": "Interactive-lessons/Intelligence.jsx",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791"
+    },
+    {
       "id": "summaries_1779314072357",
       "timestamp": "2026-05-20T21:54:32.357Z",
       "titleAr": "الفصل الثالث",
