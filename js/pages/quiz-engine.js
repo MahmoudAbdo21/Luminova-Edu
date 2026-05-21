@@ -746,20 +746,20 @@
                         { value: String(s).padStart(2, '0'), label: lang === 'ar' ? '\u062B\u0627\u0646\u064A\u0629' : 'Sec' }
                       ];
                 gatewayContent = html`
-                    <div className="lmv-countdown-gate text-center p-6 sm:p-8 bg-cyan-500/10 rounded-3xl border border-cyan-500/30 mb-6 backdrop-blur-xl">
+                    <div className="lmv-countdown-gate text-center p-6 sm:p-8 bg-brand-DEFAULT/10 rounded-3xl border border-brand-DEFAULT/30 mb-6 backdrop-blur-xl shadow-[0_0_30px_rgba(0,240,255,0.1)]">
                         <div className="lmv-countdown-segments flex items-center justify-center gap-3 sm:gap-5 mb-4">
                             ${countdownDigits.map((seg, i) => html`
                                 <${React.Fragment} key=${i}>
                                     <div className="lmv-countdown-segment flex flex-col items-center">
-                                        <span className="lmv-countdown-digit text-3xl sm:text-5xl font-black text-cyan-400 tabular-nums leading-none px-3 sm:px-5 py-2 sm:py-3 rounded-2xl bg-black/20 shadow-[0_0_15px_rgba(34,211,238,0.3)] min-w-[3rem] sm:min-w-[4.5rem] text-center">${seg.value}</span>
-                                        <span className="lmv-countdown-label text-[0.65rem] sm:text-xs font-bold text-cyan-200/70 mt-1.5 uppercase tracking-wider">${seg.label}</span>
+                                        <span className="lmv-countdown-digit text-3xl sm:text-5xl font-mono font-black text-brand-DEFAULT tabular-nums leading-none px-3 sm:px-5 py-2 sm:py-3 rounded-2xl bg-black/40 shadow-[0_0_15px_rgba(0,240,255,0.25)] border border-brand-DEFAULT/20 min-w-[3rem] sm:min-w-[4.5rem] text-center">${seg.value}</span>
+                                        <span className="lmv-countdown-label text-[0.65rem] sm:text-xs font-bold text-brand-DEFAULT/70 mt-1.5 uppercase tracking-wider">${seg.label}</span>
                                     </div>
-                                    ${i < countdownDigits.length - 1 ? html`<span className="lmv-countdown-sep text-2xl sm:text-3xl font-black text-cyan-500/50 mt-[-0.75rem] select-none">:</span>` : ''}
+                                    ${i < countdownDigits.length - 1 ? html`<span className="lmv-countdown-sep text-2xl sm:text-3xl font-mono font-black text-brand-DEFAULT mt-[-0.75rem] select-none animate-[proctor-blink_1.5s_infinite]">:</span>` : ''}
                                 <//>
                             `)}
                         </div>
-                        <p className="text-sm opacity-90 font-bold text-zinc-800 dark:text-white mb-2">${lang === 'ar' ? '\u064A\u0631\u062C\u0649 \u0627\u0644\u0627\u0646\u062A\u0638\u0627\u0631\u060C \u0633\u064A\u062A\u0645 \u0627\u0644\u062A\u0641\u0639\u064A\u0644 \u062A\u0644\u0642\u0627\u0626\u064A\u0627\u064B' : 'Please wait, will auto-start'}</p>
-                        <p className="text-xs opacity-60 font-medium text-cyan-100">${dateMsg}</p>
+                        <p className="text-sm opacity-90 font-bold text-zinc-800 dark:text-white mb-2">${lang === 'ar' ? '\u064A\u0631\u062C\u0649 \u0627\u0644\u0627\u0646\u062A\u0638\u0627\u0631\u060C \u0633\u064A\u062A\u0645 \u0627\u0644\u062A\u0641\u0639\u064A\u0644 \u062A\u0644\u062A\u0642\u0627\u0626\u064A\u062B\u0627\u064B' : 'Please wait, will auto-start'}</p>
+                        <p className="text-xs opacity-60 font-medium text-brand-DEFAULT/70">${dateMsg}</p>
                     </div>`;
             } else if (timeStatus === 'late') {
                 gatewayContent = html`
@@ -1192,20 +1192,21 @@
             ${modalType === 'cheat_warning' && html`
                 <div
                     className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-                    style=${{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(24px)' }}
+                    style=${{ background: 'rgba(3,0,10,0.85)', backdropFilter: 'blur(25px) saturate(180%)' }}
                 >
-                    <div className="bg-white/5 backdrop-blur-3xl rounded-3xl p-10 w-full max-w-md border border-rose-500/50 animate-fade-in text-center">
-                        <div className="text-7xl mb-6 animate-pulse text-rose-500">🚫</div>
-                        <h2 className="text-3xl font-black text-zinc-900 dark:text-white mb-4">
+                    <div className="bg-brand-crisp/10 backdrop-blur-3xl rounded-[2rem] p-8 sm:p-10 w-full max-w-md border-2 border-brand-crisp text-brand-crisp shadow-[0_0_40px_rgba(255,0,85,0.3)] animate-fade-in text-center relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-crisp to-transparent"></div>
+                        <div className="text-7xl mb-6 animate-[pulse_1s_infinite] drop-shadow-[0_0_15px_rgba(255,0,85,0.6)]">⚠️</div>
+                        <h2 className="text-2xl sm:text-3xl font-black text-white mb-4 tracking-wide uppercase">
                             ${lang === 'ar' ? 'إنذار: مخالفة قواعد المراقبة' : 'Warning: Proctored Rule Violation'}
                         </h2>
-                        <p className="text-lg font-bold text-zinc-400 mb-8 leading-relaxed">
+                        <p className="text-base sm:text-lg font-bold text-zinc-300 mb-8 leading-relaxed">
                             ${lang === 'ar'
                     ? 'لقد قمت بمغادرة شاشة الاختبار. تكرار هذا الإجراء سيؤدي إلى سحب ورقتك وتسليم الامتحان تلقائياً.'
                     : 'You left the exam screen. Repeating this action will force submit your exam automatically.'}
                         </p>
                         <button onClick=${() => setModalType(null)}
-                            className="w-full py-4 rounded-2xl font-black bg-rose-500 hover:bg-rose-600 text-white shadow-xl shadow-rose-500/30 transition-all text-xl"
+                            className="w-full py-4 rounded-2xl font-black bg-brand-crisp hover:bg-brand-crisp/90 text-white shadow-xl shadow-brand-crisp/30 transition-all text-lg sm:text-xl active:scale-[0.97]"
                         >${lang === 'ar' ? 'موافق / أوافق على الاستمرار' : 'Understood'}</button>
                     </div>
                 </div>

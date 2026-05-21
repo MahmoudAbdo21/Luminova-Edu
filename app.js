@@ -481,12 +481,12 @@
 
     Luminova.Components.Button = ({ children, onClick, variant = 'primary', className = "", disabled = false }) => {
         const variants = {
-            primary: "bg-brand-DEFAULT text-white hover:bg-brand-hover",
-            danger: "bg-red-500 text-white hover:bg-red-600",
-            glass: "glass-card text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800",
+            primary: "bg-gradient-to-r from-brand-DEFAULT to-brand-purple text-white shadow-[0_4px_15px_rgba(0,240,255,0.2)] hover:opacity-90 hover:shadow-[0_4px_25px_rgba(189,0,255,0.4)] active:scale-[0.97] transition-all duration-300",
+            danger: "bg-brand-crisp text-white hover:opacity-90 active:scale-[0.97] transition-all duration-300 shadow-[0_4px_15px_rgba(255,0,85,0.2)]",
+            glass: "glass-card text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 active:scale-[0.97]",
         };
         return html`
-        <button disabled=${disabled} onClick=${onClick} className=${`px-4 py-2 rounded-lg font-semibold transition-all shadow hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${variants[variant]} ${className}`}>
+        <button disabled=${disabled} onClick=${onClick} className=${`px-5 py-2.5 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${variants[variant]} ${className}`}>
             ${children}
         </button>
     `;
