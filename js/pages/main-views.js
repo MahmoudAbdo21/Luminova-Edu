@@ -765,19 +765,18 @@ Luminova.Components.TimelineFeed = ({ items, students, subjects, lang, onQuizCli
                             ` : null}
                         </div>
                     </div>
-
                     ${selectedCategory === null ? html`
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-6 max-w-4xl mx-auto w-full px-4 mb-10">
                             ${[
-                                { id: 'capsule', icon: '💎', titleAr: 'الخُلاصة', titleEn: 'The Core', gradient: 'from-fuchsia-500/20 to-purple-500/20', hoverClass: 'hover:border-brand-purple/50 hover:shadow-[0_0_25px_rgba(189,0,255,0.3)]' },
-                                { id: 'videos', icon: '🎬', titleAr: 'فيديوهات شرح', titleEn: 'Video Explanations', gradient: 'from-rose-500/20 to-orange-500/20', hoverClass: 'hover:border-brand-crisp/50 hover:shadow-[0_0_25px_rgba(255,0,85,0.3)]' },
-                                { id: 'pdfs', icon: '📚', titleAr: 'مذكرات و PDF', titleEn: 'PDFs/Notes', gradient: 'from-blue-500/20 to-cyan-500/20', hoverClass: 'hover:border-blue-500/50 hover:shadow-[0_0_25px_rgba(59,130,246,0.3)]' },
-                                { id: 'reels', icon: '📱', titleAr: 'فيديوهات قصيرة', titleEn: 'Reels/Shorts', gradient: 'from-emerald-500/20 to-green-500/20', hoverClass: 'hover:border-emerald-500/50 hover:shadow-[0_0_25px_rgba(16,185,129,0.3)]' },
-                                { id: 'interactive', icon: '💻', titleAr: 'شرح تفاعلي', titleEn: 'Interactive', gradient: 'from-amber-500/20 to-yellow-500/20', hoverClass: 'hover:border-brand-DEFAULT/50 hover:shadow-[0_0_25px_rgba(0,240,255,0.3)]' },
-                                { id: 'exams', icon: '📝', titleAr: 'الاختبارات', titleEn: 'Exams', gradient: 'from-indigo-500/20 to-blue-500/20', hoverClass: 'hover:border-indigo-500/50 hover:shadow-[0_0_25px_rgba(99,102,241,0.3)]' }
+                                { id: 'capsule', icon: '💎', titleAr: 'الخُلاصة', titleEn: 'The Core', gradient: 'from-[#C5A059]/10 to-transparent', hoverClass: 'hover:border-[#C5A059]/40 hover:shadow-[0_0_20px_rgba(197,160,89,0.12)]' },
+                                { id: 'videos', icon: '🎬', titleAr: 'فيديوهات شرح', titleEn: 'Video Explanations', gradient: 'from-[#C5A059]/10 to-transparent', hoverClass: 'hover:border-[#C5A059]/40 hover:shadow-[0_0_20px_rgba(197,160,89,0.12)]' },
+                                { id: 'pdfs', icon: '📚', titleAr: 'مذكرات و PDF', titleEn: 'PDFs/Notes', gradient: 'from-[#C5A059]/10 to-transparent', hoverClass: 'hover:border-[#C5A059]/40 hover:shadow-[0_0_20px_rgba(197,160,89,0.12)]' },
+                                { id: 'reels', icon: '📱', titleAr: 'فيديوهات قصيرة', titleEn: 'Reels/Shorts', gradient: 'from-[#C5A059]/10 to-transparent', hoverClass: 'hover:border-[#C5A059]/40 hover:shadow-[0_0_20px_rgba(197,160,89,0.12)]' },
+                                { id: 'interactive', icon: '💻', titleAr: 'شرح تفاعلي', titleEn: 'Interactive', gradient: 'from-[#A5C4D4]/10 to-transparent', hoverClass: 'hover:border-[#A5C4D4]/40 hover:shadow-[0_0_20px_rgba(165,196,212,0.15)]' },
+                                { id: 'exams', icon: '📝', titleAr: 'الاختبارات', titleEn: 'Exams', gradient: 'from-[#A5C4D4]/10 to-transparent', hoverClass: 'hover:border-[#A5C4D4]/40 hover:shadow-[0_0_20px_rgba(165,196,212,0.15)]' }
                             ].map(cat => html`
                                 <button key=${cat.id} onClick=${() => { setSelectedCategory(cat.id); setVisibleCount(6); }}
-                                    className=${`group relative flex flex-col items-center justify-center min-h-[120px] md:min-h-[160px] p-4 md:p-6 rounded-[2rem] bg-gradient-to-br ${cat.gradient} bg-white/5 backdrop-blur-2xl border border-white/10 ${cat.hoverClass} transition-all duration-500 hover:-translate-y-2 overflow-hidden [-webkit-tap-highlight-color:transparent] active:scale-[0.95] active:brightness-125`}>
+                                    className=${`group relative flex flex-col items-center justify-center min-h-[120px] md:min-h-[160px] p-4 md:p-6 rounded-[2rem] bg-gradient-to-br ${cat.gradient} bg-white/5 backdrop-blur-2xl border border-white/10 ${cat.hoverClass} transition-all duration-500 hover:-translate-y-1 overflow-hidden [-webkit-tap-highlight-color:transparent] active:scale-[0.98] active:brightness-105`}>
                                     <div className="absolute inset-0 bg-white/0 group-hover:bg-white/5 transition-colors duration-500"></div>
                                     <div className="text-4xl md:text-5xl mb-2 md:mb-4 transform group-hover:scale-110 transition-transform duration-500 drop-shadow-xl">
                                         ${cat.icon}

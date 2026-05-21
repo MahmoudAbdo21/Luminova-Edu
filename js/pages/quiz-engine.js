@@ -97,6 +97,8 @@
         const [isStarted, setIsStarted] = useState(!isEvaluation);
         const [studentInfo, setStudentInfo] = useState({ name: '', seatNumber: '', department: '', email: '' });
         const [now, setNow] = useState(null);
+        const deadline = quiz.endTime ? parseCairoDeadline(quiz.endTime) : null;
+        const timeLeft = (deadline && now) ? (deadline.getTime() - now.getTime()) : null;
         
         // ── TRUE CAIRO TIME SYNC ─────────────────────────────────
         // ARCHITECTURE NOTE: The timer is EXCLUSIVELY driven by
@@ -176,11 +178,11 @@
         const loginTimeRef = useRef(null);
 
         useEffect(() => {
-            if (isEvaluation && (!isStarted || !isFinished) && isTimeSynced) {
+            if ((isEvaluation || quiz.endTime) && (!isStarted || !isFinished) && isTimeSynced) {
                 const timer = setInterval(() => setNow(getTrueCairoNow()), 1000);
                 return () => clearInterval(timer);
             }
-        }, [isEvaluation, isStarted, isFinished, isTimeSynced, getTrueCairoNow]);
+        }, [isEvaluation, isStarted, isFinished, isTimeSynced, getTrueCairoNow, quiz.endTime]);
 
         useEffect(() => {
             if (isStarted && !isFinished) {
@@ -188,12 +190,28 @@
                 if (saved) {
                     try {
                         const parsed = JSON.parse(saved);
-                        if (parsed.answers) setAnswers(parsed.answers);
+                        if (parsed.answers) {
+                            const loadedAnswers = { ...parsed.answers };
+                            questions.forEach(q => {
+                                if (q && q.id && !(q.id in loadedAnswers)) {
+                                    loadedAnswers[q.id] = null;
+                                }
+                            });
+                            setAnswers(loadedAnswers);
+                        } else {
+                            const initialAnswers = {};
+                            questions.forEach(q => { if (q && q.id) initialAnswers[q.id] = null; });
+                            setAnswers(initialAnswers);
+                        }
                         if (parsed.studentInfo) setStudentInfo(parsed.studentInfo);
                     } catch (e) { }
+                } else {
+                    const initialAnswers = {};
+                    questions.forEach(q => { if (q && q.id) initialAnswers[q.id] = null; });
+                    setAnswers(initialAnswers);
                 }
             }
-        }, [isStarted, isFinished, quiz.id]);
+        }, [isStarted, isFinished, quiz.id, questions]);
 
         useEffect(() => {
             if (isStarted && !isFinished) {
@@ -229,6 +247,13 @@
             return isExplicitlyTrue(quiz.allowLateSubmission) || isExplicitlyTrue(settings.allowLateSubmission);
         };
 
+        const isForceSubmitPolicy = useMemo(() => {
+            if (!quiz.timeoutPolicy) {
+                return !isDelayAllowed();
+            }
+            return quiz.timeoutPolicy === 'force_submit' || quiz.timeoutPolicy === 'منع تسليم';
+        }, [quiz.timeoutPolicy, quiz.settings]);
+
         const setSubmissionLock = (locked) => {
             submitLockRef.current = locked;
             window.__LUMINOVA_EXAM_IS_SUBMITTING = locked;
@@ -242,6 +267,24 @@
                 setModalType('submission_failed');
                 return;
             }
+
+            // 1. Pre-Flight Deterministic Audit
+            const missingIndices = [];
+            questions.forEach((que, idx) => {
+                if (!(que.id in answers) || answers[que.id] === undefined) {
+                    missingIndices.push(idx + 1);
+                }
+            });
+            if (missingIndices.length > 0) {
+                setSubmissionLock(false);
+                const alertMsg = lang === 'ar' 
+                    ? `فشل التدقيق الأمني: لم يتم تسجيل إجابة للأسئلة رقم (${missingIndices.join(', ')}). يرجى فتح هذه الأسئلة وإدخال إجابة لمنع الفقد الأمني للبيانات.`
+                    : `Pre-Flight Security Audit Failed: Missing answers record for questions: ${missingIndices.join(', ')}. Please view these questions and try again.`;
+                setDebugError(alertMsg);
+                setModalType('submission_failed');
+                return;
+            }
+
             immunityRef.current = true;
             setSubmissionLock(true);
             setHasAttemptedSubmit(true);
@@ -269,21 +312,15 @@
                     const ansStr = [...(answers[que.id] || [])].sort().join(',');
                     if (correctStr === ansStr) score += Number(que.score);
                 }
-                // Essay questions: score = 0 for auto-grading (manual grading by professor)
             });
 
             if (isEvaluation) {
-                // ── SILENT IP TRACKING ───────────────────────────────
                 const ipAddress = await Luminova.Services.GAS.getIPAddress();
 
-                // ── IRON-CLAD SANITIZER ──────────────────────────────
-                // Aggressively strips DOM nodes, React fibers, events,
-                // and any non-primitive object to guarantee clean JSON.
                 const sanitizeValue = (val) => {
                     if (val === null || val === undefined) return null;
                     if (typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean') return val;
                     if (Array.isArray(val)) return val.map(v => sanitizeValue(v));
-                    // If it's ANY object (DOM node, Event, React fiber, etc.) — kill it
                     return 'Invalid Format';
                 };
 
@@ -339,7 +376,6 @@
                     return String(que.modelAnswer || que.modelAnswerAr || que.correctAnswerText || '');
                 };
 
-                // ── HUMAN-READABLE ANSWER RESOLVER ──────────────────
                 const resolveAnswerText = (que) => {
                     const raw = answers[que.id];
                     if (raw === null || raw === undefined) return 'لم يتم الإجابة';
@@ -351,13 +387,11 @@
                         if (Array.isArray(raw)) return raw.map(idx => opts[idx] ? String(opts[idx]) : String(idx)).join(' | ');
                         return sanitizeValue(raw);
                     }
-                    // essay or other
                     return sanitizeValue(raw);
                 };
 
-                // ── BINARY SCORE (1/0) ───────────────────────────────
                 const resolveQuestionScore = (que) => {
-                    if (que.type === 'essay') return 0; // Manual grading
+                    if (que.type === 'essay') return 0;
                     const correctAnswers = getCorrectAnswers(que);
                     if (que.type === 'mcq') return answers[que.id] === correctAnswers[0] ? 1 : 0;
                     if (que.type === 'multi_select') {
@@ -368,13 +402,6 @@
                     return 0;
                 };
 
-                // ── DATA INTEGRITY: QUESTION RE-SORTING ─────────────
-                // orderedQuestionsForMatrix uses quiz.questions (the ORIGINAL
-                // un-shuffled array from exam.js).  Each response carries
-                // originalIndex = its position in quiz.questions.  Answers
-                // are keyed by que.id, so lookup is shuffle-invariant.
-                // The GAS backend sortResponses() sorts by originalIndex,
-                // guaranteeing Q1 -> Col L, Q2 -> Col N, etc. in every row.
                 const orderedQuestionsForMatrix = Array.isArray(quiz.questions) ? quiz.questions : questions;
                 const examKey = String(quiz.id || quiz.titleAr || quiz.title || quiz.titleEn || 'exam').trim().toLowerCase();
                 const studentKey = String(studentInfo.email || studentInfo.seatNumber || studentInfo.name || 'student').trim().toLowerCase();
@@ -383,14 +410,13 @@
                 const atomicPayload = {
                     submissionId: submissionId,
                     idempotencyKey: submissionId,
-                    // Redundant Root-Level Data (Flattening V2 for GAS compatibility)
+                    isLateSubmission: isLateSubmission || (quiz.endTime && serverNow && serverNow > parseCairoDeadline(quiz.endTime)) || false,
                     name: studentInfo?.name || "غير مسجل",
                     email: studentInfo?.email || "غير مسجل",
                     seatNumber: studentInfo?.seatNumber || "غير مسجل",
                     department: studentInfo?.department || "غير مسجل",
                     score: score,
                     maxScore: maxScore,
-
                     student: {
                         name: studentInfo.name || "غير مسجل",
                         department: studentInfo.department || "غير مسجل",
@@ -411,7 +437,6 @@
                         terminationReason: String(reason)
                     },
                     settings: {
-                        // Strictly mapping the CMS flag for V4 Email Engine compatibility
                         studentReport: shouldSendStudentReport(),
                         adminEmails: normalizeEmailList(quiz.settings?.adminEmails || quiz.adminEmails)
                     },
@@ -421,62 +446,87 @@
                         question: String(que.text || que.textAr || que.textEn || ''),
                         studentAnswer: resolveAnswerText(que),
                         isCorrect: que.type === 'essay' ? null : (resolveQuestionScore(que) === 1),
-                        // Forcefully inject reference data for Matrix Initialization (Row 2 & 3)
                         correctAnswer: resolveCorrectAnswerText(que),
                         explanation: String(que.explanation || que.explanationAr || que.explanationEn || que.rationale || "")
                     }))
                 };
 
-                // ── 10-SECOND WATCHDOG (Submit & Verify) ─────────────
-                // Cache payload + reason for potential re-submission
+                // 2. Immutable Payload Freeze
+                const serializedPayload = JSON.stringify(atomicPayload);
                 verifyPayloadRef.current = atomicPayload;
                 verifyReasonRef.current = reason;
                 setModalType('submission_loader');
 
-                const WATCHDOG_TIMEOUT_MS = 10000;
-                const TIMEOUT_SENTINEL = Symbol('TIMEOUT');
+                // 3. Exponential Backoff Network Retry Loop & Handshake Verification
+                let attempt = 0;
+                const maxRetries = 5;
+                let result = null;
+                let lastError = null;
+                const url = quiz.webhookUrl || '';
 
-                try {
-                    const url = quiz.webhookUrl || '';
-                    const fetchPromise = Luminova.Services.GAS.submitExam(url, atomicPayload);
-                    const timeoutPromise = new Promise(resolve =>
-                        setTimeout(() => resolve(TIMEOUT_SENTINEL), WATCHDOG_TIMEOUT_MS)
-                    );
-
-                    const result = await Promise.race([fetchPromise, timeoutPromise]);
-
-                    if (result === TIMEOUT_SENTINEL) {
-                        // ── TIMEOUT: No response within 10s ──────────
-                        setSubmissionLock(false);
-                        setModalType('verify_timeout');
-                        // NOTE: The actual fetch is still in flight.
-                        // We do NOT abort it — if the server processes
-                        // it late, the idempotency key prevents duplicates.
-                        return;
+                while (attempt < maxRetries) {
+                    attempt++;
+                    try {
+                        console.log(`Luminova Submission Transaction: Attempt ${attempt}/${maxRetries}`);
+                        const payloadSnapshot = JSON.parse(serializedPayload);
+                        
+                        const WATCHDOG_TIMEOUT_MS = 10000;
+                        const TIMEOUT_SENTINEL = Symbol('TIMEOUT');
+                        
+                        const fetchPromise = Luminova.Services.GAS.submitExam(url, payloadSnapshot);
+                        const timeoutPromise = new Promise(resolve =>
+                            setTimeout(() => resolve(TIMEOUT_SENTINEL), WATCHDOG_TIMEOUT_MS)
+                        );
+                        
+                        const attemptResult = await Promise.race([fetchPromise, timeoutPromise]);
+                        
+                        if (attemptResult === TIMEOUT_SENTINEL) {
+                            throw new Error('Transaction execution watchdog timeout');
+                        }
+                        
+                        if (attemptResult && attemptResult.status === 'ok') {
+                            if (attemptResult.submissionId === atomicPayload.submissionId || attemptResult.duplicate === true) {
+                                result = attemptResult;
+                                break;
+                            } else {
+                                throw new Error('Transaction Handshake mismatch or invalid receipt');
+                            }
+                        } else {
+                            throw new Error(attemptResult?.message || 'Transaction status rejected');
+                        }
+                    } catch (err) {
+                        console.warn(`Luminova Submission: Attempt ${attempt} encountered error:`, err);
+                        lastError = err;
+                        
+                        if (attempt < maxRetries) {
+                            if (err.code === 'DATA_INCOMPLETE') {
+                                console.log('DATA_INCOMPLETE token received. Auto-resubmitting immediately...');
+                                continue; // Jump instantly to next attempt in the loop
+                            }
+                            const waitSeconds = Math.pow(2, attempt) - 1;
+                            console.log(`Retry pending in ${waitSeconds}s...`);
+                            await new Promise(r => setTimeout(r, waitSeconds * 1000));
+                        }
                     }
+                }
 
-                    // ── SERVER RESPONDED WITHIN 10s ──────────────────
-                    if (result && result.status === 'ok') {
-                        safeExitFullscreen();
-                        setSubmissionLock(false);
-                        setIsFinished(true);
-                        setModalType('verify_success');
-                        setDebugError(null);
-                        localStorage.removeItem('quiz_progress_' + quiz.id);
-                    } else {
-                        throw new Error('Backend validation failed');
-                    }
-                } catch (e) {
-                    console.error('Submission failed:', e);
-                    setDebugError(e?.message || 'Unknown Error');
-                    const isNetworkFailure = e?.isNetworkError === true
-                        || e?.luminovaNetworkError === true
-                        || /network|failed to fetch|timeout|connection|اتصال/i.test(String(e?.message || ''));
-                    if (isNetworkFailure) {
-                        setSubmissionLock(false);
-                        setModalType('submission_failed');
-                    }
-                    return;
+                if (result) {
+                    safeExitFullscreen();
+                    setSubmissionLock(false);
+                    setIsFinished(true);
+                    setModalType('verify_success');
+                    setDebugError(null);
+                    localStorage.removeItem('quiz_progress_' + quiz.id);
+                } else {
+                    // 4. State Preservation Offline Fallback Container
+                    const emergencyKey = `luminova_emergency_submission_${quiz.id}_${studentInfo.email || 'student'}`;
+                    localStorage.setItem(emergencyKey, serializedPayload);
+                    
+                    setSubmissionLock(false);
+                    setDebugError(lang === 'ar'
+                        ? 'فشلت جميع محاولات الاتصال بالخادم بسبب مشاكل الشبكة. تم تأمين إجاباتك محلياً بشكل كامل (Emergency Offline Container). يرجى إخطار الإدارة بنسخ السجل المحلي من جهازك.'
+                        : 'All secure network transactions failed. Your responses are stored in the emergency offline local storage container. Please inform administration.');
+                    setModalType('submission_failed');
                 }
             } else {
                 safeExitFullscreen();
@@ -523,13 +573,19 @@
             if (isStarted && !isFinished && isEvaluation && quiz.endTime && isTimeSynced && now) {
                 const deadline = parseCairoDeadline(quiz.endTime);
                 if (deadline && now >= deadline) {
-                    if (!isDelayAllowed() && !timeExpiredSubmitRef.current) {
-                        timeExpiredSubmitRef.current = true;
-                        submitExam('time_expired');
+                    if (isForceSubmitPolicy) {
+                        if (!timeExpiredSubmitRef.current) {
+                            timeExpiredSubmitRef.current = true;
+                            submitExam('time_expired');
+                        }
+                    } else {
+                        if (!isLateSubmission) {
+                            setIsLateSubmission(true);
+                        }
                     }
                 }
             }
-        }, [now, isStarted, isFinished, isEvaluation, isTimeSynced, quiz?.endTime]);
+        }, [now, isStarted, isFinished, isEvaluation, isTimeSynced, quiz?.endTime, isForceSubmitPolicy, isLateSubmission]);
 
         useEffect(() => {
             if (isStarted && !isFinished && isEvaluation && !hasAttemptedSubmit) {
@@ -646,7 +702,6 @@
             }
 
             const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(studentInfo.email);
-            const isFormValid = studentInfo.name && studentInfo.seatNumber && studentInfo.department && isEmailValid;
             const verifyAndStart = async () => {
                 if (!isTimeSynced || cairoOffsetMs === null) {
                     setDebugError(lang === 'ar' ? 'جاري مزامنة وقت الخادم. يرجى المحاولة بعد لحظات.' : 'Server time is still synchronizing. Please try again in a moment.');
@@ -699,7 +754,7 @@
                 
             } else if (quiz.endTime && now > parseCairoDeadline(quiz.endTime)) {
                 timeStatus = 'late';
-                timeMsg = lang === 'ar' ? '\u0639\u0630\u0631\u0627\u064B\u060C \u0644\u0642\u062F \u0627\u0646\u062A\u0647\u0649 \u0645\u0648\u0639\u062F \u0627\u0644\u0627\u062E\u062A\u0628\u0627\u0631' : 'Sorry, the exam has ended';
+                timeMsg = lang === 'ar' ? 'عذراً، لقد انتهى موعد الاختبار' : 'Sorry, the exam has ended';
             }
 
             let gatewayContent;
@@ -746,20 +801,25 @@
                         { value: String(s).padStart(2, '0'), label: lang === 'ar' ? '\u062B\u0627\u0646\u064A\u0629' : 'Sec' }
                       ];
                 gatewayContent = html`
-                    <div className="lmv-countdown-gate text-center p-6 sm:p-8 bg-brand-DEFAULT/10 rounded-3xl border border-brand-DEFAULT/30 mb-6 backdrop-blur-xl shadow-[0_0_30px_rgba(0,240,255,0.1)]">
-                        <div className="lmv-countdown-segments flex items-center justify-center gap-3 sm:gap-5 mb-4">
-                            ${countdownDigits.map((seg, i) => html`
-                                <${React.Fragment} key=${i}>
-                                    <div className="lmv-countdown-segment flex flex-col items-center">
-                                        <span className="lmv-countdown-digit text-3xl sm:text-5xl font-mono font-black text-brand-DEFAULT tabular-nums leading-none px-3 sm:px-5 py-2 sm:py-3 rounded-2xl bg-black/40 shadow-[0_0_15px_rgba(0,240,255,0.25)] border border-brand-DEFAULT/20 min-w-[3rem] sm:min-w-[4.5rem] text-center">${seg.value}</span>
-                                        <span className="lmv-countdown-label text-[0.65rem] sm:text-xs font-bold text-brand-DEFAULT/70 mt-1.5 uppercase tracking-wider">${seg.label}</span>
-                                    </div>
-                                    ${i < countdownDigits.length - 1 ? html`<span className="lmv-countdown-sep text-2xl sm:text-3xl font-mono font-black text-brand-DEFAULT mt-[-0.75rem] select-none animate-[proctor-blink_1.5s_infinite]">:</span>` : ''}
-                                <//>
-                            `)}
+                    <div className="relative overflow-hidden rounded-3xl border border-brand-ice/10 bg-[#020C1B]/60 shadow-[inset_0_4px_24px_rgba(0,0,0,0.85),_0_20px_50px_rgba(0,0,0,0.5)] mb-6 select-none">
+                        <div className="relative p-6 sm:p-8 text-center bg-transparent">
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(197,160,89,0.02),transparent_75%)] pointer-events-none"></div>
+                            <div className="relative z-10">
+                                <div className="lmv-countdown-segments flex items-center justify-center gap-3 sm:gap-5 mb-4">
+                                    ${countdownDigits.map((seg, i) => html`
+                                        <${React.Fragment} key=${i}>
+                                            <div className="lmv-countdown-segment flex flex-col items-center">
+                                                <span className="lmv-countdown-digit flex flex-row flex-nowrap items-center justify-center w-12 sm:w-16 text-3xl sm:text-5xl font-mono font-black text-brand-DEFAULT tabular-nums leading-none px-3 sm:px-5 py-2 sm:py-3 rounded-2xl bg-[#0B132B]/90 shadow-[0_0_15px_rgba(197,160,89,0.2)] border border-brand-ice/30 text-center" style=${{ whiteSpace: 'nowrap' }}>${seg.value}</span>
+                                                <span className="lmv-countdown-label text-[0.65rem] sm:text-xs font-bold text-brand-DEFAULT/70 mt-1.5 uppercase tracking-wider">${seg.label}</span>
+                                            </div>
+                                            ${i < countdownDigits.length - 1 ? html`<span className="lmv-countdown-sep text-2xl sm:text-3xl font-mono font-black text-brand-DEFAULT mt-[-0.75rem] select-none animate-[proctor-gold-blink_1.5s_infinite]">:</span>` : ''}
+                                        <//>
+                                    `)}
+                                </div>
+                                <p className="text-sm opacity-90 font-bold text-zinc-800 dark:text-white mb-2">${lang === 'ar' ? 'يرجى الانتظار، سيتم التفعيل تلقائياً' : 'Please wait, will auto-start'}</p>
+                                <p className="text-xs opacity-60 font-medium text-brand-DEFAULT/70">${dateMsg}</p>
+                            </div>
                         </div>
-                        <p className="text-sm opacity-90 font-bold text-zinc-800 dark:text-white mb-2">${lang === 'ar' ? '\u064A\u0631\u062C\u0649 \u0627\u0644\u0627\u0646\u062A\u0638\u0627\u0631\u060C \u0633\u064A\u062A\u0645 \u0627\u0644\u062A\u0641\u0639\u064A\u0644 \u062A\u0644\u062A\u0642\u0627\u0626\u064A\u062B\u0627\u064B' : 'Please wait, will auto-start'}</p>
-                        <p className="text-xs opacity-60 font-medium text-brand-DEFAULT/70">${dateMsg}</p>
                     </div>`;
             } else if (timeStatus === 'late') {
                 gatewayContent = html`
@@ -859,7 +919,18 @@
 
         const handleFinish = () => {
             if (isSubmitting || submitLockRef.current) return;
-            setModalType('submit');
+            
+            // Check for unanswered questions (exclude null, empty string, empty array)
+            const unansweredCount = questions.filter(que => {
+                const ans = answers[que.id];
+                return ans === undefined || ans === null || ans === '' || (Array.isArray(ans) && ans.length === 0);
+            }).length;
+
+            if (unansweredCount > 0) {
+                setModalType('unanswered_warning');
+            } else {
+                setModalType('submit');
+            }
         };
 
         if (isFinished) {
@@ -926,7 +997,11 @@
                             ${terminationReason === 'completed'
                         ? (lang === 'ar' ? 'شكراً لك، تم حفظ جميع إجاباتك.' : 'Thank you, all your answers have been saved.')
                         : terminationReason === 'time_expired'
-                            ? (lang === 'ar' ? 'انتهى الوقت المسموح به، تم حفظ وتسليم إجاباتك تلقائياً.' : 'Time is up. Your answers have been automatically saved and submitted.')
+                            ? (lang === 'ar' 
+                                ? (isForceSubmitPolicy 
+                                    ? 'انتهى الوقت المحدد لك، وتم سحب وتسجيل إجاباتك إجبارياً بنجاح.' 
+                                    : 'انتهى الوقت المسموح به، تم حفظ وتسليم إجاباتك تلقائياً.') 
+                                : 'Time is up. Your answers have been automatically saved and submitted.')
                             : (lang === 'ar' ? 'تم سحب الامتحان وإرساله للإدارة نظراً لمخالفة قواعد المراقبة والخروج من الشاشة أكثر من مرة.' : 'Exam force-submitted and sent to administration due to repeated proctoring violations.')}
                         </p>
                         <${Luminova.Components.Button} onClick=${goBack} className="w-full py-4 text-xl rounded-2xl font-black bg-gradient-to-r from-rose-400 via-fuchsia-400 to-indigo-500 text-white shadow-xl transition-all hover:scale-[1.02]">
@@ -954,7 +1029,11 @@
                 ${terminationReason !== 'completed' && html`
                     <div className="text-center mt-6 px-6 py-4 bg-red-500/20 text-red-600 dark:text-red-500 border border-red-500/50 rounded-2xl font-bold text-lg max-w-xl mx-auto shadow-lg animate-pulse">
                         ⚠️ ${terminationReason === 'time_expired'
-                        ? (lang === 'ar' ? 'انتهى الوقت المسموح به، تم حفظ وتسليم إجاباتك تلقائياً.' : 'Time is up. Your answers have been automatically saved and submitted.')
+                        ? (lang === 'ar' 
+                            ? (isForceSubmitPolicy 
+                                ? 'انتهى الوقت المحدد لك، وتم سحب وتسجيل إجاباتك إجبارياً بنجاح.' 
+                                : 'انتهى الوقت المسموح به، تم حفظ وتسليم إجاباتك تلقائياً.') 
+                            : 'Time is up. Your answers have been automatically saved and submitted.')
                         : (lang === 'ar' ? 'تم سحب الامتحان وإرساله للإدارة نظراً لمخالفة قواعد المراقبة والخروج من الشاشة أكثر من مرة.' : 'Exam force-submitted and sent to administration due to repeated proctoring violations.')}
                     </div>
                 `}
@@ -1102,18 +1181,23 @@
 
             ${/* ── SUBMISSION FAILED (Network Error — Manual Retry) ── */
             modalType === 'submission_failed' && html`
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style=${{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(24px)' }}>
-                    <div className="bg-white/[0.03] backdrop-blur-2xl rounded-[2.5rem] shadow-2xl p-10 w-full max-w-md border border-red-500/20 animate-fade-in text-center">
-                        <div className="text-7xl mb-6 text-red-400">📡</div>
-                        <h2 className="text-2xl font-black text-zinc-900 dark:text-white mb-4">${lang === 'ar' ? 'فشل الإرسال' : 'Submission Failed'}</h2>
-                        <p className="text-base font-bold text-zinc-400 mb-4 leading-relaxed">
-                            ${lang === 'ar' ? 'حدث خطأ أثناء إرسال إجاباتك. لا تقلق، إجاباتك محفوظة. يرجى المحاولة مرة أخرى.' : 'An error occurred while sending your answers. Don\'t worry, your answers are saved. Please try again.'}
-                        </p>
-                        ${debugError && html`<div className="p-3 mb-6 bg-red-500/10 text-red-400 rounded-xl text-xs font-mono text-left break-words border border-red-500/20">${debugError}</div>`}
-                        <button onClick=${() => submitExam(terminationReason)} disabled=${isSubmitting}
-                            className="w-full py-4 rounded-2xl font-black bg-gradient-to-r from-rose-400 via-fuchsia-400 to-indigo-500 text-white shadow-xl transition-all text-xl disabled:opacity-50 hover:scale-[1.02]">
-                            ${isSubmitting ? (lang === 'ar' ? 'جاري إعادة الإرسال...' : 'Retrying...') : (lang === 'ar' ? 'إعادة إرسال النتيجة' : 'Retry Submission')}
-                        </button>
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" style=${{ background: 'rgba(3,0,10,0.85)', backdropFilter: 'blur(30px)' }}>
+                    <div className="bg-white/[0.02] backdrop-blur-2xl rounded-[2.5rem] shadow-2xl p-8 sm:p-10 w-full max-w-md border border-brand-ice/10 animate-fade-in text-center relative overflow-hidden">
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(197,160,89,0.02),transparent_80%)] pointer-events-none"></div>
+                        <div className="relative z-10">
+                            <div className="text-6xl mb-6 text-brand-DEFAULT animate-pulse">📡</div>
+                            <h2 className="text-2xl font-black text-zinc-900 dark:text-white mb-4">${lang === 'ar' ? 'جاري تأمين إجاباتك' : 'Securing Your Answers'}</h2>
+                            <p className="text-base font-bold text-brand-ice/80 mb-6 leading-relaxed">
+                                ${lang === 'ar' 
+                                    ? 'انتبه من جودة إشارة الإنترنت لديك. جاري الحفاظ على إجاباتك آمنة، يرجى إعادة محاولة التسليم...' 
+                                    : 'Please check your internet signal quality. Your answers are kept completely safe. Please retry submission...'}
+                            </p>
+                            ${debugError && html`<div className="p-3 mb-6 bg-red-500/10 text-red-400 rounded-xl text-xs font-mono text-left break-words border border-red-500/20 max-h-24 overflow-y-auto">${debugError}</div>`}
+                            <button onClick=${() => submitExam(terminationReason)} disabled=${isSubmitting}
+                                className="w-full py-4 rounded-2xl font-black bg-gradient-to-r from-[#BA964F] to-[#C5A059] text-[#020C1B] shadow-xl hover:shadow-[0_0_30px_rgba(197,160,89,0.3)] transition-all text-xl disabled:opacity-50 active:scale-[0.98]">
+                                ${isSubmitting ? (lang === 'ar' ? 'جاري المحاولة...' : 'Retrying...') : (lang === 'ar' ? 'إعادة محاولة التسليم' : 'Retry Submission')}
+                            </button>
+                        </div>
                     </div>
                 </div>
             `}
@@ -1162,6 +1246,40 @@
                 </div>
             `}
 
+            <!-- Unanswered Questions Warning Modal -->
+            ${modalType === 'unanswered_warning' && html`
+                <div
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+                    style=${{ background: 'rgba(251,191,36,0.15)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+                >
+                    <div className="bg-[#0B132B]/95 backdrop-blur-3xl rounded-3xl shadow-[0_32px_80px_rgba(0,0,0,0.5)] p-8 w-full max-w-md border border-amber-500/30 animate-fade-in text-center">
+                        <div className="text-6xl mb-4 animate-pulse">⚠️</div>
+                        <h2 className="text-2xl font-black text-white mb-3">
+                            ${lang === 'ar' ? 'أسئلة غير مجابة!' : 'Unanswered Questions!'}
+                        </h2>
+                        <p className="text-base font-bold text-amber-200/80 mb-6 leading-relaxed">
+                            ${lang === 'ar'
+                                ? `لديك ${questions.filter(que => {
+                                    const ans = answers[que.id];
+                                    return ans === undefined || ans === null || ans === '' || (Array.isArray(ans) && ans.length === 0);
+                                }).length} سؤالاً لم تقم بالإجابة عليها بعد. هل ترغب في العودة للمراجعة أم إنهاء وتسليم الاختبار؟`
+                                : `You have ${questions.filter(que => {
+                                    const ans = answers[que.id];
+                                    return ans === undefined || ans === null || ans === '' || (Array.isArray(ans) && ans.length === 0);
+                                }).length} unanswered questions. Would you like to go back to review or submit anyway?`}
+                        </p>
+                        <div className="flex flex-col gap-3">
+                            <button onClick=${() => setModalType(null)}
+                                className="w-full py-3.5 rounded-2xl font-black bg-[#BA964F]/20 border border-[#BA964F]/40 text-[#BA964F] hover:bg-[#BA964F]/30 transition-all"
+                            >${lang === 'ar' ? 'العودة للمراجعة' : 'Go Back to Review'}</button>
+                            <button disabled=${isSubmitting} onClick=${() => { setModalType('submit'); }}
+                                className="w-full py-3.5 rounded-2xl font-black bg-gradient-to-r from-red-600 to-amber-600 text-white shadow-lg transition-all hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
+                            >${lang === 'ar' ? 'إنهاء وتسليم الاختبار على أي حال' : 'Submit Anyway'}</button>
+                        </div>
+                    </div>
+                </div>
+            `}
+
             <!-- Submit Modal -->
             ${modalType === 'submit' && html`
                 <div
@@ -1188,15 +1306,14 @@
                 </div>
             `}
 
-            <!-- Cheat Warning Modal -->
             ${modalType === 'cheat_warning' && html`
                 <div
                     className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-                    style=${{ background: 'rgba(3,0,10,0.85)', backdropFilter: 'blur(25px) saturate(180%)' }}
+                    style=${{ background: 'rgba(2,12,27,0.9)', backdropFilter: 'blur(30px) saturate(140%)' }}
                 >
-                    <div className="bg-brand-crisp/10 backdrop-blur-3xl rounded-[2rem] p-8 sm:p-10 w-full max-w-md border-2 border-brand-crisp text-brand-crisp shadow-[0_0_40px_rgba(255,0,85,0.3)] animate-fade-in text-center relative overflow-hidden">
+                    <div className="bg-[#020C1B]/95 backdrop-blur-3xl rounded-[2rem] p-8 sm:p-10 w-full max-w-md border border-brand-crisp text-brand-crisp shadow-[0_0_50px_rgba(255,0,85,0.4)] animate-fade-in text-center relative overflow-hidden">
                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-crisp to-transparent"></div>
-                        <div className="text-7xl mb-6 animate-[pulse_1s_infinite] drop-shadow-[0_0_15px_rgba(255,0,85,0.6)]">⚠️</div>
+                        <div className="text-7xl mb-6 animate-[pulse_1.5s_infinite] drop-shadow-[0_0_15px_rgba(255,0,85,0.6)]">⚠️</div>
                         <h2 className="text-2xl sm:text-3xl font-black text-white mb-4 tracking-wide uppercase">
                             ${lang === 'ar' ? 'إنذار: مخالفة قواعد المراقبة' : 'Warning: Proctored Rule Violation'}
                         </h2>
@@ -1206,7 +1323,7 @@
                     : 'You left the exam screen. Repeating this action will force submit your exam automatically.'}
                         </p>
                         <button onClick=${() => setModalType(null)}
-                            className="w-full py-4 rounded-2xl font-black bg-brand-crisp hover:bg-brand-crisp/90 text-white shadow-xl shadow-brand-crisp/30 transition-all text-lg sm:text-xl active:scale-[0.97]"
+                            className="w-full py-4 rounded-2xl font-black bg-brand-crisp hover:bg-brand-crisp/90 text-white shadow-[0_4px_25px_rgba(255,0,85,0.45)] transition-all text-lg sm:text-xl active:scale-[0.98]"
                         >${lang === 'ar' ? 'موافق / أوافق على الاستمرار' : 'Understood'}</button>
                     </div>
                 </div>
@@ -1320,14 +1437,14 @@
                         </div>
                         <!-- Progress summary -->
                         <div className="px-5 py-3 flex items-center justify-between text-xs font-bold text-zinc-500 dark:text-white/50 border-b border-zinc-200 dark:border-white/5">
-                            <span>${lang === 'ar' ? 'تمت الإجابة' : 'Answered'}: <span className="text-green-400">${Object.keys(answers).filter(k => { const v = answers[k]; return v !== undefined && v !== '' && (!Array.isArray(v) || v.length > 0); }).length}</span> / ${questions.length}</span>
+                            <span>${lang === 'ar' ? 'تمت الإجابة' : 'Answered'}: <span className="text-green-400">${Object.keys(answers).filter(k => { const v = answers[k]; return v !== undefined && v !== null && v !== '' && (!Array.isArray(v) || v.length > 0); }).length}</span> / ${questions.length}</span>
                             <span className="text-rose-400">${lang === 'ar' ? 'الحالي' : 'Current'}: ${currentIndex + 1}</span>
                         </div>
                         <!-- Question list -->
                         <div className="flex-1 overflow-y-auto px-4 py-3">
                             <div className="flex flex-col gap-2">
                                 ${questions.map((qItem, i) => {
-                        const isAnswered = answers[qItem?.id] !== undefined && (Array.isArray(answers[qItem?.id]) ? answers[qItem?.id].length > 0 : answers[qItem?.id] !== '');
+                        const isAnswered = answers[qItem?.id] !== undefined && answers[qItem?.id] !== null && answers[qItem?.id] !== '' && (Array.isArray(answers[qItem?.id]) ? answers[qItem?.id].length > 0 : true);
                         const isCurrent = currentIndex === i;
                         const isLocked = quiz.allowBackNavigation === false && i < currentIndex;
                         const qLabel = lang === 'ar' ? `السؤال ${(i + 1).toLocaleString('ar-EG')}` : `Question ${i + 1}`;
@@ -1355,40 +1472,42 @@
                                         ${isCurrent ? html`<span className="w-2 h-2 rounded-full bg-rose-400 animate-pulse shrink-0"></span>` : null}
                                     </button>
                                 `;
-                    })}
+                            })}
                             </div>
                         </div>
                     </div>
                 </div>
             `}
 
-            ${(isEvaluation && isStarted && !isFinished && quiz.endTime) ? (() => {
-                const allowLate = isDelayAllowed();
-                const deadline = parseCairoDeadline(quiz.endTime);
-                const rawDiff = deadline && now ? deadline - now : 0;
-                const isOvertime = rawDiff < 0;
-                let diff = isOvertime ? Math.abs(rawDiff) : rawDiff;
-                if (!isOvertime && diff < 0) diff = 0;
+            <!-- Countdown / Timer -->
+            ${quiz.endTime && timeLeft !== null ? (() => {
+                const isOvertime = timeLeft < 0;
+                const diff = Math.abs(timeLeft);
                 const h = Math.floor(diff / 3600000).toString().padStart(2, '0');
                 const m = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
                 const s = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
                 const isUrgent = !isOvertime && diff < 300000;
-                if (isOvertime && allowLate) {
-                    return html`
-                        <div className="sticky top-4 z-50 mx-auto max-w-[calc(100vw-2rem)] px-4 sm:px-6 py-3 rounded-2xl sm:rounded-full border shadow-2xl backdrop-blur-2xl mb-6 font-mono text-xl sm:text-2xl font-black tracking-widest transition-all duration-300 bg-red-500/20 border-red-500 text-red-400 animate-pulse shadow-[0_0_20px_rgba(239,68,68,0.3)] flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 text-center leading-none tabular-nums">
-                            <span className="text-red-300 text-sm font-black uppercase tracking-widest me-2">${lang === 'ar' ? '+ متأخر' : '+ Late'}</span> ${h}:${m}:${s}
-                        </div>
-                    `;
+                
+                let timerClass = "bg-[#0B132B]/60 border border-brand-ice/10 text-brand-DEFAULT font-mono px-4 py-2 rounded-xl shadow-lg";
+                if (isOvertime) {
+                    timerClass = "bg-red-950/60 border border-red-500/30 text-red-400 font-mono px-4 py-2 rounded-xl shadow-lg animate-pulse";
+                } else if (isUrgent) {
+                    timerClass = "bg-amber-950/60 border border-amber-500/30 text-amber-400 font-mono px-4 py-2 rounded-xl shadow-lg animate-pulse";
                 }
+
                 return html`
-                    <div className=${`sticky top-4 z-50 mx-auto max-w-[calc(100vw-2rem)] px-4 sm:px-6 py-3 rounded-2xl sm:rounded-full border shadow-2xl backdrop-blur-2xl mb-6 font-mono text-xl sm:text-2xl font-black tracking-widest transition-all duration-300 flex items-center justify-center gap-2 text-center leading-none tabular-nums whitespace-nowrap ${isUrgent ? 'bg-red-500/20 border-red-500 text-red-400 animate-pulse shadow-[0_0_20px_rgba(239,68,68,0.3)]' : 'bg-white/[0.03] border-white/10 text-white shadow-[0_0_20px_rgba(0,0,0,0.3)]'}`}>
-                        ⏳ ${h}:${m}:${s}
+                    <div className="sticky top-4 z-50 mx-auto max-w-max mb-6 font-mono text-lg sm:text-xl font-bold tracking-wider transition-all duration-300">
+                        <div className=${timerClass} style=${{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
+                            ${isOvertime 
+                                ? (lang === 'ar' ? `⚠️ متأخر: + ${h}:${m}:${s}` : `⚠️ Late: + ${h}:${m}:${s}`)
+                                : `⏳ ${h}:${m}:${s}`}
+                        </div>
                     </div>
                 `;
             })() : ''}
 
             <div className="flex justify-between items-center mb-10 bg-white/[0.03] backdrop-blur-2xl p-4 rounded-2xl shadow-lg border border-white/10">
-                <${Luminova.Components.Button} variant="danger" onClick=${() => setModalType('exit')} className="rounded-full shadow-lg hover:-translate-x-1">
+                <${Luminova.Components.Button} variant="danger" disabled=${isSubmitting || submitLockRef.current} onClick=${() => { if (isSubmitting || submitLockRef.current) return; setModalType('exit'); }} className="rounded-full shadow-lg hover:-translate-x-1">
                     <${Luminova.Icons.XCircle} /> <span className="hidden sm:inline">${lang === 'ar' ? 'خروج' : 'Quit'}</span>
                 </${Luminova.Components.Button}>
                 <div className="flex-1 mx-4 sm:mx-8 relative">
@@ -1398,7 +1517,7 @@
                 </div>
                 <span className="font-black text-xl sm:text-2xl text-rose-400 drop-shadow-sm shrink-0">${currentIndex + 1} <span className="opacity-40 text-lg">/ ${questions.length}</span></span>
                 <!-- Drawer trigger button -->
-                <button onClick=${() => setShowDrawer(true)} className="ms-3 w-10 h-10 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shrink-0 group" title=${lang === 'ar' ? 'خريطة الأسئلة' : 'Questions Map'}>
+                <button disabled=${isSubmitting || submitLockRef.current} onClick=${() => { if (isSubmitting || submitLockRef.current) return; setShowDrawer(true); }} className="ms-3 w-10 h-10 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shrink-0 group disabled:opacity-50 disabled:cursor-not-allowed" title=${lang === 'ar' ? 'خريطة الأسئلة' : 'Questions Map'}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-rose-400 group-hover:text-rose-300 transition-colors"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
                 </button>
             </div>
@@ -1429,13 +1548,23 @@
                         <div className="space-y-4 max-w-2xl mx-auto">
                             ${(q.options || q.optionsAr || []).map((opt, i) => {
                         const handleMCQClick = () => {
-                            if (isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))) return;
+                            if (isSubmitting || isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))) return;
                             setAnswers(prev => ({ ...prev, [q.id]: i }));
                         };
+                        const isSelected = answers[q.id] === i;
+                        const btnClass = `w-full text-start p-5 rounded-2xl border-2 transition-all duration-300 text-lg font-bold shadow-sm flex items-center gap-4 ${
+                            isSelected 
+                                ? 'bg-[#C5A059]/20 text-[#1E293B] border-[#BA964F] shadow-[0_0_20px_rgba(197,160,89,0.15)] dark:bg-[#C5A059] dark:text-[#020C1B] dark:border-[#C5A059] dark:shadow-[0_0_25px_rgba(197,160,89,0.3)] scale-[1.02]' 
+                                : 'bg-white/80 border-zinc-200 text-[#1E293B] hover:bg-zinc-100/90 hover:text-[#0f172a] hover:border-zinc-300 dark:bg-[#0B132B]/40 dark:border-[#A5C4D4]/10 dark:text-slate-200 dark:hover:bg-[#0B132B]/60 dark:hover:text-white dark:hover:border-[#A5C4D4]/30 shadow-sm hover:scale-[1.01]'
+                        } ${
+                            (isSubmitting || isFeedbackRevealed || revealedQuestions.has(q.id)) 
+                                ? 'opacity-70 cursor-not-allowed' 
+                                : ''
+                        }`;
                         return html`
                                 <button key=${`opt-${q.id}-${i}`} onClick=${handleMCQClick}
-                                    disabled=${isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))}
-                                    className=${`w-full text-start p-5 rounded-2xl border-2 transition-all duration-300 text-lg font-bold shadow-sm ${answers[q.id] === i ? 'border-rose-500 bg-rose-500/10 scale-[1.02] shadow-rose-500/10' : 'border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-white/2 hover:border-rose-400/30 hover:bg-zinc-100 dark:hover:bg-white/4 hover:scale-[1.01] text-zinc-700 dark:text-white/80 hover:text-zinc-900 dark:hover:text-white'} ${(isFeedbackRevealed || revealedQuestions.has(q.id)) ? 'opacity-70 cursor-not-allowed' : ''}`}>
+                                    disabled=${isSubmitting || isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))}
+                                    className=${btnClass}>
                                     <span className="inline-block w-8 h-8 rounded-full bg-white/5 text-center leading-8 mr-4 ml-4 text-sm">${String.fromCharCode(65 + i)}</span>
                                     ${opt}
                                 </button>
@@ -1450,14 +1579,28 @@
                 const selected = answers[q.id] || [];
                 const isSelected = selected.includes(i);
                 const handleMultiClick = () => {
-                    if (isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))) return;
+                    if (isSubmitting || isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))) return;
                     const next = isSelected ? selected.filter(x => x !== i) : [...selected, i];
                     setAnswers(prev => ({ ...prev, [q.id]: next }));
                 };
+                const btnClass = `w-full text-start p-5 rounded-2xl border-2 transition-all duration-300 text-lg font-bold shadow-sm flex items-center gap-4 ${
+                    isSelected 
+                        ? 'bg-[#C5A059]/20 text-[#1E293B] border-[#BA964F] shadow-[0_0_20px_rgba(197,160,89,0.15)] dark:bg-[#C5A059] dark:text-[#020C1B] dark:border-[#C5A059] dark:shadow-[0_0_25px_rgba(197,160,89,0.3)] scale-[1.02]' 
+                        : 'bg-white/80 border-zinc-200 text-[#1E293B] hover:bg-zinc-100/90 hover:text-[#0f172a] hover:border-zinc-300 dark:bg-[#0B132B]/40 dark:border-[#A5C4D4]/10 dark:text-slate-200 dark:hover:bg-[#0B132B]/60 dark:hover:text-white dark:hover:border-[#A5C4D4]/30 shadow-sm hover:scale-[1.01]'
+                } ${
+                    (isSubmitting || isFeedbackRevealed || revealedQuestions.has(q.id)) 
+                        ? 'opacity-70 cursor-not-allowed' 
+                        : ''
+                }`;
+                const checkboxClass = `w-8 h-8 rounded-xl flex items-center justify-center border-2 text-xl transition-all ${
+                    isSelected 
+                        ? 'bg-[#1E293B] border-[#1E293B] text-white shadow-md dark:bg-[#020C1B] dark:border-[#020C1B] dark:text-[#C5A059]' 
+                        : 'border-zinc-300 dark:border-[#A5C4D4]/20'
+                }`;
                 return html`
-                                    <button key=${`opt-${q.id}-${i}`} disabled=${isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))} onClick=${handleMultiClick}
-                                    className=${`w-full text-start p-5 rounded-2xl border-2 transition-all duration-300 text-lg font-bold shadow-sm flex items-center gap-4 ${isSelected ? 'border-rose-500 bg-rose-500/10 scale-[1.02] shadow-rose-500/10' : 'border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-white/2 hover:border-rose-400/30 hover:bg-zinc-100 dark:hover:bg-white/4 hover:scale-[1.01] text-zinc-700 dark:text-white/80 hover:text-zinc-900 dark:hover:text-white'} ${(isFeedbackRevealed || revealedQuestions.has(q.id)) ? 'opacity-70 cursor-not-allowed' : ''}`}>
-                                        <div className=${`w-8 h-8 rounded-xl flex items-center justify-center border-2 text-xl transition-all ${isSelected ? 'bg-rose-500 border-rose-500 text-white shadow-lg shadow-rose-500/20' : 'border-zinc-300 dark:border-white/20'}`}>
+                                    <button key=${`opt-${q.id}-${i}`} disabled=${isSubmitting || isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))} onClick=${handleMultiClick}
+                                    className=${btnClass}>
+                                        <div className=${checkboxClass}>
                                             ${isSelected && '✓'}
                                         </div>
                                         ${opt}
@@ -1470,12 +1613,12 @@
                     ${q.type === 'essay' && html`
                         <div className="max-w-3xl mx-auto">
                             <textarea 
-                                disabled=${isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))}
-                                className=${`w-full p-5 rounded-2xl bg-zinc-50 dark:bg-white/5 backdrop-blur-xl border border-zinc-300 dark:border-white/10 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 min-h-[250px] text-lg text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-white/30 transition-all shadow-inner resize-y ${(isFeedbackRevealed || revealedQuestions.has(q.id)) ? 'opacity-70 font-bold' : ''}`}
+                                disabled=${isSubmitting || isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))}
+                                className="w-full p-5 rounded-2xl border transition-all shadow-inner resize-y min-h-[250px] text-lg bg-white text-[#1E293B] placeholder-slate-400 border-zinc-300 focus:outline-none focus:border-[#C5A059] focus:ring-1 focus:ring-[#C5A059] dark:bg-[#0B132B]/80 dark:text-white dark:placeholder-[#A5C4D4]/43 dark:border-white/10"
                                 placeholder=${lang === 'ar' ? 'اكتب إجابتك بتفصيل هنا...' : 'Type your detailed answer here...'}
                                 value=${answers[q.id] || ''}
                                 onChange=${(e) => {
-                            if (isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))) return;
+                            if (isSubmitting || isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))) return;
                             const val = e.target.value;
                             setAnswers(prev => ({ ...prev, [q.id]: val }));
                         }}
@@ -1510,21 +1653,21 @@
             </${Luminova.Components.GlassCard}>
 
             <div className="flex justify-between items-center bg-white/[0.03] backdrop-blur-2xl p-4 rounded-2xl shadow-lg border border-white/10">
-                <${Luminova.Components.Button} variant="glass" disabled=${currentIndex === 0 || quiz.allowBackNavigation === false} onClick=${() => { setCurrentIndex(i => i - 1); if (quiz.feedbackMode === 'immediate' && questions[currentIndex - 1] && revealedQuestions.has(questions[currentIndex - 1].id)) { setIsFeedbackRevealed(true); } else { setIsFeedbackRevealed(false); } }} className="px-8 py-3 text-lg rounded-full">
+                <${Luminova.Components.Button} variant="glass" disabled=${currentIndex === 0 || quiz.allowBackNavigation === false || isSubmitting || submitLockRef.current} onClick=${() => { if (isSubmitting || submitLockRef.current) return; setCurrentIndex(i => i - 1); if (quiz.feedbackMode === 'immediate' && questions[currentIndex - 1] && revealedQuestions.has(questions[currentIndex - 1].id)) { setIsFeedbackRevealed(true); } else { setIsFeedbackRevealed(false); } }} className="px-8 py-3 text-lg rounded-full">
                     ${lang === 'ar' ? 'السابق' : 'Previous'}
                 </${Luminova.Components.Button}>
                 
                 ${quiz.feedbackMode === 'immediate' && !isFeedbackRevealed ? html`
-                    <${Luminova.Components.Button} disabled=${answers[q.id] === undefined || (Array.isArray(answers[q.id]) && !answers[q.id].length)} onClick=${() => { setIsFeedbackRevealed(true); setRevealedQuestions(prev => new Set([...prev, q.id])); }} 
+                    <${Luminova.Components.Button} disabled=${answers[q.id] === undefined || (Array.isArray(answers[q.id]) && !answers[q.id].length) || isSubmitting || submitLockRef.current} onClick=${() => { if (isSubmitting || submitLockRef.current) return; setIsFeedbackRevealed(true); setRevealedQuestions(prev => new Set([...prev, q.id])); }} 
                         className="px-10 py-3 text-lg bg-blue-500 hover:bg-blue-600 rounded-full shadow-lg shadow-blue-500/30 font-black animate-pulse transition-transform hover:scale-105">
                         ✅ تحقق من الإجابة
                     </${Luminova.Components.Button}>
                 ` : currentIndex === questions.length - 1 ? html`
-                    <${Luminova.Components.Button} disabled=${isSubmitting} onClick=${handleFinish} className="px-10 py-3 text-lg bg-green-500 hover:bg-green-600 rounded-full shadow-lg shadow-green-500/30 font-black animate-pulse disabled:opacity-60 disabled:cursor-not-allowed">
-                        <${Luminova.Icons.CheckCircle} /> ${isSubmitting ? (lang === 'ar' ? 'جاري التسليم...' : 'Submitting...') : (lang === 'ar' ? 'إنهاء الاختبار' : 'Finish Exam')}
+                    <${Luminova.Components.Button} disabled=${isSubmitting || submitLockRef.current} onClick=${handleFinish} className="px-10 py-3 text-lg bg-green-500 hover:bg-green-600 rounded-full shadow-lg shadow-green-500/30 font-black animate-pulse disabled:opacity-60 disabled:cursor-not-allowed">
+                        <${Luminova.Icons.CheckCircle} /> ${isSubmitting || submitLockRef.current ? (lang === 'ar' ? 'جاري التسليم...' : 'Submitting...') : (lang === 'ar' ? 'إنهاء الاختبار' : 'Finish Exam')}
                     </${Luminova.Components.Button}>
                 ` : html`
-                    <${Luminova.Components.Button} onClick=${() => { setCurrentIndex(i => i + 1); if (quiz.feedbackMode === 'immediate' && questions[currentIndex + 1] && revealedQuestions.has(questions[currentIndex + 1].id)) { setIsFeedbackRevealed(true); } else { setIsFeedbackRevealed(false); } }} className="px-10 py-3 text-lg rounded-full shadow-lg shadow-brand-DEFAULT/30 group">
+                    <${Luminova.Components.Button} disabled=${isSubmitting || submitLockRef.current} onClick=${() => { if (isSubmitting || submitLockRef.current) return; setCurrentIndex(i => i + 1); if (quiz.feedbackMode === 'immediate' && questions[currentIndex + 1] && revealedQuestions.has(questions[currentIndex + 1].id)) { setIsFeedbackRevealed(true); } else { setIsFeedbackRevealed(false); } }} className="px-10 py-3 text-lg rounded-full shadow-lg shadow-brand-DEFAULT/30 group">
                         ${lang === 'ar' ? 'التالي' : 'Next'} <span className="opacity-0 group-hover:opacity-100 transition-opacity ml-2">→</span>
                     </${Luminova.Components.Button}>
                 `}

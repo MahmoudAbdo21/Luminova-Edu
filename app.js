@@ -481,7 +481,7 @@
 
     Luminova.Components.Button = ({ children, onClick, variant = 'primary', className = "", disabled = false }) => {
         const variants = {
-            primary: "bg-gradient-to-r from-brand-DEFAULT to-brand-purple text-white shadow-[0_4px_15px_rgba(0,240,255,0.2)] hover:opacity-90 hover:shadow-[0_4px_25px_rgba(189,0,255,0.4)] active:scale-[0.97] transition-all duration-300",
+            primary: "bg-gradient-to-r from-[#BA964F] to-[#C5A059] text-[#020C1B] font-bold shadow-[0_4px_15px_rgba(197,160,89,0.15)] hover:opacity-95 hover:shadow-[0_4px_25px_rgba(197,160,89,0.3)] active:scale-[0.98] transition-all duration-500",
             danger: "bg-brand-crisp text-white hover:opacity-90 active:scale-[0.97] transition-all duration-300 shadow-[0_4px_15px_rgba(255,0,85,0.2)]",
             glass: "glass-card text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 active:scale-[0.97]",
         };

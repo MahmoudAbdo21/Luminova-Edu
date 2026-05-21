@@ -145,7 +145,9 @@
 
         // Catch backend-thrown errors gracefully (Tagged to isolate source)
         if (data && data.status === "error") {
-            throw new Error("[Backend Error] " + (data.message || "حدث خطأ غير معروف في الخادم."));
+            const err = new Error("[Backend Error] " + (data.message || "حدث خطأ غير معروف في الخادم."));
+            err.code = data.code || null;
+            throw err;
         }
 
         // Normalizing legacy vs modern Duplicate Check responses

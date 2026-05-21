@@ -28,7 +28,7 @@
    ============================================================ */
 body {
     font-family: 'Cairo', sans-serif;
-    background-color: #F3EFFB; /* Ultra-Clean Light Background */
+    background-color: #F3EFFB; /* Pristine Light Background */
     color: #09090b;
     transition: background-color 0.3s ease, color 0.3s ease;
     background-image: none;
@@ -55,7 +55,7 @@ body {
     right: 0%;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at 80% 20%, rgba(189, 0, 255, 0.05) 0%, transparent 60%);
+    background: radial-gradient(circle at 50% -20%, rgba(197, 160, 89, 0.04) 0%, transparent 60%);
     filter: blur(120px);
     pointer-events: none;
 }
@@ -67,16 +67,16 @@ body {
     left: 0%;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at 20% 80%, rgba(0, 240, 255, 0.05) 0%, transparent 60%);
+    background: radial-gradient(circle at 90% 90%, rgba(165, 196, 212, 0.03) 0%, transparent 60%);
     filter: blur(120px);
     pointer-events: none;
 }
 
 html.dark body {
-    background-color: #03000A; /* Deep Cosmic Dark Background */
+    background-color: #020C1B; /* Sovereign Dark navy-black background */
     background-image: 
-        radial-gradient(circle at 50% -20%, rgba(189, 0, 255, 0.08) 0%, transparent 50%),
-        radial-gradient(circle at 10% 40%, rgba(0, 240, 255, 0.04) 0%, transparent 40%);
+        radial-gradient(circle at 50% -20%, rgba(197, 160, 89, 0.06) 0%, transparent 50%),
+        radial-gradient(circle at 90% 90%, rgba(165, 196, 212, 0.03) 0%, transparent 40%);
     background-attachment: fixed;
     color: #fafafa;
 }
@@ -88,7 +88,7 @@ html.dark .ambient-glow::before {
     right: 0%;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at 80% 20%, rgba(189, 0, 255, 0.08) 0%, transparent 50%); 
+    background: radial-gradient(circle at 50% -20%, rgba(197, 160, 89, 0.06) 0%, transparent 50%); 
     filter: blur(120px);
     pointer-events: none;
 }
@@ -100,76 +100,192 @@ html.dark .ambient-glow::after {
     left: 0%;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at 20% 80%, rgba(0, 240, 255, 0.04) 0%, transparent 50%); 
+    background: radial-gradient(circle at 90% 90%, rgba(165, 196, 212, 0.03) 0%, transparent 50%); 
     filter: blur(120px);
     pointer-events: none;
 }
 
 /* ============================================================
-   2. GLASS CARD (PREMIUM FUTURE-NOIR GLASSMORPHISM)
+   1.5. PRISTINE LIGHT MODE AMBIENT OVERRIDES
+   ============================================================ */
+html:not(.dark) body {
+    background-color: #F3EFFB !important;
+    background-image: none !important;
+    color: #1E293B !important;
+}
+
+html:not(.dark) .ambient-glow::before {
+    background: radial-gradient(circle at 50% -20%, rgba(197, 160, 89, 0.03) 0%, transparent 60%) !important;
+}
+
+html:not(.dark) .ambient-glow::after {
+    background: radial-gradient(circle at 90% 90%, rgba(165, 196, 212, 0.02) 0%, transparent 60%) !important;
+}
+
+/* ============================================================
+   2. GLASS CARD (MIDNIGHT EXECUTIVE GLASSMORPHISM MATRIX)
    ============================================================ */
 .glass-card {
     background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(25px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
+    backdrop-filter: blur(30px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(30px) saturate(140%) !important;
     border: 1px solid rgba(255, 255, 255, 0.8);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.03), 0 2px 8px rgba(0, 0, 0, 0.02);
-    transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 html.dark .glass-card {
-    background: rgba(255, 255, 255, 0.01) !important; /* Absolute dark frost transparency */
-    backdrop-filter: blur(25px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.04) !important;
-    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6) !important;
+    background: rgba(11, 19, 43, 0.25) !important; /* Thick Navy Frost Transparency */
+    backdrop-filter: blur(30px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(30px) saturate(140%) !important;
+    border: 1px solid rgba(165, 196, 212, 0.06) !important; /* Razor-thin Ice Blue border */
+    box-shadow: 0 20px 50px 0 rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Pristine Day-Mode Porcelain Card Overrides */
+html:not(.dark) .glass-card {
+    background: rgba(255, 255, 255, 0.65) !important;
+    backdrop-filter: blur(25px) saturate(150%) !important;
+    -webkit-backdrop-filter: blur(25px) saturate(150%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.8) !important;
+    box-shadow: 0 20px 50px 0 rgba(30, 41, 59, 0.04) !important;
+    color: #1E293B !important;
 }
 
 .glass-card:hover {
-    transform: translateY(-5px) scale(1.01);
-    transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transform: translateY(-4px) !important; /* Premium organic shift - no scale */
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 html.dark .glass-card:hover {
-    background: rgba(255, 255, 255, 0.03) !important;
-    border-color: rgba(0, 240, 255, 0.3) !important; /* Electric Cyan border highlight */
-    box-shadow: 0 0 30px rgba(0, 240, 255, 0.1), 0 20px 50px rgba(0, 0, 0, 0.8) !important;
+    background: rgba(11, 19, 43, 0.3) !important;
+    border-color: rgba(197, 160, 89, 0.25) !important; /* Muted Champagne Gold border highlight */
+    box-shadow: 0 0 40px rgba(197, 160, 89, 0.05), 0 20px 50px 0 rgba(0, 0, 0, 0.6) !important; /* Gold backing glow shadow */
+}
+
+html:not(.dark) .glass-card:hover {
+    background: rgba(255, 255, 255, 0.75) !important;
+    border-color: rgba(197, 160, 89, 0.4) !important; /* Gold-tinted reflection */
+    box-shadow: 0 10px 40px rgba(197, 160, 89, 0.08), 0 20px 50px 0 rgba(30, 41, 59, 0.08) !important;
 }
 
 /* Premium Interactive Attachment Card */
 .interactive-glass-card {
     background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(25px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
+    backdrop-filter: blur(30px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(30px) saturate(140%) !important;
     border: 1px solid rgba(255, 255, 255, 0.9);
     border-radius: 16px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
-    transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 html.dark .interactive-glass-card {
-    background: rgba(255, 255, 255, 0.01) !important;
-    backdrop-filter: blur(25px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
-    border: 1px solid rgba(255, 255, 255, 0.04) !important;
-    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6) !important;
+    background: rgba(11, 19, 43, 0.25) !important;
+    backdrop-filter: blur(30px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(30px) saturate(140%) !important;
+    border: 1px solid rgba(165, 196, 212, 0.06) !important;
+    box-shadow: 0 20px 50px 0 rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Pristine Day-Mode Porcelain Interactive Card Overrides */
+html:not(.dark) .interactive-glass-card {
+    background: rgba(255, 255, 255, 0.65) !important;
+    backdrop-filter: blur(25px) saturate(150%) !important;
+    -webkit-backdrop-filter: blur(25px) saturate(150%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.8) !important;
+    box-shadow: 0 12px 40px rgba(30, 41, 59, 0.04), 0 2px 8px rgba(30, 41, 59, 0.02) !important;
+    color: #1E293B !important;
 }
 
 .interactive-glass-card:hover {
-    transform: translateY(-5px) scale(1.01);
-    border-color: rgba(189, 0, 255, 0.4) !important;
+    transform: translateY(-4px) !important;
+    border-color: rgba(197, 160, 89, 0.25) !important;
 }
 
 html.dark .interactive-glass-card:hover {
-    background: rgba(255, 255, 255, 0.03) !important;
-    border-color: rgba(189, 0, 255, 0.4) !important; /* Secondary Luxury Gradient purple accent */
-    box-shadow: 0 0 30px rgba(189, 0, 255, 0.15), 0 20px 40px rgba(0, 0, 0, 0.7) !important;
+    background: rgba(11, 19, 43, 0.3) !important;
+    border-color: rgba(197, 160, 89, 0.25) !important; /* Soft luxury gold hover highlight */
+    box-shadow: 0 0 40px rgba(197, 160, 89, 0.05), 0 20px 50px 0 rgba(0, 0, 0, 0.6) !important;
+}
+
+html:not(.dark) .interactive-glass-card:hover {
+    background: rgba(255, 255, 255, 0.75) !important;
+    border-color: rgba(197, 160, 89, 0.4) !important;
+    box-shadow: 0 10px 30px rgba(197, 160, 89, 0.06), 0 20px 50px 0 rgba(30, 41, 59, 0.06) !important;
+}
+
+/* Pristine Day-Mode Input styling */
+html:not(.dark) input[type="text"],
+html:not(.dark) input[type="email"],
+html:not(.dark) input[type="url"],
+html:not(.dark) input[type="number"],
+html:not(.dark) textarea,
+html:not(.dark) select {
+    background-color: rgba(255, 255, 255, 0.8) !important;
+    border: 1px solid rgba(197, 160, 89, 0.2) !important;
+    color: #1E293B !important;
+    box-shadow: inset 0 2px 4px rgba(30, 41, 59, 0.02) !important;
+}
+
+html:not(.dark) input[type="text"]:focus,
+html:not(.dark) input[type="email"]:focus,
+html:not(.dark) input[type="url"]:focus,
+html:not(.dark) input[type="number"]:focus,
+html:not(.dark) textarea:focus,
+html:not(.dark) select:focus {
+    background-color: #ffffff !important;
+    border-color: #C5A059 !important;
+    box-shadow: 0 0 10px rgba(197, 160, 89, 0.15) !important;
+    outline: none !important;
+}
+
+/* Sovereign Dark Mode Input & Textarea Safety Net */
+html.dark input[type="text"],
+html.dark input[type="email"],
+html.dark input[type="url"],
+html.dark input[type="number"],
+html.dark textarea,
+html.dark select {
+    background-color: rgba(11, 19, 43, 0.8) !important; /* Deep dark corporate backplane */
+    border: 1px solid rgba(165, 196, 212, 0.1) !important;
+    color: #ffffff !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.dark input[type="text"]:focus,
+html.dark input[type="email"]:focus,
+html.dark input[type="url"]:focus,
+html.dark input[type="number"]:focus,
+html.dark textarea:focus,
+html.dark select:focus {
+    background-color: rgba(11, 19, 43, 0.95) !important;
+    border-color: #C5A059 !important;
+    box-shadow: 0 0 10px rgba(197, 160, 89, 0.3) !important;
+    outline: none !important;
+}
+
+/* Authoritative Day-Mode Contrast grey overrides */
+html:not(.dark) .text-zinc-300:not(button):not(.bg-brand-DEFAULT *):not(.bg-gradient-to-r *),
+html:not(.dark) .text-zinc-400:not(button):not(.bg-brand-DEFAULT *):not(.bg-gradient-to-r *),
+html:not(.dark) .text-zinc-500:not(button):not(.bg-brand-DEFAULT *):not(.bg-gradient-to-r *),
+html:not(.dark) .text-slate-300:not(button):not(.bg-brand-DEFAULT *):not(.bg-gradient-to-r *),
+html:not(.dark) .text-slate-400:not(button):not(.bg-brand-DEFAULT *):not(.bg-gradient-to-r *),
+html:not(.dark) .text-slate-500:not(button):not(.bg-brand-DEFAULT *):not(.bg-gradient-to-r *) {
+    color: #475569 !important;
+}
+
+html:not(.dark) .text-zinc-100:not(button):not(.bg-brand-DEFAULT *):not(.bg-gradient-to-r *),
+html:not(.dark) .text-zinc-200:not(button):not(.bg-brand-DEFAULT *):not(.bg-gradient-to-r *),
+html:not(.dark) .text-slate-100:not(button):not(.bg-brand-DEFAULT *):not(.bg-gradient-to-r *),
+html:not(.dark) .text-slate-200:not(button):not(.bg-brand-DEFAULT *):not(.bg-gradient-to-r *) {
+    color: #1E293B !important;
 }
 
 /* Proctor Countdown Blinking Animation */
-@keyframes proctor-blink {
-    0%, 100% { opacity: 1; filter: drop-shadow(0 0 5px #00F0FF); }
-    50% { opacity: 0.3; filter: none; }
+@keyframes proctor-gold-blink {
+    0%, 100% { opacity: 1; filter: drop-shadow(0 0 4px #C5A059); color: #C5A059; }
+    50% { opacity: 0.35; filter: none; color: rgba(197, 160, 89, 0.4); }
 }
 
 /* ============================================================
@@ -524,9 +640,15 @@ video:not(.media-container video) {
 
     .lmv-countdown-digit {
         font-size: 1.6rem !important;
-        min-width: 2.5rem !important;
+        width: 3rem !important;
         padding: 0.4rem 0.6rem !important;
         border-radius: 0.75rem !important;
+        display: inline-flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: center !important;
+        white-space: nowrap !important;
     }
 
     .lmv-countdown-label {
@@ -740,4 +862,8 @@ video:not(.media-container video) {
         text-overflow: ellipsis;
         white-space: nowrap !important;
     }
+}
+
+.lmv-countdown-digit {
+    white-space: nowrap !important;
 }
