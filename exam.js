@@ -379,7 +379,7 @@ window.LUMINOVA_EXAMS = [
     "endTime": "2026-05-30T23:00",
     "latePolicy": "hard_stop",
     "allowBackNavigation": true,
-    "webhookUrl": "https://script.google.com/macros/s/AKfycbw5UY1GIY54hReFixMG8K_k4ZWU6-EoP0dAnfTNqe9XDkNBFPiOSRMhPTQyVaikulUw/exec",
+    "webhookUrl": "https://script.google.com/macros/s/AKfycbw0ba4fpfrhKeIb8IAny95Bd1NvTH_BV3XR4H1CldEcVJWG-BZoBjTshPzHQkTJFqZO/exec",
     "sendDetailedReport": true,
     "entryGate": {
       "name": true,
@@ -8050,7 +8050,7 @@ window.LUMINOVA_EXAMS = [
     "endTime": "2026-05-23T22:30",
     "latePolicy": "hard_stop",
     "allowBackNavigation": true,
-    "webhookUrl": "https://script.google.com/macros/s/AKfycbwEQu_sr9LuJBO50JdKq91ve3oDpzPDjvwfMi1pUXH-WYJOQ8mdzBIMBGSEkw6DjHkkrQ/exec",
+    "webhookUrl": "https://script.google.com/macros/s/AKfycbxaMADy_vLytqKgEbGQr3IYMG8KOjdZGvRk5dz3katZ_OJBL-J5aCCefb-4pkyTFjcY7g/exec",
     "sendDetailedReport": true,
     "entryGate": {
       "name": true,

@@ -248,6 +248,8 @@
         };
 
         const isForceSubmitPolicy = useMemo(() => {
+            if (quiz.timeoutPolicy === 'hard-stop') return true;
+            if (quiz.timeoutPolicy === 'grace_period') return false;
             if (!quiz.timeoutPolicy) {
                 return !isDelayAllowed();
             }
@@ -576,7 +578,7 @@
                     if (isForceSubmitPolicy) {
                         if (!timeExpiredSubmitRef.current) {
                             timeExpiredSubmitRef.current = true;
-                            submitExam('time_expired');
+                            submitExam('time_expired_force');
                         }
                     } else {
                         if (!isLateSubmission) {
@@ -989,16 +991,16 @@
                         <h2 className="text-3xl font-black text-zinc-900 dark:text-white mb-4">
                             ${terminationReason === 'completed'
                         ? (lang === 'ar' ? 'تم تسليم امتحانك بنجاح!' : 'Your exam has been submitted successfully!')
-                        : terminationReason === 'time_expired'
+                        : (terminationReason === 'time_expired' || terminationReason === 'time_expired_force')
                             ? (lang === 'ar' ? 'انتهى الوقت!' : 'Time Expired!')
                             : (lang === 'ar' ? 'تم سحب الامتحان' : 'Exam Terminated')}
                         </h2>
                         <p className="text-lg font-bold text-fuchsia-100/60 mb-10 leading-relaxed">
                             ${terminationReason === 'completed'
                         ? (lang === 'ar' ? 'شكراً لك، تم حفظ جميع إجاباتك.' : 'Thank you, all your answers have been saved.')
-                        : terminationReason === 'time_expired'
+                        : (terminationReason === 'time_expired' || terminationReason === 'time_expired_force')
                             ? (lang === 'ar' 
-                                ? (isForceSubmitPolicy 
+                                ? (isForceSubmitPolicy || terminationReason === 'time_expired_force'
                                     ? 'انتهى الوقت المحدد لك، وتم سحب وتسجيل إجاباتك إجبارياً بنجاح.' 
                                     : 'انتهى الوقت المسموح به، تم حفظ وتسليم إجاباتك تلقائياً.') 
                                 : 'Time is up. Your answers have been automatically saved and submitted.')
@@ -1028,9 +1030,9 @@
             <div className="max-w-4xl mx-auto space-y-8 animate-fade-in pb-10">
                 ${terminationReason !== 'completed' && html`
                     <div className="text-center mt-6 px-6 py-4 bg-red-500/20 text-red-600 dark:text-red-500 border border-red-500/50 rounded-2xl font-bold text-lg max-w-xl mx-auto shadow-lg animate-pulse">
-                        ⚠️ ${terminationReason === 'time_expired'
+                        ⚠️ ${terminationReason === 'time_expired' || terminationReason === 'time_expired_force'
                         ? (lang === 'ar' 
-                            ? (isForceSubmitPolicy 
+                            ? (isForceSubmitPolicy || terminationReason === 'time_expired_force'
                                 ? 'انتهى الوقت المحدد لك، وتم سحب وتسجيل إجاباتك إجبارياً بنجاح.' 
                                 : 'انتهى الوقت المسموح به، تم حفظ وتسليم إجاباتك تلقائياً.') 
                             : 'Time is up. Your answers have been automatically saved and submitted.')
@@ -1138,6 +1140,28 @@
 
         return html`
         <div className="max-w-4xl mx-auto min-h-[70vh] flex flex-col pt-10 pb-20">
+
+            ${/* Premium Locked Overlay for Hard-Stop */
+            isForceSubmitPolicy && quiz.endTime && now && now >= parseCairoDeadline(quiz.endTime) && !isFinished && html`
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-[#0A0514]/85 backdrop-blur-2xl animate-fade-in pointer-events-auto">
+                    <div className="bg-[#0B132B]/90 backdrop-blur-3xl border border-brand-ice/20 rounded-[2.5rem] p-10 flex flex-col items-center max-w-md w-full shadow-2xl relative overflow-hidden text-center">
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(197,160,89,0.05),transparent_80%)] pointer-events-none"></div>
+                        <div className="text-7xl mb-6 animate-pulse">⏳</div>
+                        <h2 className="text-3xl font-black text-brand-DEFAULT mb-4">
+                            ${lang === 'ar' ? 'انتهى الوقت!' : 'Time Expired!'}
+                        </h2>
+                        <p className="text-lg font-bold text-brand-ice leading-relaxed mb-6">
+                            ${lang === 'ar' 
+                                ? 'انتهى الوقت المحدد لك، وتم سحب وتسجيل إجاباتك إجبارياً بنجاح.' 
+                                : 'Your time has expired. Your answers have been successfully and forcefully submitted.'}
+                        </p>
+                        <div className="flex items-center gap-2 px-4 py-2 bg-brand-DEFAULT/10 border border-brand-DEFAULT/20 rounded-xl text-brand-DEFAULT font-bold text-sm">
+                            <span className="animate-spin text-base">🔄</span>
+                            ${lang === 'ar' ? 'جاري تأمين وإرسال البيانات...' : 'Securing and transmitting data...'}
+                        </div>
+                    </div>
+                </div>
+            `}
 
             ${/* ── SUBMISSION LOADER (Watchdog Phase 1) ── */
             modalType === 'submission_loader' && html`
@@ -1462,14 +1486,30 @@
                                 }
                             }}
                                         disabled=${isLocked}
-                                        className=${`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-start transition-all duration-300 ${isCurrent ? 'bg-rose-500/20 border border-rose-500/40 shadow-[0_0_15px_rgba(244,63,94,0.1)] text-zinc-900 dark:text-white' : isAnswered ? 'bg-zinc-100 dark:bg-white/5 hover:bg-zinc-200 dark:hover:bg-white/10 border border-zinc-200 dark:border-white/5 text-zinc-700 dark:text-white/80' : 'bg-zinc-50 dark:bg-white/2 hover:bg-zinc-100 dark:hover:bg-white/10 border border-transparent text-zinc-500 dark:text-white/50'} ${isLocked ? 'opacity-30 cursor-not-allowed' : 'active:scale-[0.98]'}`}>
-                                        <!-- Number circle -->
-                                        <span className=${`w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm shrink-0 ${isCurrent ? 'bg-rose-500 text-white shadow-md' : isAnswered ? 'bg-indigo-500/80 text-white' : 'bg-white/10 text-white/40'}`}>${i + 1}</span>
+                                        className=${`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-start transition-all duration-300 ${
+                                            isCurrent 
+                                                ? 'bg-rose-500/20 border border-rose-500/40 shadow-[0_0_15px_rgba(244,63,94,0.1)] text-zinc-900 dark:text-white font-bold' 
+                                                : isAnswered 
+                                                    ? 'bg-emerald-500/10 dark:bg-emerald-500/10 border border-emerald-500/20 text-zinc-800 dark:text-zinc-200 hover:bg-emerald-500/25 dark:hover:bg-emerald-500/20' 
+                                                    : 'bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-white/10'
+                                        } ${isLocked ? 'opacity-30 cursor-not-allowed' : 'active:scale-[0.98]'}`}>
+                                        <!-- Number circle & Checkmark wrapper -->
+                                        <div className="flex items-center gap-1.5 shrink-0">
+                                            <span className=${`w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm ${
+                                                isCurrent 
+                                                    ? 'bg-rose-500 text-white' 
+                                                    : isAnswered 
+                                                        ? 'bg-emerald-500 text-white' 
+                                                        : 'bg-zinc-300 dark:bg-white/15 text-zinc-800 dark:text-zinc-200'
+                                            }`}>
+                                                ${i + 1}
+                                            </span>
+                                            ${isAnswered ? html`<span className="text-emerald-500 text-base font-bold shrink-0">✅</span>` : ''}
+                                        </div>
                                         <!-- Label -->
                                         <span className="flex-1 font-bold text-sm truncate text-zinc-900 dark:text-white">${qLabel}</span>
                                         <!-- Status indicator -->
-                                        ${isAnswered && !isCurrent ? html`<span className="text-indigo-400 text-base shrink-0">✓</span>` : null}
-                                        ${isCurrent ? html`<span className="w-2 h-2 rounded-full bg-rose-400 animate-pulse shrink-0"></span>` : null}
+                                        ${isCurrent ? html`<span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse shrink-0"></span>` : ''}
                                     </button>
                                 `;
                             })}

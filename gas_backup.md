@@ -112,12 +112,31 @@ function handleSubmitExam(sheet, data) {
   var reason = examDetails.terminationReason || "completed";
   var submissionId = normalizeSubmissionId(data.submissionId || data.idempotencyKey || buildSubmissionId(title, email, seat));
 
+  // Clean up any incomplete/corrupt rows from a previous failed sync of this submission first
+  cleanupPartialRows(sheet, submissionId);
+
   if (isDuplicateSubmission(sheet, submissionId, email, title)) {
     return jsonResponse({ status: "ok", duplicate: true, message: "تم تجاهل تسليم مكرر بنفس Submission ID" });
   }
 
   var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
   var qStart = getQuestionStartIndex(headers);
+
+  // Pre-write checks: verify that the data is complete and aligns with the Sheet matrix structure
+  if (headers.length > qStart) {
+    var expectedQCount = Math.floor((headers.length - qStart) / 2);
+    if (responses.length !== expectedQCount) {
+      return jsonResponse({ 
+        status: "error", 
+        code: "DATA_INCOMPLETE", 
+        message: "عدد الإجابات المستلمة (" + responses.length + ") لا يطابق عدد الأسئلة المتوقع في النموذج (" + expectedQCount + "). تم رفض التسجيل لضمان سلامة البيانات." 
+      });
+    }
+  }
+
+  var isLate = data.isLateSubmission === true || data.isLateSubmission === 'true';
+  var lateSubmissionText = isLate ? "تسليم متأخر / Late Submission" : "في الوقت المحدد / On Time";
+
   var row = buildBaseRow(headers, qStart, {
     timestamp: now,
     submissionId: submissionId,
@@ -131,6 +150,7 @@ function handleSubmitExam(sheet, data) {
     exitTime: timestamps.exitTime || "---",
     ipAddress: timestamps.ipAddress || "---",
     reason: reason,
+    lateSubmission: lateSubmissionText,
     title: title
   });
 
@@ -139,7 +159,34 @@ function handleSubmitExam(sheet, data) {
     row.push(statusIcon(r.isCorrect));
   });
 
+  // Append the row to Google Sheets
   sheet.appendRow(row);
+
+  // Post-write verification & Rollback Protocol
+  SpreadsheetApp.flush();
+  var lastRowNumber = sheet.getLastRow();
+  var verifiedValues = sheet.getRange(lastRowNumber, 1, 1, row.length).getValues()[0];
+  var verifiedSubId = normalizeSubmissionId(verifiedValues[getHeaderIndex(headers, "Submission ID", 1)]);
+  
+  var isTruncated = false;
+  if (verifiedSubId !== submissionId) {
+    isTruncated = true;
+  } else {
+    // If critical fields are missing or row column count is incorrect, mark as truncated
+    for (var k = 0; k < row.length; k++) {
+      if (row[k] !== undefined && row[k] !== "" && row[k] !== "---" && (verifiedValues[k] === null || verifiedValues[k] === "")) {
+        isTruncated = true;
+        break;
+      }
+    }
+  }
+
+  if (isTruncated) {
+    // Transaction Rollback
+    sheet.deleteRow(lastRowNumber);
+    SpreadsheetApp.flush();
+    return jsonResponse({ status: "error", code: "DATA_INCOMPLETE", message: "تنبيه: تم اكتشاف كتابة مجزأة/غير مكتملة للصف في Google Sheets. تم التراجع وتلقي طلب إعادة المحاولة." });
+  }
 
   var studentSent = false;
   if (settings.studentReport === true && isValidEmail(email)) {
@@ -149,18 +196,18 @@ function handleSubmitExam(sheet, data) {
 
   var adminEmails = normalizeEmailList(settings.adminEmails || data.adminEmails);
   if (adminEmails.length) {
-    sendAdminSummaryV5(adminEmails, { name: name, email: email, seat: seat, department: dept, title: title, score: score, maxScore: maxScore, reason: reason, timestamp: now });
+    sendAdminSummaryV5(adminEmails, { name: name, email: email, seat: seat, department: dept, title: title, score: score, maxScore: maxScore, reason: reason, timestamp: now, isLate: isLate });
   }
 
-  return jsonResponse({ status: "ok", message: "تم التسليم وتحديث مصفوفة V5.1", submissionId: submissionId, studentEmailSent: studentSent, adminEmailsSent: adminEmails.length });
+  return jsonResponse({ status: "ok", message: "تم التسليم وتحديث مصفوفة V5.1 بنجاح مع تأكيد المعاملة الكاملة", submissionId: submissionId, studentEmailSent: studentSent, adminEmailsSent: adminEmails.length });
 }
 
 function ensureMatrix(sheet, responses) {
   if (sheet.getLastRow() > 0) return;
 
-  var headers = ["Timestamp", "Submission ID", "Name", "Seat Number", "Email", "Department", "Score", "Max Score", "Entry Time", "Exit Time", "IP Address", "Termination Reason", "Exam Title"];
-  var explanations = ["", "", "", "", "", "", "", "", "", "", "", "التعليل (Explanation)", ""];
-  var modelAnswers = ["", "", "", "", "", "", "", "", "", "", "", "الإجابة النموذجية (Model Answer)", ""];
+  var headers = ["Timestamp", "Submission ID", "Name", "Seat Number", "Email", "Department", "Score", "Max Score", "Entry Time", "Exit Time", "IP Address", "Termination Reason", "Late Submission", "Exam Title"];
+  var explanations = ["", "", "", "", "", "", "", "", "", "", "", "التعليل (Explanation)", "", ""];
+  var modelAnswers = ["", "", "", "", "", "", "", "", "", "", "", "الإجابة النموذجية (Model Answer)", "", ""];
 
   responses.forEach(function(r, i) {
     headers.push("Q" + (i + 1) + ": " + safeText(r.question, "Question"));
@@ -251,32 +298,56 @@ function sendStudentReportV5(to, name, examTitle, score, max, responses) {
   var percentage = safeMax > 0 ? ((safeScore / safeMax) * 100) : 0;
   var percentageText = percentage.toFixed(1) + "%";
   var passed = percentage >= 50;
+  
+  // Dynamic Percentile Motivational Engine
+  var motivation = "";
+  if (percentage <= 10) {
+    motivation = "بداية الطريق خطوة! حاول مجدداً وثق بقدراتك، القادم أفضل بالتركيز والعمل الدؤوب. 🎯";
+  } else if (percentage <= 20) {
+    motivation = "محاولة جيدة ولكنك تمتلك طاقة أكبر بكثير! راجع نقاط ضعفك وانطلق مجدداً. ⚡";
+  } else if (percentage <= 30) {
+    motivation = "خطوت خطوات جيدة، لكن الشغف يحتاج إلى مزيد من الجهد والمذاكرة. أنت تستطيع! 📚";
+  } else if (percentage <= 40) {
+    motivation = "اقتربت من منطقة الأمان! بذل المزيد من الجهد البسيط يفصلك عن التميز الحقيقي. 💪";
+  } else if (percentage <= 50) {
+    motivation = "مستوى متوسط جيد، لكن طموحك في لومينوفا يستحق مكاناً في الصدارة. ثابر! 🌟";
+  } else if (percentage <= 60) {
+    motivation = "اجتزت بنجاح وتخطيت النصف! استمر في التقدم، فأنت على وشك الإبداع. 🚀";
+  } else if (percentage <= 70) {
+    motivation = "أداء رائع ودرجة مرضية جداً! استمر على هذا النهج لتصل إلى القمة قريباً. 🏆";
+  } else if (percentage <= 80) {
+    motivation = "تميز واضح وإجابات تدل على فهم عميق وممتاز! فخورون بذكائك وتفوقك. 💎";
+  } else if (percentage <= 90) {
+    motivation = "أنت من النخبة المبدعة! أداء ملوكّي يقترب من العلامة الكاملة بثبات فائق. 👑";
+  } else {
+    motivation = "العبقرية في أبهى صورها! وسام الصدارة الملكي يتوجك بطلاً فوق العادة في لومينوفا! 🌟🏆👑";
+  }
+
   var accent = passed ? "#10b981" : "#ef4444";
-  var performanceText = passed ? "أداء موفق" : "فرصة ممتازة للمراجعة والتحسن";
   var rows = "";
 
   responses.forEach(function(r, i) {
     var icon = statusIcon(r.isCorrect);
     var answerColor = r.isCorrect === true ? "#047857" : (r.isCorrect === false ? "#dc2626" : "#475569");
     var correctBlock = r.isCorrect === false && r.correctAnswer
-      ? '<div style="margin-top:10px;padding:10px 12px;border-radius:10px;background:#ecfeff;color:#0e7490;font-size:14px;"><b>الإجابة النموذجية:</b> ' + escapeHtml(r.correctAnswer) + '</div>'
+      ? '<div style="margin-top:10px;padding:12px 14px;border-radius:10px;background:#ecfeff;color:#0e7490;font-size:14px;border-right:3px solid #C5A059;"><b>الإجابة النموذجية:</b> ' + escapeHtml(r.correctAnswer) + '</div>'
       : "";
     var explanationBlock = r.explanation
-      ? '<div style="margin-top:10px;padding:12px;border-radius:10px;background:#f8fafc;color:#475569;font-size:13px;line-height:1.8;border:1px solid #e2e8f0;"><b style="color:#334155;">التعليل:</b> ' + escapeHtml(r.explanation) + '</div>'
+      ? '<div style="margin-top:10px;padding:12px 14px;border-radius:10px;background:#F3EFFB;color:#0B132B;font-size:13px;line-height:1.8;border:1px solid #C5A059;border-right:3px solid #0B132B;"><b style="color:#0B132B;">التعليل:</b> ' + escapeHtml(r.explanation) + '</div>'
       : "";
     rows += '<tr><td style="padding:18px 0;border-bottom:1px solid #e2e8f0;">'
-      + '<div style="font-size:15px;font-weight:800;color:#0f172a;line-height:1.8;">' + (i + 1) + '. ' + escapeHtml(r.question) + ' <span>' + icon + '</span></div>'
-      + '<div style="margin-top:8px;font-size:14px;color:#64748b;">إجابتك: <span style="font-weight:800;color:' + answerColor + ';">' + escapeHtml(r.studentAnswer) + '</span></div>'
+      + '<div style="font-size:15px;font-weight:800;color:#0B132B;line-height:1.8;">' + (i + 1) + '. ' + escapeHtml(r.question) + ' <span>' + icon + '</span></div>'
+      + '<div style="margin-top:8px;font-size:14px;color:#4a5568;">إجابتك: <span style="font-weight:800;color:' + answerColor + ';">' + escapeHtml(r.studentAnswer) + '</span></div>'
       + correctBlock + explanationBlock + '</td></tr>';
   });
 
-  var htmlBody = '<div dir="rtl" style="margin:0;padding:0;background:#eef2ff;font-family:Arial,Tahoma,sans-serif;color:#0f172a;">'
-    + '<div style="max-width:680px;margin:0 auto;padding:24px 14px;"><div style="background:#ffffff;border-radius:24px;overflow:hidden;box-shadow:0 20px 60px rgba(15,23,42,0.14);border:1px solid #dbeafe;">'
-    + '<div style="padding:34px 28px;background:linear-gradient(135deg,#0891b2,#7c3aed);color:#ffffff;text-align:center;"><div style="font-size:13px;font-weight:800;letter-spacing:.5px;opacity:.9;">Luminova Edu</div><h1 style="margin:12px 0 6px;font-size:26px;line-height:1.4;">تقرير نتيجة الاختبار</h1><div style="font-size:15px;opacity:.92;">' + escapeHtml(examTitle) + '</div></div>'
-    + '<div style="padding:28px;"><p style="font-size:18px;line-height:1.8;margin:0 0 18px;">مرحباً <b>' + escapeHtml(name) + '</b>، هذا تقريرك التفصيلي بعد تسليم الاختبار.</p>'
-    + '<div style="border-radius:20px;background:#f8fafc;border:1px solid #e2e8f0;padding:22px;text-align:center;margin:18px 0 24px;"><div style="font-size:54px;font-weight:900;color:' + accent + ';line-height:1;">' + percentageText + '</div><div style="margin-top:10px;font-size:16px;color:#475569;">حصلت على <b>' + safeScore + '</b> من <b>' + safeMax + '</b></div><div style="display:inline-block;margin-top:14px;padding:8px 14px;border-radius:999px;background:' + accent + '1a;color:' + accent + ';font-weight:800;font-size:13px;">' + performanceText + '</div></div>'
+  var htmlBody = '<div dir="rtl" style="margin:0;padding:0;background-color:#F3EFFB;font-family:'Cairo', Arial, sans-serif;color:#0B132B;">'
+    + '<div style="max-width:680px;margin:0 auto;padding:24px 14px;"><div style="background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(11,19,43,0.08);border:1px solid #C5A059;">'
+    + '<div style="padding:34px 28px;background-color:#0B132B;color:#ffffff;text-align:center;border-bottom:4px solid #C5A059;"><div style="font-size:13px;font-weight:800;letter-spacing:.5px;color:#C5A059;opacity:.9;">Luminova Edu</div><h1 style="margin:12px 0 6px;font-size:26px;line-height:1.4;color:#ffffff;">تقرير نتيجة الاختبار</h1><div style="font-size:15px;color:#F3EFFB;opacity:.92;">' + escapeHtml(examTitle) + '</div></div>'
+    + '<div style="padding:28px;"><p style="font-size:18px;line-height:1.8;margin:0 0 18px;color:#0B132B;">مرحباً <b>' + escapeHtml(name) + '</b>، هذا تقريرك التفصيلي بعد تسليم الاختبار.</p>'
+    + '<div style="border-radius:12px;background-color:#0B132B;border:2px solid #C5A059;padding:25px;text-align:center;margin:18px 0 24px;"><div style="font-size:56px;font-weight:900;color:#C5A059;line-height:1;">' + percentageText + '</div><div style="margin-top:10px;font-size:16px;color:#ffffff;">حصلت على <b>' + safeScore + '</b> من <b>' + safeMax + '</b></div><div style="margin-top:16px;padding:12px 18px;border-radius:8px;background-color:rgba(197,160,89,0.15);color:#C5A059;border:1px solid #C5A059;font-weight:800;font-size:14px;line-height:1.6;display:inline-block;max-width:90%;">' + motivation + '</div></div>'
     + '<table style="width:100%;border-collapse:collapse;">' + rows + '</table></div>'
-    + '<div style="padding:18px 24px;background:#f8fafc;color:#94a3b8;text-align:center;font-size:12px;line-height:1.7;">تم إرسال هذا التقرير آلياً من منصة Luminova Edu</div>'
+    + '<div style="padding:20px;background-color:#0B132B;color:#ffffff;text-align:center;font-size:12px;line-height:1.7;border-top:2px solid #C5A059;">جميع البيانات محفوظة ومؤمنة بالكامل لدى منصة لومينوفا التعليمية — Luminova Edu</div>'
     + '</div></div></div>';
 
   MailApp.sendEmail({ to: to, subject: "نتيجتك في اختبار: " + examTitle, htmlBody: htmlBody });
@@ -284,12 +355,28 @@ function sendStudentReportV5(to, name, examTitle, score, max, responses) {
 
 function sendAdminSummaryV5(adminEmails, info) {
   var percentage = Number(info.maxScore) > 0 ? ((Number(info.score) / Number(info.maxScore)) * 100).toFixed(1) + "%" : "0%";
-  var htmlBody = '<div dir="rtl" style="font-family:Arial,Tahoma,sans-serif;background:#f8fafc;padding:20px;color:#0f172a;"><div style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:18px;overflow:hidden;"><div style="background:#0f172a;color:#ffffff;padding:20px 24px;"><h2 style="margin:0;font-size:20px;">تقرير تسليم جديد</h2><div style="opacity:.75;margin-top:6px;font-size:13px;">Luminova Edu Admin Notification</div></div><div style="padding:22px 24px;line-height:1.9;font-size:15px;"><p style="margin:0 0 14px;">تم تسجيل نتيجة جديدة في اختبار <b>' + escapeHtml(info.title) + '</b>.</p><table style="width:100%;border-collapse:collapse;">' + adminRow("الطالب", info.name) + adminRow("البريد", info.email) + adminRow("رقم الجلوس", info.seat) + adminRow("القسم", info.department) + adminRow("الدرجة", info.score + " / " + info.maxScore + " (" + percentage + ")") + adminRow("سبب الإنهاء", info.reason) + '</table></div></div></div>';
-  MailApp.sendEmail({ to: adminEmails.join(","), subject: "تقرير جديد: " + info.name + " حصل على " + info.score + "/" + info.maxScore + " في " + info.title, htmlBody: htmlBody });
+  var statusRow = '<tr><td style="padding:12px 8px;color:#4a5568;width:35%;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700;">حالة التسليم</td><td style="padding:12px 8px;font-weight:800;border-bottom:1px solid #e2e8f0;text-align:left;' + (info.isLate ? 'color:#ef4444;' : 'color:#10b981;') + '">' + (info.isLate ? 'تسليم متأخر / Late Submission' : 'في الوقت المحدد / On Time') + '</td></tr>';
+  
+  var htmlBody = '<div dir="rtl" style="font-family:'Cairo', Arial, sans-serif;background-color:#F3EFFB;padding:30px 15px;color:#0B132B;">'
+    + '<div style="max-width:580px;margin:0 auto;background-color:#ffffff;border:1px solid #C5A059;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(11,19,43,0.08);">'
+    + '<div style="background-color:#0B132B;color:#ffffff;padding:25px 20px;text-align:center;border-bottom:3px solid #C5A059;"><h2 style="margin:0;font-size:22px;color:#ffffff;">تقرير تسليم جديد</h2><div style="color:#C5A059;opacity:.9;margin-top:6px;font-size:13px;font-weight:700;">Luminova Edu Admin Notification</div></div>'
+    + '<div style="padding:24px 20px;line-height:1.9;font-size:15px;"><p style="margin:0 0 16px;color:#0B132B;">تم تسجيل نتيجة جديدة في اختبار <b>' + escapeHtml(info.title) + '</b>.</p>'
+    + '<table style="width:100%;border-collapse:collapse;">' + adminRow("الطالب", info.name) + adminRow("البريد", info.email) + adminRow("رقم الجلوس", info.seat) + adminRow("القسم", info.department) + adminRow("الدرجة", info.score + " / " + info.maxScore + " (" + percentage + ")") + adminRow("سبب الإنهاء", info.reason) + statusRow + '</table></div>'
+    + '<div style="padding:15px;background-color:#0B132B;color:#ffffff;text-align:center;font-size:11px;border-top:1px solid #C5A059;">جميع البيانات محفوظة ومؤمنة بالكامل لدى منصة لومينوفا التعليمية — Luminova Edu</div>'
+    + '</div></div>';
+    
+  var subject = (info.isLate ? "[Late Submission / تسليم متأخر] " : "") + "تقرير جديد: " + info.name + " حصل على " + info.score + "/" + info.maxScore + " في " + info.title;
+  MailApp.sendEmail({ to: adminEmails.join(","), subject: subject, htmlBody: htmlBody });
 }
 
 function sendBulkAdminSummaryV5(adminEmails, info) {
-  var htmlBody = '<div dir="rtl" style="font-family:Arial,Tahoma,sans-serif;background:#f8fafc;padding:20px;color:#0f172a;"><div style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:18px;overflow:hidden;"><div style="background:#1e40af;color:#ffffff;padding:20px 24px;"><h2 style="margin:0;font-size:20px;">ملخص إرسال التقارير الجماعية</h2></div><div style="padding:22px 24px;line-height:1.9;font-size:15px;"><table style="width:100%;border-collapse:collapse;">' + adminRow("الاختبار", info.title) + adminRow("ورقة البيانات", info.sheetName) + adminRow("تم الإرسال", info.sent) + adminRow("تم التخطي", info.skipped) + adminRow("أخطاء", info.errors) + '</table></div></div></div>';
+  var htmlBody = '<div dir="rtl" style="font-family:'Cairo', Arial, sans-serif;background-color:#F3EFFB;padding:30px 15px;color:#0B132B;">'
+    + '<div style="max-width:580px;margin:0 auto;background-color:#ffffff;border:1px solid #C5A059;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(11,19,43,0.08);">'
+    + '<div style="background-color:#0B132B;color:#ffffff;padding:25px 20px;text-align:center;border-bottom:3px solid #C5A059;"><h2 style="margin:0;font-size:22px;color:#ffffff;">ملخص إرسال التقارير الجماعية</h2><div style="color:#C5A059;opacity:.9;margin-top:6px;font-size:13px;font-weight:700;">Luminova Edu Admin System</div></div>'
+    + '<div style="padding:24px 20px;line-height:1.9;font-size:15px;"><table style="width:100%;border-collapse:collapse;">' + adminRow("الاختبار", info.title) + adminRow("ورقة البيانات", info.sheetName) + adminRow("تم الإرسال", info.sent) + adminRow("تم التخطي", info.skipped) + adminRow("أخطاء", info.errors) + '</table></div>'
+    + '<div style="padding:15px;background-color:#0B132B;color:#ffffff;text-align:center;font-size:11px;border-top:1px solid #C5A059;">جميع البيانات محفوظة ومؤمنة بالكامل لدى منصة لومينوفا التعليمية — Luminova Edu</div>'
+    + '</div></div>';
+    
   MailApp.sendEmail({ to: adminEmails.join(","), subject: "ملخص إرسال التقارير الجماعية: " + info.title, htmlBody: htmlBody });
 }
 
@@ -318,6 +405,7 @@ function buildBaseRow(headers, qStart, info) {
     else if (h === "exit time") row.push(info.exitTime);
     else if (h === "ip address") row.push(info.ipAddress);
     else if (h === "termination reason") row.push(info.reason);
+    else if (h === "late submission") row.push(info.lateSubmission);
     else if (h === "exam title") row.push(info.title);
     else row.push("");
   }
@@ -338,6 +426,23 @@ function isDuplicateSubmission(sheet, submissionId, email, title) {
     }
   }
   return false;
+}
+
+function cleanupPartialRows(sheet, submissionId) {
+  if (!submissionId) return;
+  var values = sheet.getDataRange().getValues();
+  if (values.length < 4) return;
+  var headers = values[0];
+  var submissionCol = getHeaderIndex(headers, "Submission ID", -1);
+  if (submissionCol < 0) return;
+  
+  // Iterate bottom-up to prevent row index shifting during deletion
+  for (var i = values.length - 1; i >= 3; i--) {
+    var val = normalizeSubmissionId(values[i][submissionCol]);
+    if (val === submissionId) {
+      sheet.deleteRow(i + 1); // 1-based index in sheet vs 0-based in values
+    }
+  }
 }
 
 function getQuestionStartIndex(headers) {
@@ -390,7 +495,7 @@ function statusIcon(isCorrect) {
 }
 
 function adminRow(label, value) {
-  return '<tr><td style="padding:9px 0;color:#64748b;width:35%;border-bottom:1px solid #f1f5f9;">' + escapeHtml(label) + '</td><td style="padding:9px 0;font-weight:800;border-bottom:1px solid #f1f5f9;">' + escapeHtml(value) + '</td></tr>';
+  return '<tr><td style="padding:12px 8px;color:#4a5568;width:35%;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:700;">' + escapeHtml(label) + '</td><td style="padding:12px 8px;font-weight:800;border-bottom:1px solid #e2e8f0;text-align:left;color:#0B132B;">' + escapeHtml(value) + '</td></tr>';
 }
 
 function safeText(value, fallback) {
