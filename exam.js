@@ -3300,7 +3300,7 @@ window.LUMINOVA_EXAMS = [
         "id": "q_1778337809910"
       }
     ],
-    "examMode": "evaluation",
+    "examMode": "practice",
     "emailPolicy": "full_report",
     "adminEmails": "mahmoud21abdalrhman@gmail.com",
     "startTime": "",
@@ -3309,8 +3309,8 @@ window.LUMINOVA_EXAMS = [
     "allowBackNavigation": true,
     "yearId": "year_1",
     "semesterId": "semesters_1775125622791",
-    "webhookUrl": "https://script.google.com/macros/s/AKfycbxaMADy_vLytqKgEbGQr3IYMG8KOjdZGvRk5dz3katZ_OJBL-J5aCCefb-4pkyTFjcY7g/exec",
-    "sendDetailedReport": true,
+    "webhookUrl": "",
+    "sendDetailedReport": false,
     "examCode": "LUM-MP609GWD37OX8",
     "sheetName": "Sheet1",
     "entryGate": {
