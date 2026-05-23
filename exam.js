@@ -6957,7 +6957,7 @@ window.LUMINOVA_EXAMS = [
     "titleEn": " 🏆Comprehensive Emotional Intelligence Exam",
     "examCode": "EXM_mpajt9i2hso4d",
     "isShuffled": true,
-    "feedbackMode": "end",
+    "feedbackMode": "immediate",
     "subjectId": "subjects_1775848318508",
     "publisherId": "students_1775125739063",
     "questions": [
@@ -8042,7 +8042,7 @@ window.LUMINOVA_EXAMS = [
         "id": "q_1779073116190"
       }
     ],
-    "examMode": "evaluation",
+    "examMode": "practice",
     "emailPolicy": "full_report",
     "adminEmails": "mahmoud21abdalrhman@gmail.com,salmazahran167@gmail.com",
     "sheetName": "Sheet1",
