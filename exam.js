@@ -3300,17 +3300,17 @@ window.LUMINOVA_EXAMS = [
         "id": "q_1778337809910"
       }
     ],
-    "examMode": "practice",
+    "examMode": "evaluation",
     "emailPolicy": "full_report",
     "adminEmails": "mahmoud21abdalrhman@gmail.com",
-    "startTime": "2026-05-15T14:15",
-    "endTime": "2026-05-15T14:25",
+    "startTime": "",
+    "endTime": "",
     "latePolicy": "hard_stop",
     "allowBackNavigation": true,
     "yearId": "year_1",
     "semesterId": "semesters_1775125622791",
-    "webhookUrl": "https://script.google.com/macros/s/AKfycbxyZ4OV8YnjI8saEqVIwm8-loJRTd7Ww4YTUv02PspS0413yZ4o_MQ9tZcwCef143xTAg/exec",
-    "sendDetailedReport": false,
+    "webhookUrl": "https://script.google.com/macros/s/AKfycbxaMADy_vLytqKgEbGQr3IYMG8KOjdZGvRk5dz3katZ_OJBL-J5aCCefb-4pkyTFjcY7g/exec",
+    "sendDetailedReport": true,
     "examCode": "LUM-MP609GWD37OX8",
     "sheetName": "Sheet1",
     "entryGate": {
