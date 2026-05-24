@@ -1,5 +1,23 @@
 window.LUMINOVA_CERTIFICATES = [
   {
+    "id": "certificates_1779615079553",
+    "timestamp": "2026-05-24T09:31:19.553Z",
+    "studentName": "محمد كرم سلام",
+    "studentNameEn": "Mohamed Karam Salam",
+    "senderName": "فريق Level UP",
+    "senderNameEn": "Level up",
+    "senderRole": "Level UP",
+    "title": "شهادة تقدير تميز أكاديمي",
+    "titleEn": "Certificate of Academic Excellence",
+    "description": "لتفوقه الملحوظ في تربية خاصة عربي وحصوله على أعلى الدرجات في التقييمات الأكاديمية.",
+    "descriptionEn": "For his remarkable excellence in Arab special education and having the highest scores in academic assessments.",
+    "isFeatured": true,
+    "badges": [],
+    "date": "2026-05-24T09:31:19.553Z",
+    "level": "silver",
+    "senderRoleEn": "Level up"
+  },
+  {
     "id": "certificates_1778676389202",
     "timestamp": "2026-05-13T12:46:29.202Z",
     "studentName": "ماريا خالد شوقي",
@@ -123,7 +141,7 @@ window.LUMINOVA_CERTIFICATES = [
     "titleEn": "Certificate of Academic Excellence",
     "description": "لتفوقه الملحوظ وحصوله على أعلى الدرجات في التقييمات الأكاديمية.",
     "descriptionEn": "For his remarkable excellence and highest scores in academic assessments.",
-    "isFeatured": true,
+    "isFeatured": false,
     "badges": [],
     "date": "2026-05-06T13:08:50.957Z",
     "sealType": "silver",
