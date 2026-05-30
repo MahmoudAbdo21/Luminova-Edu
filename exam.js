@@ -6,7 +6,7 @@ window.LUMINOVA_EXAMS = [
     "titleEn": "Comprehensive Test Photography 🏆",
     "examCode": "EXM_mpbd6v5w1m0kq",
     "isShuffled": true,
-    "feedbackMode": "end",
+    "feedbackMode": "immediate",
     "subjectId": "subjects_1775503625271",
     "publisherId": "s_founder_hardcoded",
     "questions": [
