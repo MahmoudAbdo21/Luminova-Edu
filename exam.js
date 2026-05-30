@@ -1257,7 +1257,7 @@ window.LUMINOVA_EXAMS = [
         "id": "q_1780148240356"
       }
     ],
-    "examMode": "evaluation",
+    "examMode": "practice",
     "emailPolicy": "full_report",
     "adminEmails": "mahmoud21abdalrhman@gmail.com,salmazahran167@gmail.com",
     "sheetName": "Sheet1",
@@ -1266,7 +1266,7 @@ window.LUMINOVA_EXAMS = [
     "latePolicy": "hard_stop",
     "allowBackNavigation": true,
     "webhookUrl": "https://script.google.com/macros/s/AKfycbw0ba4fpfrhKeIb8IAny95Bd1NvTH_BV3XR4H1CldEcVJWG-BZoBjTshPzHQkTJFqZO/exec",
-    "sendDetailedReport": true,
+    "sendDetailedReport": false,
     "entryGate": {
       "name": true,
       "department": true,
