@@ -2420,6 +2420,31 @@ window.LUMINOVA_DATA = {
           "type": "url"
         }
       ]
+    },
+    {
+      "id": "summaries_1780362634610",
+      "timestamp": "2026-06-02T01:10:34.610Z",
+      "titleAr": "شرح مبسط لمقرر المواطنة الرقميه",
+      "titleEn": "Simplified explanation of the digital citizenship course",
+      "contentAr": "الملف النهائي لشرح وتبسيط المواطنه الرقمية ",
+      "contentEn": "The final file to explain and simplify digital citizenship",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775849639042",
+      "studentId": "students_1775125739063",
+      "mediaType": "pdf",
+      "chapterTag": "الفصل الأول",
+      "lessonUrl": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1tWKCBEmhirwxu1-rLuHudxnV7NjRW6ue/view?usp=sharing",
+          "titleAr": "pdf",
+          "titleEn": "PDF",
+          "order": 0,
+          "type": "url"
+        }
+      ]
     }
   ]
 };
