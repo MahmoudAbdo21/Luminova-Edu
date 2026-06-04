@@ -395,6 +395,15 @@ window.LUMINOVA_DATA = {
   ],
   "subjects": [
     {
+      "id": "subjects_1780597023561",
+      "timestamp": "2026-06-04T18:17:03.561Z",
+      "nameAr": "االسس النظرية لتكنولوجيا تعليم الفئات الخاصة",
+      "nameEn": "Theoretical foundations of technology for the education of special groups",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "subjectId": ""
+    },
+    {
       "id": "subjects_1778154846161",
       "timestamp": "2026-05-07T11:54:06.161Z",
       "nameAr": "مكتبات رقمية",
