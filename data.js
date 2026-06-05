@@ -2454,6 +2454,106 @@ window.LUMINOVA_DATA = {
           "type": "url"
         }
       ]
+    },
+    {
+      "id": "summaries_1780602264719",
+      "timestamp": "2026-06-04T19:44:24.719Z",
+      "titleAr": "الفصل الرابع",
+      "titleEn": "CHAPTER 4",
+      "contentAr": "شرح وتبسيط الفصل الرابع للاسس النظرية لتكنولوجيا ذوي الاحتياجات الخاصة",
+      "contentEn": "Explain and simplify the fourth chapter of the theoretical foundations of technology for people with special needs",
+      "mediaUrl": "",
+      "subjectId": "subjects_1780597023561",
+      "studentId": "students_1778883480599",
+      "mediaType": "pdf",
+      "chapterTag": "الفصل الرابع",
+      "lessonUrl": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1E7kJatW9V9qhnNkpEL-Dyj4XzVGijNHO/view?usp=sharing",
+          "titleAr": "pdf",
+          "titleEn": "",
+          "order": 0,
+          "type": "url"
+        }
+      ]
+    },
+    {
+      "id": "summaries_1780602044280",
+      "timestamp": "2026-06-04T19:40:44.280Z",
+      "titleAr": "الفصل الثاث",
+      "titleEn": "Chapter 3",
+      "contentAr": "شرح وتبسيط للفصل الثلث لمقرر الاسس النظرية لتكنولوجيا ذوي الاحتياجات الخاصه",
+      "contentEn": "Explanation and simplification of the third chapter of the course on the theoretical foundations of technology for people with special needs",
+      "mediaUrl": "",
+      "subjectId": "subjects_1780597023561",
+      "studentId": "students_1775855642761",
+      "mediaType": "pdf",
+      "chapterTag": "الفصل الثالث",
+      "lessonUrl": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1TwAgTFLZgsKpKlryS53ig-LG6NufOs9A/view?usp=sharing",
+          "titleAr": "pdf",
+          "titleEn": "PDF",
+          "order": 0,
+          "type": "url"
+        }
+      ]
+    },
+    {
+      "id": "summaries_1780601872282",
+      "timestamp": "2026-06-04T19:37:52.282Z",
+      "titleAr": "الفصل الثاني",
+      "titleEn": "Chapter Two",
+      "contentAr": "تلخيص وتبسيط الفصل الثاني للاسس النظرية لتكنولجيا ذوي الاحتياجات الخاصة",
+      "contentEn": "Summarize and simplify the second chapter of the theoretical foundations of technology for people with special needs",
+      "mediaUrl": "",
+      "subjectId": "subjects_1780597023561",
+      "studentId": "students_1775379443604",
+      "mediaType": "pdf",
+      "chapterTag": "الفصل الثاني",
+      "lessonUrl": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/1VO4_8pQmGkLrgXCkviE4QuFJpgRBQ6Mj/view?usp=sharing",
+          "titleAr": "pdf",
+          "titleEn": "PDF",
+          "order": 0,
+          "type": "url"
+        }
+      ]
+    },
+    {
+      "id": "summaries_1780601681818",
+      "timestamp": "2026-06-04T19:34:41.818Z",
+      "titleAr": "الفصل الاول",
+      "titleEn": "First Semester",
+      "contentAr": "تلخيص وتبسيط الفصل الاول للاسس النظرية لتكنولجيا ذوي الاحتياجات الخاصة",
+      "contentEn": "Summarize and simplify the first chapter of the theoretical foundations of technology for people with special needs",
+      "mediaUrl": "",
+      "subjectId": "subjects_1780597023561",
+      "studentId": "students_1775848220866",
+      "mediaType": "pdf",
+      "chapterTag": "الفصل الأول",
+      "lessonUrl": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/10OEauy6Y1nNFPtl-9uNSvhpwQ6Lte3WY/view?usp=sharing",
+          "titleAr": "pdf",
+          "titleEn": "PDF",
+          "order": 0,
+          "type": "url"
+        }
+      ]
     }
   ]
 };
