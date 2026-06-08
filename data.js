@@ -2554,6 +2554,31 @@ window.LUMINOVA_DATA = {
           "type": "url"
         }
       ]
+    },
+    {
+      "id": "summaries_1780913829686",
+      "timestamp": "2026-06-08T10:17:09.686Z",
+      "titleAr": "الملف النهائي لعلم نفس النمو",
+      "titleEn": "The Final Profile of Developmental Psychology",
+      "contentAr": "شرح مختصر ومبسط لمقرر علم نفس النمو",
+      "contentEn": "A brief and simplified explanation of the course of developmental psychology",
+      "mediaUrl": "",
+      "subjectId": "subjects_1775590782356",
+      "studentId": "students_1775125739063",
+      "mediaType": "pdf",
+      "chapterTag": "الفصل الأول",
+      "lessonUrl": "",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791",
+      "mediaUrls": [
+        {
+          "url": "https://drive.google.com/file/d/12BwFyrRw8fpXFdc45hPWrZHCrCGCOg2I/view?usp=sharing",
+          "titleAr": "pdf",
+          "titleEn": "PDF",
+          "order": 0,
+          "type": "url"
+        }
+      ]
     }
   ]
 };
