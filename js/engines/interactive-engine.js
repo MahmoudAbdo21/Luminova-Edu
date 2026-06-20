@@ -42,8 +42,6 @@
   ].join('\n');
 
   // ─── Universal Fallback: Dynamic Lucide Icon Fetcher ───
-  // Replaces the static placeholder with a stateful component that dynamically
-  // fetches missing Lucide SVGs from the unpkg CDN on the fly.
   var UNIVERSAL_FALLBACK_CODE = 
     'var _DynamicIconFallback=function(props){' +
       'var name=props.__iconName;' +
@@ -81,7 +79,6 @@
     }
     Boundary.prototype = Object.create(_super.prototype);
     Boundary.prototype.constructor = Boundary;
-    // Static lifecycle — must be on the constructor itself
     Boundary.getDerivedStateFromError = function (error) {
       return { hasError: true, errorMsg: error && error.message ? error.message : String(error) };
     };
@@ -160,10 +157,86 @@
     return code;
   }
 
+  function createSafeRequire() {
+    var React = window.React;
+    var ReactDOM = window.ReactDOM;
+
+    var htmReact = (window.htm && window.React) ? window.htm.bind(window.React.createElement) : null;
+    var reactDomClient = {
+      createRoot: (window.ReactDOM && window.ReactDOM.createRoot) ? window.ReactDOM.createRoot : (window.ReactDOM ? function(container) {
+        console.warn("[Luminova Engine] ReactDOM.createRoot not found. Using legacy ReactDOM.render fallback.");
+        return {
+          render: function(element) {
+            window.ReactDOM.render(element, container);
+          },
+          unmount: function() {
+            window.ReactDOM.unmountComponentAtNode(container);
+          }
+        };
+      } : function() {
+        throw new Error("ReactDOM is not defined on window.");
+      })
+    };
+
+    var jsxRuntime = {
+      Fragment: window.React ? window.React.Fragment : null,
+      jsx: function (type, props, key) {
+        var finalProps = Object.assign({}, props || {});
+        if (key !== undefined) {
+          finalProps.key = key;
+        }
+        return window.React.createElement(type, finalProps);
+      },
+      jsxs: function (type, props, key) {
+        var finalProps = Object.assign({}, props || {});
+        if (key !== undefined) {
+          finalProps.key = key;
+        }
+        return window.React.createElement(type, finalProps);
+      }
+    };
+
+    var modules = {
+      "react": React,
+      "react-dom": ReactDOM,
+      "react-dom/client": reactDomClient,
+      "htm": htmReact,
+      "htm/react": htmReact,
+      "react/jsx-runtime": jsxRuntime
+    };
+
+    return function safeRequire(name) {
+      if (Object.prototype.hasOwnProperty.call(modules, name) && modules[name]) {
+        return modules[name];
+      }
+      throw new Error("Unsupported local lesson dependency: " + name);
+    };
+  }
+
+  function detectLegacyInteractiveFormat(url, content) {
+    var urlLower = url.toLowerCase();
+    var cleanContent = content ? content.trim() : '';
+
+    if (urlLower.endsWith('.html') || urlLower.endsWith('.htm') || cleanContent.indexOf('<!DOCTYPE html>') !== -1 || cleanContent.indexOf('<html') !== -1) {
+      return 'local_same_origin_html';
+    }
+
+    if (cleanContent.indexOf('require(') !== -1 || cleanContent.indexOf('exports.') !== -1 || cleanContent.indexOf('module.exports') !== -1) {
+      return 'commonjs_browser_lesson';
+    }
+
+    if (cleanContent.indexOf('import ') !== -1 || cleanContent.indexOf('export ') !== -1) {
+      return 'es_module_jsx_lesson';
+    }
+
+    if (cleanContent.indexOf('React.createElement') !== -1 || (cleanContent.indexOf('<') !== -1 && cleanContent.indexOf('>') !== -1)) {
+      return 'babel_browser_script';
+    }
+
+    return 'plain_browser_script';
+  }
+
   // ─── Compile & Execute (v3 — Strict Sandboxing) ───
-  // Each execution gets a unique scope ID. All lesson code runs inside
-  // a double-IIFE with `new Function()` to guarantee zero global leakage.
-  // Babel compile cache is busted per invocation to prevent stale AST collisions.
   function compileAndExecute(rawJsx) {
     // 1. Clear any previous lesson reference
     window.__LUMINOVA_LESSON = null;
@@ -190,30 +263,36 @@
       return 'var ' + name + '=function(p){return React.createElement(_DynamicIconFallback,Object.assign({__iconName:"' + name + '"},p))};';
     }).join('\n');
 
-    // 4. Build sandboxed payload — double IIFE ensures complete scope isolation.
-    //    The outer IIFE provides React bindings + icon stubs.
-    //    The inner IIFE contains the lesson code itself so that identically-named
-    //    `const`/`let` declarations across different lessons never collide.
+    // 4. Build sandboxed payload. Inject safeRequire, module and exports stubs
     var wrapped =
       '(function(){' +
         '/* Sandbox: ' + scopeId + ' */' +
         'var React=window.React;' +
         'var useState=React.useState,useEffect=React.useEffect,useCallback=React.useCallback,useRef=React.useRef,useMemo=React.useMemo;' +
+        'var module = { exports: {} };' +
+        'var exports = module.exports;' +
+        'var require = (' + createSafeRequire.toString() + ')();\n' +
         UNIVERSAL_FALLBACK_CODE + '\n' +
         ICON_STUBS_CODE + '\n' +
         dynamicFallbacks + '\n' +
         '(function(){' + processed + '\n})();' +
+        'if (module.exports && !window.__LUMINOVA_LESSON) {' +
+        '  window.__LUMINOVA_LESSON = module.exports.default || module.exports;' +
+        '}' +
       '\n})();';
 
     // 5. Babel transpilation with cache-busting filename
     if (!window.Babel) throw new Error('Babel Standalone is not loaded.');
     var compiled = window.Babel.transform(wrapped, {
-      presets: ['env', 'react'],
+      presets: [
+        ['env'],
+        ['react', { runtime: 'classic' }]
+      ],
       sourceType: 'script',
       filename: scopeId + '.jsx'  // Unique filename prevents Babel AST cache collisions
     }).code;
 
-    // 6. Execute in isolated Function scope (no access to engine closure variables)
+    // 6. Execute in isolated Function scope
     new Function(compiled)();
 
     // 7. Validate export
@@ -298,10 +377,18 @@
     var _e = useState(false), lsReady = _e[0], setLsReady = _e[1];
     var _f = useState(false), hasErr = _f[0], setHasErr = _f[1];
     var _g = useState(''), errMsg = _g[0], setErrMsg = _g[1];
+    var _h = useState('babel_browser_script'), lessonFormat = _h[0], setLessonFormat = _h[1];
     var wrapRef = useRef(null);
     var mountRef = useRef(null);
     var lessonRootRef = useRef(null);       // React 18 createRoot reference
     var exitListenerRef = useRef(null);     // Smart Exit click listener reference
+    var activeRef = useRef(active);
+    var urlRef = useRef(url);
+
+    useEffect(function () {
+      activeRef.current = active;
+      urlRef.current = url;
+    }, [active, url]);
 
     // ─── Exit keyword heuristic regex (Arabic + English) ───
     var EXIT_REGEX = /(خروج|إنهاء|انهاء|رجوع|إغلاق|اغلاق|العودة|exit|close|back|leave|quit|end\s*lesson|finish)/i;
@@ -330,8 +417,6 @@
       // 6. Purge Babel compile cache for this session to free memory
       try {
         if (window.Babel && window.Babel.availablePlugins) {
-          // Babel Standalone stores compiled results; clearing the transform
-          // file cache by deleting the entries we created with unique filenames
           var cache = window.Babel._cache || (window.Babel.cache && window.Babel.cache.clear && window.Babel.cache);
           if (cache && typeof cache.clear === 'function') cache.clear();
         }
@@ -343,12 +428,34 @@
     }, []);
 
     var startLesson = useCallback(function (lessonUrl) {
+      if (!lessonUrl) return;
+
+      var isSafe = window.LuminovaResourceResolver ? window.LuminovaResourceResolver.isSafeExternalUrl(lessonUrl) : (lessonUrl.startsWith('http') || !lessonUrl.startsWith('javascript:'));
+      if (!isSafe && !lessonUrl.startsWith('./') && !lessonUrl.startsWith('/')) {
+        setErrMsg('رابط هذا الدرس غير متاح حاليًا أو غير آمن.');
+        setHasErr(true);
+        return;
+      }
+
       fetch(lessonUrl + '?t=' + Date.now())
         .then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.text(); })
         .then(function (raw) {
           try {
-            compileAndExecute(raw);
-            setLoaded(true);
+            var format = detectLegacyInteractiveFormat(lessonUrl, raw);
+            setLessonFormat(format);
+
+            if (format === 'local_same_origin_html') {
+              setLoaded(true);
+            } else if (format === 'external_web_link') {
+              setErrMsg('الرابط الخارجي لا يمكن عرضه داخل محاكي الدروس التفاعلية.');
+              setHasErr(true);
+            } else if (format === 'plain_browser_script') {
+              new Function(raw)();
+              setLoaded(true);
+            } else {
+              compileAndExecute(raw);
+              setLoaded(true);
+            }
           } catch (e) {
             console.error('Luminova Engine: Babel compile error:', e);
             setErrMsg(e?.message || String(e)); setHasErr(true);
@@ -368,8 +475,28 @@
     useEffect(function () {
       var handler = function (e) {
         var detail = e.detail || {};
-        if (!detail.url) return;
-        setActive(true); setUrl(detail.url); setLoaded(false); setHasErr(false); setErrMsg(''); setLsReady(false);
+        var targetUrl = detail.url;
+        if (!targetUrl) return;
+
+        // 1. Validate URL
+        var isSafe = window.LuminovaResourceResolver ? window.LuminovaResourceResolver.isSafeExternalUrl(targetUrl) : (targetUrl.startsWith('http') || !targetUrl.startsWith('javascript:'));
+        if (!isSafe && !targetUrl.startsWith('./') && !targetUrl.startsWith('/')) {
+          console.error("[Luminova Engine] Invalid or unsafe URL:", targetUrl);
+          return;
+        }
+
+        // 2. Prevent duplicate launch
+        if (activeRef.current && urlRef.current === targetUrl) {
+          console.warn("[Luminova Engine] Lesson already running:", targetUrl);
+          return;
+        }
+
+        // 3. Cleanup previous lesson
+        if (activeRef.current) {
+          cleanup();
+        }
+
+        setActive(true); setUrl(targetUrl); setLoaded(false); setHasErr(false); setErrMsg(''); setLsReady(false);
         if (isMobile() && window.innerHeight > window.innerWidth) {
           setPortrait(true);
         } else {
@@ -378,7 +505,7 @@
       };
       window.addEventListener('startInteractiveLesson', handler);
       return function () { window.removeEventListener('startInteractiveLesson', handler); };
-    }, []);
+    }, [cleanup]);
 
     // Listen: luminova:exit
     useEffect(function () {
@@ -414,30 +541,38 @@
       startLesson(url);
     }, [url, startLesson]);
 
-    // Render lesson component into mount point once loaded (wrapped in ErrorBoundary)
-    // Uses React 18 createRoot when available, falls back to legacy render
+    // Render lesson component into mount point once loaded
     useEffect(function () {
-      if (!loaded || !window.__LUMINOVA_LESSON || !mountRef.current) return;
-      var Comp = window.__LUMINOVA_LESSON;
-      var exitFn = function () { window.dispatchEvent(new CustomEvent('luminova:exit')); };
-      var tree = React.createElement(LessonErrorBoundary, null,
-        React.createElement(Comp, { onExit: exitFn })
-      );
+      if (!loaded || !mountRef.current) return;
 
-      // React 18 createRoot path
-      if (ReactDOM.createRoot) {
-        var root = ReactDOM.createRoot(mountRef.current);
-        root.render(tree);
-        lessonRootRef.current = root;
+      if (lessonFormat === 'local_same_origin_html') {
+        var iframe = document.createElement('iframe');
+        iframe.src = url;
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
+        iframe.style.background = 'white';
+        // Trusted same-origin local lesson profile
+        iframe.setAttribute('sandbox', 'allow-scripts allow-forms allow-popups');
+        mountRef.current.appendChild(iframe);
       } else {
-        // Legacy fallback
-        ReactDOM.render(tree, mountRef.current);
+        if (!window.__LUMINOVA_LESSON) return;
+        var Comp = window.__LUMINOVA_LESSON;
+        var exitFn = function () { window.dispatchEvent(new CustomEvent('luminova:exit')); };
+        var tree = React.createElement(LessonErrorBoundary, null,
+          React.createElement(Comp, { onExit: exitFn })
+        );
+
+        if (ReactDOM.createRoot) {
+          var root = ReactDOM.createRoot(mountRef.current);
+          root.render(tree);
+          lessonRootRef.current = root;
+        } else {
+          ReactDOM.render(tree, mountRef.current);
+        }
       }
 
-      // ─── Task 1: Zero-Touch Smart Exit Interceptor ───
-      // Capture-phase click delegation on the lesson mount node.
-      // Detects exit-intent clicks by matching button/anchor text against
-      // Arabic + English exit keywords — no modifications needed in .jsx files.
+      // ─── Smart Exit Interceptor ───
       var isIconOnlyExitControl = function (el) {
         if (!el || !el.querySelector) return false;
         var text = (el.textContent || '').trim();
@@ -465,23 +600,19 @@
 
       var smartExitHandler = function (evt) {
         var target = evt.target;
-        // Walk up to find the nearest interactive element
         var el = target.closest ? target.closest('button, a, [role="button"]') : null;
         if (!el) return;
-        // Gather all possible text signals
         var text = (el.textContent || '') + ' ' + (el.getAttribute('aria-label') || '') + ' ' + (el.getAttribute('title') || '');
         if (EXIT_REGEX.test(text) || isIconOnlyExitControl(el)) {
           evt.preventDefault();
           evt.stopPropagation();
           if (evt.stopImmediatePropagation) evt.stopImmediatePropagation();
-          // Also call the lesson's own onExit if it was passed via props
-          // (for lessons that DO wire it — harmless double-call is guarded by cleanup idempotency)
           window.dispatchEvent(new CustomEvent('luminova:exit'));
         }
       };
       mountRef.current.addEventListener('click', smartExitHandler, true);
       exitListenerRef.current = smartExitHandler;
-    }, [loaded]);
+    }, [loaded, lessonFormat, url]);
 
     if (!active) return null;
 
@@ -529,7 +660,7 @@
     }
 
     // Loading spinner
-    if (!loaded || !window.__LUMINOVA_LESSON) {
+    if (!loaded || (!window.__LUMINOVA_LESSON && lessonFormat !== 'local_same_origin_html')) {
       return React.createElement('div', { style: { position:'fixed',inset:0,zIndex:99999,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'#0a0f1c' } },
         React.createElement('div', { style: { width:'48px',height:'48px',border:'4px solid #22d3ee',borderTopColor:'transparent',borderRadius:'50%',animation:'spin 1s linear infinite',marginBottom:'16px' } }),
         React.createElement('style', null, '@keyframes spin{to{transform:rotate(360deg)}}'),
@@ -537,8 +668,39 @@
       );
     }
 
+    var lang = (window.LUMINOVA_DATA && window.LUMINOVA_DATA.settings && window.LUMINOVA_DATA.settings.language) || (document.documentElement.lang) || 'ar';
+    var isRtl = document.documentElement.dir === 'rtl';
+
     // Active lesson container
     return React.createElement('div', { ref: wrapRef, style: { position:'fixed',inset:0,zIndex:99999,display:'flex',flexDirection:'column',background:'#0a0f1c' } },
+      // Floating Exit Button (outside the content mount tree)
+      React.createElement('button', {
+        onClick: cleanup,
+        style: {
+          position: 'absolute',
+          top: '16px',
+          right: isRtl ? 'auto' : '16px',
+          left: isRtl ? '16px' : 'auto',
+          zIndex: 100000,
+          background: 'rgba(239, 68, 68, 0.95)',
+          color: 'white',
+          border: 'none',
+          borderRadius: '12px',
+          padding: '10px 20px',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          fontFamily: 'Cairo, sans-serif',
+          fontSize: '14px',
+          transition: 'transform 0.2s, background-color 0.2s',
+          direction: 'ltr'
+        },
+        onMouseOver: function (e) { e.target.style.transform = 'scale(1.05)'; },
+        onMouseOut: function (e) { e.target.style.transform = 'scale(1)'; }
+      }, '✖  ' + (lang === 'ar' ? 'خروج من الدرس' : 'Exit Lesson')),
       React.createElement('div', { ref: mountRef, style: { flex:1,width:'100%',position:'relative',overflowY:'auto',overflowX:'hidden',WebkitOverflowScrolling:'touch' } })
     );
   };

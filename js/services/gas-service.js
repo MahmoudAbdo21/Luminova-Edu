@@ -21,6 +21,11 @@
     // Initialize Services namespace
     if (!Luminova.Services) Luminova.Services = {};
 
+    const LUMINOVA_DEBUG = false;
+    const debugLog = (...args) => { if (LUMINOVA_DEBUG) window.console.log(...args); };
+    const debugWarn = (...args) => { if (LUMINOVA_DEBUG) window.console.warn(...args); };
+
+
     function _networkError(message, cause) {
         const err = new Error(message);
         err.isNetworkError = true;
@@ -92,7 +97,31 @@
     // ─── Internal fetch wrapper ───────────────────────────────
     // Single point of truth for ALL outbound requests to GAS.
     async function _gasFetch(url, payload) {
+        window.__LUMINOVA_GAS_DEBUG__ = window.__LUMINOVA_GAS_DEBUG__ || {
+            count: 0,
+            actions: [],
+            lastPayload: null
+        };
+        window.__LUMINOVA_GAS_DEBUG__.count += 1;
+        window.__LUMINOVA_GAS_DEBUG__.actions.push(payload.action);
+        window.__LUMINOVA_GAS_DEBUG__.lastPayload = {
+            action: payload.action,
+            quizId: payload.quizId,
+            schemaHash: payload.schemaHash,
+            spreadsheetId: payload.spreadsheetId,
+            sheetName: payload.sheetName,
+            submissionId: payload.submissionId,
+            answersCount: Array.isArray(payload.answers) ? payload.answers.length : undefined
+        };
+
+        debugLog("[GAS Request]", payload.action, payload);
+        debugLog("[Luminova GAS Fetch Start]", {
+            action: payload?.action,
+            url: url,
+            protocol: window.location.protocol
+        });
         if (window.location.protocol === 'file:') {
+            debugWarn("[Luminova GAS Fetch Protocol Check] BLOCKED — file:// protocol detected");
             throw new Error("لا يمكن إجراء الاتصال. التطبيق يعمل محلياً بدون خادم (file://).");
         }
 
@@ -131,22 +160,78 @@
 
         // The Smart Response Normalizer: Intercept HTML Workspace Security Block
         const contentType = response.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-            console.error("Workspace Security Block Detected. Response is not JSON.");
+        debugLog("[Luminova GAS Fetch Response]", {
+            action: payload?.action,
+            status: response.status,
+            ok: response.ok,
+            contentType: contentType
+        });
+
+        let text;
+        try {
+            text = await response.text();
+        } catch (readErr) {
+            throw new Error("حدث خطأ أثناء قراءة استجابة الخادم.");
+        }
+
+        debugLog("[Luminova GAS Fetch Raw Preview]", {
+            action: payload?.action,
+            textPreview: (text || '').slice(0, 300)
+        });
+
+        // Detect HTML login/redirect pages (Workspace Security Block)
+        const trimmed = (text || '').trim().toLowerCase();
+        if (trimmed.startsWith("<!doctype") || trimmed.startsWith("<html")) {
+            console.error("[Luminova] Workspace Security Block Detected. Response is HTML, not JSON.", (text || '').slice(0, 300));
             throw new Error("فشل الاتصال بقاعدة البيانات. (يرجى نشر السكربت عبر حساب Gmail شخصي وليس مؤسسي).");
         }
 
         let data;
         try {
-            data = await response.json();
+            data = JSON.parse(text);
         } catch (parseError) {
+            console.error("[Luminova GAS Parse Error]", { contentType, textPreview: (text || '').slice(0, 300) });
             throw new Error("حدث خطأ أثناء معالجة بيانات الخادم.");
         }
 
+        debugLog("[Luminova GAS Fetch Parsed]", {
+            action: payload?.action,
+            parsedStatus: data?.status,
+            keys: Object.keys(data || {})
+        });
+
         // Catch backend-thrown errors gracefully (Tagged to isolate source)
-        if (data && data.status === "error") {
-            const err = new Error("[Backend Error] " + (data.message || "حدث خطأ غير معروف في الخادم."));
-            err.code = data.code || null;
+        if (data && (data.status === "error" || data.status === "schema_mismatch" || data.status === "submission_conflict" || data.status === "verification_hash_mismatch")) {
+            let code = data.code || data.status || null;
+            let message = data.message || "";
+
+            // Map text messages to standard codes if code is not present
+            if (!code && message) {
+                if (message.indexOf("Submission ID already exists with different hash") !== -1) {
+                    code = "submission_conflict";
+                } else if (message.indexOf("Verification hash mismatch") !== -1) {
+                    code = "verification_hash_mismatch";
+                } else if (message.indexOf("Prepared schema was not found") !== -1) {
+                    code = "schema_mismatch";
+                }
+            }
+
+            // Generate fallback friendly message based on code to avoid unknown server error
+            if (!message) {
+                if (code === "submission_conflict") {
+                    message = "Submission ID already exists with different hash.";
+                } else if (code === "verification_hash_mismatch") {
+                    message = "Verification hash mismatch.";
+                } else if (code === "schema_mismatch") {
+                    message = "Prepared schema was not found.";
+                }
+            }
+
+            const friendlyMessage = message || "حدث خطأ غير معروف في الخادم.";
+            const err = new Error("[Backend Error] " + friendlyMessage);
+            err.code = code;
+            err.backendResponse = data;
+            err.serverResponse = data;
             throw err;
         }
 
@@ -161,6 +246,32 @@
         return data; // Return clean data for submit_exam
     }
 
+    function normalizeGasResponse(result) {
+        const response = result || {};
+
+        return {
+            raw: response,
+            ok: response.status === "ok",
+            status: response.status,
+            code: response.code || "",
+            verified: response.verified === true,
+            accepted: response.accepted === true,
+            alreadySubmitted: response.alreadySubmitted === true,
+            needsRepair: response.needsRepair === true,
+            repaired: response.repaired === true,
+            rowNumber: response.rowNumber,
+            sheetName: response.sheetName,
+            score: response.score,
+            maxScore: response.maxScore,
+            percentage: response.percentage,
+            resultStatus: response.resultStatus,
+            terminationReason: response.terminationReason,
+            expectedAnswerCount: response.expectedAnswerCount,
+            recordedAnswerCount: response.recordedAnswerCount,
+            student: response.student || null
+        };
+    }
+
     // ─── Public API ───────────────────────────────────────────
 
     Luminova.Services.GAS = {
@@ -168,8 +279,26 @@
         /**
          * PRE-EXAM GATEKEEPER — Verify if a student has already submitted.
          */
-        verifyStudent: async function (webhookUrl, email) {
-            const payload = { action: 'check_duplicate', email: email };
+        verifyStudent: async function (webhookUrl, params) {
+            const payload = { 
+                action: 'check_duplicate', 
+                quizId: params.quizId, 
+                schemaHash: params.schemaHash || '',
+                email: params.studentEmail || '',
+                studentEmail: params.studentEmail || '',
+                studentName: params.studentName || '',
+                seatNumber: params.seatNumber || '',
+                student: {
+                    email: params.studentEmail || '',
+                    name: params.studentName || '',
+                    seatNumber: params.seatNumber || '',
+                    department: params.department || ''
+                },
+                duplicatePolicy: params.duplicatePolicy || 'prevent_success_by_email_when_no_retakes',
+                allowRetakes: params.allowRetakes !== undefined ? params.allowRetakes : false,
+                maxAttempts: params.maxAttempts !== undefined ? params.maxAttempts : 1,
+                spreadsheetId: params.spreadsheetId || ''
+            };
             return await _gasFetch(webhookUrl, payload);
         },
 
@@ -178,7 +307,35 @@
          */
         submitExam: async function (webhookUrl, atomicPayload) {
             const payload = { action: 'submit_exam', ...atomicPayload };
-            return await _gasFetch(webhookUrl, payload);
+            const res = await _gasFetch(webhookUrl, payload);
+            return normalizeGasResponse(res);
+        },
+
+        /**
+         * SUBMISSION VERIFICATION — Confirm the ledger has the exact payload receipt.
+         */
+        verifySubmission: async function (webhookUrl, verificationPayload) {
+            const payload = { action: 'verify_submission', ...verificationPayload };
+            const res = await _gasFetch(webhookUrl, payload);
+            return normalizeGasResponse(res);
+        },
+
+        /**
+         * RETRY VERIFICATION — Lightweight check after a network failure.
+         */
+        retryVerifySubmission: async function (webhookUrl, params) {
+            const payload = { action: 'retry_verify_submission', ...params };
+            const res = await _gasFetch(webhookUrl, payload);
+            return normalizeGasResponse(res);
+        },
+
+        /**
+         * REPAIR SUBMISSION — Repair missing answer cells safely using a lock.
+         */
+        repairSubmissionAnswers: async function (webhookUrl, atomicPayload) {
+            const payload = { action: 'repair_submission_answers', ...atomicPayload };
+            const res = await _gasFetch(webhookUrl, payload);
+            return normalizeGasResponse(res);
         },
 
         /**
@@ -192,7 +349,7 @@
                     return data.ip;
                 }
             } catch (e) {
-                console.warn('IP tracking failed silently');
+                debugWarn('IP tracking failed silently');
             }
             return 'unknown';
         },
@@ -200,23 +357,56 @@
         /**
          * MULTI-TIERED TIME SYNC — Resilient True Cairo Time offset.
          */
-        getTrueTimeOffsetMs: async function(webhookUrl) {
+        getTrueTimeOffsetMs: async function(webhookUrl, quizId) {
+            debugLog("[Luminova getTrueTimeOffsetMs Enter]", JSON.stringify({
+                webhookUrl: webhookUrl || "MISSING",
+                quizId: quizId || "MISSING",
+                hasWebhook: !!webhookUrl,
+                webhookType: typeof webhookUrl
+            }, null, 2));
+            let primaryErrorDetail = null;
             const attempts = [
                 // Primary: GAS Backend (V5.2) Time Sync
                 async () => {
-                    if (!webhookUrl) throw new Error("No GAS webhookUrl provided for time sync.");
+                    if (!webhookUrl) {
+                        debugWarn("[Luminova Time Sync] webhookUrl is falsy — skipping GAS fetch", { webhookUrl, type: typeof webhookUrl });
+                        const err = new Error("time_sync_failed_missing_webhook");
+                        err.diagnosticReason = "time_sync_failed_missing_webhook";
+                        throw err;
+                    }
                     const before = Date.now();
-                    const data = await _gasFetch(webhookUrl, { action: 'get_time' });
+                    let data;
+                    try {
+                        data = await _gasFetch(webhookUrl, { action: 'get_time' });
+                    } catch (fetchErr) {
+                        let reason = "time_sync_failed_network";
+                        const msg = fetchErr.message || "";
+                        if (msg.includes("Gmail") || msg.includes("Content-Type") || msg.includes("JSON")) {
+                            reason = "time_sync_failed_html_response";
+                        } else if (msg.includes("معالجة بيانات") || msg.includes("parse")) {
+                            reason = "time_sync_failed_invalid_json";
+                        } else if (msg.includes("Action not recognized") || msg.includes("not recognized")) {
+                            reason = "time_sync_failed_old_deployment";
+                        }
+                        fetchErr.diagnosticReason = reason;
+                        throw fetchErr;
+                    }
                     const after = Date.now();
                     
-                    let serverMs = data.timestamp || data.time || data.now;
+                    if (data && data.cairoTime) {
+                        debugLog("[Luminova Time Sync] Cairo server time is:", data.cairoTime);
+                    }
+                    
+                    let serverMs = data.timestamp || data.serverTime || data.time || data.now || data.iso;
                     if (typeof serverMs === 'string') {
                         const parsed = Date.parse(serverMs);
                         if (!Number.isNaN(parsed)) serverMs = parsed;
                     }
                     
                     if (!Number.isFinite(serverMs)) {
-                        throw new Error("Invalid GAS backend time response");
+                        const err = new Error("Invalid GAS backend time response");
+                        err.diagnosticReason = "time_sync_failed_missing_timestamp";
+                        throw err;
                     }
                     
                     return serverMs - Math.round((before + after) / 2);
@@ -237,17 +427,35 @@
             ];
 
             const errors = [];
-            for (const attempt of attempts) {
+            for (let i = 0; i < attempts.length; i++) {
                 try {
-                    const offset = await attempt();
+                    const offset = await attempts[i]();
                     if (Number.isFinite(offset)) return offset;
                 } catch (error) {
                     errors.push(error?.message || String(error));
+                    if (i === 0) {
+                        primaryErrorDetail = {
+                            reason: error.diagnosticReason || "time_sync_failed_network",
+                            message: error.message || String(error),
+                            status: error.code || null
+                        };
+                    }
                 }
             }
 
+            if (primaryErrorDetail) {
+                debugWarn("[Luminova Time Sync Failed]", {
+                    quizId: quizId || "unknown",
+                    webhookUrl: webhookUrl || "none",
+                    reason: primaryErrorDetail.reason,
+                    responseStatus: primaryErrorDetail.status || "error",
+                    responseTextPreview: primaryErrorDetail.message.substring(0, 200),
+                    parsedData: null
+                });
+            }
+
             console.error("[Luminova] Trusted time sync failed:", errors);
-            throw _networkError("Trusted server time could not be synchronized. The exam is blocked until the connection stabilizes.");
+            throw _networkError("تعذر التحقق من وقت الخادم. برجاء المحاولة مرة أخرى.");
         }
     };
 })();

@@ -509,7 +509,7 @@
 
                 <!-- Nav bar -->
                 <div style=${{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px', padding: '0 16px', gap: '16px' }}>
-                    <button onClick=${goBack} style=${{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', fontWeight: 800, padding: '12px 24px', borderRadius: '12px', cursor: 'pointer', fontSize: '15px', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+                    <button type="button" data-action="go-back" data-fallback-route="home" style=${{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.03)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', fontWeight: 800, padding: '12px 24px', borderRadius: '12px', cursor: 'pointer', fontSize: '15px', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
                         <span>${lang === 'ar' ? '←' : '→'}</span>
                         ${lang === 'ar' ? 'الرجوع للرئيسية' : 'Back to Home'}
                     </button>
@@ -543,30 +543,32 @@
 
                 <!-- Results grid -->
                 ${paged.length > 0 ? html`
-                    <div style=${{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', padding: '0 8px' }}>
-                        ${paged.map(cert => html`
-                            <div key="${cert.id}" style=${{ height: '100%' }}>
-                                <${Luminova.Components.MiniCertificateCard}
-                                    certificate=${cert}
-                                    lang=${lang}
-                                    onView=${(c) => setSelectedCert(c)}
-                                />
-                            </div>
-                        `)}
-                    </div>
-
-                    ${hasMore && html`
-                        <div style=${{ display: 'flex', justifyContent: 'center', marginTop: '40px' }}>
-                            <button
-                                onClick=${() => setLimit(l => l + 6)}
-                                style=${{ background: 'linear-gradient(135deg, #fb7185, #818cf8)', color: '#fff', fontWeight: 900, fontSize: '17px', padding: '16px 40px', borderRadius: '16px', border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(244,63,94,0.3)', transition: 'all 0.3s' }}
-                                className="hover:scale-105 active:scale-95">
-                                ${lang === 'ar' ? 'عرض المزيد' : 'Load More'}
-                            </button>
+                    <div key="archive-results-container">
+                        <div style=${{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', padding: '0 8px' }}>
+                            ${paged.map(cert => html`
+                                <div key="${cert.id}" style=${{ height: '100%' }}>
+                                    <${Luminova.Components.MiniCertificateCard}
+                                        certificate=${cert}
+                                        lang=${lang}
+                                        onView=${(c) => setSelectedCert(c)}
+                                    />
+                                </div>
+                            `)}
                         </div>
-                    `}
+
+                        ${hasMore && html`
+                            <div key="archive-load-more-wrapper" style=${{ display: 'flex', justifyContent: 'center', marginTop: '40px' }}>
+                                <button
+                                    onClick=${() => setLimit(l => l + 6)}
+                                    style=${{ background: 'linear-gradient(135deg, #fb7185, #818cf8)', color: '#fff', fontWeight: 900, fontSize: '17px', padding: '16px 40px', borderRadius: '16px', border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(244,63,94,0.3)', transition: 'all 0.3s' }}
+                                    className="hover:scale-105 active:scale-95">
+                                    ${lang === 'ar' ? 'عرض المزيد' : 'Load More'}
+                                </button>
+                            </div>
+                        `}
+                    </div>
                 ` : html`
-                    <div style=${{ textAlign: 'center', padding: '80px 24px' }}>
+                    <div key="archive-no-results-container" style=${{ textAlign: 'center', padding: '80px 24px' }}>
                         <div style=${{ fontSize: '60px', marginBottom: '16px' }}>🔍</div>
                         <h3 style=${{ fontSize: '22px', fontWeight: 800, color: '#475569' }}>
                             ${lang === 'ar' ? 'لم يتم العثور على شهادات تطابق البحث' : 'No certificates found matching your search'}

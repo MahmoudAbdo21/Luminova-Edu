@@ -514,6 +514,22 @@ window.LUMINOVA_DATA = {
   ],
   "summaries": [
     {
+      "id": "summaries_1780670520656",
+      "timestamp": "2026-06-05T14:42:00.656Z",
+      "titleAr": "الفصل الاول",
+      "titleEn": "",
+      "contentAr": "شرح الفصل الاول بطريقة تفاعلية ",
+      "contentEn": "",
+      "mediaUrl": "",
+      "subjectId": "subjects_1780597023561",
+      "studentId": "s_founder_hardcoded",
+      "mediaType": "interactive",
+      "chapterTag": "الفصل الأول",
+      "lessonUrl": "Interactive-lessons/code_artifact.jsx",
+      "yearId": "year_1",
+      "semesterId": "semesters_1775125622791"
+    },
+    {
       "id": "summaries_1779318777355",
       "timestamp": "2026-05-20T23:12:57.355Z",
       "titleAr": "شرح وتبسيط المنهج ",
@@ -2548,31 +2564,6 @@ window.LUMINOVA_DATA = {
       "mediaUrls": [
         {
           "url": "https://drive.google.com/file/d/10OEauy6Y1nNFPtl-9uNSvhpwQ6Lte3WY/view?usp=sharing",
-          "titleAr": "pdf",
-          "titleEn": "PDF",
-          "order": 0,
-          "type": "url"
-        }
-      ]
-    },
-    {
-      "id": "summaries_1780913829686",
-      "timestamp": "2026-06-08T10:17:09.686Z",
-      "titleAr": "الملف النهائي لعلم نفس النمو",
-      "titleEn": "The Final Profile of Developmental Psychology",
-      "contentAr": "شرح مختصر ومبسط لمقرر علم نفس النمو",
-      "contentEn": "A brief and simplified explanation of the course of developmental psychology",
-      "mediaUrl": "",
-      "subjectId": "subjects_1775590782356",
-      "studentId": "students_1775125739063",
-      "mediaType": "pdf",
-      "chapterTag": "الفصل الأول",
-      "lessonUrl": "",
-      "yearId": "year_1",
-      "semesterId": "semesters_1775125622791",
-      "mediaUrls": [
-        {
-          "url": "https://drive.google.com/file/d/12BwFyrRw8fpXFdc45hPWrZHCrCGCOg2I/view?usp=sharing",
           "titleAr": "pdf",
           "titleEn": "PDF",
           "order": 0,

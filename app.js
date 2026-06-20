@@ -8,6 +8,210 @@
     window.__LUMINOVA = { Core: {}, Components: {}, Pages: {}, Icons: {} };
     const Luminova = window.__LUMINOVA;
 
+    function createDeterministicId(str) {
+        if (!str) return "det_empty";
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = (hash << 5) - hash + char;
+            hash = hash & hash; // Convert to 32bit integer
+        }
+        return 'det_' + Math.abs(hash).toString(36);
+    }
+
+    function resolveStableContentId(item, sourceType) {
+        if (!item) return "";
+        const existing =
+            item.id ||
+            item.resourceId ||
+            item.postId ||
+            item.summaryId;
+
+        if (existing) {
+            return String(existing);
+        }
+
+        const stableParts = [
+            sourceType || "unknown",
+            item.ownerId || item.studentId || "unknown",
+            item.url || "",
+            item.createdAt || item.timestamp || "",
+            item.slug || ""
+        ];
+
+        return createDeterministicId(stableParts.join("|"));
+    }
+    window.resolveStableContentId = resolveStableContentId;
+
+    function resolveInteractiveLessonUrl(item = {}) {
+        if (!item) return "";
+        return (
+            item.lessonUrl ||
+            item.resourceUrl ||
+            item.mediaUrl ||
+            item.fileUrl ||
+            item.url ||
+            item.link ||
+            ""
+        );
+    }
+    window.resolveInteractiveLessonUrl = resolveInteractiveLessonUrl;
+
+    const VERIFIED_STUDENT_ALIASES = {
+        "founder_1": "s_founder_hardcoded",
+        "s_founder": "s_founder_hardcoded"
+    };
+
+    window.StudentContentRepository = {
+        _data: null,
+        _aliasMap: new Map(),
+
+        init(appData) {
+            this._data = appData;
+            this._aliasMap.clear();
+
+            const registerItem = (item, type) => {
+                if (!item) return;
+                const stableId = resolveStableContentId(item, type);
+                const ids = new Set();
+                if (item.id) ids.add(String(item.id));
+                if (item.resourceId) ids.add(String(item.resourceId));
+                if (item.postId) ids.add(String(item.postId));
+                if (item.summaryId) ids.add(String(item.summaryId));
+                if (stableId) ids.add(String(stableId));
+
+                ids.forEach(id => {
+                    this._aliasMap.set(id, item);
+                });
+            };
+
+            (appData?.summaries || []).forEach(s => registerItem(s, 'summary'));
+            (appData?.news || []).forEach(n => registerItem(n, 'news'));
+        },
+
+        normalizeStudentId(id) {
+            if (!id) return 'unknown';
+            const mapped = VERIFIED_STUDENT_ALIASES[id];
+            return mapped ? mapped : id;
+        },
+
+        getAll() {
+            const list = [...(this._data?.summaries || []), ...(this._data?.news || [])];
+            return list.map(item => {
+                const type = (this._data?.summaries || []).some(s => s === item) ? 'summary' : 'news';
+                return {
+                    ...item,
+                    id: resolveStableContentId(item, type)
+                };
+            });
+        },
+
+        getAcademicContent() {
+            return (this._data?.summaries || []).map(item => {
+                return {
+                    ...item,
+                    id: resolveStableContentId(item, 'summary')
+                };
+            });
+        },
+
+        getCommunityContent() {
+            const summariesList = (this._data?.summaries || []).map(item => {
+                return {
+                    ...item,
+                    id: resolveStableContentId(item, 'summary')
+                };
+            });
+            const newsList = (this._data?.news || []).map(item => {
+                return {
+                    ...item,
+                    id: resolveStableContentId(item, 'news')
+                };
+            });
+            return [...newsList, ...summariesList];
+        },
+
+        getById(contentId) {
+            if (!contentId) return null;
+            const idStr = String(contentId);
+            const originalItem = this._aliasMap.get(idStr);
+            if (originalItem) {
+                const type = (this._data?.summaries || []).some(s => s === originalItem) ? 'summary' : 'news';
+                return {
+                    ...originalItem,
+                    id: resolveStableContentId(originalItem, type)
+                };
+            }
+            return this.getAll().find(item => String(item.id) === idStr);
+        },
+
+        getLegacyById(contentId) {
+            return this.getById(contentId);
+        },
+
+        getPostsByStudent(studentId) {
+            const normId = this.normalizeStudentId(studentId);
+            return this.getAll().filter(item => {
+                const itemOwner = item.studentId || item.ownerId || item.authorId || item.userId || item.createdBy;
+                return this.normalizeStudentId(itemOwner) === normId;
+            });
+        },
+
+        getAliases(contentId) {
+            if (!contentId) return [];
+            const item = this.getById(contentId);
+            if (!item) return [String(contentId)];
+            const type = (this._data?.summaries || []).some(s => s.id === item.id) ? 'summary' : 'news';
+            const stableId = resolveStableContentId(item, type);
+            const aliases = new Set();
+            if (item.id) aliases.add(String(item.id));
+            if (item.resourceId) aliases.add(String(item.resourceId));
+            if (item.postId) aliases.add(String(item.postId));
+            if (item.summaryId) aliases.add(String(item.summaryId));
+            if (stableId) aliases.add(String(stableId));
+            return Array.from(aliases);
+        },
+
+        getAllNonExamContent() {
+            return this.getAll();
+        },
+
+        getByStudentId(studentId) {
+            return this.getPostsByStudent(studentId);
+        }
+    };
+
+    window.LuminovaNavigation = {
+        locked: false,
+
+        goTo(route, options = {}) {
+            if (typeof window.__LUMINOVA_GO_TO === "function") {
+                window.__LUMINOVA_GO_TO(route, options);
+            }
+        },
+
+        goBack(fallbackRoute = "home") {
+            if (this.locked) return;
+
+            this.locked = true;
+            setTimeout(() => {
+                this.locked = false;
+            }, 400);
+
+            const state = window.history.state;
+
+            if (state && state.lmv) {
+                window.history.back();
+                return;
+            }
+
+            this.goTo(fallbackRoute);
+        }
+    };
+
+    const LUMINOVA_DEBUG = false;
+
+
     Luminova.FOUNDER = {
         id: 's_founder_hardcoded', nameAr: 'محمود عبد الرحمن عبدالله', nameEn: 'Mahmoud Abdelrahman', isFounder: true, isVIP: true, isVerified: true,
         image: 'img/profile.png', majorAr: 'تكنولوجيا التعليم', majorEn: 'Educational Technology',
@@ -101,124 +305,281 @@
 
         const rawUrls = Array.isArray(url) ? url : [url];
         
-        // 1. Normalize mixed arrays (strings/objects)
-        // 2. Sort by custom order logically
         const sortedItems = rawUrls.map((item, idx) => {
             if (typeof item === 'string') return { url: item, titleAr: '', titleEn: '', order: idx, type: 'legacy' };
             return { ...item, order: item.order !== undefined ? item.order : idx };
         }).sort((a, b) => (a.order || 0) - (b.order || 0));
+
+        const resolver = window.LuminovaResourceResolver;
 
         return html`
         <div className="mt-6 w-full relative group space-y-10">
             <div className="absolute -inset-1 bg-zinc-500/5 rounded-2xl blur transition duration-1000 group-hover:bg-zinc-500/10 -z-10"></div>
             ${sortedItems.map((item, idx) => {
                 if (!item || !item.url) return null;
+                const urlStr = typeof item.url === 'string' ? item.url : String(item.url);
+                const rType = resolver.resolveType(urlStr);
+                const itemId = resolveStableContentId(item, 'media');
                 let embedContent = null;
-                let urlStr = typeof item.url === 'string' ? item.url : String(item.url);
-                const isBase64 = urlStr.startsWith('data:');
-                const mimeMatch = isBase64 ? urlStr.match(/data:(.*?);/) : null;
-                const mimeType = mimeMatch ? mimeMatch[1] : '';
 
-                // Universal parsing logic: Treat non-http, non-data strings as relative paths
-                const isRelative = !urlStr.startsWith('http') && !urlStr.startsWith('data:') && !urlStr.startsWith('blob:') && !urlStr.startsWith('file://');
-
-                // Regex Rules
-                const ytRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-                const ytMatch = urlStr.match(ytRegex);
-
-                if (ytMatch && ytMatch[1]) {
-                    const videoId = ytMatch[1];
-                    embedContent = html`
-                        <div className="w-full">
-                            <iframe loading="lazy" src=${`https://www.youtube.com/embed/${videoId}` || 'about:blank'} title="YouTube" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" className="w-full h-[400px] border-none rounded-xl shadow-lg" allowFullScreen></iframe>
-                            <a href=${urlStr} target="_blank" rel="noopener noreferrer" className="mt-3 block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-sm transition-all">${lang === 'ar' ? 'فتح الرابط بالخارج ↗' : 'Open Link Externally ↗'}</a>
-                        </div>`;
-                } else if (urlStr.includes('drive.google.com')) {
-                    const driveId = urlStr.match(/[-\w]{25,}/);
-                    embedContent = html`
-                        <div className="w-full">
-                            <iframe loading="lazy" src=${(driveId ? `https://drive.google.com/file/d/${driveId}/preview` : 'about:blank')} width="100%" height="500" allow="autoplay" className="rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-800 bg-white" allowFullScreen></iframe>
-                            <a href=${urlStr} target="_blank" rel="noopener noreferrer" className="mt-3 block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-sm transition-all">${lang === 'ar' ? 'فتح الرابط بالخارج ↗' : 'Open Link Externally ↗'}</a>
-                        </div>`;
-                } else if (urlStr.includes('docs.google.com/forms')) {
-                    embedContent = html`
-                        <div className="w-full">
-                            <iframe loading="lazy" src=${urlStr || 'about:blank'} width="100%" height="600" frameBorder="0" marginHeight="0" marginWidth="0" className="rounded-xl shadow-lg bg-white" allowFullScreen></iframe>
-                            <a href=${urlStr} target="_blank" rel="noopener noreferrer" className="mt-3 block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-sm transition-all">${lang === 'ar' ? 'فتح الرابط بالخارج ↗' : 'Open Link Externally ↗'}</a>
-                        </div>`;
-                } else if (urlStr.match(/\.(jpeg|jpg|gif|png|webp|svg)(\?.*)?$/i) || (isBase64 && mimeType.startsWith('image/'))) {
-                    embedContent = html`<div style=${{ display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'rgba(0,0,0,0.1)', borderRadius: '8px', overflow: 'hidden' }} className="w-full mb-4">
-                        <img loading="lazy" src=${urlStr} alt="Smart Media" className="shadow-lg mx-auto rounded-xl cursor-pointer" onClick=${() => window.dispatchEvent(new CustomEvent('openFullscreen', { detail: urlStr }))} style=${{ maxHeight: '400px', maxWidth: '100%', width: 'auto', objectFit: 'contain' }} />
-                    </div>`;
-                } else if (urlStr.match(/\.(mp3|wav|ogg)(\?.*)?$/i) || (isBase64 && mimeType.startsWith('audio/'))) {
-                    embedContent = html`<audio controls className="w-full shadow-sm rounded-xl mb-4 bg-zinc-50 dark:bg-zinc-900 p-2"><source src=${urlStr} type=${isBase64 ? mimeType : `audio/${urlStr.split('.').pop().split('?')[0]}`} />متصفحك لا يدعم تشغيل الصوت.</audio>`;
-                } else if (urlStr.match(/\.(mp4|webm)(\?.*)?$/i) || (isBase64 && mimeType.startsWith('video/'))) {
-                    embedContent = html`<video controls className="w-full max-h-[500px] rounded-xl bg-black shadow-lg mb-4"><source src=${urlStr} type=${isBase64 ? mimeType : `video/${urlStr.split('.').pop().split('?')[0]}`} />متصفحك لا يدعم تشغيل الفيديو.</video>`;
-                } else if (urlStr.match(/\.pdf(\?.*)?$/i) || (isBase64 && mimeType === 'application/pdf')) {
-                    embedContent = html`<iframe src=${urlStr} width="100%" height="800px" style=${{ minHeight: '80vh' }} className="rounded-xl shadow-sm bg-white border border-zinc-200 dark:border-zinc-800" frameBorder="0" title="PDF Viewer"></iframe>`;
-                } else {
-                    // Handle HTML and generic unknown links
-                    const isLocalHtml = urlStr.toLowerCase().endsWith('.html') || (isBase64 && mimeType === 'text/html');
-                    const isLocalFallback = urlStr.startsWith('file://') || isRelative;
-
-                    if (isLocalHtml) {
+                if (rType === "youtube") {
+                    const ytRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^\x22&?\/\s]{11})/;
+                    const ytMatch = urlStr.match(ytRegex);
+                    const videoId = ytMatch ? ytMatch[1] : null;
+                    if (videoId) {
                         embedContent = html`
-                        <div className="flex flex-col bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden shadow-sm border border-zinc-200 dark:border-zinc-800 mb-4 relative z-10 w-full hover:shadow-md transition-all">
-                            <iframe
-                                src=${urlStr}
-                                className="w-full h-[400px] border-none bg-white"
-                                sandbox="allow-scripts allow-popups allow-same-origin allow-forms"
-                            ></iframe>
-                            <div className="flex w-full divide-x divide-zinc-700 rtl:divide-x-reverse border-t border-zinc-200 dark:border-zinc-800">
-                                <button
-                                    onClick=${() => window.dispatchEvent(new CustomEvent('openFullscreen', { detail: urlStr }))}
-                                    className="flex-1 py-4 bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 font-black transition-all flex items-center justify-center gap-2 border-none"
-                                >
-                                    <span className="text-xl leading-none">⛶</span>
-                                    <span>${lang === 'ar' ? 'تكبير' : 'Enlarge'}</span>
+                            <div className="w-full">
+                                <iframe loading="lazy" src=${`https://www.youtube.com/embed/${videoId}`} title="YouTube" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" className="w-full h-[400px] border-none rounded-xl shadow-lg" allowFullScreen></iframe>
+                                <button type="button" onClick=${() => window.open(urlStr, "_blank", "noopener,noreferrer")} className="mt-3 block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-sm transition-all border-none cursor-pointer">
+                                    ${lang === 'ar' ? 'فتح في المنصة الأصلية ↗' : 'Open in Original Platform ↗'}
                                 </button>
-                                <a
-                                    href=${urlStr}
-                                    target="_blank"
-                                    className="flex-1 py-4 bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 font-black transition-all flex items-center justify-center gap-2 no-underline"
-                                >
-                                    <span>${lang === 'ar' ? 'فتح بصفحة جديدة' : 'New Tab'}</span>
-                                    <span className="text-xl leading-none">↗</span>
-                                </a>
-                            </div>
-                        </div>
-                        `;
-                    } else if (isLocalFallback) {
-                        embedContent = html`
-                        <div className="flex flex-col bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700 mb-4 relative z-10 w-full">
-                            <div className="w-full flex flex-col items-center justify-center gap-2 py-8 px-4 bg-zinc-50 dark:bg-zinc-900">
-                                <span style=${{ fontSize:'40px', lineHeight:1 }}>📁</span>
-                                <p className="text-sm font-bold text-zinc-500 dark:text-zinc-400 text-center">${lang === 'ar' ? 'مرفق محلي' : 'Local Attachment'}</p>
-                                <a href=${urlStr} target="_blank" className="mt-4 px-6 py-2 bg-brand-DEFAULT text-white rounded-full font-bold shadow-md hover:bg-brand-hover transition-colors">
-                                    ${lang === 'ar' ? 'تنزيل / عرض الملف' : 'Download / View File'}
-                                </a>
-                            </div>
-                        </div>
-                        `;
+                            </div>`;
                     } else {
-                        // General fallback for unknown web URLs
                         embedContent = html`
-                        <div className="flex flex-col bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden shadow-sm border border-zinc-200 dark:border-zinc-800 mb-4 relative z-10 w-full">
-                            <iframe
-                                src=${urlStr}
-                                className="w-full h-[400px] border-none bg-white"
-                                sandbox="allow-scripts allow-popups allow-same-origin allow-forms"
-                            ></iframe>
-                            <div className="w-full p-4 bg-zinc-50 dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800">
-                                <a href=${urlStr} target="_blank" rel="noopener noreferrer" className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-sm transition-all">
-                                    ${lang === 'ar' ? 'فتح الرابط بالخارج ↗' : 'Open Link Externally ↗'}
-                                </a>
-                            </div>
+                            <div className="w-full p-6 bg-zinc-100 dark:bg-zinc-900 rounded-xl border border-red-500/20 text-center">
+                                <p className="text-sm font-bold text-red-500 mb-3">${lang === 'ar' ? 'تعذر عرض هذا الفيديو. الرابط غير صالح.' : 'Unable to view this video. Invalid link.'}</p>
+                                <button type="button" onClick=${() => window.open(urlStr, "_blank", "noopener,noreferrer")} className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-all border-none cursor-pointer">${lang === 'ar' ? 'فتح في المنصة الأصلية ↗' : 'Open in Original Platform ↗'}</button>
+                            </div>`;
+                    }
+                } else if (rType === "google_drive") {
+                    const driveId = resolver.extractDriveId(urlStr);
+                    const isValidId = !!(driveId && driveId.match(/^[-\w]{25,}$/));
+                    
+                    if (isValidId) {
+                        const previewUrl = resolver.buildDrivePreviewUrl(driveId);
+                        embedContent = html`
+                            <div className="w-full flex flex-col gap-4">
+                                <iframe loading="lazy" src=${previewUrl} width="100%" height="500" allow="autoplay" className="rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-800 bg-white" allowFullScreen></iframe>
+                                <div className="p-4 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-center">
+                                    <p className="text-sm font-bold text-zinc-600 dark:text-zinc-400 mb-3">
+                                        ${lang === 'ar' ? 'تعذر ضمان عرض الملف داخل المنصة. يمكنك فتحه مباشرة في Google Drive.' : 'Trouble viewing this file? You can open it in Google Drive directly.'}
+                                    </p>
+                                    <div className="flex gap-3 justify-center flex-wrap">
+                                        <button type="button" onClick=${() => window.open(urlStr, "_blank", "noopener,noreferrer")} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-sm transition-all border-none cursor-pointer">${lang === 'ar' ? 'فتح في Google Drive ↗' : 'Open in Google Drive ↗'}</button>
+                                    </div>
+                                </div>
+                            </div>`;
+                    } else {
+                        console.warn("[Luminova Resource]", { contentId: itemId, resourceType: rType, url: urlStr, reason: "Invalid Google Drive File ID" });
+                        embedContent = html`
+                            <div className="w-full p-6 bg-zinc-100 dark:bg-zinc-900 rounded-xl border border-red-500/20 text-center">
+                                <p className="text-sm font-bold text-red-500 mb-3">${lang === 'ar' ? 'تعذر ضمان عرض الملف داخل المنصة. يمكنك فتحه مباشرة في Google Drive.' : 'Trouble viewing this file? You can open it in Google Drive directly.'}</p>
+                                <button type="button" onClick=${() => window.open(urlStr, "_blank", "noopener,noreferrer")} className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-sm transition-all border-none cursor-pointer">${lang === 'ar' ? 'فتح في Google Drive ↗' : 'Open in Google Drive ↗'}</button>
+                            </div>`;
+                    }
+                } else if (rType === "google_drive_folder") {
+                    embedContent = html`
+                        <div className="w-full p-6 bg-zinc-50 dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 text-center">
+                            <span style=${{ fontSize: '40px', lineHeight: 1 }} className="block mb-2">📁</span>
+                            <p className="text-base font-black text-zinc-800 dark:text-zinc-200 mb-4">
+                                ${lang === 'ar' ? 'هذا المجلد مستضاف على Google Drive.' : 'This folder is hosted on Google Drive.'}
+                            </p>
+                            <button type="button" onClick=${() => window.open(urlStr, "_blank", "noopener,noreferrer")} className="bg-brand-DEFAULT hover:bg-brand-hover text-white font-black py-2.5 px-6 rounded-xl shadow-md transition-all border-none cursor-pointer">
+                                ${lang === 'ar' ? '📁 فتح المجلد في Google Drive' : '📁 Open Folder in Google Drive'}
+                            </button>
+                        </div>`;
+                } else if (rType === "google_classroom") {
+                    embedContent = html`
+                        <div className="w-full p-6 bg-zinc-50 dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 text-center">
+                            <span style=${{ fontSize: '40px', lineHeight: 1 }} className="block mb-2">🏫</span>
+                            <p className="text-base font-black text-zinc-800 dark:text-zinc-200 mb-3">
+                                ${lang === 'ar' ? 'هذا المحتوى موجود على Google Classroom.' : 'This content is available on Google Classroom.'}
+                            </p>
+                            <p className="text-sm text-zinc-500 mb-4">
+                                ${lang === 'ar' ? 'اضغط لفتحه في نافذة جديدة.' : 'Click to open in a new window.'}
+                            </p>
+                            <button type="button" onClick=${() => window.open(urlStr, "_blank", "noopener,noreferrer")} className="bg-brand-DEFAULT hover:bg-brand-hover text-white font-black py-2.5 px-6 rounded-xl shadow-md transition-all border-none cursor-pointer">
+                                ${lang === 'ar' ? 'فتح في Google Classroom ↗' : 'Open in Google Classroom ↗'}
+                            </button>
+                        </div>`;
+                } else if (rType === "google_form") {
+                    embedContent = html`
+                        <div className="w-full">
+                            <iframe loading="lazy" src=${urlStr} width="100%" height="600" frameBorder="0" marginHeight="0" marginWidth="0" className="rounded-xl shadow-lg bg-white" allowFullScreen></iframe>
+                            <button type="button" onClick=${() => window.open(urlStr, "_blank", "noopener,noreferrer")} className="mt-3 block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-sm transition-all border-none cursor-pointer">${lang === 'ar' ? 'فتح في المنصة الأصلية ↗' : 'Open in Original Platform ↗'}</button>
+                        </div>`;
+                } else if (rType === "image") {
+                    embedContent = html`
+                    <div className="w-full mb-4">
+                        <div style=${{ display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'rgba(0,0,0,0.1)', borderRadius: '8px', overflow: 'hidden' }}>
+                            <img loading="lazy" src=${urlStr} alt="Smart Media" className="shadow-lg mx-auto rounded-xl cursor-pointer" onClick=${() => window.dispatchEvent(new CustomEvent('openFullscreen', { detail: urlStr }))} style=${{ maxHeight: '400px', maxWidth: '100%', width: 'auto', objectFit: 'contain' }} />
                         </div>
-                        `;
+                        <button type="button" onClick=${() => window.open(urlStr, "_blank", "noopener,noreferrer")} className="mt-3 block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl shadow-sm transition-all border-none cursor-pointer">
+                            ${lang === 'ar' ? 'فتح في المنصة الأصلية ↗' : 'Open in Original Platform ↗'}
+                        </button>
+                    </div>`;
+                } else if (rType === "audio") {
+                    const isBase64 = urlStr.startsWith('data:');
+                    const mimeType = isBase64 ? urlStr.match(/data:(.*?);/)?.[1] : '';
+                    embedContent = html`
+                    <div className="w-full mb-4">
+                        <audio controls className="w-full shadow-sm rounded-xl bg-zinc-50 dark:bg-zinc-900 p-2"><source src=${urlStr} type=${isBase64 ? mimeType : `audio/${urlStr.split('.').pop().split('?')[0]}`} />متصفحك لا يدعم تشغيل الصوت.</audio>
+                        <button type="button" onClick=${() => window.open(urlStr, "_blank", "noopener,noreferrer")} className="mt-3 block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl shadow-sm transition-all border-none cursor-pointer">
+                            ${lang === 'ar' ? 'فتح في المنصة الأصلية ↗' : 'Open in Original Platform ↗'}
+                        </button>
+                    </div>`;
+                } else if (rType === "video") {
+                    const isBase64 = urlStr.startsWith('data:');
+                    const mimeType = isBase64 ? urlStr.match(/data:(.*?);/)?.[1] : '';
+                    embedContent = html`
+                    <div className="w-full mb-4">
+                        <video controls className="w-full max-h-[500px] rounded-xl bg-black shadow-lg"><source src=${urlStr} type=${isBase64 ? mimeType : `video/${urlStr.split('.').pop().split('?')[0]}`} />متصفحك لا يدعم تشغيل الفيديو.</video>
+                        <button type="button" onClick=${() => window.open(urlStr, "_blank", "noopener,noreferrer")} className="mt-3 block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl shadow-sm transition-all border-none cursor-pointer">
+                            ${lang === 'ar' ? 'فتح في المنصة الأصلية ↗' : 'Open in Original Platform ↗'}
+                        </button>
+                    </div>`;
+                } else if (rType === "pdf") {
+                    embedContent = html`
+                    <div className="w-full flex flex-col gap-3">
+                        <iframe src=${urlStr} width="100%" height="800px" style=${{ minHeight: '80vh' }} className="rounded-xl shadow-sm bg-white border border-zinc-200 dark:border-zinc-800" frameBorder="0" title="PDF Viewer"></iframe>
+                        <button type="button" onClick=${() => window.open(urlStr, "_blank", "noopener,noreferrer")} className="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-xl shadow-sm transition-all border-none cursor-pointer">
+                            ${lang === 'ar' ? 'فتح في المنصة الأصلية ↗' : 'Open in Original Platform ↗'}
+                        </button>
+                    </div>`;
+                } else if (rType === "html") {
+                    const isBase64 = urlStr.startsWith('data:');
+                    const sandboxValue = isBase64 ? "allow-scripts allow-popups" : "allow-scripts allow-forms allow-popups";
+                    embedContent = html`
+                    <div className="flex flex-col bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden shadow-sm border border-zinc-200 dark:border-zinc-800 mb-4 relative z-10 w-full hover:shadow-md transition-all">
+                        <iframe
+                            src=${urlStr}
+                            className="w-full h-[400px] border-none bg-white"
+                            sandbox=${sandboxValue}
+                        ></iframe>
+                        <div className="flex w-full divide-x divide-zinc-700 rtl:divide-x-reverse border-t border-zinc-200 dark:border-zinc-800">
+                            <button
+                                onClick=${() => window.dispatchEvent(new CustomEvent('openFullscreen', { detail: urlStr }))}
+                                className="flex-1 py-4 bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 font-black transition-all flex items-center justify-center gap-2 border-none cursor-pointer"
+                            >
+                                <span className="text-xl leading-none">⛶</span>
+                                <span>${lang === 'ar' ? 'تكبير' : 'Enlarge'}</span>
+                            </button>
+                            <button
+                                onClick=${() => window.open(urlStr, "_blank", "noopener,noreferrer")}
+                                className="flex-1 py-4 bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 font-black transition-all flex items-center justify-center gap-2 border-none cursor-pointer no-underline"
+                            >
+                                <span>${lang === 'ar' ? 'فتح بصفحة جديدة' : 'New Tab'}</span>
+                                <span className="text-xl leading-none">↗</span>
+                            </button>
+                        </div>
+                    </div>`;
+                } else if (rType === "local_path") {
+                    embedContent = html`
+                    <div className="flex flex-col bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700 mb-4 relative z-10 w-full">
+                        <div className="w-full flex flex-col items-center justify-center gap-2 py-8 px-4 bg-zinc-50 dark:bg-zinc-900">
+                            <span style=${{ fontSize:'40px', lineHeight:1 }}>📁</span>
+                            <p className="text-sm font-bold text-zinc-500 dark:text-zinc-400 text-center">${lang === 'ar' ? 'مرفق محلي' : 'Local Attachment'}</p>
+                            <button onClick=${() => window.open(urlStr, "_blank", "noopener,noreferrer")} className="mt-4 px-6 py-2 bg-brand-DEFAULT text-white rounded-full font-bold shadow-md hover:bg-brand-hover transition-colors border-none cursor-pointer">
+                                ${lang === 'ar' ? 'تنزيل / عرض الملف' : 'Download / View File'}
+                            </button>
+                        </div>
+                    </div>`;
+                } else if (rType === "interactive") {
+                    embedContent = html`
+                        <div className="w-full p-6 bg-zinc-50 dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 text-center">
+                            <span style=${{ fontSize: '40px', lineHeight: 1 }} className="block mb-2">🚀</span>
+                            <p className="text-base font-black text-zinc-800 dark:text-zinc-200 mb-4">
+                                ${lang === 'ar' ? 'هذا الملف عبارة عن درس تفاعلي.' : 'This file is an interactive lesson.'}
+                            </p>
+                            <button onClick=${() => {
+                                window.dispatchEvent(new CustomEvent('startInteractiveLesson', { detail: { contentId: itemId, url: urlStr, title: customTitle || (lang === 'ar' ? 'درس تفاعلي' : 'Interactive Lesson') } }));
+                            }} className="bg-brand-DEFAULT hover:bg-brand-hover text-white font-black py-2.5 px-6 rounded-xl shadow-md transition-all border-none cursor-pointer animate-pulse">
+                                ${lang === 'ar' ? '🚀 ابدأ الدرس التفاعلي' : '🚀 Start Interactive Lesson'}
+                            </button>
+                        </div>`;
+                } else if (rType === "external_link") {
+                    const isSafe = resolver.isSafeExternalUrl(urlStr);
+                    if (isSafe) {
+                        const platform = resolver.getExternalPlatformInfo(urlStr);
+                        if (platform) {
+                            embedContent = html`
+                            <div className="rounded-3xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-5 shadow-sm w-full">
+                                <div className="flex items-start gap-4">
+                                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-100 dark:bg-zinc-900 text-2xl">
+                                        ${platform.icon}
+                                    </div>
+                                    <div className="min-w-0 flex-1 text-right">
+                                        <p className="text-xs font-bold text-slate-500 dark:text-zinc-400">
+                                            ${lang === 'ar' ? 'منصة خارجية' : 'External Platform'}
+                                        </p>
+                                        <h3 className="mt-1 text-lg font-black text-slate-900 dark:text-white">
+                                            ${platform.name}
+                                        </h3>
+                                        <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-zinc-400">
+                                            ${lang === 'ar' ? platform.description : `This content is available on ${platform.name}.`}
+                                        </p>
+                                        <p className="mt-2 truncate text-xs text-slate-400" dir="ltr" title=${platform.hostname}>
+                                            ${platform.hostname}
+                                        </p>
+                                        <button
+                                            type="button"
+                                            onClick=${() => {
+                                                window.open(platform.url, "_blank", "noopener,noreferrer");
+                                            }}
+                                            className="mt-4 inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 dark:bg-white dark:text-zinc-900 text-white px-5 py-3 text-sm font-bold transition hover:-translate-y-0.5 hover:shadow-lg focus:outline-none border-none cursor-pointer"
+                                        >
+                                            <span>${lang === 'ar' ? `فتح على ${platform.name}` : `Open on ${platform.name}`}</span>
+                                            <span aria-hidden="true">↗</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>`;
+                        }
+                    } else {
+                        embedContent = html`
+                        <div className="rounded-3xl border border-red-200 dark:border-red-900 bg-red-50/10 p-5 shadow-sm w-full text-center">
+                            <span style=${{ fontSize: '40px', lineHeight: 1 }} className="block mb-2">⚠️</span>
+                            <p className="text-sm font-bold text-red-500">
+                                ${lang === 'ar' ? 'رابط هذا المحتوى غير متاح حاليًا.' : 'Link for this content is currently unavailable.'}
+                            </p>
+                        </div>`;
+                    }
+                } else {
+                    const isSafe = resolver.isSafeExternalUrl(urlStr);
+                    if (isSafe) {
+                        embedContent = html`
+                        <div className="rounded-3xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-5 shadow-sm w-full">
+                            <div className="flex items-start gap-4">
+                                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-100 dark:bg-zinc-900 text-2xl">
+                                    🌐
+                                </div>
+                                <div className="min-w-0 flex-1 text-right">
+                                    <p className="text-xs font-bold text-slate-500 dark:text-zinc-400">
+                                        ${lang === 'ar' ? 'منصة خارجية' : 'External Platform'}
+                                    </p>
+                                    <h3 className="mt-1 text-lg font-black text-slate-900 dark:text-white">
+                                        ${lang === 'ar' ? 'موقع خارجي' : 'External Site'}
+                                    </h3>
+                                    <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-zinc-400">
+                                        ${lang === 'ar' ? 'هذا المحتوى مستضاف على منصة خارجية. يمكنك فتحه ومتابعته مباشرة من المنصة الأصلية.' : 'This content is hosted on an external platform. You can open and view it directly from the original source.'}
+                                    </p>
+                                    <p className="mt-2 truncate text-xs text-slate-400" dir="ltr" title=${urlStr}>
+                                        ${urlStr}
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick=${() => {
+                                            window.open(urlStr, "_blank", "noopener,noreferrer");
+                                        }}
+                                        className="mt-4 inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 dark:bg-white dark:text-zinc-900 text-white px-5 py-3 text-sm font-bold transition hover:-translate-y-0.5 hover:shadow-lg focus:outline-none border-none cursor-pointer"
+                                    >
+                                        <span>${lang === 'ar' ? 'فتح الموقع الخارجي' : 'Open External Site'}</span>
+                                        <span aria-hidden="true">↗</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>`;
+                    } else {
+                        embedContent = html`
+                        <div className="rounded-3xl border border-red-200 dark:border-red-900 bg-red-50/10 p-5 shadow-sm w-full text-center">
+                            <span style=${{ fontSize: '40px', lineHeight: 1 }} className="block mb-2">⚠️</span>
+                            <p className="text-sm font-bold text-red-500">
+                                ${lang === 'ar' ? 'رابط هذا المحتوى غير متاح حاليًا.' : 'Link for this content is currently unavailable.'}
+                            </p>
+                        </div>`;
                     }
                 }
-                
+
                 const activeTitle = lang === 'ar' ? (item.titleAr || item.titleEn || item.title) : (item.titleEn || item.titleAr || item.title);
                 const customTitle = typeof activeTitle === 'string' ? activeTitle.trim() : '';
                 let titleBadge = null;
@@ -228,9 +589,8 @@
                     const positionClass = isArabicLang ? "absolute -top-5 right-4 sm:right-6" : "absolute -top-5 left-4 sm:left-6";
                     const dirAttr = isArabicLang ? "rtl" : "ltr";
                     
-                    // Luxurious Nano Banana Pill Badge Overlay
                     titleBadge = html`
-                    <div className=${`${positionClass} z-20 pointer-events-none`} dir=${dirAttr}>
+                    <div className="${positionClass} z-20 pointer-events-none" dir=${dirAttr}>
                         <div className="backdrop-blur-md bg-zinc-900/80 dark:bg-black/80 border border-white/10 dark:border-white/5 shadow-sm rounded-xl px-4 py-2 flex items-center gap-3">
                             <span className="text-zinc-500 dark:text-zinc-400 text-lg">✨</span>
                             <span className="text-gray-900 dark:text-white font-bold text-sm tracking-wide truncate max-w-[200px] sm:max-w-md drop-shadow-sm flex-1" style=${{ direction: 'auto' }} title=${customTitle}>${customTitle}</span>
@@ -239,23 +599,28 @@
                 }
 
                 const padClass = titleBadge ? 'pt-2' : '';
-                return html`<div key=${item.id || item.url || idx} className=${`w-full block relative hover:scale-[1.01] transition-transform duration-300 ${padClass}`}>${titleBadge}${embedContent}</div>`;
+                return html`<div key=${itemId || idx} className=${`w-full block relative hover:scale-[1.01] transition-transform duration-300 ${padClass}`}>${titleBadge}${embedContent}</div>`;
             })}
         </div>
     `;
     };
 
-    
     Luminova.Components.SummaryCard = ({ item: rawItem, data, lang, onClose }) => {
         if (!rawItem) return null;
-        const item = typeof rawItem === 'object' ? rawItem : ((data.summaries || []).find(s => s.id === rawItem) || (data.news || []).find(s => s.id === rawItem));
-        if (!item) return html`<div className="text-center py-20 font-bold opacity-50">Content not found.</div>`;
+        const item = typeof rawItem === 'object' ? rawItem : window.StudentContentRepository.getById(rawItem);
+        if (!item) return html`
+            <div className="text-center py-20 font-bold opacity-50">
+                <p className="mb-4">${lang === 'ar' ? 'تعذر عرض هذا المحتوى حاليًا.' : 'Unable to display this content currently.'}</p>
+                <button type="button" data-action="go-back" data-fallback-route="home" className="px-6 py-2 bg-red-500 text-white rounded-xl font-bold">
+                    ${lang === 'ar' ? 'الرجوع للرئيسية' : 'Back to Home'}
+                </button>
+            </div>`;
         const author = Luminova.getStudent(item.studentId, data.students);
         const currentUrls = item.mediaUrls || (item.mediaUrl ? [item.mediaUrl] : []);
 
         return html`
         <div className="animate-fade-in relative max-w-4xl mx-auto pb-20 mt-4 xl:mt-8 px-2 sm:px-4">
-            <button onClick=${onClose} className="mb-6 flex items-center gap-2 text-fuchsia-100/60 hover:text-white font-bold transition-colors bg-white/[0.03] backdrop-blur-xl px-4 py-2 rounded-xl border border-white/10 shadow-lg">
+            <button type="button" data-action="go-back" data-fallback-route="home" className="mb-6 flex items-center gap-2 text-fuchsia-100/60 hover:text-white font-bold transition-colors bg-white/[0.03] backdrop-blur-xl px-4 py-2 rounded-xl border border-white/10 shadow-lg">
                 <span className="text-xl">${lang === 'ar' ? '←' : '→'}</span>
                 <span>${lang === 'ar' ? 'الرجوع للقائمة' : 'Back to Feed'}</span>
             </button>
@@ -426,8 +791,8 @@
         const rawItems = Array.isArray(attachments) ? attachments : (attachments ? [attachments] : []);
         
         const sortedItems = rawItems.map((item, index) => {
-            if (typeof item === 'string') return { url: item, titleAr: '', titleEn: '', order: index, type: 'legacy' };
-            return { ...item, order: item.order !== undefined ? item.order : index };
+            if (typeof item === 'string') return { id: `media-item-${index}`, url: item, titleAr: '', titleEn: '', order: index, type: 'legacy' };
+            return { id: item.id || `media-item-${index}-${item.url || ''}`, ...item, order: item.order !== undefined ? item.order : index };
         }).sort((a, b) => (a.order || 0) - (b.order || 0));
 
         const handleMove = (currentIndex, direction) => {
@@ -448,7 +813,7 @@
         };
 
         const renderedItems = sortedItems.map((val, idx) => {
-            return html`<${Luminova.Components.SingleMediaRow} key=${idx} idx=${idx} val=${val}
+            return html`<${Luminova.Components.SingleMediaRow} key=${val.id || idx} idx=${idx} val=${val}
                 isFirst=${idx === 0} isLast=${idx === sortedItems.length - 1}
                 onMoveUp=${() => handleMove(idx, 'up')}
                 onMoveDown=${() => handleMove(idx, 'down')}
@@ -483,6 +848,7 @@
         const variants = {
             primary: "bg-gradient-to-r from-[#BA964F] to-[#C5A059] text-[#020C1B] font-bold shadow-[0_4px_15px_rgba(197,160,89,0.15)] hover:opacity-95 hover:shadow-[0_4px_25px_rgba(197,160,89,0.3)] active:scale-[0.98] transition-all duration-500",
             danger: "bg-brand-crisp text-white hover:opacity-90 active:scale-[0.97] transition-all duration-300 shadow-[0_4px_15px_rgba(255,0,85,0.2)]",
+            success: "bg-emerald-600 dark:bg-emerald-500 text-white hover:bg-emerald-700 dark:hover:bg-emerald-600 border border-emerald-700 dark:border-emerald-500/30 focus:ring-4 focus:ring-emerald-300 dark:focus:ring-emerald-800 shadow-[0_4px_15px_rgba(16,185,129,0.2)] active:scale-[0.97]",
             glass: "glass-card text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 active:scale-[0.97]",
         };
         return html`
@@ -621,8 +987,6 @@
     const App = () => {
         const fallbackData = window.initialData || window.LUMINOVA_DATA || {};
 
-        // الاعتماد الحصري على data.js كمصدر وحيد وتجاهل التخزين المحلي
-        // quizzes start as [] — exam.js is lazy-loaded in the background on mount
         const [data, setData] = useState(() => {
             return { ...fallbackData, quizzes: [] };
         });
@@ -635,8 +999,39 @@
         const [isNavigating, setIsNavigating] = useState(false);
         const [showSplash, setShowSplash] = useState(true);
 
-        // Sentinel: true while a popstate-triggered navigation is in progress.
-        // Prevents changeView from pushing a duplicate history entry.
+        window.__LUMINOVA_GO_TO = (route, options = {}) => {
+            if (options) {
+                if (options.quiz !== undefined) setActiveQuiz(options.quiz);
+                if (options.summary !== undefined) setActiveSummary(options.summary);
+            }
+            changeView(route);
+        };
+
+        useEffect(() => {
+            if (data) {
+                window.StudentContentRepository.init(data);
+            }
+        }, [data]);
+
+        useEffect(() => {
+            function handleNavigationClick(event) {
+                const button = event.target.closest("[data-action='go-back']");
+                if (!button) return;
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                const fallback = button.dataset.fallbackRoute || "home";
+                window.LuminovaNavigation?.goBack(fallback);
+            }
+
+            document.addEventListener("click", handleNavigationClick);
+
+            return () => {
+                document.removeEventListener("click", handleNavigationClick);
+            };
+        }, []);
+
         const isPopNavRef = window.React.useRef(false);
 
         // MUST be defined before any useEffect that calls it
@@ -738,31 +1133,34 @@
                 changeView('home');
             }
 
-            // Silently pre-fetch exam.js in the background after initial paint.
-            // Uses a dedicated script-injection loader defined inside exam.js.
-            const fetchExams = () => {
-                if (window.LUMINOVA_EXAMS) {
-                    // Already loaded (e.g. cached by browser)
-                    setData(prev => ({ ...prev, quizzes: window.LUMINOVA_EXAMS }));
-                    return;
+            // Synchronously decode exam.js (loaded in index.html)
+            try {
+                if (window.__LUMINOVA_EXAM_PACK__) {
+                    const examPackService = window.Luminova?.Services?.ExamPack || window.LUMINOVA_EXAM_PACK_SERVICE;
+                    if (!examPackService || typeof examPackService.decode !== "function") {
+                        throw new Error("Luminova ExamPack decoder service is not loaded.");
+                    }
+                    window.LUMINOVA_EXAMS = examPackService.decode(window.__LUMINOVA_EXAM_PACK__);
+                } else if (window.__LUMINOVA_EXAMS__) {
+                    window.LUMINOVA_EXAMS = window.__LUMINOVA_EXAMS__;
+                } else if (window.LUMINOVA_EXAMS) {
+                    window.LUMINOVA_EXAMS = window.LUMINOVA_EXAMS;
+                } else {
+                    throw new Error("No exam data found.");
                 }
-                const script = document.createElement('script');
-                script.src = 'exam.js?t=' + new Date().getTime();
-                script.setAttribute('data-lmv-page', 'exam');
-                script.onload = () => {
-                    setData(prev => ({ ...prev, quizzes: window.LUMINOVA_EXAMS || [] }));
-                };
-                script.onerror = () => console.warn('Luminova: exam.js failed to load.');
-                document.body.appendChild(script);
-            };
-            fetchExams();
+                setData(prev => ({ ...prev, quizzes: window.LUMINOVA_EXAMS }));
+            } catch (error) {
+                console.error(error);
+                alert(error.message);
+                setData(prev => ({ ...prev, quizzes: [] }));
+            }
         }, []);
 
         const renderView = () => {
             switch (view) {
                 case 'summaryDetail': return html`<${Luminova.Components.SummaryCard} item=${activeSummary} data=${data} lang=${lang} onClose=${() => window.history.back()} />`;
                 case 'quiz': return Luminova.Pages.QuizEngine ? html`<${Luminova.Pages.QuizEngine} quiz=${activeQuiz} data=${data} lang=${lang} goBack=${() => window.history.back()} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
-                case 'community': return Luminova.Pages.StudentCommunityPage ? html`<${Luminova.Pages.StudentCommunityPage} data=${data} lang=${lang} setView=${changeView} setActiveSummary=${setActiveSummary} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
+                case 'community': return Luminova.Pages.StudentCommunityPage ? html`<${Luminova.Pages.StudentCommunityPage} data=${data} lang=${lang} setView=${changeView} setActiveSummary=${setActiveSummary} setActiveQuiz=${setActiveQuiz} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
                 case 'academics': return Luminova.Pages.AcademicHierarchyPage ? html`<${Luminova.Pages.AcademicHierarchyPage} data=${data} lang=${lang} setView=${changeView} setActiveQuiz=${setActiveQuiz} setActiveSummary=${setActiveSummary} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
                 case 'certificates': return Luminova.Pages.CertificateArchivePage ? html`<${Luminova.Pages.CertificateArchivePage} lang=${lang} goBack=${() => window.history.back()} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
                 default: return Luminova.Pages.HomePage ? html`<${Luminova.Pages.HomePage} data=${data} lang=${lang} setView=${changeView} setActiveSummary=${setActiveSummary} />` : html`<${Luminova.Components.Loader} lang=${lang} />`;
