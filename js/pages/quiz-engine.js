@@ -87,6 +87,584 @@
     const UNCERTAIN_VERIFY_DELAY_MS = 3000;
     const UNCERTAIN_VERIFY_MAX_RETRIES = 3;
 
+    function normalizeArabicAnswer(value) {
+      return String(value ?? "")
+        .normalize("NFKC")
+        .replace(/[\u200B-\u200D\u2060\uFEFF]/g, "")
+        .replace(/\u00A0/g, " ")
+        .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, "")
+        .replace(/\u0640/g, "")
+        .replace(/[أإآٱ]/g, "ا")
+        .replace(/ى/g, "ي")
+        .replace(/[.,\/#!$%\^&\*;:{}=\-_~‑()?'"،؟«»“”]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function resolveCorrectAnswerSource(question) {
+      if (
+        Array.isArray(question.correctAnswers) &&
+        question.correctAnswers.length > 0
+      ) {
+        return {
+          sourceField: "correctAnswers",
+          values: question.correctAnswers
+        };
+      }
+
+      if (
+        question.correctAnswer !== undefined &&
+        question.correctAnswer !== null
+      ) {
+        return {
+          sourceField: "correctAnswer",
+          values: [question.correctAnswer]
+        };
+      }
+
+      if (
+        question.answer !== undefined &&
+        question.answer !== null
+      ) {
+        return {
+          sourceField: "answer",
+          values: Array.isArray(question.answer)
+            ? question.answer
+            : [question.answer]
+        };
+      }
+
+      return {
+        sourceField: null,
+        values: []
+      };
+    }
+
+    function canonicalIndex(value) {
+      if (
+        typeof value === "number" &&
+        Number.isInteger(value)
+      ) {
+        return String(value);
+      }
+
+      if (
+        typeof value === "string" &&
+        /^\d+$/.test(value.trim())
+      ) {
+        return String(Number(value.trim()));
+      }
+
+      return null;
+    }
+
+    function canonicalId(value) {
+      if (value === null || value === undefined) {
+        return null;
+      }
+      const normalized = String(value).trim();
+      return normalized || null;
+    }
+
+    const optionToText = (option) => {
+        if (option && typeof option === 'object') {
+            return String(option.text || option.textAr || option.textEn || option.label || option.value || '');
+        }
+        return option === undefined || option === null ? '' : String(option);
+    };
+
+    const getOptionsSafe = (que) => {
+        if (!que) return [];
+        if (Array.isArray(que.options)) return que.options;
+        if (Array.isArray(que.optionsAr)) return que.optionsAr;
+        if (Array.isArray(que.optionsEn)) return que.optionsEn;
+        return [];
+    };
+
+    function resolveTextToIndex(val, options) {
+      if (val === null || val === undefined) return null;
+      const normVal = normalizeArabicAnswer(val);
+      for (let i = 0; i < options.length; i++) {
+        if (normalizeArabicAnswer(options[i]) === normVal) {
+          return String(i);
+        }
+      }
+      return null;
+    }
+
+    function isNumericIndex(val, optsCount) {
+      if (val === null || val === undefined) return false;
+      const str = String(val).trim();
+      if (/^\d+$/.test(str)) {
+        const num = Number(str);
+        return num >= 0 && num < optsCount;
+      }
+      return false;
+    }
+
+    function determineComparisonMode(question, correctValues) {
+      const opts = getOptionsSafe(question);
+      const optsCount = opts.length;
+      const hasOptionIds = Array.isArray(question.optionIds) && question.optionIds.length > 0;
+      
+      if (question.type === 'multi_select') {
+        if (correctValues.length > 0) {
+          if (hasOptionIds && correctValues.every(val => question.optionIds.includes(String(val).trim()))) {
+            return 'MULTI_SELECT_ID_SET';
+          }
+          if (correctValues.every(val => isNumericIndex(val, optsCount))) {
+            return 'MULTI_SELECT_INDEX_SET';
+          }
+        }
+        return 'MULTI_SELECT_TEXT_SET';
+      } else if (question.type === 'mcq' || question.type === 'true_false') {
+        if (correctValues.length > 0) {
+          if (hasOptionIds && correctValues.every(val => question.optionIds.includes(String(val).trim()))) {
+            return 'OPTION_ID';
+          }
+          if (correctValues.every(val => isNumericIndex(val, optsCount))) {
+            return 'ORIGINAL_INDEX';
+          }
+        }
+        return 'NORMALIZED_TEXT';
+      } else if (question.type === 'essay') {
+        return 'ESSAY_ACCEPTED_TEXT';
+      }
+      return 'NORMALIZED_TEXT';
+    }
+
+    function getDisplayValue(question, rawValue) {
+      if (rawValue === null || rawValue === undefined || rawValue === '') {
+        return '';
+      }
+      const opts = getOptionsSafe(question);
+      
+      // Check if optionIds exists and match
+      if (Array.isArray(question.optionIds)) {
+        const idx = question.optionIds.indexOf(String(rawValue).trim());
+        if (idx !== -1 && idx < opts.length) {
+          return optionToText(opts[idx]);
+        }
+      }
+
+      // Check if rawValue is a numeric index
+      const idx = canonicalIndex(rawValue);
+      if (idx !== null) {
+        const num = Number(idx);
+        if (num >= 0 && num < opts.length) {
+          return optionToText(opts[num]);
+        }
+      }
+      // Check if it's a text string matching an option
+      if (typeof rawValue === 'string') {
+        const matchedIdx = resolveTextToIndex(rawValue, opts);
+        if (matchedIdx !== null) {
+          return optionToText(opts[Number(matchedIdx)]);
+        }
+      }
+      return String(rawValue);
+    }
+
+    function getDisplayValuesMulti(question, rawValues, htmlSeparator = false) {
+      if (!Array.isArray(rawValues)) {
+        return getDisplayValue(question, rawValues);
+      }
+      const sep = ' | ';
+      return rawValues.map(v => getDisplayValue(question, v)).filter(Boolean).join(sep);
+    }
+
+    function canonicalSet(values, canonicalize) {
+      return [
+        ...new Set(
+          values
+            .map(canonicalize)
+            .filter(value => value !== null)
+        )
+      ].sort();
+    }
+
+    function resolveQuestionPoints(question) {
+        const raw =
+            question.maxPoints ??
+            question.points ??
+            question.score ??
+            1;
+        const points = Number(raw);
+        return Number.isFinite(points) && points >= 0 ? points : 0;
+    }
+
+    function isQuestionUnanswered(question, selectedAnswer) {
+        if (selectedAnswer === null || selectedAnswer === undefined) {
+            return true;
+        }
+
+        if (typeof selectedAnswer === "string") {
+            return selectedAnswer.trim() === "";
+        }
+
+        if (Array.isArray(selectedAnswer)) {
+            return selectedAnswer.length === 0;
+        }
+
+        return false;
+    }
+
+    function gradeQuestionAnswer(question, selectedAnswer, context = {}) {
+        const questionId = question.questionId || question.id || "";
+        const questionType = question.type || "mcq";
+        const isAutoGradable = questionType !== 'essay';
+        
+        if (questionType === 'mcq' || questionType === 'true_false' || questionType === 'essay') {
+            if (Array.isArray(selectedAnswer)) {
+                selectedAnswer = selectedAnswer.length > 0 ? selectedAnswer[0] : null;
+            }
+        }
+        
+        // 1. Resolve correct-answer source
+        const { sourceField: correctSourceField, values: correctValues } = resolveCorrectAnswerSource(question);
+        
+        // 2. Handle empty states
+        const hasCorrect = correctValues.length > 0;
+        
+        if (isQuestionUnanswered(question, selectedAnswer)) {
+            const correctDisplay = questionType === 'multi_select'
+                ? getDisplayValuesMulti(question, correctValues, !!context.htmlSeparator)
+                : getDisplayValue(question, correctValues[0]);
+                
+            return {
+                status: "UNANSWERED",
+                isCorrect: false,
+                isAnswered: false,
+                isAutoGradable,
+                awardedPoints: 0,
+                questionId,
+                questionType,
+                comparisonMode: determineComparisonMode(question, correctValues),
+                correctSourceField,
+                selectedRaw: selectedAnswer,
+                selectedCanonical: null,
+                selectedDisplay: "لم يتم تسجيل إجابة",
+                correctRaw: correctValues,
+                correctCanonical: null,
+                correctDisplay,
+                modelAnswerDisplay: question.modelAnswer || question.modelAnswerAr || "",
+                explanationDisplay: question.explanation || question.feedback || question.explanationAr || "",
+                diagnosticCode: "NO_SELECTION"
+            };
+        }
+        
+        if (!isAutoGradable) {
+            return {
+                status: "PENDING_REVIEW",
+                isCorrect: false,
+                isAnswered: true,
+                isAutoGradable: false,
+                awardedPoints: 0,
+                questionId,
+                questionType,
+                comparisonMode: "MANUAL",
+                correctSourceField: null,
+                selectedRaw: selectedAnswer,
+                selectedCanonical: null,
+                selectedDisplay: String(selectedAnswer),
+                correctRaw: null,
+                correctCanonical: null,
+                correctDisplay: "",
+                modelAnswerDisplay: question.modelAnswer || question.modelAnswerAr || "",
+                explanationDisplay: question.explanation || question.feedback || question.explanationAr || "",
+                diagnosticCode: "MANUAL_REVIEW"
+            };
+        }
+        
+        if (!hasCorrect) {
+            return {
+                status: "INCORRECT",
+                isCorrect: false,
+                isAnswered: true,
+                isAutoGradable,
+                awardedPoints: 0,
+                questionId,
+                questionType,
+                comparisonMode: "UNKNOWN",
+                correctSourceField,
+                selectedRaw: selectedAnswer,
+                selectedCanonical: null,
+                selectedDisplay: String(selectedAnswer),
+                correctRaw: null,
+                correctCanonical: null,
+                correctDisplay: "",
+                modelAnswerDisplay: question.modelAnswer || question.modelAnswerAr || "",
+                explanationDisplay: question.explanation || question.feedback || question.explanationAr || "",
+                diagnosticCode: "NO_CORRECT_ANSWER"
+            };
+        }
+        
+        // 3. Determine comparison mode
+        const comparisonMode = determineComparisonMode(question, correctValues);
+        const opts = getOptionsSafe(question);
+        const htmlSeparator = !!context.htmlSeparator;
+        
+        // Log trace logic
+        if (context.debug === true || (window && window.__LUMINOVA_DEBUG_GRADING === true)) {
+            window.console.log("[LUMINOVA GRADING TRACE]", {
+                questionId,
+                questionType,
+                comparisonMode,
+                correctSourceField,
+                selectedRaw: selectedAnswer,
+                correctRaw: correctValues
+            });
+        }
+        
+        // 4. Perform comparison based on mode
+        if (comparisonMode === 'ORIGINAL_INDEX') {
+            const correctCanonical = canonicalIndex(correctValues[0]);
+            
+            let selectedCanonical = canonicalIndex(selectedAnswer);
+            if (selectedCanonical === null && typeof selectedAnswer === 'string') {
+                selectedCanonical = resolveTextToIndex(selectedAnswer, opts);
+            }
+            
+            const isCorrect = (selectedCanonical !== null && selectedCanonical === correctCanonical);
+            
+            return {
+                status: isCorrect ? "CORRECT" : "INCORRECT",
+                isCorrect,
+                isAnswered: true,
+                isAutoGradable,
+                awardedPoints: isCorrect ? resolveQuestionPoints(question) : 0,
+                questionId,
+                questionType,
+                comparisonMode,
+                correctSourceField,
+                selectedRaw: selectedAnswer,
+                selectedCanonical,
+                selectedDisplay: getDisplayValue(question, selectedAnswer),
+                correctRaw: correctValues[0],
+                correctCanonical,
+                correctDisplay: getDisplayValue(question, correctValues[0]),
+                modelAnswerDisplay: question.modelAnswer || question.modelAnswerAr || "",
+                explanationDisplay: question.explanation || question.feedback || question.explanationAr || "",
+                diagnosticCode: isCorrect ? "MATCH" : "MISMATCH"
+            };
+        }
+        
+        if (comparisonMode === 'OPTION_ID') {
+            const correctCanonical = canonicalId(correctValues[0]);
+            let selectedCanonical = canonicalId(selectedAnswer);
+            const selIdx = canonicalIndex(selectedAnswer);
+            if (selIdx !== null && Array.isArray(question.optionIds)) {
+                const num = Number(selIdx);
+                if (num >= 0 && num < question.optionIds.length) {
+                    selectedCanonical = canonicalId(question.optionIds[num]);
+                }
+            }
+            
+            const isCorrect = (selectedCanonical !== null && selectedCanonical === correctCanonical);
+            
+            return {
+                status: isCorrect ? "CORRECT" : "INCORRECT",
+                isCorrect,
+                isAnswered: true,
+                isAutoGradable,
+                awardedPoints: isCorrect ? resolveQuestionPoints(question) : 0,
+                questionId,
+                questionType,
+                comparisonMode,
+                correctSourceField,
+                selectedRaw: selectedAnswer,
+                selectedCanonical,
+                selectedDisplay: getDisplayValue(question, selectedAnswer),
+                correctRaw: correctValues[0],
+                correctCanonical,
+                correctDisplay: getDisplayValue(question, correctValues[0]),
+                modelAnswerDisplay: question.modelAnswer || question.modelAnswerAr || "",
+                explanationDisplay: question.explanation || question.feedback || question.explanationAr || "",
+                diagnosticCode: isCorrect ? "MATCH" : "MISMATCH"
+            };
+        }
+        
+        if (comparisonMode === 'NORMALIZED_TEXT' || comparisonMode === 'ESSAY_ACCEPTED_TEXT') {
+            const correctCanonical = normalizeArabicAnswer(correctValues[0]);
+            
+            let selectedCanonical = "";
+            const selIdx = canonicalIndex(selectedAnswer);
+            if (selIdx !== null) {
+                const num = Number(selIdx);
+                if (num >= 0 && num < opts.length) {
+                    selectedCanonical = normalizeArabicAnswer(opts[num]);
+                } else {
+                    selectedCanonical = normalizeArabicAnswer(selectedAnswer);
+                }
+            } else {
+                selectedCanonical = normalizeArabicAnswer(selectedAnswer);
+            }
+            
+            const isCorrect = (selectedCanonical === correctCanonical);
+            
+            return {
+                status: isCorrect ? "CORRECT" : "INCORRECT",
+                isCorrect,
+                isAnswered: true,
+                isAutoGradable,
+                awardedPoints: isCorrect ? resolveQuestionPoints(question) : 0,
+                questionId,
+                questionType,
+                comparisonMode,
+                correctSourceField,
+                selectedRaw: selectedAnswer,
+                selectedCanonical,
+                selectedDisplay: getDisplayValue(question, selectedAnswer),
+                correctRaw: correctValues[0],
+                correctCanonical,
+                correctDisplay: getDisplayValue(question, correctValues[0]),
+                modelAnswerDisplay: question.modelAnswer || question.modelAnswerAr || "",
+                explanationDisplay: question.explanation || question.feedback || question.explanationAr || "",
+                diagnosticCode: isCorrect ? "MATCH" : "MISMATCH"
+            };
+        }
+        
+        if (comparisonMode === 'MULTI_SELECT_INDEX_SET') {
+            const canonicalizeIdx = (val) => {
+                const idx = canonicalIndex(val);
+                if (idx !== null) return idx;
+                if (typeof val === 'string') {
+                    const textIdx = resolveTextToIndex(val, opts);
+                    if (textIdx !== null) return textIdx;
+                }
+                return null;
+            };
+            
+            const correctSet = canonicalSet(correctValues, canonicalizeIdx);
+            const selectedArr = Array.isArray(selectedAnswer) ? selectedAnswer : [selectedAnswer];
+            const selectedSet = canonicalSet(selectedArr, canonicalizeIdx);
+            
+            const isCorrect = (correctSet.length === selectedSet.length && correctSet.every((val, i) => val === selectedSet[i]));
+            
+            return {
+                status: isCorrect ? "CORRECT" : "INCORRECT",
+                isCorrect,
+                isAnswered: true,
+                isAutoGradable,
+                awardedPoints: isCorrect ? resolveQuestionPoints(question) : 0,
+                questionId,
+                questionType,
+                comparisonMode,
+                correctSourceField,
+                selectedRaw: selectedAnswer,
+                selectedCanonical: selectedSet,
+                selectedDisplay: getDisplayValuesMulti(question, selectedArr, htmlSeparator),
+                correctRaw: correctValues,
+                correctCanonical: correctSet,
+                correctDisplay: getDisplayValuesMulti(question, correctValues, htmlSeparator),
+                modelAnswerDisplay: question.modelAnswer || question.modelAnswerAr || "",
+                explanationDisplay: question.explanation || question.feedback || question.explanationAr || "",
+                diagnosticCode: isCorrect ? "MATCH" : "MISMATCH"
+            };
+        }
+        
+        if (comparisonMode === 'MULTI_SELECT_ID_SET') {
+            const canonicalizeIdVal = (val) => {
+                const selIdx = canonicalIndex(val);
+                if (selIdx !== null && Array.isArray(question.optionIds)) {
+                    const num = Number(selIdx);
+                    if (num >= 0 && num < question.optionIds.length) {
+                        return canonicalId(question.optionIds[num]);
+                    }
+                }
+                return canonicalId(val);
+            };
+            
+            const correctSet = canonicalSet(correctValues, canonicalizeIdVal);
+            const selectedArr = Array.isArray(selectedAnswer) ? selectedAnswer : [selectedAnswer];
+            const selectedSet = canonicalSet(selectedArr, canonicalizeIdVal);
+            
+            const isCorrect = (correctSet.length === selectedSet.length && correctSet.every((val, i) => val === selectedSet[i]));
+            
+            return {
+                status: isCorrect ? "CORRECT" : "INCORRECT",
+                isCorrect,
+                isAnswered: true,
+                isAutoGradable,
+                awardedPoints: isCorrect ? resolveQuestionPoints(question) : 0,
+                questionId,
+                questionType,
+                comparisonMode,
+                correctSourceField,
+                selectedRaw: selectedAnswer,
+                selectedCanonical: selectedSet,
+                selectedDisplay: getDisplayValuesMulti(question, selectedArr, htmlSeparator),
+                correctRaw: correctValues,
+                correctCanonical: correctSet,
+                correctDisplay: getDisplayValuesMulti(question, correctValues, htmlSeparator),
+                modelAnswerDisplay: question.modelAnswer || question.modelAnswerAr || "",
+                explanationDisplay: question.explanation || question.feedback || question.explanationAr || "",
+                diagnosticCode: isCorrect ? "MATCH" : "MISMATCH"
+            };
+        }
+        
+        if (comparisonMode === 'MULTI_SELECT_TEXT_SET') {
+            const canonicalizeTxt = (val) => {
+                const idx = canonicalIndex(val);
+                if (idx !== null) {
+                    const num = Number(idx);
+                    if (num >= 0 && num < opts.length) {
+                        return normalizeArabicAnswer(opts[num]);
+                    }
+                }
+                return normalizeArabicAnswer(val);
+            };
+            
+            const correctSet = canonicalSet(correctValues, canonicalizeTxt);
+            const selectedArr = Array.isArray(selectedAnswer) ? selectedAnswer : [selectedAnswer];
+            const selectedSet = canonicalSet(selectedArr, canonicalizeTxt);
+            
+            const isCorrect = (correctSet.length === selectedSet.length && correctSet.every((val, i) => val === selectedSet[i]));
+            
+            return {
+                status: isCorrect ? "CORRECT" : "INCORRECT",
+                isCorrect,
+                isAnswered: true,
+                isAutoGradable,
+                awardedPoints: isCorrect ? resolveQuestionPoints(question) : 0,
+                questionId,
+                questionType,
+                comparisonMode,
+                correctSourceField,
+                selectedRaw: selectedAnswer,
+                selectedCanonical: selectedSet,
+                selectedDisplay: getDisplayValuesMulti(question, selectedArr, htmlSeparator),
+                correctRaw: correctValues,
+                correctCanonical: correctSet,
+                correctDisplay: getDisplayValuesMulti(question, correctValues, htmlSeparator),
+                modelAnswerDisplay: question.modelAnswer || question.modelAnswerAr || "",
+                explanationDisplay: question.explanation || question.feedback || question.explanationAr || "",
+                diagnosticCode: isCorrect ? "MATCH" : "MISMATCH"
+            };
+        }
+        
+        return {
+            status: "INCORRECT",
+            isCorrect: false,
+            isAnswered: true,
+            isAutoGradable,
+            awardedPoints: 0,
+            questionId,
+            questionType,
+            comparisonMode,
+            correctSourceField,
+            selectedRaw: selectedAnswer,
+            selectedCanonical: null,
+            selectedDisplay: String(selectedAnswer),
+            correctRaw: correctValues,
+            correctCanonical: null,
+            correctDisplay: String(correctValues),
+            modelAnswerDisplay: question.modelAnswer || question.modelAnswerAr || "",
+            explanationDisplay: question.explanation || question.feedback || question.explanationAr || "",
+            diagnosticCode: "SCHEMA_UNSUPPORTED"
+        };
+    }
+
     Luminova.Pages.QuizEngine = ({ quiz, data, lang, goBack }) => {
         // ── GUARDRAIL: Redirect to gateway if critical data is missing ──
         if (!quiz || !data) {
@@ -143,39 +721,16 @@
             if (value === undefined || value === null || value === '') return [];
             return [value];
         };
-        const getOptionsSafe = (que) => {
-            if (Array.isArray(que.options)) return que.options;
-            if (Array.isArray(que.optionsAr)) return que.optionsAr;
-            if (Array.isArray(que.optionsEn)) return que.optionsEn;
-            return [];
-        };
-        const optionToText = (option) => {
-            if (option && typeof option === 'object') {
-                return String(option.text || option.textAr || option.textEn || option.label || option.value || '');
-            }
-            return option === undefined || option === null ? '' : String(option);
-        };
         const formatStudentAnswerForDisplay = (que, value, lang = 'ar') => {
             const emptyText = lang === 'ar' ? 'بدون إجابة' : 'No answer';
             if (!isAnswerFilled(value)) return emptyText;
-            const opts = getOptionsSafe(que);
-            if (que.type === 'multi_select') {
-                return asArraySafe(value).map(idx => optionToText(opts[idx] ?? idx)).filter(Boolean).join(' | ') || emptyText;
-            }
-            if (que.type === 'mcq' || que.type === 'true_false') {
-                return optionToText(opts[value] ?? value) || emptyText;
-            }
-            return String(value || emptyText);
+            const result = gradeQuestionAnswer(que, value);
+            return result.selectedDisplay || emptyText;
         };
         const formatCorrectAnswerForDisplay = (que, lang = 'ar', htmlSeparator = false) => {
             const emptyText = lang === 'ar' ? 'غير متوفر' : 'Not available';
-            const opts = getOptionsSafe(que);
-            const correctAnswers = Array.isArray(que.correctAnswers) ? que.correctAnswers : (que.correctAnswer !== undefined && que.correctAnswer !== null ? [que.correctAnswer] : []);
-            if (correctAnswers.length) {
-                const sep = htmlSeparator ? ' <span class="text-gray-400">|</span> ' : ' | ';
-                return correctAnswers.map(idx => optionToText(opts[idx] ?? idx)).filter(Boolean).join(sep) || emptyText;
-            }
-            return String(que.modelAnswer || que.correctAnswerText || emptyText);
+            const result = gradeQuestionAnswer(que, null, { htmlSeparator });
+            return result.correctDisplay || emptyText;
         };
 
         const [isStarted, setIsStarted] = useState(!isEvaluation);
@@ -1091,15 +1646,9 @@
 
             const resolveQuestionScore = (que) => {
                 if (que.type === 'essay') return 0;
-                const correctAnswers = Array.isArray(que.correctAnswers) ? que.correctAnswers : (que.correctAnswer !== null && que.correctAnswer !== undefined ? [que.correctAnswer] : []);
+                const result = gradeQuestionAnswer(que, answers[que.id]);
                 const qPoints = Number(que.maxPoints ?? que.points ?? que.score ?? 1);
-                if (que.type === 'mcq' || que.type === 'true_false') return answers[que.id] === correctAnswers[0] ? qPoints : 0;
-                if (que.type === 'multi_select') {
-                    const correctStr = [...correctAnswers].sort().join(',');
-                    const ansStr = [...(answers[que.id] || [])].sort().join(',');
-                    return correctStr === ansStr ? qPoints : 0;
-                }
-                return 0;
+                return result.isCorrect ? qPoints : 0;
             };
 
             const getQuestionOptions = (que) => {
@@ -1176,22 +1725,11 @@
                 setIsLateSubmission(true);
             }
 
-            const getScoreCorrectAnswers = (que) => {
-                if (Array.isArray(que.correctAnswers)) return que.correctAnswers;
-                if (que.correctAnswer !== null && que.correctAnswer !== undefined) return [que.correctAnswer];
-                return [];
-            };
-
             let score = 0;
             questions.forEach(que => {
-                const correctAnswers = getScoreCorrectAnswers(que);
-                if (que.type === 'mcq') {
-                    if (answers[que.id] === correctAnswers[0]) score += Number(que.score);
-                } else if (que.type === 'multi_select') {
-                    const correctStr = [...correctAnswers].sort().join(',');
-                    const ansStr = [...(answers[que.id] || [])].sort().join(',');
-                    if (correctStr === ansStr) score += Number(que.score);
-                }
+                if (que.type === 'essay') return;
+                const result = gradeQuestionAnswer(que, answers[que.id]);
+                if (result.isCorrect) score += Number(que.score);
             });
 
             const ipAddress = await Luminova.Services.GAS.getIPAddress();
@@ -1901,6 +2439,19 @@
                 return '';
             })();
 
+            // Generate grading results once
+            const gradingResults = {};
+            questions.forEach(que => {
+                const qId = que.questionId || que.id;
+                gradingResults[qId] = gradeQuestionAnswer(que, answers[que.id], { htmlSeparator: false });
+            });
+
+            const resolvedQuizTitle =
+              lang === 'ar'
+                ? (quiz?.titleAr || quiz?.title || quiz?.titleEn || Luminova.i18n[lang].results)
+                : (quiz?.titleEn || quiz?.title || quiz?.titleAr || Luminova.i18n[lang].results);
+            const resolvedHeading = lang === 'ar' ? `نتائج اختبار: ${resolvedQuizTitle}` : `Quiz Results: ${resolvedQuizTitle}`;
+
             // ── RESULT VISIBILITY SETTINGS ──────────────────────────
             const showResult = isEvaluation ? (quiz.showResult !== undefined ? !!quiz.showResult : (String(quiz.showResultsAfter) === 'true')) : true;
             const resultDisplayMode = isEvaluation ? (quiz.resultDisplayMode || 'hidden') : 'score_with_answers_and_explanations';
@@ -1916,18 +2467,32 @@
             const displayScore = isEvaluation && serverScore !== null ? serverScore : (() => {
                 let s = 0;
                 questions.forEach(que => {
-                    if (que.type === 'mcq') {
-                        if (answers[que.id] === que.correctAnswers?.[0]) s += Number(que.score);
-                    } else if (que.type === 'multi_select') {
-                        const correctStr = [...(que.correctAnswers || [])].sort().join(',');
-                        const ansStr = [...(answers[que.id] || [])].sort().join(',');
-                        if (correctStr === ansStr) s += Number(que.score);
-                    }
+                    if (que.type === 'essay') return;
+                    const qId = que.questionId || que.id;
+                    const result = gradingResults[qId];
+                    s += result.awardedPoints;
                 });
                 return s;
             })();
             const displayMaxScore = isEvaluation && serverMaxScore !== null ? serverMaxScore : maxScore;
             const displayPercentage = isEvaluation && serverPercentage !== null ? serverPercentage : (displayMaxScore > 0 ? Math.round((displayScore / displayMaxScore) * 100) : 0);
+
+            // Calculate summary counters for auto-gradable questions
+            let correctCount = 0;
+            let incorrectCount = 0;
+            let unansweredCount = 0;
+            questions.forEach(que => {
+                if (que.type === 'essay') return;
+                const qId = que.questionId || que.id;
+                const result = gradingResults[qId];
+                if (result.status === 'CORRECT') {
+                    correctCount++;
+                } else if (result.status === 'UNANSWERED') {
+                    unansweredCount++;
+                } else {
+                    incorrectCount++;
+                }
+            });
 
             // Hidden mode or showResult is false: show only submission confirmation
             if (isEvaluation && (!showResult || resultDisplayMode === 'hidden')) {
@@ -1976,124 +2541,185 @@
             return html`
             <div className="w-full">
                 ${verifyModal}
-                <div className="max-w-4xl mx-auto space-y-8 animate-fade-in pb-10">
-                    ${terminationReason !== 'completed' && html`
-                        <div className="text-center mt-6 px-6 py-4 bg-red-500/20 text-red-600 dark:text-red-500 border border-red-500/50 rounded-2xl font-bold text-lg max-w-xl mx-auto shadow-lg animate-pulse">
-                            ⚠️ ${terminationReason === 'time_expired' || terminationReason === 'time_expired_force'
-                            ? (lang === 'ar' 
-                                ? (isForceSubmitPolicy || terminationReason === 'time_expired_force'
-                                    ? 'انتهى الوقت المحدد لك، وتم سحب وتسجيل إجاباتك إجبارياً بنجاح.' 
-                                    : 'انتهى الوقت المسموح به، تم حفظ وتسليم إجاباتك تلقائياً.') 
-                                : 'Time is up. Your answers have been automatically saved and submitted.')
-                            : (lang === 'ar' ? 'تم سحب الامتحان وإرساله للإدارة نظراً لمخالفة قواعد المراقبة والخروج من الشاشة أكثر من مرة.' : 'Exam force-submitted and sent to administration due to repeated proctoring violations.')}
-                        </div>
-                    `}
-                    ${isLateSubmission && html`
-                        <div className="text-center mt-6 px-6 py-4 bg-yellow-500/20 text-yellow-600 dark:text-yellow-500 border border-yellow-500/50 rounded-2xl font-bold text-lg max-w-xl mx-auto shadow-lg animate-pulse">
-                            ⚠️ ${lang === 'ar' ? 'تم التسليم بنجاح، ولكن تم تسجيل تأخيرك عن الموعد المحدد.' : 'Successfully submitted, but marked as late.'}
-                        </div>
-                    `}
-                    <div className="glass-card p-6 rounded-2xl text-center py-16 bg-gradient-to-b from-rose-500/5 to-transparent border-t-8 border-t-rose-500 rounded-[3rem] shadow-2xl">
-                        <div className="w-full flex flex-col items-center">
-                            <h2 className="text-5xl font-black mb-6 uppercase tracking-wider text-zinc-900 dark:text-white">${Luminova.i18n[lang].results}</h2>
-                            ${canShowScore && html`
-                                <div className="text-8xl font-black text-rose-400 drop-shadow-2xl mb-4">${displayScore} <span className="text-4xl opacity-30 text-zinc-900 dark:text-white">/ ${displayMaxScore}</span></div>
-                            `}
-                            ${canShowPercentage && html`
-                                <div className="text-2xl font-black text-fuchsia-700 dark:text-fuchsia-300/80 mb-8">${displayPercentage}%</div>
-                            `}
-                            ${!canShowScore && !canShowPercentage && html`
-                                <p className="text-lg font-bold text-zinc-550 dark:text-gray-400 mb-8">${lang === 'ar' ? 'تم تسليم الامتحان بنجاح ✅' : 'Exam submitted successfully ✅'}</p>
-                            `}
-                            <button onClick=${goBack} className="px-10 py-4 text-xl rounded-full shadow-2xl hover:scale-105 bg-gradient-to-r from-rose-400 via-fuchsia-400 to-indigo-500 text-white font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">${lang === 'ar' ? 'العودة لصفحة الاختبارات' : 'Return to Subjects'}</button>
-                        </div>
-                    </div>
-                    
-                    ${canReview && questions.map((que, idx) => {
-                            let isCorrect = false;
-                            if (que.type === 'mcq') isCorrect = answers[que.id] === que.correctAnswers?.[0];
-                            if (que.type === 'multi_select') isCorrect = [...(que.correctAnswers || [])].sort().join(',') === [...(answers[que.id] || [])].sort().join(',');
-                            const studentProv = safeStudents.find(s => s.id === que?.studentId) || (que?.studentId === 's_founder' || que?.studentId === Luminova.FOUNDER.id ? Luminova.FOUNDER : null);
-
-                            // Use neutral border when correctness should not be revealed
-                            const borderClass = canShowCorrectAnswers
-                                ? (que.type !== 'essay' ? (isCorrect ? 'border-r-green-500' : 'border-r-red-500') : 'border-r-rose-500')
-                                : 'border-r-slate-500';
-
-                            // Use React.createElement for the keyed wrapper to avoid htm's {key,className} wrapper bug
-                            return window.React.createElement('div', { key: que?.id || `result-q-${idx}`, className: 'mb-8' }, html`
-                            <div className=${`glass-card p-6 rounded-2xl border-r-4 ${borderClass} relative`}>
-                                <div className="w-full flex flex-col">
-                                    <div className="absolute top-0 right-0 px-4 py-1 rounded-bl-xl bg-black/10 dark:bg-white/10 font-bold text-sm">
-                                        ${que.score} ${Luminova.i18n[lang].score}
-                                    </div>
-                                    
-                                    ${studentProv && html`
-                                        <div className="flex flex-row justify-between items-center bg-zinc-100/80 dark:bg-slate-800/40 p-3 rounded-xl border border-zinc-200 dark:border-slate-700/50 mb-4 w-full">
-                                            <div className="flex flex-col items-start gap-1">
-                                                <span className="text-xs text-zinc-550 dark:text-slate-400">المساهم بالمعلومة:</span>
-                                                <span className="text-sm font-bold text-yellow-600 dark:text-yellow-500">${lang === 'ar' ? studentProv.nameAr || studentProv.name : studentProv.nameEn || studentProv.name}</span>
-                                            </div>
-                                            <div className="relative inline-block">
-                                                <div className="relative w-12 h-12 flex-shrink-0 rounded-full flex items-center justify-center font-bold text-white shadow-lg overflow-hidden border-2 border-slate-600 shadow-sm shrink-0 bg-zinc-600">
-                                                    ${studentProv.image ? html`<img src=${studentProv.image} alt=${studentProv.name} className="w-full h-full object-cover rounded-full" />` : (studentProv.nameEn || studentProv.name || "ST").trim().substring(0, 2).toUpperCase()}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    `}
-
-                                    <h4 className="font-bold text-xl mt-4 mb-4 leading-relaxed">س ${idx + 1}: ${que.text || que.textAr}</h4>
-                                    
-                                    ${que.type !== 'essay' && canShowCorrectAnswers && html`
-                                        <div className="mt-6 p-5 rounded-xl bg-gray-50/80 dark:bg-gray-800/80 shadow-inner">
-                                            <p className="flex items-start gap-2 mb-2" dangerouslySetInnerHTML=${{ __html: `<span class='font-bold opacity-70 min-w-[120px]'>${Luminova.i18n[lang].correct}:</span> <strong class="text-green-600 dark:text-green-400 font-bold text-lg">${formatCorrectAnswerForDisplay(que, lang, true)}</strong>` }} />
-                                            ${!isCorrect && html`<p className="flex items-start gap-2 pt-2 border-t border-gray-200 dark:border-gray-700 mt-2" dangerouslySetInnerHTML=${{ __html: `<span class='font-bold opacity-70 min-w-[120px]'>${Luminova.i18n[lang].wrong}:</span> <strong class="text-red-500 dark:text-red-400 font-bold line-through opacity-80">${formatStudentAnswerForDisplay(que, answers[que.id], lang)}</strong>` }} />`}
-                                        </div>
-                                    `}
-
-                                    ${que.type !== 'essay' && !canShowCorrectAnswers && html`
-                                        <div className="mt-6 p-5 rounded-xl bg-gray-50/80 dark:bg-gray-800/80 shadow-inner">
-                                            <p className="flex items-start gap-2 mb-2" dangerouslySetInnerHTML=${{ __html: `<span class='font-bold opacity-70 min-w-[120px]'>${lang === 'ar' ? 'إجابتك' : 'Your Answer'}:</span> <strong class="text-slate-700 dark:text-slate-300 font-bold text-lg">${formatStudentAnswerForDisplay(que, answers[que.id], lang)}</strong>` }} />
-                                        </div>
-                                    `}
-
-                                    ${que.type === 'essay' && canShowModelAnswers && html`
-                                        <div className="mt-6 p-5 rounded-xl bg-gray-50/80 dark:bg-gray-800/80 shadow-inner space-y-4">
-                                            <div>
-                                                <p className="font-black text-rose-650 dark:text-rose-400 mb-2">${Luminova.i18n[lang].modelAnswer}</p>
-                                                <p className="text-md leading-relaxed p-4 bg-white/90 dark:bg-white/2 backdrop-blur-xl rounded border-l-4 border-l-rose-500 font-medium">${que.modelAnswer || que.modelAnswerAr}</p>
-                                            </div>
-                                            <div>
-                                                <p className="font-bold border-t pt-4 dark:border-gray-700 mb-2">${lang === 'ar' ? 'إجابتك' : 'Your Answer'}:</p>
-                                                <p className="text-md text-gray-600 dark:text-gray-400 p-4 bg-white/50 dark:bg-gray-900/50 rounded italic">${answers[que.id] || 'ـ بدون إجابة ـ'}</p>
-                                            </div>
-                                        </div>
-                                    `}
-
-                                    ${que.type === 'essay' && !canShowModelAnswers && html`
-                                        <div className="mt-6 p-5 rounded-xl bg-gray-50/80 dark:bg-gray-800/80 shadow-inner space-y-4">
-                                            <div>
-                                                <p className="font-bold mb-2">${lang === 'ar' ? 'إجابتك' : 'Your Answer'}:</p>
-                                                <p className="text-md text-gray-600 dark:text-gray-400 p-4 bg-white/50 dark:bg-gray-900/50 rounded italic">${answers[que.id] || 'ـ بدون إجابة ـ'}</p>
-                                            </div>
-                                        </div>
-                                    `}
-
-                                    ${canShowExplanations && (que.explanation || que.explanationAr) && html`
-                                        <div className="mt-6 p-5 rounded-xl bg-brand-DEFAULT/15 border border-brand-DEFAULT/30 relative overflow-hidden">
-                                            <div className="absolute -right-4 -top-4 opacity-10 text-8xl text-brand-DEFAULT rotate-12">💡</div>
-                                            <p className="font-black text-brand-DEFAULT mb-2 flex items-center gap-2">💡 ${Luminova.i18n[lang].explanation}</p>
-                                            <p className="text-md leading-relaxed font-bold z-10 relative">${que.explanation || que.explanationAr}</p>
-                                        </div>
-                                    `}
-                                </div>
+                <div className="min-h-screen flex items-center justify-center p-4 bg-[#F3EFFB] dark:bg-zinc-950 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-96 h-96 bg-rose-500/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
+                    <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2"></div>
+                    <div className="relative z-10 max-w-4xl w-full flex flex-col pt-10 pb-20">
+                        ${isLateSubmission && html`
+                            <div className="text-center mt-6 px-6 py-4 bg-yellow-500/20 text-yellow-600 dark:text-yellow-500 border border-yellow-500/50 rounded-2xl font-bold text-lg max-w-xl mx-auto shadow-lg animate-pulse">
+                                ⚠️ ${lang === 'ar' ? 'تم التسليم بنجاح، ولكن تم تسجيل تأخيرك عن الموعد المحدد.' : 'Successfully submitted, but marked as late.'}
                             </div>
-                    `);
-                        })}
+                        `}
+                        <div className="glass-card p-6 rounded-2xl text-center py-16 bg-gradient-to-b from-rose-500/5 to-transparent border-t-8 border-t-rose-500 rounded-[3rem] shadow-2xl">
+                            <div className="w-full flex flex-col items-center">
+                                <h2 className="text-5xl font-black mb-6 uppercase tracking-wider text-zinc-900 dark:text-white">${resolvedHeading}</h2>
+                                ${canShowScore && html`
+                                    <div className="text-8xl font-black text-rose-400 drop-shadow-2xl mb-4">${displayScore} <span className="text-4xl opacity-30 text-zinc-900 dark:text-white">/ ${displayMaxScore}</span></div>
+                                `}
+                                ${canShowPercentage && html`
+                                    <div className="text-2xl font-black text-fuchsia-700 dark:text-fuchsia-300/80 mb-4">${displayPercentage}%</div>
+                                `}
+                                ${canShowScore && html`
+                                    <div className="grid grid-cols-3 gap-4 max-w-md w-full mt-6 mb-8">
+                                        <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-4 text-center">
+                                            <div className="text-xs font-bold text-green-600 dark:text-green-400 mb-1">${lang === 'ar' ? 'إجابات صحيحة' : 'Correct'}</div>
+                                            <div className="text-3xl font-black text-green-600 dark:text-green-400">${correctCount}</div>
+                                        </div>
+                                        <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 text-center">
+                                            <div className="text-xs font-bold text-red-500 dark:text-red-400 mb-1">${lang === 'ar' ? 'إجابات خاطئة' : 'Incorrect'}</div>
+                                            <div className="text-3xl font-black text-red-500 dark:text-red-400">${incorrectCount}</div>
+                                        </div>
+                                        <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 text-center">
+                                            <div className="text-xs font-bold text-amber-600 dark:text-amber-500 mb-1">${lang === 'ar' ? 'لم تتم الإجابة' : 'Unanswered'}</div>
+                                            <div className="text-3xl font-black text-amber-600 dark:text-amber-500">${unansweredCount}</div>
+                                        </div>
+                                    </div>
+                                `}
+                                ${!canShowScore && !canShowPercentage && html`
+                                    <p className="text-lg font-bold text-zinc-550 dark:text-gray-400 mb-8">${lang === 'ar' ? 'تم تسليم الامتحان بنجاح ✅' : 'Exam submitted successfully ✅'}</p>
+                                `}
+                                <button onClick=${goBack} className="px-10 py-4 text-xl rounded-full shadow-2xl hover:scale-105 bg-gradient-to-r from-rose-400 via-fuchsia-400 to-indigo-500 text-white font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">${lang === 'ar' ? 'العودة لصفحة الاختبارات' : 'Return to Subjects'}</button>
+                            </div>
+                        </div>
+                        
+                        ${canReview && questions.map((que, idx) => {
+                                const qId = que.questionId || que.id;
+                                const result = gradingResults[qId];
+                                const studentProv = safeStudents.find(s => s.id === que?.studentId) || (que?.studentId === 's_founder' || que?.studentId === Luminova.FOUNDER.id ? Luminova.FOUNDER : null);
+
+                                const borderClass = canShowCorrectAnswers
+                                    ? (que.type === 'essay' 
+                                        ? 'border-r-rose-500' 
+                                        : (result.status === 'CORRECT' 
+                                            ? 'border-r-green-500' 
+                                            : (result.status === 'UNANSWERED' 
+                                                ? 'border-r-amber-500' 
+                                                : 'border-r-red-500')))
+                                    : 'border-r-slate-500';
+
+                                // Single-root outer div to avoid htm's {key,className} wrapper bug
+                                return html`
+                                <div key=${`result-q-${idx}`} className="mb-8">
+                                    <div className=${`glass-card p-6 rounded-2xl border-r-4 ${borderClass} relative`}>
+                                        <div className="w-full flex flex-col">
+                                            <div className="absolute top-0 right-0 px-4 py-1 rounded-bl-xl bg-black/10 dark:bg-white/10 font-bold text-sm">
+                                                ${resolveQuestionPoints(que)} ${Luminova.i18n[lang].score}
+                                            </div>
+                                            
+                                            ${studentProv && html`
+                                                <div className="flex flex-row justify-between items-center bg-zinc-100/80 dark:bg-slate-800/40 p-3 rounded-xl border border-zinc-200 dark:border-slate-700/50 mb-4 w-full">
+                                                    <div className="flex flex-col items-start gap-1">
+                                                        <span className="text-xs text-zinc-550 dark:text-slate-400">المساهم بالمعلومة:</span>
+                                                        <span className="text-sm font-bold text-yellow-600 dark:text-yellow-500">${lang === 'ar' ? studentProv.nameAr || studentProv.name : studentProv.nameEn || studentProv.name}</span>
+                                                    </div>
+                                                    <div className="relative inline-block">
+                                                        <div className="relative w-12 h-12 flex-shrink-0 rounded-full flex items-center justify-center font-bold text-white shadow-lg overflow-hidden border-2 border-slate-600 shadow-sm shrink-0 bg-zinc-600">
+                                                            ${studentProv.image ? html`<img src=${studentProv.image} alt=${studentProv.name} className="w-full h-full object-cover rounded-full" />` : (studentProv.nameEn || studentProv.name || "ST").trim().substring(0, 2).toUpperCase()}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            `}
+
+                                            <h4 className="font-bold text-xl mt-4 mb-4 leading-relaxed">س: ${que.text || que.textAr}</h4>
+                                            
+                                            ${que.type !== 'essay' ? (
+                                                result.status === 'CORRECT' ? html`
+                                                    <div className="mt-6 p-5 rounded-xl bg-gray-50/80 dark:bg-gray-800/80 shadow-inner">
+                                                        <p className="flex items-start gap-2 mb-2">
+                                                            <span className="font-bold opacity-70 min-w-[120px]">${lang === 'ar' ? 'الحالة' : 'Status'}:</span>
+                                                            <strong className="text-green-600 dark:text-green-400 font-bold text-lg">${lang === 'ar' ? 'إجابة صحيحة' : 'Correct'}</strong>
+                                                        </p>
+                                                        <p className="flex items-start gap-2 pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
+                                                            <span className="font-bold opacity-70 min-w-[120px]">${lang === 'ar' ? 'إجابتك' : 'Your Answer'}:</span>
+                                                            <strong className="text-green-600 dark:text-green-400 font-bold text-lg">${result.selectedDisplay}</strong>
+                                                        </p>
+                                                    </div>
+                                                ` : result.status === 'INCORRECT' ? html`
+                                                    <div className="mt-6 p-5 rounded-xl bg-gray-50/80 dark:bg-gray-800/80 shadow-inner">
+                                                        <p className="flex items-start gap-2 mb-2">
+                                                            <span className="font-bold opacity-70 min-w-[120px]">${lang === 'ar' ? 'الحالة' : 'Status'}:</span>
+                                                            <strong className="text-red-500 dark:text-red-400 font-bold text-lg">${lang === 'ar' ? 'إجابة خاطئة' : 'Incorrect'}</strong>
+                                                        </p>
+                                                        <p className="flex items-start gap-2 pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
+                                                            <span className="font-bold opacity-70 min-w-[120px]">${lang === 'ar' ? 'إجابتك' : 'Your Answer'}:</span>
+                                                            <strong className="text-red-500 dark:text-red-400 font-bold line-through opacity-80">${result.selectedDisplay}</strong>
+                                                        </p>
+                                                        ${canShowCorrectAnswers && html`
+                                                            <p className="flex items-start gap-2 pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
+                                                                <span className="font-bold opacity-70 min-w-[120px]">${lang === 'ar' ? 'الإجابة الصحيحة' : 'Correct Answer'}:</span>
+                                                                <strong className="text-green-600 dark:text-green-400 font-bold text-lg">${result.correctDisplay}</strong>
+                                                            </p>
+                                                        `}
+                                                    </div>
+                                                ` : html`
+                                                    <div className="mt-6 p-5 rounded-xl bg-gray-50/80 dark:bg-gray-800/80 shadow-inner">
+                                                        <p className="flex items-start gap-2 mb-2">
+                                                            <span className="font-bold opacity-70 min-w-[120px]">${lang === 'ar' ? 'الحالة' : 'Status'}:</span>
+                                                            <strong className="text-amber-500 dark:text-amber-400 font-bold text-lg">${lang === 'ar' ? 'لم تتم الإجابة' : 'Unanswered'}</strong>
+                                                        </p>
+                                                        <p className="flex items-start gap-2 pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
+                                                            <span className="font-bold opacity-70 min-w-[120px]">${lang === 'ar' ? 'إجابة الطالب' : 'Student Answer'}:</span>
+                                                            <strong className="text-slate-500 dark:text-slate-400 font-bold text-lg">${result.selectedDisplay}</strong>
+                                                        </p>
+                                                        ${canShowCorrectAnswers && html`
+                                                            <p className="flex items-start gap-2 pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
+                                                                <span className="font-bold opacity-70 min-w-[120px]">${lang === 'ar' ? 'الإجابة الصحيحة' : 'Correct Answer'}:</span>
+                                                                <strong className="text-green-600 dark:text-green-400 font-bold text-lg">${result.correctDisplay}</strong>
+                                                            </p>
+                                                        `}
+                                                    </div>
+                                                `
+                                            ) : (
+                                                result.status === 'UNANSWERED' ? html`
+                                                    <div className="mt-6 p-5 rounded-xl bg-gray-50/80 dark:bg-gray-800/80 shadow-inner space-y-4">
+                                                        <p className="flex items-start gap-2 mb-2">
+                                                            <span className="font-bold opacity-70 min-w-[120px]">${lang === 'ar' ? 'الحالة' : 'Status'}:</span>
+                                                            <strong className="text-amber-500 dark:text-amber-400 font-bold text-lg">${lang === 'ar' ? 'لم تتم الإجابة' : 'Unanswered'}</strong>
+                                                        </p>
+                                                        <p className="flex items-start gap-2 pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
+                                                            <span className="font-bold opacity-70 min-w-[120px]">${lang === 'ar' ? 'إجابة الطالب' : 'Student Answer'}:</span>
+                                                            <strong className="text-slate-500 dark:text-slate-400 font-bold text-lg">${result.selectedDisplay}</strong>
+                                                        </p>
+                                                        ${canShowModelAnswers && (que.modelAnswer || que.modelAnswerAr) && html`
+                                                            <div className="pt-2 border-t border-gray-200 dark:border-gray-700 mt-2">
+                                                                <p className="font-black text-rose-650 dark:text-rose-400 mb-2">${Luminova.i18n[lang].modelAnswer}</p>
+                                                                <p className="text-md leading-relaxed p-4 bg-white/90 dark:bg-white/2 backdrop-blur-xl rounded border-l-4 border-l-rose-500 font-medium">${que.modelAnswer || que.modelAnswerAr}</p>
+                                                            </div>
+                                                        `}
+                                                    </div>
+                                                ` : html`
+                                                    <div className="mt-6 p-5 rounded-xl bg-gray-50/80 dark:bg-gray-800/80 shadow-inner space-y-4">
+                                                        ${canShowModelAnswers && (que.modelAnswer || que.modelAnswerAr) && html`
+                                                            <div>
+                                                                <p className="font-black text-rose-650 dark:text-rose-400 mb-2">${Luminova.i18n[lang].modelAnswer}</p>
+                                                                <p className="text-md leading-relaxed p-4 bg-white/90 dark:bg-white/2 backdrop-blur-xl rounded border-l-4 border-l-rose-500 font-medium">${que.modelAnswer || que.modelAnswerAr}</p>
+                                                            </div>
+                                                        `}
+                                                        <div>
+                                                            <p className="font-bold border-t pt-4 dark:border-gray-700 mb-2">${lang === 'ar' ? 'إجابتك' : 'Your Answer'}:</p>
+                                                            <p className="text-md text-gray-600 dark:text-gray-400 p-4 bg-white/50 dark:bg-gray-900/50 rounded italic">${answers[que.id] || 'ـ بدون إجابة ـ'}</p>
+                                                        </div>
+                                                    </div>
+                                                `
+                                            )}
+
+                                            ${canShowExplanations && (que.explanation || que.explanationAr) && html`
+                                                <div className="mt-6 p-5 rounded-xl bg-brand-DEFAULT/15 border border-brand-DEFAULT/30 relative overflow-hidden">
+                                                    <div className="absolute -right-4 -top-4 opacity-10 text-8xl text-brand-DEFAULT rotate-12">💡</div>
+                                                    <p className="font-black text-brand-DEFAULT mb-2 flex items-center gap-2">💡 ${Luminova.i18n[lang].explanation}</p>
+                                                    <p className="text-md leading-relaxed font-bold z-10 relative">${que.explanation || que.explanationAr}</p>
+                                                </div>
+                                            `}
+                                        </div>
+                                    </div>
+                                </div>
+                                `;
+                            })}
+                    </div>
                 </div>
-            </div>
-        `;
+            </div>`;
         }
+
 
         if (!q) {
             return html`
@@ -2193,7 +2819,8 @@
                                                 ? 'bg-green-500 border-green-500 text-white'
                                                 : 'border-zinc-300 dark:border-white/10 text-zinc-400')
                                     }`;
-                                    return window.React.createElement('div', { key: `stepper-step-${s.id}`, className: 'flex items-center gap-4' }, ...[].concat(html`
+                                    return html`
+                                        <div key=${`stepper-step-${s.id}`} className="flex items-center gap-4">
                                             <div className=${circleClass}>
                                                 ${isDone ? '✓' : s.num}
                                             </div>
@@ -2203,7 +2830,8 @@
                                                     <span className="text-xs text-zinc-550 dark:text-[#C5A059] font-bold">${s.subtext}</span>
                                                 `}
                                             </div>
-                                    `));
+                                        </div>
+                                    `;
                                 });
                             })()}
                         </div>
@@ -2632,10 +3260,17 @@
                                 ? 'opacity-70 cursor-not-allowed' 
                                 : ''
                         }`;
-                        return window.React.createElement('button', { key: `opt-${q.id}-${i}`, onClick: handleMCQClick, disabled: isSubmitting || isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id)), className: btnClass }, ...[].concat(html`
-                                    <span className="inline-block w-8 h-8 rounded-full bg-zinc-100 dark:bg-white/10 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-white/5 text-center leading-8 mr-4 ml-4 text-sm">${String.fromCharCode(65 + i)}</span>
-                                    ${opt}
-                                `));
+                        return html`
+                            <button 
+                                key=${`opt-${q.id}-${i}`}
+                                onClick=${handleMCQClick}
+                                disabled=${isSubmitting || isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))}
+                                className=${btnClass}
+                            >
+                                <span className="inline-block w-8 h-8 rounded-full bg-zinc-100 dark:bg-white/10 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-white/5 text-center leading-8 mr-4 ml-4 text-sm">${String.fromCharCode(65 + i)}</span>
+                                ${opt}
+                            </button>
+                        `;
                         })}
                         </div>
                     `}
@@ -2664,12 +3299,19 @@
                         ? 'bg-[#1E293B] border-[#1E293B] text-white shadow-md dark:bg-[#020C1B] dark:border-[#020C1B] dark:text-[#C5A059]' 
                         : 'border-zinc-300 dark:border-[#A5C4D4]/20'
                 }`;
-                return window.React.createElement('button', { key: `opt-${q.id}-${i}`, disabled: isSubmitting || isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id)), onClick: handleMultiClick, className: btnClass }, ...[].concat(html`
-                                        <div className=${checkboxClass}>
-                                            ${isSelected && '\u2713'}
-                                        </div>
-                                        ${opt}
-                                `));
+                return html`
+                    <button 
+                        key=${`opt-${q.id}-${i}`}
+                        disabled=${isSubmitting || isFeedbackRevealed || (quiz.feedbackMode === 'immediate' && revealedQuestions.has(q.id))}
+                        onClick=${handleMultiClick}
+                        className=${btnClass}
+                    >
+                        <div className=${checkboxClass}>
+                            ${isSelected && '\u2713'}
+                        </div>
+                        ${opt}
+                    </button>
+                `;
             })}
                         </div>
                     `}
